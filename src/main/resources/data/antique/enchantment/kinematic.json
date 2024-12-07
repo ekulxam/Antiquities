@@ -1,0 +1,21 @@
+{
+  "anvil_cost": 2,
+  "description": {
+    "translate": "enchantment.antique.kinematic"
+  },
+  "max_cost": {
+    "base": 20,
+    "per_level_above_first": 6
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 0,
+    "per_level_above_first": 6
+  },
+  "slots": [
+    "hand"
+  ],
+  "exclusive_set": "#antique:exclusive_set/scepter",
+  "supported_items": "antique:weightless_scepter",
+  "weight": 5
+}

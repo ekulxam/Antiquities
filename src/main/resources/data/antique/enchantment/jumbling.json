@@ -1,0 +1,21 @@
+{
+  "anvil_cost": 2,
+  "description": {
+    "translate": "enchantment.antique.jumbling"
+  },
+  "max_cost": {
+    "base": 20,
+    "per_level_above_first": 6
+  },
+  "max_level": 1,
+  "min_cost": {
+    "base": 0,
+    "per_level_above_first": 6
+  },
+  "slots": [
+    "hand"
+  ],
+  "exclusive_set": "#antique:exclusive_set/bundle",
+  "supported_items": "#minecraft:bundles",
+  "weight": 5
+}

@@ -1,0 +1,21 @@
+{
+  "variants": {
+    "part=default": {
+      "model": "antique:block/pedestal"
+    },
+    "part=bottom": {
+      "model": "antique:block/pedestal_bottom"
+    },
+    "part=middle": [
+      {
+        "model": "antique:block/pedestal_middle"
+      },
+      {
+        "model": "antique:block/pedestal_middle_cracked"
+      }
+    ],
+    "part=top": {
+      "model": "antique:block/pedestal_top"
+    }
+  }
+}

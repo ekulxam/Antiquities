@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "C ",
+    "CH",
+    "C "
+  ],
+  "key": {
+    "H": [
+      "minecraft:honeycomb"
+    ],
+    "C": [
+      "minecraft:copper_ingot"
+    ]
+  },
+  "result": {
+    "id": "antique:copper_handle",
+    "count": 1
+  }
+}

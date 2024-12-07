@@ -1,0 +1,32 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "antique:item/weightless_scepter_inventory"
+        },
+        "when": [
+          "gui",
+          "ground"
+        ]
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "antique:item/weightless_scepter"
+        },
+        "when": [
+          "firstperson_righthand",
+          "firstperson_lefthand",
+          "thirdperson_righthand",
+          "thirdperson_lefthand",
+          "head",
+          "fixed"
+        ]
+      }
+    ],
+    "property": "minecraft:display_context"
+  }
+}

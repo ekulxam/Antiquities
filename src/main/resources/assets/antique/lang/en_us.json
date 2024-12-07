@@ -1,0 +1,20 @@
+{
+  "enchantment.antique.projecting": "Projecting",
+  "enchantment.antique.jumbling": "Jumbling",
+  "enchantment.antique.curse_of_voiding": "Curse of Voiding",
+  "enchantment.antique.kinematic": "Kinematic",
+  "enchantment.antique.impetus": "Impetus",
+
+  "block.antique.pedestal": "Pedestal",
+  "block.antique.hollow_core": "Hollow Core",
+
+  "item.antique.netherite_pauldrons": "Netherite Pauldrons",
+  "item.antique.satchel": "Satchel",
+  "item.antique.fur_boots": "Fur Boots",
+  "item.antique.weightless_scepter": "Weightless Scepter",
+  "item.antique.copper_handle": "Copper Handle",
+
+  "effect.antique.bouncy": "Bouncy",
+
+  "itemGroup.antique.antiquities": "Antiquities"
+}

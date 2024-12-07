@@ -1,0 +1,32 @@
+{
+  "required": true,
+  "package": "net.hollowed.antique.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "BundleContentsComponentMixin",
+    "BundleContentsMixin",
+    "BundleItemMixin",
+    "EntityBounceMixin",
+    "FireChargeItemMixin",
+    "FurBootsFreezeImmunityMixin",
+    "FurBootsMagmaMixin",
+    "FurBootsSoulSandMixin",
+    "LivingEntityMixin",
+    "MinecartItemAccessor",
+    "MobEntitySoundAccessor",
+    "PlayerEntityMixin",
+    "PotionItemMixin",
+    "PowderSnowWalkableMixin",
+    "ProjectileEntityMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "ArmorStandEntityRendererMixin",
+    "BundleMouseActionsMixin",
+    "BundleTooltipMixin",
+    "EntityRenderDispatcherAccessor",
+    "PlayerEntityRendererMixin"
+  ]
+}

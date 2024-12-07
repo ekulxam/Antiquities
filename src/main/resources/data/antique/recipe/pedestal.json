@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "_S_",
+    " C ",
+    "_S_"
+  ],
+  "key": {
+    "_": [
+      "minecraft:stone_brick_slab"
+    ],
+    "S": [
+      "minecraft:stone_bricks"
+    ],
+    "C": [
+      "minecraft:chiseled_stone_bricks"
+    ]
+  },
+  "result": {
+    "id": "antique:pedestal",
+    "count": 1
+  }
+}
