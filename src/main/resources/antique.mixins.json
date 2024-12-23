@@ -27,6 +27,9 @@
     "BundleMouseActionsMixin",
     "BundleTooltipMixin",
     "EntityRenderDispatcherAccessor",
-    "PlayerEntityRendererMixin"
+    "FirstPersonItemMixin",
+    "MouseMixin",
+    "PlayerEntityRendererMixin",
+    "PlayerHeldItemMixin"
   ]
 }

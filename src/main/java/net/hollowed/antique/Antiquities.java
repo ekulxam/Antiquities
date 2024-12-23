@@ -10,8 +10,9 @@ import net.hollowed.antique.blocks.ModBlocks;
 import net.hollowed.antique.blocks.entities.ModBlockEntities;
 import net.hollowed.antique.effect.BounceEffect;
 import net.hollowed.antique.enchantments.ModEnchantments;
+import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.items.ModItems;
-import net.hollowed.antique.networking.PedestalPacketPayload;
+import net.hollowed.antique.networking.*;
 import net.hollowed.antique.util.ModLootTableModifiers;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -46,10 +47,19 @@ public class Antiquities implements ModInitializer {
 		ModBlocks.initialize();
 		ModBlockEntities.initialize();
 		ModLootTableModifiers.modifyLootTables();
+		ModEntities.initialize();
 
 		PayloadTypeRegistry.playS2C().register(PedestalPacketPayload.ID, PedestalPacketPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(PaleWardenTickPacketPayload.ID, PaleWardenTickPacketPayload.CODEC);
+		PayloadTypeRegistry.playC2S().register(SatchelPacketPayload.ID, SatchelPacketPayload.CODEC);
+
+		SatchelPacketReceiver.registerServerPacket();
+
+		PaleWardenTickPacketReceiver.registerServerPacket();
 
 		ModItems.initialize();
+
+		ModKeyBindings.initialize();
 
 		// Register the group.
 		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_GROUP_KEY, ANTIQUITIES_GROUP);
@@ -93,6 +103,8 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(ModBlocks.HOLLOW_CORE);
 			itemGroup.add(ModItems.WEIGHTLESS_SCEPTER);
 			itemGroup.add(ModBlocks.PEDESTAL);
+			itemGroup.add(ModItems.PALE_WARDENS_GREATSWORD);
+			itemGroup.add(ModItems.PALE_WARDEN_STATUE);
 		});
 	}
 }

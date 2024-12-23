@@ -206,7 +206,6 @@ public abstract class BundleItemMixin extends Item {
         BundleContentsComponent.Builder builder = new BundleContentsComponent.Builder(contents);
         ItemStack itemStack = builder.removeSelected();
         if (hasProjectingEnchantment) {
-            System.out.println("Success");
             if (itemStack != null && itemStack.getItem() instanceof BlockItem && ((BlockItem) itemStack.getItem()).getBlock() instanceof TntBlock) {
                 // Cancel the pop and handle TNT launching
                 boolean hasFlintAndSteel = player.getMainHandStack().getItem() instanceof FlintAndSteelItem ||
@@ -224,7 +223,7 @@ public abstract class BundleItemMixin extends Item {
                     if (item.getItem() instanceof FlintAndSteelItem) {
                         item.damage(1, player);
                     } else {
-                        item.decrementUnlessCreative(1, player);
+                        item.decrement(1);
                     }
 
                     // Spawn a TNT entity and set its fuse
@@ -243,9 +242,7 @@ public abstract class BundleItemMixin extends Item {
 
                     // Update the builder by removing one TNT item directly
                     builder.removeSelected();
-                    if (!player.isCreative()) {
-                        itemStack.decrement(1);
-                    }
+                    itemStack.decrement(1);
                     builder.add(itemStack);
                     BundleContentsComponent updatedContents = builder.build();
 
@@ -284,9 +281,7 @@ public abstract class BundleItemMixin extends Item {
                         cir.setReturnValue(Optional.empty());
                         cir.cancel();
 
-                        if (!player.isCreative()) {
-                            itemStack.decrement(1);
-                        }
+                        itemStack.decrement(1);
                         builder.add(itemStack);
                         BundleContentsComponent updatedContents = builder.build();
                         // Reassign the modified contents back to the stack's data

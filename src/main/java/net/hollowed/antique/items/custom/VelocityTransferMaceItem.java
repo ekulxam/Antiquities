@@ -14,12 +14,24 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.thrown.EnderPearlEntity;
+import net.minecraft.item.BowItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.RangedWeaponItem;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.stat.Stats;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 
@@ -28,7 +40,7 @@ import java.util.*;
 public class VelocityTransferMaceItem extends Item {
 
     private static final Map<UUID, Queue<Vec3d>> previousPositions = new HashMap<>();
-    private static final int POSITION_HISTORY_SIZE = 5;
+    private static final int POSITION_HISTORY_SIZE = 10;
 
     public VelocityTransferMaceItem(Settings settings) {
         super(settings);
@@ -44,6 +56,117 @@ public class VelocityTransferMaceItem extends Item {
                 .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.2, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                 .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.75, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                 .build();
+    }
+
+    @Override
+    public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+        if (!(user instanceof PlayerEntity player)) {
+            return false;
+        }
+
+        Vec3d multiplier = new Vec3d(0, 0, 0);
+
+        if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic") || EnchantmentListener.hasCustomEnchantment(stack, "antique:impetus")) {
+            if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
+                multiplier = new Vec3d(-1, -1, -1);
+            } else {
+                multiplier = new Vec3d(1, -1, 1);
+            }
+
+            int chargeTime = user.getItemUseTime();
+
+            // Check if the player is targeting a block
+            HitResult hitResult = player.raycast(5.0D, 0.0F, false);
+            if (hitResult.getType() == HitResult.Type.BLOCK) {
+                // Interact with a block
+                float velocity = Math.clamp(chargeTime * 0.015F + 1F, 1.0F, 4.0F);
+
+                if (!world.isClient) {
+                    player.setVelocity(player.getRotationVec(0).multiply(multiplier).multiply(velocity));
+                    player.velocityModified = true;
+                }
+
+                world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ITEM_MACE_SMASH_AIR, SoundCategory.NEUTRAL, 1F, 0.9f + (player.getRandom().nextFloat() * .2f));
+                player.incrementStat(Stats.USED.getOrCreateStat(this));
+                user.swingHand(user.getActiveHand());
+                if (!user.getWorld().isClient) {
+                    ((PlayerEntity) user).getItemCooldownManager().set(stack, 40);
+                    if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
+                        user.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, (int) velocity * 30, 0, true, true));
+                    } else {
+                        user.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, (int) velocity * 30, 0, true, true));
+                    }
+                }
+                System.out.println("hit: " + hitResult);
+                return false;
+            } else {
+                // Spawn a hitbox and interact with entities inside it
+                Vec3d forwardVec = user.getRotationVec(1.0F); // Get the direction the player is facing
+                Vec3d hitboxCenter = user.getPos().add(forwardVec.multiply(2.0)); // Position hitbox 2 blocks ahead
+                Box hitbox = new Box(hitboxCenter.subtract(1, 1, 1), hitboxCenter.add(1, 1, 1)); // 2x2x2 box
+
+                // Get all entities in the hitbox, excluding the player
+                List<Entity> entities = world.getOtherEntities(user, hitbox, entity -> entity instanceof LivingEntity);
+
+                for (Entity entity : entities) {
+                    if (entity instanceof LivingEntity target) {
+                        // Apply damage
+                        float damage = Math.clamp((float) chargeTime * 0.1F, 0.0F, 10.0F);
+                        if (target.getWorld() instanceof ServerWorld serverWorld) {
+                            target.damage(serverWorld,
+                                    target.getWorld().getDamageSources().playerAttack(player), damage);
+                        }
+
+                        // Knockback
+                        Vec3d knockback = forwardVec.multiply(1.5); // Apply knockback in player's direction
+                        target.addVelocity(knockback.x, knockback.y, knockback.z);
+                        target.velocityModified = true;
+
+                        // Apply a custom effect
+                        if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
+                            target.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, 60, 0, true, true));
+                        } else {
+                            target.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, 30, 0, true, true));
+                        }
+                    }
+                }
+
+                // Play a sound effect and set cooldown
+                if (!entities.isEmpty()) {
+                    world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ITEM_MACE_SMASH_AIR, SoundCategory.NEUTRAL, 1F, 1.0F);
+                    ((PlayerEntity) user).getItemCooldownManager().set(stack, 40);
+                }
+                user.swingHand(user.getActiveHand());
+                System.out.println("miss: " + hitResult);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int getMaxUseTime(ItemStack stack, LivingEntity user) {
+        return 72000;
+    }
+
+    @Override
+    public ActionResult use(World world, PlayerEntity user, Hand hand) {
+        if (EnchantmentListener.hasCustomEnchantment(user.getStackInHand(hand), "antique:kinematic")) {
+            user.setCurrentHand(hand);
+            return ActionResult.PASS;
+        } else if (EnchantmentListener.hasCustomEnchantment(user.getStackInHand(hand), "antique:impetus")) {
+            user.setCurrentHand(hand);
+            return ActionResult.PASS;
+        }
+        return ActionResult.FAIL;
+    }
+
+    @Override
+    public UseAction getUseAction(ItemStack stack) {
+        if (EnchantmentListener.hasCustomEnchantment(stack, "antique:impetus")) {
+            return UseAction.BOW;
+        }
+        return UseAction.NONE;
     }
 
     @Override
@@ -79,7 +202,7 @@ public class VelocityTransferMaceItem extends Item {
                 if (effectiveVelocity.length() > 0.1) { // Adjust the threshold if needed
 
                     // Apply damage based on the velocity magnitude
-                    float damage = (float) (Math.abs(effectiveVelocity.length()) * 3.5);
+                    float damage = Math.clamp((float) (Math.abs(effectiveVelocity.length()) * 3.5), 0, 30);
                     target.damage((ServerWorld) attacker.getWorld(),
                             attacker.getWorld().getDamageSources().playerAttack(player), damage);
 
@@ -122,6 +245,12 @@ public class VelocityTransferMaceItem extends Item {
                         player.velocityModified = true;
 
                         player.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, 30, 0, true, true));
+                    } else if (EnchantmentListener.hasCustomEnchantment(stack, "antique:impetus")) {
+                        Vec3d playerVelocity = effectiveVelocity.multiply(1, 0.75, 1); // Double the velocity
+                        player.setVelocity(playerVelocity);
+                        player.velocityModified = true;
+
+                        player.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, 30, 0, true, true));
                     }
 
                     if (target instanceof PlayerEntity && !EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
@@ -131,12 +260,7 @@ public class VelocityTransferMaceItem extends Item {
                     }
                 }
             }
-
-            // Store the current position for the next tick
-            previousPositions.put(playerId, positionHistory);
         }
-
-        previousPositions.clear();
         return super.postHit(stack, target, attacker);
     }
 

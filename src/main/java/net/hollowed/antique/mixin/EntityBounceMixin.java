@@ -9,6 +9,7 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import net.hollowed.antique.Antiquities;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.particle.DustParticleEffect;
 import net.minecraft.particle.ParticleEffect;
 import net.minecraft.server.world.ServerWorld;
@@ -95,7 +96,10 @@ public abstract class EntityBounceMixin {
             boolean Z = !MathHelper.approximatelyEquals(velocity.z, adjustedVec.z);
             boolean Y = !MathHelper.approximatelyEquals(velocity.y, adjustedVec.y);
 
-            if ((livingEntity.hasStatusEffect(Antiquities.BOUNCE_EFFECT) || livingEntity.hasStatusEffect(Antiquities.VOLATILE_BOUNCE_EFFECT) && !this.isSpectator())) {
+            if (livingEntity.hasStatusEffect(Antiquities.BOUNCE_EFFECT) || livingEntity.hasStatusEffect(Antiquities.VOLATILE_BOUNCE_EFFECT) && !this.isSpectator()) {
+                if ((Object) this instanceof PlayerEntity player && player.isGliding()) {
+                    return;
+                }
                 double airResistanceCounter = 1.05;
 
                 if (!this.isOnGround()) {

@@ -1,10 +1,10 @@
 package net.hollowed.antique.items;
 
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.items.custom.FurBootsItem;
-import net.hollowed.antique.items.custom.NetheritePauldronsItem;
-import net.hollowed.antique.items.custom.SatchelItem;
-import net.hollowed.antique.items.custom.VelocityTransferMaceItem;
+import net.hollowed.antique.component.ModComponents;
+import net.hollowed.antique.component.SatchelInventoryComponent;
+import net.hollowed.antique.entities.ModEntities;
+import net.hollowed.antique.items.custom.*;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.BundleContentsComponent;
 import net.minecraft.item.*;
@@ -25,7 +25,7 @@ public class ModItems {
 
     public static final Item SATCHEL = registerItem("satchel", new SatchelItem(ModArmorMaterials.ADVENTURE_BASIC, EquipmentType.LEGGINGS, new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "satchel")))
-            .component(DataComponentTypes.BUNDLE_CONTENTS, BundleContentsComponent.DEFAULT)
+            .component(ModComponents.SATCHEL_INVENTORY, new SatchelInventoryComponent(new ItemStack[8]))
             .maxCount(1).fireproof()
     ));
 
@@ -39,8 +39,18 @@ public class ModItems {
             .maxCount(1).attributeModifiers(VelocityTransferMaceItem.createAttributeModifiers()).maxDamage(500).enchantable(10).rarity(Rarity.UNCOMMON)
     ));
 
+    public static final Item PALE_WARDENS_GREATSWORD = registerItem("pale_wardens_greatsword", new SwordItem(ToolMaterial.NETHERITE, 1.0F, -2.4F, new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "pale_wardens_greatsword")))
+            .maxCount(1).attributeModifiers(VelocityTransferMaceItem.createAttributeModifiers()).maxDamage(2031).enchantable(10).rarity(Rarity.RARE)
+    ));
+
     public static final Item COPPER_HANDLE = registerItem("copper_handle", new Item(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "copper_handle")))
+            .maxCount(64)
+    ));
+
+    public static final Item PALE_WARDEN_STATUE = registerItem("pale_warden_statue", new PaleWardenSpawnEggItem(ModEntities.PALE_WARDEN, new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "pale_warden_statue")))
             .maxCount(64)
     ));
 
