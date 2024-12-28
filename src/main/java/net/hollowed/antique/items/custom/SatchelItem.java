@@ -77,7 +77,7 @@ public class SatchelItem extends Item {
     }
 
     public List<ItemStack> getStoredStacks(ItemStack stack) {
-        // Retrieve the component, ensuring it’s initialized correctly
+        // Retrieve the component, ensuring it's initialized correctly
         return stack.get(ModComponents.SATCHEL_STACK);
     }
 
