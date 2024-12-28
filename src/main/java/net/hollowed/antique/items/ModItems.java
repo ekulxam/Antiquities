@@ -2,11 +2,8 @@ package net.hollowed.antique.items;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.component.ModComponents;
-import net.hollowed.antique.component.SatchelInventoryComponent;
 import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.items.custom.*;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BundleContentsComponent;
 import net.minecraft.item.*;
 import net.minecraft.item.equipment.EquipmentType;
 import net.minecraft.registry.Registries;
@@ -15,6 +12,8 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
+
+import java.util.List;
 
 public class ModItems {
 
@@ -25,7 +24,7 @@ public class ModItems {
 
     public static final Item SATCHEL = registerItem("satchel", new SatchelItem(ModArmorMaterials.ADVENTURE_BASIC, EquipmentType.LEGGINGS, new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "satchel")))
-            .component(ModComponents.SATCHEL_INVENTORY, new SatchelInventoryComponent(new ItemStack[8]))
+            .component(ModComponents.SATCHEL_STACK, List.of(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY))
             .maxCount(1).fireproof()
     ));
 

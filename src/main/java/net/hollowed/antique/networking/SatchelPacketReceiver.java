@@ -1,13 +1,11 @@
 package net.hollowed.antique.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.hollowed.antique.component.ModComponents;
-import net.hollowed.antique.component.SatchelInventoryComponent;
+import net.hollowed.antique.items.custom.SatchelItem;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 
 public class SatchelPacketReceiver {
 
@@ -17,29 +15,34 @@ public class SatchelPacketReceiver {
 
             PlayerEntity player = context.player();
 
-            SatchelInventoryComponent satchelInventory = player.getEquippedStack(EquipmentSlot.LEGS).get(ModComponents.SATCHEL_INVENTORY);
+            ItemStack satchelInventory = player.getEquippedStack(EquipmentSlot.LEGS);
 
             assert satchelInventory != null;
-            PlayerInventory playerInventory = player.getInventory();
+            if (satchelInventory.getItem() instanceof SatchelItem satchelItem) {
+                PlayerInventory playerInventory = player.getInventory();
 
-            int currentHotbarSlot = playerInventory.selectedSlot;
-            int currentSatchelSlot = satchelInventory.getSelectedStack();
+                int currentHotbarSlot = playerInventory.selectedSlot;
 
-            ItemStack currentHotbarStack = playerInventory.getStack(currentHotbarSlot);
-            ItemStack currentSatchelStack = satchelInventory.getStack(currentSatchelSlot);
+                ItemStack currentHotbarStack = playerInventory.getStack(currentHotbarSlot);
+                ItemStack currentSatchelStack = satchelItem.getSelectedStack(satchelInventory);
 
-            if (currentSatchelStack != null) {
-                playerInventory.setStack(currentHotbarSlot, currentSatchelStack);
-            } else {
-                playerInventory.removeStack(currentHotbarSlot);
-            }
-            if (currentHotbarStack != null && currentHotbarStack.getItem() != Items.AIR) {
-                satchelInventory.setStack(currentSatchelSlot, currentHotbarStack);
-            } else {
-                satchelInventory.removeStack(currentSatchelSlot);
+                // Move the selected satchel stack to the hotbar
+                if (currentSatchelStack != null && !currentSatchelStack.isEmpty()) {
+                    playerInventory.setStack(currentHotbarSlot, currentSatchelStack);
+                } else {
+                    playerInventory.removeStack(currentHotbarSlot);
+                }
+
+                // Update the satchel's slot with the hotbar item
+                if (!currentHotbarStack.isEmpty()) {
+                    satchelItem.setSlot(satchelInventory, currentHotbarStack);
+                } else {
+                    satchelItem.setSlot(satchelInventory, ItemStack.EMPTY);
+                }
+
+                // Ensure the satchel data is saved
+                // If you're using a custom data component or a system for persistence, make sure to trigger a sync
             }
         });
-
     }
-
 }

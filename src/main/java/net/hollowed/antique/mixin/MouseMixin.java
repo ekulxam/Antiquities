@@ -1,11 +1,8 @@
 package net.hollowed.antique.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
-import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.ModKeyBindings;
-import net.hollowed.antique.client.gui.SatchelOverlay;
-import net.hollowed.antique.component.ModComponents;
-import net.hollowed.antique.component.SatchelInventoryComponent;
+import net.hollowed.antique.items.custom.SatchelItem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.Mouse;
 import net.minecraft.client.input.Scroller;
@@ -28,10 +25,12 @@ public class MouseMixin {
 
         if(ModKeyBindings.showSatchel.isPressed()) {
             assert client.player != null;
-            SatchelInventoryComponent satchel = client.player.getEquippedStack(EquipmentSlot.LEGS).get(ModComponents.SATCHEL_INVENTORY);
+            ItemStack satchel = client.player.getEquippedStack(EquipmentSlot.LEGS);
             assert satchel != null;
-            satchel.setSelectedStack(Scroller.scrollCycling(i, satchel.getSelectedStack(), 8));
-            ci.cancel();
+            if (satchel.getItem() instanceof SatchelItem satchelItem) {
+                satchelItem.setIndex(Scroller.scrollCycling(i, satchelItem.getIndex(), 8));
+                ci.cancel();
+            }
         }
 
     }

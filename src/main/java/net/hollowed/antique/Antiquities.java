@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.hollowed.antique.blocks.ModBlocks;
 import net.hollowed.antique.blocks.entities.ModBlockEntities;
+import net.hollowed.antique.component.ModComponents;
 import net.hollowed.antique.effect.BounceEffect;
 import net.hollowed.antique.enchantments.ModEnchantments;
 import net.hollowed.antique.entities.ModEntities;
@@ -48,6 +49,7 @@ public class Antiquities implements ModInitializer {
 		ModBlockEntities.initialize();
 		ModLootTableModifiers.modifyLootTables();
 		ModEntities.initialize();
+		ModComponents.initialize();
 
 		PayloadTypeRegistry.playS2C().register(PedestalPacketPayload.ID, PedestalPacketPayload.CODEC);
 		PayloadTypeRegistry.playC2S().register(PaleWardenTickPacketPayload.ID, PaleWardenTickPacketPayload.CODEC);
