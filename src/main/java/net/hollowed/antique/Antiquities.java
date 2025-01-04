@@ -75,6 +75,11 @@ public class Antiquities implements ModInitializer {
 				}
 			}
 		});
+
+//		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+//				Predicate.isEqual(Items.STONE),
+//				(builder, item) -> builder.add(DataComponentTypes.ITEM_NAME, Text.translatable(item.getTranslationKey()).withColor(0xff0000))
+//		));
 	}
 
 	public static final RegistryEntry<StatusEffect> VOLATILE_BOUNCE_EFFECT;

@@ -17,6 +17,7 @@
     "PlayerEntityMixin",
     "PotionItemMixin",
     "PowderSnowWalkableMixin",
+    "PreventActionsMixin",
     "ProjectileEntityMixin"
   ],
   "injectors": {
@@ -28,8 +29,11 @@
     "BundleTooltipMixin",
     "EntityRenderDispatcherAccessor",
     "FirstPersonItemMixin",
+    "HandledScreenAccessor",
+    "HandledScreenMixin",
     "MouseMixin",
     "PlayerEntityRendererMixin",
-    "PlayerHeldItemMixin"
+    "PlayerHeldItemMixin",
+    "PreventItemActionsMixin"
   ]
 }

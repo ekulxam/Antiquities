@@ -1,10 +1,8 @@
 package net.hollowed.antique.mixin;
 
-import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.enchantments.EnchantmentListener;
 import net.hollowed.antique.items.custom.VelocityTransferMaceItem;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.entity.feature.PlayerHeldItemFeatureRenderer;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.LivingEntity;
@@ -14,6 +12,7 @@ import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -30,17 +29,26 @@ public class FirstPersonItemMixin {
             float tickDelta = MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(true);
 
             if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
-                // Limit multiplier to avoid excessive spinning
-                float multiplier = (useTime + tickDelta) * (useTime + tickDelta) / 5000000F;
-                float time = (player.getWorld().getTime() + tickDelta);
+                // Define maximum angular velocity and an acceleration factor
+                final float totalRotation = getTotalRotation(useTime, tickDelta);
+
                 matrices.translate(0, 0, -0.2);
-                if (useTime <= 80) {
-                    matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-time * multiplier));
-                } else {
-                    matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-time * 110.0F + tickDelta));
-                }
+                matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-totalRotation));
                 matrices.translate(0, 0, 0.1);
             }
         }
+    }
+
+    @Unique
+    private static float getTotalRotation(int useTime, float tickDelta) {
+        float maxAngularVelocity = 120.0F; // degrees per tick
+        float accelerationFactor = 0.004F; // Adjust to control smooth acceleration
+
+        // Calculate eased angular velocity
+        float progress = Math.min(1.0F, (useTime + tickDelta) * accelerationFactor); // Clamped to 1.0
+        float easedVelocity = maxAngularVelocity * (1 - (float) Math.pow(1 - progress, 3)); // Smooth transition
+
+        // Compute total rotation
+        return (useTime + tickDelta) * easedVelocity;
     }
 }

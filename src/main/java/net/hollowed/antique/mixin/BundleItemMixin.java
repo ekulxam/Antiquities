@@ -2,6 +2,7 @@ package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.enchantments.EnchantmentListener;
 import net.hollowed.antique.items.ModItems;
+import net.hollowed.antique.items.custom.SatchelItem;
 import net.minecraft.block.TntBlock;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.BundleContentsComponent;
@@ -40,6 +41,21 @@ public abstract class BundleItemMixin extends Item {
 
     public BundleItemMixin(Settings settings) {
         super(settings);
+    }
+
+    @Inject(method = "onStackClicked", at = @At("HEAD"), cancellable = true)
+    private void preventSatchelsOnStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player, CallbackInfoReturnable<Boolean> cir) {
+        ItemStack itemStack = slot.getStack();
+        if (itemStack.getItem() instanceof SatchelItem) { // Replace 'SatchelItem' with your satchel item class
+            cir.setReturnValue(false); // Cancel the action
+        }
+    }
+
+    @Inject(method = "onClicked", at = @At("HEAD"), cancellable = true)
+    private void preventSatchelsOnClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference, CallbackInfoReturnable<Boolean> cir) {
+        if (otherStack.getItem() instanceof SatchelItem) { // Replace 'SatchelItem' with your satchel item class
+            cir.setReturnValue(false); // Cancel the action
+        }
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))

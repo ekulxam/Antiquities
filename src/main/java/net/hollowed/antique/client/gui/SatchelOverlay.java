@@ -42,8 +42,12 @@ public class SatchelOverlay implements HudRenderCallback {
 
         if (satchel.getItem() instanceof SatchelItem satchelItem) {
             // Get the list of stored stacks and ensure it has a length of 8
-            List<ItemStack> storedStacks = satchelItem.getStoredStacks(satchel);
+            List<ItemStack> storedStacks = SatchelItem.getStoredStacks(satchel);
             List<ItemStack> allStacks = new ArrayList<>(storedStacks);
+
+            if (storedStacks.isEmpty()) {
+                allStacks.add(ItemStack.EMPTY);
+            }
 
             // If the stored stacks are fewer than 8, fill the remaining slots with empty ItemStacks
             while (allStacks.size() < 8) {
@@ -53,38 +57,34 @@ public class SatchelOverlay implements HudRenderCallback {
             int maxRows = 2; // Always use 2 rows (4 columns each)
             int maxCols = 4;
 
-            // Loop through all 8 possible slots (2 rows x 4 columns)
+            // Render slots and items
             for (int row = 0; row < maxRows; row++) {
                 for (int col = 0; col < maxCols; col++) {
                     int index = row * 4 + col; // Calculate the correct index for the list
 
                     ItemStack stack = allStacks.get(index); // Get the stack (could be empty)
+                    int slotX = (x - 43) + (22 * col);
+                    int slotY = y + (22 * row);
+
+                    // Render the slot background
+                    context.drawTexture(
+                            RenderLayer::getGuiTextured,
+                            SATCHEL_SELECTORS,
+                            slotX, slotY,
+                            0, 0,
+                            20, 20,
+                            64, 64
+                    );
+
+                    // Render the item stack and overlay
                     if (!stack.isEmpty()) {
-                        context.drawTexture(
-                                RenderLayer::getGuiTextured,
-                                SATCHEL_SELECTORS,
-                                (x - 43) + (22 * col), y + (22 * row),
-                                0, 0,
-                                20, 20,
-                                64, 64
-                        );
-                        context.drawItem(stack, (x - 41) + (22 * col), y + (22 * row) + 2);
-                        context.drawStackOverlay(textRenderer, stack, (x - 41) + (22 * col), y + (22 * row) + 2);
-                    } else {
-                        // Render the empty slot (no item)
-                        context.drawTexture(
-                                RenderLayer::getGuiTextured,
-                                SATCHEL_SELECTORS,
-                                (x - 43) + (22 * col), y + (22 * row),
-                                0, 0,
-                                20, 20,
-                                64, 64
-                        );
+                        context.drawItem(stack, slotX + 2, slotY + 2);
+                        context.drawStackOverlay(textRenderer, stack, slotX + 2, slotY + 2);
                     }
                 }
             }
 
-            // Display the selected stack's tooltip (same logic as before)
+            // Display the tooltip for the selected stack
             ItemStack selectedStack = allStacks.get(satchelItem.getIndex());
             if (selectedStack != null && !selectedStack.isEmpty()) {
                 List<Text> textTooltip = selectedStack.getTooltip(Item.TooltipContext.create(client.world), player, TooltipType.BASIC);
@@ -100,12 +100,14 @@ public class SatchelOverlay implements HudRenderCallback {
                 );
             }
 
-            // Draw the selected stack's selector
+            // Draw the selected stack's selector at the end to render it on top
+            int selectorX = (x - 45) + (22 * (satchelItem.getIndex() <= 3 ? satchelItem.getIndex() : (satchelItem.getIndex() - 4)));
+            int selectorY = (y - 2) + (22 * (satchelItem.getIndex() > 3 ? 1 : 0));
+
             context.drawTexture(
-                    RenderLayer::getGuiTextured,
+                    RenderLayer::getGuiTexturedOverlay,
                     SATCHEL_SELECTORS,
-                    (x - 45) + (22 * (satchelItem.getIndex() <= 3 ? satchelItem.getIndex() : (satchelItem.getIndex() - 4))),
-                    (y - 2) + (22 * (satchelItem.getIndex() > 3 ? 1 : 0)),
+                    selectorX, selectorY,
                     20, 0,
                     24, 24,
                     64, 64

@@ -39,8 +39,8 @@ public abstract class LivingEntityMixin extends Entity {
 
         if ((LivingEntity) (Object) this instanceof PlayerEntity player && !entity.isOnGround() && player.getGlidingTicks() == 0) {
             // Scale horizontal movement input for better acceleration
-            double horizontalBoost = 0.25; // Adjust this value for more/less acceleration
-            double maxHorizontalSpeed = 0.7; // Cap horizontal speed to prevent over-speeding
+            double horizontalBoost = 0.15; // Adjust this value for more/less acceleration
+            double maxHorizontalSpeed = 0.75; // Cap horizontal speed to prevent over-speeding
 
             // Convert movementInput to global (world) coordinates
             float yaw = entity.getYaw(); // Get player yaw in degrees

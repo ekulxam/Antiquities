@@ -1,3 +1,4 @@
+// Updated ModComponents.java
 package net.hollowed.antique.component;
 
 import net.hollowed.antique.Antiquities;
@@ -12,9 +13,9 @@ import java.util.List;
 public class ModComponents {
     public static final ComponentType<List<ItemStack>> SATCHEL_STACK = Registry.register(
             Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(Antiquities.MOD_ID, "satchel"),
+            Identifier.of(Antiquities.MOD_ID, "quiver_stacks"),
             ComponentType.<List<ItemStack>>builder()
-                    .codec(ItemStack.CODEC.listOf()) // List of ItemStacks
+                    .codec(ItemStack.CODEC.listOf().fieldOf("quiver_stacks").codec())
                     .build()
     );
 

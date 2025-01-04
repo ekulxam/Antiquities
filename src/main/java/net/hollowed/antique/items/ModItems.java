@@ -22,11 +22,16 @@ public class ModItems {
             .maxCount(1).fireproof()
     ));
 
-    public static final Item SATCHEL = registerItem("satchel", new SatchelItem(ModArmorMaterials.ADVENTURE_BASIC, EquipmentType.LEGGINGS, new Item.Settings()
-            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "satchel")))
-            .component(ModComponents.SATCHEL_STACK, List.of(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY))
-            .maxCount(1).fireproof()
+    public static final Item SATCHEL = registerItem("satchel", new SatchelItem(
+            ModArmorMaterials.ADVENTURE_BASIC,
+            EquipmentType.LEGGINGS,
+            new Item.Settings()
+                    .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "satchel")))
+                    .component(ModComponents.SATCHEL_STACK, List.of())
+                    .maxCount(1)
+                    .fireproof()
     ));
+
 
     public static final Item FUR_BOOTS = registerItem("fur_boots", new FurBootsItem(ModArmorMaterials.ADVENTURE, EquipmentType.BOOTS, new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "fur_boots")))
