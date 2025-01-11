@@ -2,7 +2,9 @@ package net.hollowed.antique;
 
 import net.fabricmc.api.ModInitializer;
 
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
@@ -14,12 +16,18 @@ import net.hollowed.antique.enchantments.ModEnchantments;
 import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.networking.*;
+import net.hollowed.antique.util.FreezeFrameManager;
 import net.hollowed.antique.util.ModLootTableModifiers;
+import net.minecraft.client.data.ModelProvider;
+import net.minecraft.client.render.item.model.ConditionItemModel;
+import net.minecraft.client.render.item.property.numeric.BundleFullnessProperty;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -29,6 +37,8 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.function.Predicate;
 
 public class Antiquities implements ModInitializer {
 	public static final String MOD_ID = "antique";
@@ -63,6 +73,10 @@ public class Antiquities implements ModInitializer {
 
 		ModKeyBindings.initialize();
 
+		ClientTickEvents.END_CLIENT_TICK.register(client -> {
+			FreezeFrameManager.tick();
+		});
+
 		// Register the group.
 		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_GROUP_KEY, ANTIQUITIES_GROUP);
 
@@ -76,10 +90,10 @@ public class Antiquities implements ModInitializer {
 			}
 		});
 
-//		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
-//				Predicate.isEqual(Items.STONE),
-//				(builder, item) -> builder.add(DataComponentTypes.ITEM_NAME, Text.translatable(item.getTranslationKey()).withColor(0xff0000))
-//		));
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+				Predicate.isEqual(ModItems.REVERENCE),
+				(builder, item) -> builder.add(DataComponentTypes.ITEM_NAME, Text.translatable(item.getTranslationKey()).withColor(0xff5a00))
+		));
 	}
 
 	public static final RegistryEntry<StatusEffect> VOLATILE_BOUNCE_EFFECT;
@@ -112,6 +126,12 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(ModBlocks.PEDESTAL);
 			itemGroup.add(ModItems.PALE_WARDENS_GREATSWORD);
 			itemGroup.add(ModItems.PALE_WARDEN_STATUE);
+			itemGroup.add(ModItems.REVERENCE);
+			itemGroup.add(ModItems.DORMANT_REVERENCE);
+
+			itemGroup.add(ModBlocks.BLACK_SAND);
+			itemGroup.add(ModBlocks.GILDED_BLACK_SAND);
+			itemGroup.add(ModBlocks.OMINOUS_PEDESTAL);
 		});
 	}
 }

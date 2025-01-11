@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(BundleContentsComponent.class)
-public class BundleContentsMixin {
+public class BundleShowsAllContents {
     @Shadow
     public int size() { return 0; }
 

@@ -3,37 +3,40 @@
   "package": "net.hollowed.antique.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "BundleContentsComponentMixin",
-    "BundleContentsMixin",
+    "AirAccelerationTweaker",
+    "AttackableProjectiles",
+    "AttackNonlivingEntityHandler",
     "BundleItemMixin",
+    "BundleItemWeightChanger",
+    "BundleShowsAllContents",
     "EntityBounceMixin",
-    "FireChargeItemMixin",
     "FurBootsFreezeImmunityMixin",
     "FurBootsMagmaMixin",
-    "FurBootsSoulSandMixin",
-    "LivingEntityMixin",
     "MinecartItemAccessor",
     "MobEntitySoundAccessor",
-    "PlayerEntityMixin",
-    "PotionItemMixin",
+    "PotionThrowSoundMixin",
     "PowderSnowWalkableMixin",
     "PreventActionsMixin",
-    "ProjectileEntityMixin"
+    "ProjectileEntityMixin",
+    "ProjectileHitOverride",
+    "ReverenceHitMixin"
   ],
   "injectors": {
     "defaultRequire": 1
   },
   "client": [
-    "ArmorStandEntityRendererMixin",
-    "BundleMouseActionsMixin",
-    "BundleTooltipMixin",
+    "ArmorStandFeatureAdder",
+    "BundleScrollHandler",
+    "BundleTooltipShowsAll",
     "EntityRenderDispatcherAccessor",
     "FirstPersonItemMixin",
-    "HandledScreenAccessor",
+    "FreezeFrameMixin",
+    "GetSlotAtAccessor",
     "HandledScreenMixin",
+    "ModelLoaderMixin",
     "MouseMixin",
-    "PlayerEntityRendererMixin",
-    "PlayerHeldItemMixin",
-    "PreventItemActionsMixin"
+    "PlayerFeatureAdder",
+    "PreventItemActionsMixin",
+    "ThirdPersonItemMixin"
   ]
 }

@@ -4,12 +4,14 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.component.ModComponents;
 import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.items.custom.*;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.*;
 import net.minecraft.item.equipment.EquipmentType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 
@@ -46,6 +48,16 @@ public class ModItems {
     public static final Item PALE_WARDENS_GREATSWORD = registerItem("pale_wardens_greatsword", new SwordItem(ToolMaterial.NETHERITE, 1.0F, -2.4F, new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "pale_wardens_greatsword")))
             .maxCount(1).attributeModifiers(VelocityTransferMaceItem.createAttributeModifiers()).maxDamage(2031).enchantable(10).rarity(Rarity.RARE)
+    ));
+
+    public static final Item REVERENCE = registerItem("reverence", new ReverenceItem(new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "reverence")))
+            .maxCount(1).attributeModifiers(ReverenceItem.createAttributeModifiers()).maxDamage(2031).enchantable(10).rarity(Rarity.EPIC)
+    ));
+
+    public static final Item DORMANT_REVERENCE = registerItem("dormant_reverence", new ReverenceItem(new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "dormant_reverence")))
+            .maxCount(1).attributeModifiers(ReverenceItem.createAttributeModifiers()).maxDamage(2031).enchantable(10).rarity(Rarity.EPIC)
     ));
 
     public static final Item COPPER_HANDLE = registerItem("copper_handle", new Item(new Item.Settings()

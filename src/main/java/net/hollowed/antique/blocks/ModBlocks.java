@@ -1,6 +1,7 @@
 package net.hollowed.antique.blocks;
 
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.blocks.custom.OminousPedestalBlock;
 import net.hollowed.antique.blocks.custom.PedestalBlock;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.NoteBlockInstrument;
@@ -12,14 +13,29 @@ import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.sound.BlockSoundGroup;
+import net.minecraft.util.ColorCode;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
+
+import java.awt.*;
 
 public class ModBlocks {
 
     public static final Block PEDESTAL = registerBlock("pedestal",
             new PedestalBlock(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "pedestal")))
                     .sounds(BlockSoundGroup.LODESTONE).strength(1.5F, 6F).nonOpaque().requiresTool()), Rarity.COMMON);
+
+    public static final Block OMINOUS_PEDESTAL = registerBlock("ominous_pedestal",
+            new OminousPedestalBlock(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "ominous_pedestal")))
+                    .sounds(BlockSoundGroup.LODESTONE).strength(1.5F, 6F).nonOpaque().requiresTool()), Rarity.COMMON);
+
+    public static final Block BLACK_SAND = registerBlock("black_sand",
+            new ColoredFallingBlock(new ColorCode(14406560), AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "black_sand")))
+                    .sounds(BlockSoundGroup.SAND).strength(1.5F, 6F)), Rarity.COMMON);
+
+    public static final Block GILDED_BLACK_SAND = registerBlock("gilded_black_sand",
+            new ColoredFallingBlock(new ColorCode(14406560), AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "gilded_black_sand")))
+                    .sounds(BlockSoundGroup.SAND).strength(1.5F, 6F)), Rarity.COMMON);
 
     public static final Block HOLLOW_CORE = registerBlock("hollow_core",
             new HeavyCoreBlock(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "hollow_core")))

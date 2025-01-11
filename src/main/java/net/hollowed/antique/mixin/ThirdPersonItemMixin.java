@@ -26,9 +26,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerHeldItemFeatureRenderer.class)
-public class PlayerHeldItemMixin<S extends PlayerEntityRenderState, M extends EntityModel<S> & ModelWithArms & ModelWithHead> extends HeldItemFeatureRenderer<S, M> {
+public class ThirdPersonItemMixin<S extends PlayerEntityRenderState, M extends EntityModel<S> & ModelWithArms & ModelWithHead> extends HeldItemFeatureRenderer<S, M> {
 
-    public PlayerHeldItemMixin(FeatureRendererContext<S, M> featureRendererContext) {
+    public ThirdPersonItemMixin(FeatureRendererContext<S, M> featureRendererContext) {
         super(featureRendererContext);
     }
 

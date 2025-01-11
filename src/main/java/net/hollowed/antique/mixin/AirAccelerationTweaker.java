@@ -1,12 +1,10 @@
 package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.entities.custom.PaleWardenEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
 import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -18,16 +16,15 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
-public abstract class LivingEntityMixin extends Entity {
+public abstract class AirAccelerationTweaker extends Entity {
 
     @Shadow public abstract boolean hasStatusEffect(RegistryEntry<StatusEffect> effect);
 
     @Shadow public abstract boolean damage(ServerWorld world, DamageSource source, float amount);
 
-    public LivingEntityMixin(EntityType<?> type, World world) {
+    public AirAccelerationTweaker(EntityType<?> type, World world) {
         super(type, world);
     }
 

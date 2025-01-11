@@ -1,6 +1,5 @@
 package net.hollowed.antique.mixin;
 
-import net.hollowed.antique.enchantments.EnchantmentListener;
 import net.minecraft.block.TntBlock;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.BundleItem;
@@ -14,7 +13,7 @@ import net.minecraft.component.type.BundleContentsComponent;
 import org.apache.commons.lang3.math.Fraction;
 
 @Mixin(BundleContentsComponent.class)
-public abstract class BundleContentsComponentMixin {
+public abstract class BundleItemWeightChanger {
 
     @Inject(method = "getOccupancy(Lnet/minecraft/item/ItemStack;)Lorg/apache/commons/lang3/math/Fraction;", at = @At("HEAD"), cancellable = true)
     private static void adjustOccupancyForNonStackableItems(ItemStack stack, CallbackInfoReturnable<Fraction> cir) {

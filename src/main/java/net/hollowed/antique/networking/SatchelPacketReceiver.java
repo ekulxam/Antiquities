@@ -28,28 +28,29 @@ public class SatchelPacketReceiver {
                 ItemStack currentHotbarStack = playerInventory.getStack(currentHotbarSlot);
                 ItemStack currentSatchelStack = satchelItem.getSelectedStack(satchelInventory);
 
-                if (currentSatchelStack.isEmpty() && currentHotbarStack.isEmpty()) {
+                if (!satchelItem.isInvalidItem(currentHotbarStack)) {
+                    if (currentSatchelStack.isEmpty() && currentHotbarStack.isEmpty()) {
+                        player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT_FAIL, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                    }
+
+                    // Move the selected satchel stack to the hotbar
+                    if (!currentSatchelStack.isEmpty()) {
+                        playerInventory.setStack(currentHotbarSlot, currentSatchelStack);
+                        player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                    } else {
+                        playerInventory.removeStack(currentHotbarSlot);
+                    }
+
+                    // Update the satchel's slot with the hotbar item
+                    if (!currentHotbarStack.isEmpty()) {
+                        satchelItem.setSlot(satchelInventory, currentHotbarStack);
+                        player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                    } else {
+                        satchelItem.setSlot(satchelInventory, ItemStack.EMPTY);
+                    }
+                } else {
                     player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT_FAIL, SoundCategory.PLAYERS, 1.0F, 1.0F);
                 }
-
-                // Move the selected satchel stack to the hotbar
-                if (!currentSatchelStack.isEmpty()) {
-                    playerInventory.setStack(currentHotbarSlot, currentSatchelStack);
-                    player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                } else {
-                    playerInventory.removeStack(currentHotbarSlot);
-                }
-
-                // Update the satchel's slot with the hotbar item
-                if (!currentHotbarStack.isEmpty()) {
-                    satchelItem.setSlot(satchelInventory, currentHotbarStack);
-                    player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                } else {
-                    satchelItem.setSlot(satchelInventory, ItemStack.EMPTY);
-                }
-
-                // Ensure the satchel data is saved
-                // If you're using a custom data component or a system for persistence, make sure to trigger a sync
             }
         });
     }

@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
 
 @Mixin(BundleTooltipComponent.class)
-public abstract class BundleTooltipMixin {
+public abstract class BundleTooltipShowsAll {
     @Unique
     private static final int slotSize = 13;
     @Unique
@@ -26,7 +26,7 @@ public abstract class BundleTooltipMixin {
     @Shadow
     private final BundleContentsComponent bundleContents;
 
-    protected BundleTooltipMixin(BundleContentsComponent bundleContents) {
+    protected BundleTooltipShowsAll(BundleContentsComponent bundleContents) {
         this.bundleContents = bundleContents;
     }
 
@@ -76,7 +76,7 @@ public abstract class BundleTooltipMixin {
 
     @ModifyConstant(method = {"getRowsHeight", "drawItem"}, constant = @Constant(intValue = 24))
     private int slotHeight(int original) {
-        return BundleTooltipMixin.slotSize + 4;
+        return BundleTooltipShowsAll.slotSize + 4;
     }
 
     @ModifyConstant(method = "drawItem", constant = @Constant(intValue = 4))
@@ -86,25 +86,25 @@ public abstract class BundleTooltipMixin {
 
     @ModifyConstant(method = "getRows", constant = @Constant(intValue = 4))
     private int numColumns(int original) {
-        return BundleTooltipMixin.columns;
+        return BundleTooltipShowsAll.columns;
     }
 
     @ModifyConstant(method = {"getWidth", "getXMargin", "drawProgressBar"}, constant = @Constant(intValue = 96))
     private int tooltipWidth(int original) {
-        return (BundleTooltipMixin.slotSize + 4) * BundleTooltipMixin.columns;
+        return (BundleTooltipShowsAll.slotSize + 4) * BundleTooltipShowsAll.columns;
     }
 
     @ModifyConstant(method = "getProgressBarFill", constant = @Constant(intValue = 94))
     private int barProgress(int original) {
         // Calculate based on exact tooltip width
-        int totalWidth = (BundleTooltipMixin.columns * (BundleTooltipMixin.slotSize + 4));
+        int totalWidth = (BundleTooltipShowsAll.columns * (BundleTooltipShowsAll.slotSize + 4));
         return totalWidth - 2; // Subtract a small margin if needed
     }
 
 
     @ModifyConstant(method = "drawProgressBar", constant = @Constant(intValue = 48))
     private int fillText(int original) {
-        int totalWidth = (BundleTooltipMixin.columns * (BundleTooltipMixin.slotSize + 4));
+        int totalWidth = (BundleTooltipShowsAll.columns * (BundleTooltipShowsAll.slotSize + 4));
         return totalWidth / 2; // Subtract a small margin if needed
     }
 
@@ -114,14 +114,14 @@ public abstract class BundleTooltipMixin {
         int o = 1;
 
         for (int p = 0; p < this.getRows(); ++p) {
-            for (int q = 0; q < BundleTooltipMixin.columns; ++q) {
+            for (int q = 0; q < BundleTooltipShowsAll.columns; ++q) {
                 assert list != null;
                 if (o > list.size()) {
                     break;
                 }
                 // Adjust render position by 3 pixels to the right and down
-                int r = x + q * (BundleTooltipMixin.slotSize + 4); // Add 3 pixels horizontally
-                int s = y + p * (BundleTooltipMixin.slotSize + 4); // Add 3 pixels vertically
+                int r = x + q * (BundleTooltipShowsAll.slotSize + 4); // Add 3 pixels horizontally
+                int s = y + p * (BundleTooltipShowsAll.slotSize + 4); // Add 3 pixels vertically
                 this.drawItem(o, r, s, list, o, textRenderer, context);
                 ++o;
             }

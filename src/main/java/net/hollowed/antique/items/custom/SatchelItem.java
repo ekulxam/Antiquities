@@ -5,9 +5,9 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
-import net.minecraft.item.BundleItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.item.equipment.ArmorMaterial;
 import net.minecraft.item.equipment.EquipmentType;
 import net.minecraft.item.tooltip.TooltipType;
@@ -221,7 +221,7 @@ public class SatchelItem extends Item {
         super.appendTooltip(stack, context, tooltip, type);
     }
 
-    private boolean isInvalidItem(ItemStack stack) {
+    public boolean isInvalidItem(ItemStack stack) {
         // Check if the item is a bundle, satchel, or shulker box
         Item item = stack.getItem();
         return item instanceof SatchelItem || item.getTranslationKey().contains("shulker_box");

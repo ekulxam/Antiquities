@@ -1,5 +1,6 @@
 package net.hollowed.antique.enchantments;
 
+import net.hollowed.antique.Antiquities;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
@@ -17,7 +18,7 @@ public final class ModEnchantments {
   public static final RegistryKey<Enchantment> IMPETUS = of("impetus");
  
   private static RegistryKey<Enchantment> of(String name) {
-    return RegistryKey.of(RegistryKeys.ENCHANTMENT, Identifier.of("antique", name));
+    return RegistryKey.of(RegistryKeys.ENCHANTMENT, Identifier.of(Antiquities.MOD_ID, name));
   }
  
   public static void initialize() {

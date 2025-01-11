@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ThrowablePotionItem.class)
-public class PotionItemMixin {
+public class PotionThrowSoundMixin {
 
     @Inject(method = "use", at = @At("RETURN"))
     public void use(World world, PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {

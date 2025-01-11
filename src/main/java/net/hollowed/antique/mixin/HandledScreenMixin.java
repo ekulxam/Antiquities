@@ -36,7 +36,7 @@ public abstract class HandledScreenMixin {
 
             int i = vector2i.y == 0 ? -vector2i.x : vector2i.y;
 
-            Slot hoveredSlot = ((HandledScreenAccessor) client.currentScreen).invokeGetSlotAt(mouseX, mouseY);
+            Slot hoveredSlot = ((GetSlotAtAccessor) client.currentScreen).invokeGetSlotAt(mouseX, mouseY);
 
             if (hoveredSlot != null && !hoveredSlot.getStack().isEmpty() && hoveredSlot.getStack().getItem() instanceof SatchelItem) {
 

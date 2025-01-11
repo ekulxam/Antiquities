@@ -4,14 +4,16 @@ import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.hollowed.antique.blocks.entities.ModBlockEntities;
 import net.hollowed.antique.blocks.entities.custom.PedestalBlockEntity;
-import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.mixin.MobEntitySoundAccessor;
 import net.hollowed.antique.networking.PedestalPacketPayload;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
@@ -51,14 +53,12 @@ import net.minecraft.world.tick.ScheduledTickView;
 import java.util.List;
 import java.util.stream.Stream;
 
-public class PedestalBlock extends BlockWithEntity implements BlockEntityProvider, Waterloggable {
+public class OminousPedestalBlock extends BlockWithEntity implements BlockEntityProvider, Waterloggable {
 
     public static final List<BlockPos> POWER_PROVIDER_OFFSETS = BlockPos.stream(-2, 0, -2, 2, 1, 2).filter((pos) -> Math.abs(pos.getX()) == 2 || Math.abs(pos.getZ()) == 2).map(BlockPos::toImmutable).toList();
 
     public static final BooleanProperty HELD_ITEM = BooleanProperty.of("held_item");
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
-
-    public static final EnumProperty<PillarPart> PART = EnumProperty.of("part", PillarPart.class);
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
@@ -72,23 +72,13 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
     }
 
     public static final VoxelShape SHAPE_DEFAULT = Stream.of(
-            Block.createCuboidShape(1, 0, 1, 15, 3, 15),
-            Block.createCuboidShape(3, 3, 3, 13, 13, 13),
-            Block.createCuboidShape(1, 13, 1, 15, 16, 15)
-    ).reduce((v1, v2) -> VoxelShapes.combineAndSimplify(v1, v2, BooleanBiFunction.OR)).get();
-    public static final VoxelShape SHAPE_TOP = Stream.of(
-            Block.createCuboidShape(3, 0, 3, 13, 13, 13),
-            Block.createCuboidShape(1, 13, 1, 15, 16, 15)
-    ).reduce((v1, v2) -> VoxelShapes.combineAndSimplify(v1, v2, BooleanBiFunction.OR)).get();
-    public static final VoxelShape SHAPE_MIDDLE = java.util.Optional.of(
-            Block.createCuboidShape(3, 0, 3, 13, 16, 13)
-    ).get();
-    public static final VoxelShape SHAPE_BOTTOM = Stream.of(
-            Block.createCuboidShape(1, 0, 1, 15, 3, 15),
-            Block.createCuboidShape(3, 3, 3, 13, 16, 13)
+            Block.createCuboidShape(2, 0, 2, 14, 3, 14),
+            Block.createCuboidShape(3, 3, 3, 13, 5, 13),
+            Block.createCuboidShape(4, 5, 4, 12, 13, 12),
+            Block.createCuboidShape(2, 13, 2, 14, 16, 14)
     ).reduce((v1, v2) -> VoxelShapes.combineAndSimplify(v1, v2, BooleanBiFunction.OR)).get();
 
-    public PedestalBlock(Settings settings) {
+    public OminousPedestalBlock(Settings settings) {
         super(settings);
         this.setDefaultState(this.stateManager.getDefaultState().with(HELD_ITEM, false).with(WATERLOGGED, false));
     }
@@ -98,27 +88,9 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
         return null;
     }
 
-    private PillarPart getPillarPart(World world, BlockPos pos) {
-        BlockState stateBelow = world.getBlockState(pos.down());
-        BlockState stateAbove = world.getBlockState(pos.up());
-
-        boolean isSameBelow = stateBelow.getBlock() instanceof PedestalBlock;
-        boolean isSameAbove = stateAbove.getBlock() instanceof PedestalBlock;
-
-        if (isSameBelow && isSameAbove) {
-            return PillarPart.MIDDLE;
-        } else if (isSameBelow) {
-            return PillarPart.TOP;
-        } else if (isSameAbove) {
-            return PillarPart.BOTTOM;
-        } else {
-            return PillarPart.DEFAULT;
-        }
-    }
-
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
-        builder.add(HELD_ITEM, WATERLOGGED, PART);
+        builder.add(HELD_ITEM, WATERLOGGED);
     }
 
     @Override
@@ -128,7 +100,7 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
         BlockState stateBelow = world.getBlockState(pos.down());
 
         // Check if the block below is a PedestalBlock and if it holds an item
-        if (stateBelow.getBlock() instanceof PedestalBlock) {
+        if (stateBelow.getBlock() instanceof OminousPedestalBlock) {
             BlockEntity entityBelow = world.getBlockEntity(pos.down());
             if (entityBelow instanceof PedestalBlockEntity) {
                 ItemStack stack = ((PedestalBlockEntity) entityBelow).getStack(0);
@@ -140,7 +112,7 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
 
         FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
         boolean waterlogged = fluidState.getFluid() == Fluids.WATER;
-        return this.getDefaultState().with(HELD_ITEM, false).with(WATERLOGGED, waterlogged).with(PART, this.getPillarPart(world, pos));
+        return this.getDefaultState().with(HELD_ITEM, false).with(WATERLOGGED, waterlogged);
     }
 
     @Override
@@ -162,7 +134,6 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
                 }
             }
         }
-        world.setBlockState(pos, state.with(PART, this.getPillarPart(world, pos)), 3);
     }
 
     public static boolean canAccessPowerProvider(World world, BlockPos tablePos, BlockPos providerOffset) {
@@ -199,14 +170,8 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
     }
 
     private VoxelShape getShape(BlockState state) {
-        PillarPart part = state.get(PART);
 
-        return switch (part) {
-            case TOP -> SHAPE_TOP;
-            case MIDDLE -> SHAPE_MIDDLE;
-            case BOTTOM -> SHAPE_BOTTOM;
-            default -> SHAPE_DEFAULT;
-        };
+        return SHAPE_DEFAULT;
     }
 
     @Override
@@ -217,7 +182,7 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
     @Override
     protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
         BlockEntity entity = world.getBlockEntity(pos);
-        if (entity instanceof PedestalBlockEntity pedestalEntity && state.get(PART) != PillarPart.BOTTOM && state.get(PART) != PillarPart.MIDDLE) {
+        if (entity instanceof PedestalBlockEntity pedestalEntity) {
             ItemStack currentPedestalItem = pedestalEntity.getStack(0);
             ItemStack handItem = player.getStackInHand(hand);
 
@@ -265,7 +230,7 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
                 playSound(world, pos, SoundEvents.BLOCK_SUSPICIOUS_SAND_PLACE, 1f);
                 playSound(world, pos, SoundEvents.BLOCK_LODESTONE_PLACE, 1f);
                 ((ServerWorld) world).getChunkManager().markForUpdate(pos);
-                world.setBlockState(pos, state.with(PedestalBlock.HELD_ITEM, !pedestalEntity.getStack(0).isEmpty()), Block.NOTIFY_ALL);
+                world.setBlockState(pos, state.with(OminousPedestalBlock.HELD_ITEM, !pedestalEntity.getStack(0).isEmpty()), Block.NOTIFY_ALL);
                 world.updateNeighborsAlways(pos, state.getBlock());
 
                 ServerWorld serverWorld = (ServerWorld) world;
@@ -335,33 +300,6 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
             tickView.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
         }
 
-        if (direction.getAxis() == Direction.Axis.Y) {
-            return state.with(PART, this.getPillarPart((World) world, pos));
-        }
-
         return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
-    }
-
-    public enum PillarPart implements StringIdentifiable {
-        BOTTOM("bottom"),
-        MIDDLE("middle"),
-        TOP("top"),
-        DEFAULT("default");
-
-        private final String name;
-
-        PillarPart(String name) {
-            this.name = name;
-        }
-
-        @Override
-        public String asString() {
-            return this.name;
-        }
-
-        @Override
-        public String toString() {
-            return this.name;
-        }
     }
 }

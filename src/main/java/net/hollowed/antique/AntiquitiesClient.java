@@ -3,6 +3,7 @@ package net.hollowed.antique;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
@@ -13,6 +14,7 @@ import net.hollowed.antique.blocks.entities.renderer.PedestalRenderer;
 import net.hollowed.antique.client.ModEntityLayers;
 import net.hollowed.antique.client.armor.models.AdventureArmor;
 import net.hollowed.antique.client.armor.models.ArmorStandAdventureArmor;
+import net.hollowed.antique.client.gui.ParryOverlay;
 import net.hollowed.antique.client.gui.SatchelOverlay;
 import net.hollowed.antique.client.pedestal.PedestalTooltipRenderer;
 import net.hollowed.antique.entities.ModEntities;
@@ -20,6 +22,8 @@ import net.hollowed.antique.entities.models.PaleWardenModel;
 import net.hollowed.antique.entities.renderer.PaleWardenRenderer;
 import net.hollowed.antique.networking.PedestalPacketReceiver;
 import net.hollowed.antique.networking.SatchelPacketPayload;
+import net.hollowed.antique.util.ClientSetup;
+import net.hollowed.antique.util.CustomModelLoadingPlugin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
@@ -36,6 +40,10 @@ public class AntiquitiesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+
+        ClientSetup.clientSetup();
+        ModelLoadingPlugin.register(new CustomModelLoadingPlugin());
+//        ClientSetup.registerExtraBakedModels(CustomModelLoadingPlugin.MODELS::add);
 
         /*
             Block Renderers
@@ -69,10 +77,12 @@ public class AntiquitiesClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.PALE_WARDEN, PaleWardenRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(PALE_WARDEN_LAYER, PaleWardenModel::getTexturedModelData);
 
-                /*
+        /*
             Satchel Overlay
          */
         HudRenderCallback.EVENT.register(new SatchelOverlay());
+
+        HudRenderCallback.EVENT.register(new ParryOverlay());
 
         // Right Click Listener
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

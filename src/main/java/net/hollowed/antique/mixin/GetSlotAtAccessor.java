@@ -6,7 +6,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
 @Mixin(HandledScreen.class)
-public interface HandledScreenAccessor {
+public interface GetSlotAtAccessor {
     @Invoker("getSlotAt")
     Slot invokeGetSlotAt(double mouseX, double mouseY);
 }

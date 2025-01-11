@@ -1,0 +1,8 @@
+{
+  "parry_ultrakill": {
+    "subtitle": "subtitles.antique.ultrakill",
+    "sounds": [
+      "antique:parry_ultrakill"
+    ]
+  }
+}

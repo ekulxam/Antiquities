@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Debug(export = true)
 @Mixin(BundleTooltipSubmenuHandler.class)
-public class BundleMouseActionsMixin {
+public class BundleScrollHandler {
     // Invert scrolling direction because items are rendered in the opposite order now
     @ModifyVariable(method = "onScroll", at = @At(value = "STORE", ordinal = 0), ordinal = 2)
     private int modifyScrollAmount(int original) {

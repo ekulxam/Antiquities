@@ -6,7 +6,10 @@
   "enchantment.antique.impetus": "Impetus",
 
   "block.antique.pedestal": "Pedestal",
+  "block.antique.ominous_pedestal": "Ominous Pedestal",
   "block.antique.hollow_core": "Hollow Core",
+  "block.antique.black_sand": "Black Sand",
+  "block.antique.gilded_black_sand": "Gilded Black Sand",
 
   "item.antique.netherite_pauldrons": "Netherite Pauldrons",
   "item.antique.satchel": "Satchel",
@@ -16,6 +19,8 @@
   "item.antique.copper_handle": "Copper Handle",
   "item.antique.pale_wardens_greatsword": "Pale Warden's Greatsword",
   "item.antique.pale_warden_statue": "Pale Warden Statue",
+  "item.antique.reverence": "Reverence",
+  "item.antique.dormant_reverence": "Dormant Reverence",
 
   "effect.antique.bouncy": "Bouncy",
 

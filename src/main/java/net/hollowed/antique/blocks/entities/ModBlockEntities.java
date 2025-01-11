@@ -13,7 +13,7 @@ public class ModBlockEntities {
     public static final BlockEntityType<PedestalBlockEntity> PEDESTAL_BLOCK_ENTITY =
             Registry.register(Registries.BLOCK_ENTITY_TYPE, Identifier.of(Antiquities.MOD_ID, "pedestal"),
                     FabricBlockEntityTypeBuilder.create(PedestalBlockEntity::new,
-                            ModBlocks.PEDESTAL).build());
+                            ModBlocks.PEDESTAL, ModBlocks.OMINOUS_PEDESTAL).build());
 
     public static void initialize() {
         Antiquities.LOGGER.info("Antiquities Block Entities Initialized");
