@@ -33,6 +33,8 @@
     "FreezeFrameMixin",
     "GetSlotAtAccessor",
     "HandledScreenMixin",
+    "ItemGlowMixin",
+    "ModelBakerMixin",
     "ModelLoaderMixin",
     "MouseMixin",
     "PlayerFeatureAdder",

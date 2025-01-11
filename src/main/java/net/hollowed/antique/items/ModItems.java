@@ -4,14 +4,12 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.component.ModComponents;
 import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.items.custom.*;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.*;
 import net.minecraft.item.equipment.EquipmentType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 

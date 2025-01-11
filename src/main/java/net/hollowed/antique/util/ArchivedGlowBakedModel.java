@@ -17,22 +17,22 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class GlowBakedModel implements FabricBakedModel, BakedModel {
+public class ArchivedGlowBakedModel implements FabricBakedModel, BakedModel {
 
-	private BakedModel baseModel;
+	private final BakedModel baseModel;
 
-	public GlowBakedModel(BakedModel model) {
+	public ArchivedGlowBakedModel(BakedModel model) {
 		this.baseModel = model;
 	}
 
 	@Override
 	public boolean isVanillaAdapter() {
-		return false;
+		return this.baseModel.isVanillaAdapter();
 	}
 
 	@Override
 	public void emitBlockQuads(QuadEmitter emitter, BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, Predicate<@Nullable Direction> cullTest) {
-		//System.out.println("Emissive model: emitting block quads");
+		System.out.println("Emissive model: emitting block quads");
 		emitter.pushTransform(quad -> {
 			quad.lightmap(0xf000f0, 0xf000f0, 0xf000f0, 0xf000f0); // Set light levels to maximum
 			return true;
@@ -43,7 +43,7 @@ public class GlowBakedModel implements FabricBakedModel, BakedModel {
 
 	@Override
 	public void emitItemQuads(QuadEmitter emitter, Supplier<Random> randomSupplier) {
-		//System.out.println("Emissive model: emitting item quads");
+		System.out.println("Emissive model: emitting item quads");
 		emitter.pushTransform(quad -> {
 			quad.lightmap(0xf000f0, 0xf000f0, 0xf000f0, 0xf000f0); // Set light levels to maximum
 			return true;
@@ -54,31 +54,31 @@ public class GlowBakedModel implements FabricBakedModel, BakedModel {
 
 	@Override
 	public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction face, Random random) {
-		return List.of();
+		return this.baseModel.getQuads(state, face, random);
 	}
 
 	@Override
 	public boolean useAmbientOcclusion() {
-		return false;
+		return this.baseModel.useAmbientOcclusion();
 	}
 
 	@Override
 	public boolean hasDepth() {
-		return false;
+		return this.baseModel.hasDepth();
 	}
 
 	@Override
 	public boolean isSideLit() {
-		return false;
+		return this.baseModel.isSideLit();
 	}
 
 	@Override
 	public Sprite getParticleSprite() {
-		return null;
+		return this.baseModel.getParticleSprite();
 	}
 
 	@Override
 	public ModelTransformation getTransformation() {
-		return null;
+		return this.baseModel.getTransformation();
 	}
 }

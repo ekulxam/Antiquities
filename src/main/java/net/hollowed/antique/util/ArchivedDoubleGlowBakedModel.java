@@ -3,11 +3,17 @@ package net.hollowed.antique.util;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.minecraft.block.BlockState;
+import net.minecraft.client.item.ItemModelManager;
+import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.render.item.model.ItemModel;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.render.model.BakedQuad;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.random.Random;
@@ -18,61 +24,42 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class TripleGlowBakedModel implements FabricBakedModel, BakedModel {
+public class ArchivedDoubleGlowBakedModel implements FabricBakedModel, BakedModel, ItemModel {
     private final BakedModel baseModel;           // Non-emissive model
     private final BakedModel emissiveOverlay;   // Emissive overlay model
-    private final BakedModel brighterOverlay;
 
-    public TripleGlowBakedModel(BakedModel baseModel, BakedModel emissiveOverlay, BakedModel brighterOverlay) {
+    public ArchivedDoubleGlowBakedModel(BakedModel baseModel, BakedModel emissiveOverlay) {
         this.baseModel = baseModel;
         this.emissiveOverlay = emissiveOverlay;
-        this.brighterOverlay = brighterOverlay;
     }
 
     @Override
     public void emitBlockQuads(QuadEmitter emitter, BlockRenderView blockView, BlockState state, BlockPos pos, Supplier<Random> randomSupplier, Predicate<@Nullable Direction> cullTest) {
-
+        // Render the base (non-emissive) model
         baseModel.emitBlockQuads(emitter, blockView, state, pos, randomSupplier, cullTest);
 
-        // Render the emissive overlay model with noticeable glow
+        // Render the emissive overlay model with glow effect
         emitter.pushTransform(quad -> {
-            quad.lightmap(0x5F0000, 0x5F0000, 0x5F0000, 0x5F0000); // Brighter value for moderate glow
+            quad.lightmap(0xf000f0, 0xf000f0, 0xf000f0, 0xf000f0); // Maximum brightness
             return true;
         });
         emissiveOverlay.emitBlockQuads(emitter, blockView, state, pos, randomSupplier, cullTest);
-        emitter.popTransform(); // Make sure to pop the transform after the overlay
-
-        // Render the brighter overlay model with maximum glow
-        emitter.pushTransform(quad -> {
-            quad.lightmap(0xFF00F0, 0xFF00F0, 0xFF00F0, 0xFF00F0); // Maximum brightness for brighter overlay
-            return true;
-        });
-        brighterOverlay.emitBlockQuads(emitter, blockView, state, pos, randomSupplier, cullTest);
-        emitter.popTransform(); // Pop transform after the brighter overlay
+        emitter.popTransform();
     }
 
     @Override
     public void emitItemQuads(QuadEmitter emitter, Supplier<Random> randomSupplier) {
-
+        // Render the base (non-emissive) model
         baseModel.emitItemQuads(emitter, randomSupplier);
 
-        // Render the emissive overlay model with noticeable glow
+        // Render the emissive overlay model with glow effect
         emitter.pushTransform(quad -> {
-            quad.lightmap(0x5F0000, 0x5F0000, 0x5F0000, 0x5F0000); // Brighter value for moderate glow
+            quad.lightmap(0xf000f0, 0xf000f0, 0xf000f0, 0xf000f0); // Maximum brightness
             return true;
         });
         emissiveOverlay.emitItemQuads(emitter, randomSupplier);
-        emitter.popTransform(); // Make sure to pop the transform after the overlay
-
-        // Render the brighter overlay model with maximum glow
-        emitter.pushTransform(quad -> {
-            quad.lightmap(0xFF00F0, 0xFF00F0, 0xFF00F0, 0xFF00F0); // Maximum brightness for brighter overlay
-            return true;
-        });
-        brighterOverlay.emitItemQuads(emitter, randomSupplier);
-        emitter.popTransform(); // Pop transform after the brighter overlay
+        emitter.popTransform();
     }
-
 
     @Override
     public boolean isVanillaAdapter() {
@@ -107,5 +94,10 @@ public class TripleGlowBakedModel implements FabricBakedModel, BakedModel {
     @Override
     public ModelTransformation getTransformation() {
         return null;
+    }
+
+    @Override
+    public void update(ItemRenderState state, ItemStack stack, ItemModelManager resolver, ModelTransformationMode transformationMode, @Nullable ClientWorld world, @Nullable LivingEntity user, int seed) {
+
     }
 }
