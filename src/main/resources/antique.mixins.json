@@ -35,7 +35,6 @@
     "HandledScreenMixin",
     "ItemGlowMixin",
     "ModelBakerMixin",
-    "ModelLoaderMixin",
     "MouseMixin",
     "PlayerFeatureAdder",
     "PreventItemActionsMixin",

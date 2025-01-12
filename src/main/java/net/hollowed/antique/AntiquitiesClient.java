@@ -22,8 +22,6 @@ import net.hollowed.antique.entities.models.PaleWardenModel;
 import net.hollowed.antique.entities.renderer.PaleWardenRenderer;
 import net.hollowed.antique.networking.PedestalPacketReceiver;
 import net.hollowed.antique.networking.SatchelPacketPayload;
-import net.hollowed.antique.util.ClientSetup;
-import net.hollowed.antique.util.CustomModelLoadingPlugin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
@@ -40,10 +38,6 @@ public class AntiquitiesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-
-        ClientSetup.clientSetup();
-        ModelLoadingPlugin.register(new CustomModelLoadingPlugin());
-//        ClientSetup.registerExtraBakedModels(CustomModelLoadingPlugin.MODELS::add);
 
         /*
             Block Renderers
