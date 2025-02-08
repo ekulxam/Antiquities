@@ -4,37 +4,37 @@ import org.joml.Vector3d;
 
 public class ClothBody {
 
-    Vector3d pos;
-    Vector3d vel = new Vector3d();
+    Vector3d pos = new Vector3d();
+    Vector3d posCache = new Vector3d();
     Vector3d accel = new Vector3d();
 
     public ClothBody(Vector3d worldPos) {
         pos = new Vector3d(worldPos);
+        posCache = new Vector3d(worldPos);
     }
 
     public ClothBody(Vector3d worldPos, Vector3d worldVel) {
         pos = new Vector3d(worldPos);
-        vel = new Vector3d(worldVel);
+        posCache = pos.sub(new Vector3d(worldVel));
     }
 
     public void update(double delta) {
-        vel.add(accel.mul(delta));
+        Vector3d vel = pos.sub(posCache, new Vector3d());
+        posCache = new Vector3d(pos);
+
+        var dAccel = accel.mul(delta * delta, new Vector3d());
+        pos.add(vel.add(dAccel, new Vector3d()));
         accel = new Vector3d();
-        pos.add(vel.mul(delta));
     }
 
-    public void containDistance(ClothBody other) {
-        var MAX_DISTANCE = 0.1;
+    public void containDistance(ClothBody other, double distance) {
 
-        if (pos.distance(other.pos) >= MAX_DISTANCE) {
-            var dir = pos.sub(other.pos, new Vector3d());
-            other.vel = reflectVelocity(other.vel, dir);
-
-            var correction = dir.mul((MAX_DISTANCE - pos.distance(other.pos)), new Vector3d());
-            other.pos.add(correction);
-        }
-
-        other.vel.mul(0.98);
+        Vector3d axis = pos.sub(other.pos, new Vector3d());
+        double dist = axis.length();
+        Vector3d norm = axis.div(dist, new Vector3d());
+        double delta = distance - dist;
+        pos.add(norm.mul(0.5 * delta, new Vector3d()));
+        other.pos.sub(norm.mul(0.5 * delta, new Vector3d()));
     }
 
     private Vector3d reflectVelocity(Vector3d velocity, Vector3d normal){
