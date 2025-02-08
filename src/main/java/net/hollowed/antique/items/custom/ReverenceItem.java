@@ -46,12 +46,13 @@ public class ReverenceItem extends Item {
 
     @Override
     public ActionResult use(World world, PlayerEntity user, Hand hand) {
+        user.setCurrentHand(hand);
         return ActionResult.PASS;
     }
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        return UseAction.CROSSBOW;
+        return UseAction.SPEAR;
     }
 
     @Override

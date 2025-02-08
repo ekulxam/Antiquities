@@ -23,7 +23,8 @@
           "firstperson_lefthand",
           "thirdperson_righthand",
           "thirdperson_lefthand",
-          "head"
+          "head",
+          "none"
         ]
       }
     ],

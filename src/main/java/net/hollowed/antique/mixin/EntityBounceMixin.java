@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatArrays;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.util.FastAir;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -33,7 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 
 @Mixin(Entity.class)
-public abstract class EntityBounceMixin {
+public abstract class EntityBounceMixin implements FastAir {
 
     @Shadow
     public abstract Vec3d getVelocity();
@@ -60,16 +61,23 @@ public abstract class EntityBounceMixin {
 
     @Shadow public abstract boolean isSubmergedInWater();
 
+    @Unique
+    private boolean isFastAir;
 
     @Shadow private Vec3d pos;
     @Unique
     private int tickCounter = 0; // Counter to track ticks
 
     @Unique
-    private Vec3d startPosition; // To store the position at the start of the tick
-
-    @Unique
     private Vec3d lastTickPosition; // To store the entity's position at the end of the last tick
+
+    public void antique$setFast(boolean bool) {
+        this.isFastAir = bool;
+    }
+
+    public boolean antique$getFast() {
+        return this.isFastAir;
+    }
 
     /**
      * Capture the entity's position at the start of each tick (head inject).
@@ -96,15 +104,20 @@ public abstract class EntityBounceMixin {
             boolean Z = !MathHelper.approximatelyEquals(velocity.z, adjustedVec.z);
             boolean Y = !MathHelper.approximatelyEquals(velocity.y, adjustedVec.y);
 
-            if (livingEntity.hasStatusEffect(Antiquities.BOUNCE_EFFECT) || livingEntity.hasStatusEffect(Antiquities.VOLATILE_BOUNCE_EFFECT) && !this.isSpectator()) {
+            if (livingEntity.hasStatusEffect(Antiquities.BOUNCE_EFFECT) || livingEntity.hasStatusEffect(Antiquities.VOLATILE_BOUNCE_EFFECT) || this.isFastAir && !this.isSpectator()) {
                 if ((Object) this instanceof PlayerEntity player && player.isGliding()) {
                     return;
                 }
+
                 double airResistanceCounter = 1.05;
 
                 if (!this.isOnGround()) {
                     // Reduce air resistance
                     this.setVelocity(velocity.x * airResistanceCounter, velocity.y, velocity.z * airResistanceCounter); // Slightly reduce resistance
+                }
+
+                if (this.isFastAir) {
+                    return;
                 }
 
                 // Bounce logic

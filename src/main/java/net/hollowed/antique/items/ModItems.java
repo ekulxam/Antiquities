@@ -4,18 +4,25 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.component.ModComponents;
 import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.items.custom.*;
+import net.minecraft.block.Block;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.UnbreakableComponent;
 import net.minecraft.item.*;
 import net.minecraft.item.equipment.EquipmentType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.*;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Rarity;
 
 import java.util.List;
 
 public class ModItems {
+
+    public static RegistryEntryLookup<Block> registryEntryLookup = Registries.createEntryLookup(Registries.BLOCK);
+
+    public static final Item EXPLOSIVE_SPEAR = registerItem("explosive_spear", new Item(new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "explosive_spear")))
+            .maxCount(1)
+    ));
 
     public static final Item NETHERITE_PAULDRONS = registerItem("netherite_pauldrons", new NetheritePauldronsItem(ModArmorMaterials.ADVENTURE, EquipmentType.CHESTPLATE, new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "netherite_pauldrons")))
@@ -31,7 +38,6 @@ public class ModItems {
                     .maxCount(1)
                     .fireproof()
     ));
-
 
     public static final Item FUR_BOOTS = registerItem("fur_boots", new FurBootsItem(ModArmorMaterials.ADVENTURE, EquipmentType.BOOTS, new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "fur_boots")))
@@ -51,6 +57,39 @@ public class ModItems {
     public static final Item REVERENCE = registerItem("reverence", new ReverenceItem(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "reverence")))
             .maxCount(1).attributeModifiers(ReverenceItem.createAttributeModifiers()).maxDamage(2031).enchantable(10).rarity(Rarity.EPIC)
+            .fireproof()
+    ));
+
+    public static final Item IRREVERENT = registerItem("irreverence", new DeathItem(new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "irreverence")))
+            .maxCount(1).attributeModifiers(DeathItem.createAttributeModifiers()).maxDamage(2031).enchantable(10).rarity(Rarity.EPIC)
+            .fireproof()
+    ));
+
+    public static final Item MYRIAD_TOOL = registerItem("myriad_tool", new MyriadToolItem(new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_tool")))
+            .maxCount(1).attributeModifiers(MyriadToolItem.createAttributeModifiers()).enchantable(10).rarity(Rarity.UNCOMMON).fireproof()
+            .component(ModComponents.MYRIAD_STACK, ItemStack.EMPTY)
+            .component(ModComponents.INTEGER_PROPERTY, 0)
+            .component(DataComponentTypes.UNBREAKABLE, new UnbreakableComponent(true))
+    ));
+
+    public static final Item MYRIAD_PICK_HEAD = registerItem("myriad_mattock_head", new MyriadToolBitItem(new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_mattock_head")))
+            .maxCount(1).attributeModifiers(MyriadToolItem.createAttributeModifiers()).enchantable(10).rarity(Rarity.UNCOMMON)
+            .fireproof().component(DataComponentTypes.UNBREAKABLE, new UnbreakableComponent(true)).component(DataComponentTypes.TOOL, ShearsItem.createToolComponent()), 1
+    ));
+
+    public static final Item MYRIAD_AXE_HEAD = registerItem("myriad_axe_head", new MyriadToolBitItem(new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_axe_head")))
+            .maxCount(1).attributeModifiers(MyriadToolItem.createAttributeModifiers()).enchantable(10).rarity(Rarity.UNCOMMON)
+            .fireproof().component(DataComponentTypes.UNBREAKABLE, new UnbreakableComponent(true)), 2
+    ));
+
+    public static final Item MYRIAD_SHOVEL_HEAD = registerItem("myriad_shovel_head", new MyriadToolBitItem(new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_shovel_head")))
+            .maxCount(1).attributeModifiers(MyriadToolItem.createAttributeModifiers()).enchantable(10).rarity(Rarity.UNCOMMON)
+            .fireproof().component(DataComponentTypes.UNBREAKABLE, new UnbreakableComponent(true)), 3
     ));
 
     public static final Item DORMANT_REVERENCE = registerItem("dormant_reverence", new ReverenceItem(new Item.Settings()

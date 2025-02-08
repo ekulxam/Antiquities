@@ -18,26 +18,44 @@ import net.hollowed.antique.client.gui.ParryOverlay;
 import net.hollowed.antique.client.gui.SatchelOverlay;
 import net.hollowed.antique.client.pedestal.PedestalTooltipRenderer;
 import net.hollowed.antique.entities.ModEntities;
+import net.hollowed.antique.entities.models.ExplosiveSpearCloth;
 import net.hollowed.antique.entities.models.PaleWardenModel;
+import net.hollowed.antique.entities.renderer.MyriadShovelEntityRenderer;
+import net.hollowed.antique.entities.renderer.MyriadShovelPartRenderer;
 import net.hollowed.antique.entities.renderer.PaleWardenRenderer;
-import net.hollowed.antique.networking.PedestalPacketReceiver;
-import net.hollowed.antique.networking.SatchelPacketPayload;
+import net.hollowed.antique.networking.*;
+import net.hollowed.antique.particles.ModParticles;
+import net.hollowed.antique.util.CustomModelLoadingPlugin;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.util.Identifier;
+
+import java.util.function.Consumer;
 
 public class AntiquitiesClient implements ClientModInitializer {
 
     // Global variable to track the last time the use key was pressed
     private static long lastUseTime = 0;  // Time of last use in milliseconds
     private static final long COOLDOWN_TIME = 250;  // Cooldown time in milliseconds (500 ms = 0.5 seconds)
+    private static boolean wasCrawling = false; // Store previous key state
 
     public static final EntityModelLayer PALE_WARDEN_LAYER = new EntityModelLayer(Identifier.of(Antiquities.MOD_ID, "pale_warden"), "main");
+    public static final EntityModelLayer EXPLOSIVE_SPEAR_CLOTH_LAYER = new EntityModelLayer(Identifier.of(Antiquities.MOD_ID, "explosive_spear_cloth"), "main");
+
+    public static void registerExtraBakedModels(Consumer<ModelIdentifier> registration) {
+        registration.accept(new ModelIdentifier(Antiquities.id("reverence_e"), "inventory"));
+    }
 
     @Override
     public void onInitializeClient() {
+
+        ModParticles.initializeClient();
+
+        ModelLoadingPlugin.register(new CustomModelLoadingPlugin());
+        AntiquitiesClient.registerExtraBakedModels(CustomModelLoadingPlugin.MODELS::add);
 
         /*
             Block Renderers
@@ -49,6 +67,7 @@ public class AntiquitiesClient implements ClientModInitializer {
             Packets
          */
         PedestalPacketReceiver.registerClientPacket();
+        WallJumpParticlePacketReceiver.registerClientPacket();
 
         /*
             In Game Tooltips
@@ -71,12 +90,33 @@ public class AntiquitiesClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.PALE_WARDEN, PaleWardenRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(PALE_WARDEN_LAYER, PaleWardenModel::getTexturedModelData);
 
+        EntityRendererRegistry.register(ModEntities.MYRIAD_SHOVEL, MyriadShovelEntityRenderer::new);
+        EntityRendererRegistry.register(ModEntities.MYRIAD_SHOVEL_PART, MyriadShovelPartRenderer::new);
+
+        EntityModelLayerRegistry.registerModelLayer(EXPLOSIVE_SPEAR_CLOTH_LAYER, ExplosiveSpearCloth::getTexturedModelData);
+
         /*
             Satchel Overlay
          */
         HudRenderCallback.EVENT.register(new SatchelOverlay());
 
         HudRenderCallback.EVENT.register(new ParryOverlay());
+
+        ClientTickEvents.END_CLIENT_TICK.register(client -> {
+            if (client.player == null) {
+                return;
+            }
+
+            if (ModKeyBindings.crawl.wasPressed()) { // Detect key press event
+                wasCrawling = !wasCrawling; // Toggle crawling state
+                ClientPlayNetworking.send(new CrawlPacketPayload(wasCrawling));
+            }
+            if (!client.player.isOnGround()) {
+                wasCrawling = false;
+                ClientPlayNetworking.send(new CrawlPacketPayload(wasCrawling));
+            }
+        });
+
 
         // Right Click Listener
         ClientTickEvents.END_CLIENT_TICK.register(client -> {

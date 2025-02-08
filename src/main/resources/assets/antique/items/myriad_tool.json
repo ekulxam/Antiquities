@@ -1,0 +1,160 @@
+{
+  "model": {
+    "type": "minecraft:range_dispatch",
+    "entries": [
+      {
+        "model": {
+          "type": "minecraft:select",
+          "cases": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/myriad_handle_inventory"
+              },
+              "when": [
+                "gui",
+                "ground",
+                "fixed"
+              ]
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/myriad_handle"
+              },
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand",
+                "thirdperson_righthand",
+                "thirdperson_lefthand",
+                "head",
+                "none"
+              ]
+            }
+          ],
+          "property": "minecraft:display_context"
+        },
+        "threshold": 0
+      },
+      {
+        "model": {
+          "type": "minecraft:select",
+          "cases": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/myriad_mattock_inventory"
+              },
+              "when": [
+                "gui",
+                "ground",
+                "fixed"
+              ]
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/myriad_mattock"
+              },
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand",
+                "thirdperson_righthand",
+                "thirdperson_lefthand",
+                "head",
+                "none"
+              ]
+            }
+          ],
+          "property": "minecraft:display_context"
+        },
+        "threshold": 1
+      },
+      {
+        "model": {
+          "type": "minecraft:select",
+          "cases": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/myriad_axe_inventory"
+              },
+              "when": [
+                "gui",
+                "ground",
+                "fixed"
+              ]
+            },
+            {
+              "model": {
+                "type": "minecraft:condition",
+                "on_false": {
+                  "type": "minecraft:model",
+                  "model": "antique:item/myriad_axe"
+                },
+                "on_true": {
+                  "type": "minecraft:model",
+                  "model": "antique:item/myriad_axe_blocking"
+                },
+                "property": "minecraft:using_item"
+              },
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand",
+                "thirdperson_righthand",
+                "thirdperson_lefthand",
+                "head",
+                "none"
+              ]
+            }
+          ],
+          "property": "minecraft:display_context"
+        },
+        "threshold": 2
+      },
+      {
+        "model": {
+          "type": "minecraft:select",
+          "cases": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/myriad_shovel_inventory"
+              },
+              "when": [
+                "gui",
+                "ground",
+                "fixed"
+              ]
+            },
+            {
+              "model": {
+                "type": "minecraft:condition",
+                "on_false": {
+                  "type": "minecraft:model",
+                  "model": "antique:item/myriad_shovel"
+                },
+                "on_true": {
+                  "type": "minecraft:model",
+                  "model": "antique:item/myriad_shovel_throwing"
+                },
+                "property": "minecraft:using_item"
+              },
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand",
+                "thirdperson_righthand",
+                "thirdperson_lefthand",
+                "head",
+                "none"
+              ]
+            }
+          ],
+          "property": "minecraft:display_context"
+        },
+        "threshold": 3
+      }
+    ],
+    "property": "antique:int_property"
+  }
+}

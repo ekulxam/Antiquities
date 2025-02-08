@@ -1,6 +1,7 @@
 package net.hollowed.antique.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.hollowed.antique.items.custom.MyriadToolItem;
 import net.hollowed.antique.items.custom.SatchelItem;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
@@ -28,6 +29,8 @@ public class SatchelPacketReceiver {
                 ItemStack currentHotbarStack = playerInventory.getStack(currentHotbarSlot);
                 ItemStack currentSatchelStack = satchelItem.getSelectedStack(satchelInventory);
 
+                ItemStack myriadItem = ItemStack.EMPTY;
+
                 if (!satchelItem.isInvalidItem(currentHotbarStack)) {
                     if (currentSatchelStack.isEmpty() && currentHotbarStack.isEmpty()) {
                         player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT_FAIL, SoundCategory.PLAYERS, 1.0F, 1.0F);
@@ -35,17 +38,33 @@ public class SatchelPacketReceiver {
 
                     // Move the selected satchel stack to the hotbar
                     if (!currentSatchelStack.isEmpty()) {
-                        playerInventory.setStack(currentHotbarSlot, currentSatchelStack);
-                        player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                        if (currentHotbarStack.getItem() instanceof MyriadToolItem && !MyriadToolItem.isInvalidItem(currentSatchelStack)) {
+                            myriadItem = MyriadToolItem.getStoredStack(currentHotbarStack);
+                            MyriadToolItem.setStoredStack(currentHotbarStack, currentSatchelStack);
+                            player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                        } else {
+                            playerInventory.setStack(currentHotbarSlot, currentSatchelStack);
+                            player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                        }
+                    } else if (currentHotbarStack.getItem() instanceof MyriadToolItem) {
+                        myriadItem = MyriadToolItem.getStoredStack(currentHotbarStack);
+                        if (myriadItem.isEmpty()) {
+                            satchelItem.setSlot(satchelInventory, myriadItem);
+                        }
+                        MyriadToolItem.setStoredStack(currentHotbarStack, ItemStack.EMPTY);
                     } else {
                         playerInventory.removeStack(currentHotbarSlot);
                     }
 
                     // Update the satchel's slot with the hotbar item
                     if (!currentHotbarStack.isEmpty()) {
-                        satchelItem.setSlot(satchelInventory, currentHotbarStack);
+                        if ((currentHotbarStack.getItem() instanceof MyriadToolItem)) {
+                            satchelItem.setSlot(satchelInventory, myriadItem != ItemStack.EMPTY ? myriadItem : currentHotbarStack);
+                        } else {
+                            satchelItem.setSlot(satchelInventory, currentHotbarStack);
+                        }
                         player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                    } else {
+                    } else  {
                         satchelItem.setSlot(satchelInventory, ItemStack.EMPTY);
                     }
                 } else {

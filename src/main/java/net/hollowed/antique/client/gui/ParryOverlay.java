@@ -26,7 +26,7 @@ public class ParryOverlay implements HudRenderCallback {
 
         // Draw the texture stretched over the entire screen
         if (FreezeFrameManager.isUltrakill()) {
-            context.drawTexture(RenderLayer::getGuiTextured, PARRY_OVERLAY, 0, 0, 0, 0, screenWidth, screenHeight, screenWidth, screenHeight);
+            context.drawTexture(RenderLayer::getGuiTexturedOverlay, PARRY_OVERLAY, 0, 0, 0, 0, screenWidth, screenHeight, screenWidth, screenHeight);
         }
     }
 }

@@ -40,8 +40,8 @@ public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity
         if (!heldItem.isEmpty()) {
             // Get the world time for animation
             long worldTime = Objects.requireNonNull(pedestalBlockEntity.getWorld()).getTime();
-            float rotation = (worldTime + tickDelta) * 2; // Smooth rotation
-            float bob = (float) Math.sin((worldTime + tickDelta) * 0.1f) * 0.0875f; // Smooth bobbing
+            float rotation = ((worldTime + tickDelta) * 2) % 360; // Smooth rotation
+            float bob = (float) Math.sin((worldTime % 63 + tickDelta) * 0.1f) * 0.0875f; // Smooth bobbing
 
             if (heldItem.getItem() instanceof EndCrystalItem) {
                 renderEndCrystalEntity(ITEM_POS.add(0, 0, 0), tickDelta, matrices, vertexConsumers, light, pedestalBlockEntity.getWorld());

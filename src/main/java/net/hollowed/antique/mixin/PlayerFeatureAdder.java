@@ -1,6 +1,8 @@
 package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
+import net.hollowed.antique.items.custom.DeathItem;
+import net.hollowed.antique.items.custom.MyriadToolItem;
 import net.hollowed.antique.items.custom.ReverenceItem;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -32,11 +34,18 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
     @Inject(method = "getArmPose(Lnet/minecraft/client/network/AbstractClientPlayerEntity;Lnet/minecraft/util/Arm;)Lnet/minecraft/client/render/entity/model/BipedEntityModel$ArmPose;", at = @At("HEAD"), cancellable = true)
     private static void getArmPose(AbstractClientPlayerEntity player, Arm arm, CallbackInfoReturnable<BipedEntityModel.ArmPose> cir) {
         ItemStack itemStack = player.getStackInArm(arm);
-        if (itemStack.getItem() instanceof ReverenceItem) {
+        if (itemStack.getItem() instanceof ReverenceItem || itemStack.getItem() instanceof DeathItem) {
             if (!player.isUsingItem() && !player.handSwinging && !player.isSneaking()) {
                 cir.setReturnValue(BipedEntityModel.ArmPose.CROSSBOW_CHARGE);
             } else if (player.isSneaking() || player.handSwinging) {
                 cir.setReturnValue(BipedEntityModel.ArmPose.CROSSBOW_HOLD);
+            }
+        }
+        if (itemStack.getItem() instanceof MyriadToolItem) {
+            if (player.isSneaking() && !player.isUsingItem()) {
+                cir.setReturnValue(BipedEntityModel.ArmPose.BLOCK);
+            } else if (!player.isUsingItem()) {
+                cir.setReturnValue(BipedEntityModel.ArmPose.BRUSH);
             }
         }
     }

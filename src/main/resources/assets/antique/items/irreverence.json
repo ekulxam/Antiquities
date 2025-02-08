@@ -1,0 +1,32 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "antique:item/irreverence_inventory"
+        },
+        "when": [
+          "gui",
+          "ground",
+          "fixed"
+        ]
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "antique:item/irreverence"
+        },
+        "when": [
+          "firstperson_righthand",
+          "firstperson_lefthand",
+          "thirdperson_righthand",
+          "thirdperson_lefthand",
+          "head"
+        ]
+      }
+    ],
+    "property": "minecraft:display_context"
+  }
+}

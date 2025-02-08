@@ -254,7 +254,9 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
                         Entity entity1 = entityType.create(world, SpawnReason.MOB_SUMMONED);
                         if (entity1 instanceof MobEntity mobEntity) {
                             SoundEvent ambientSound = ((MobEntitySoundAccessor) mobEntity).invokeGetAmbientSound();
-                            world.playSound(null, pos, ambientSound, mobEntity.getSoundCategory());
+                            if (ambientSound != null) {
+                                world.playSound(null, pos, ambientSound, mobEntity.getSoundCategory());
+                            }
                         }
                     }
                 }

@@ -85,9 +85,9 @@ public class VelocityTransferMaceItem extends Item {
                 if (!user.getWorld().isClient) {
                     ((PlayerEntity) user).getItemCooldownManager().set(stack, 130);
                     if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
-                        user.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, (int) velocity * 45, 0, true, true));
+                        user.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, (int) ((velocity - 0.625) * 55), 0, true, true));
                     } else {
-                        user.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, (int) velocity * 55, 0, true, true));
+                        user.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, (int) ((velocity - 0.625) * 65), 0, true, true));
                     }
                 }
                 return false;
@@ -155,7 +155,7 @@ public class VelocityTransferMaceItem extends Item {
     @Override
     public UseAction getUseAction(ItemStack stack) {
         if (EnchantmentListener.hasCustomEnchantment(stack, "antique:impetus")) {
-            return UseAction.BOW;
+            return UseAction.SPEAR;
         }
         return UseAction.NONE;
     }
@@ -196,7 +196,7 @@ public class VelocityTransferMaceItem extends Item {
                     if (nearby instanceof LivingEntity && nearby != target && nearby != attacker) {
                         double distance = target.getPos().distanceTo(nearby.getPos());
                         if (distance <= radius) {
-                            double scalingFactor = 1 - (distance / radius); // Closer entities get more velocity
+                            double scalingFactor = 1.5 - (distance / radius); // Closer entities get more velocity
                             Vec3d reducedVelocity = effectiveVelocity.multiply(scalingFactor); // Reduce strength
                             nearby.setVelocity(reducedVelocity);
                             nearby.velocityModified = true;
@@ -244,11 +244,6 @@ public class VelocityTransferMaceItem extends Item {
             Vec3d effectiveVelocity = playerVelocity;
 
             if (effectiveVelocity.length() > 0.1) { // Adjust the threshold if needed
-
-                // Apply damage based on the velocity magnitude
-                float damage = Math.min((float) (effectiveVelocity.length() * 3.5), 30); // Clamp to a max of 30
-                target.damage((ServerWorld) attacker.getWorld(),
-                        attacker.getWorld().getDamageSources().playerAttack(player), damage);
 
                 // Apply velocity to the target
                 Vec3d targetVelocity = effectiveVelocity.multiply(5, 2, 5);

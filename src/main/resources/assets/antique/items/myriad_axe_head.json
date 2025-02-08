@@ -1,0 +1,41 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "antique:item/myriad_axe_head_inventory"
+        },
+        "when": [
+          "gui",
+          "ground",
+          "fixed"
+        ]
+      },
+      {
+        "model": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "antique:item/myriad_axe_head"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "antique:item/myriad_axe_head_climbing"
+          },
+          "property": "minecraft:using_item"
+        },
+        "when": [
+          "firstperson_righthand",
+          "firstperson_lefthand",
+          "thirdperson_righthand",
+          "thirdperson_lefthand",
+          "head",
+          "none"
+        ]
+      }
+    ],
+    "property": "minecraft:display_context"
+  }
+}

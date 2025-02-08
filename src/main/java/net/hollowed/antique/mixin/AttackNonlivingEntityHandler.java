@@ -2,18 +2,15 @@ package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.ModSounds;
 import net.hollowed.antique.items.custom.NetheritePauldronsItem;
-import net.hollowed.antique.items.custom.ReverenceItem;
 import net.hollowed.antique.items.custom.VelocityTransferMaceItem;
 import net.hollowed.antique.util.FreezeFrameManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.Hand;
@@ -24,7 +21,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Objects;
 
@@ -37,15 +33,13 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
         super(entityType, world);
     }
 
-    @Inject(at = @At("HEAD"), method = "attack")
+    @Inject(at = @At("HEAD"), method = "attack", cancellable = true)
     private void attackWithScepter(Entity target, CallbackInfo ci) {
         PlayerEntity player = (PlayerEntity) (Object) this;
+
         float attackPower = player.getAttackCooldownProgress(0.0f);
         ItemStack stack = player.getStackInHand(Hand.MAIN_HAND);
         if (stack.getItem() instanceof VelocityTransferMaceItem item) {
-            if (!(target instanceof LivingEntity)) {
-                item.postEntityHit(target, this);
-            }
             if (attackPower > 0.9f) {
                 float pitch = 1.1f + (player.getRandom().nextFloat() * .2f);
 
@@ -59,6 +53,10 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
             } else {
                 player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.3F);
+            }
+            if (!(target instanceof LivingEntity)) {
+                item.postEntityHit(target, this);
+                ci.cancel();
             }
         }
     }

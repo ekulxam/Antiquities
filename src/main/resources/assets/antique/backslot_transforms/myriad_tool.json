@@ -1,0 +1,8 @@
+{
+  "item": "antique:myriad_tool",
+  "scale": [2.0, 2.0, 1.0],
+  "rotation": [0.0, 180.0, 0.0],
+  "translation": [0.1, 0.0, 0.1],
+  "mode": "NONE",
+  "sway": 1.0
+}

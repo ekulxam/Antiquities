@@ -24,6 +24,10 @@ public abstract class AirAccelerationTweaker extends Entity {
 
     @Shadow public abstract boolean damage(ServerWorld world, DamageSource source, float amount);
 
+    @Shadow protected abstract Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput);
+
+    @Shadow public abstract boolean isUsingRiptide();
+
     public AirAccelerationTweaker(EntityType<?> type, World world) {
         super(type, world);
     }
@@ -33,11 +37,15 @@ public abstract class AirAccelerationTweaker extends Entity {
         // Get the entity (LivingEntity)
         Entity entity = this;
 
-
         if ((LivingEntity) (Object) this instanceof PlayerEntity player && !entity.isOnGround() && player.getGlidingTicks() == 0) {
             // Scale horizontal movement input for better acceleration
-            double horizontalBoost = 0.15; // Adjust this value for more/less acceleration
+            double horizontalBoost = 0.01; // Adjust this value for more/less acceleration
+            if (this.isSprinting()) horizontalBoost = 0.015;
+            if (this.isUsingRiptide()) horizontalBoost = 0.125;
+            if (this.hasStatusEffect(Antiquities.BOUNCE_EFFECT)) horizontalBoost = 0.15;
             double maxHorizontalSpeed = 0.75; // Cap horizontal speed to prevent over-speeding
+            if (this.isSprinting()) maxHorizontalSpeed = 1.15;
+
 
             // Convert movementInput to global (world) coordinates
             float yaw = entity.getYaw(); // Get player yaw in degrees
@@ -62,6 +70,53 @@ public abstract class AirAccelerationTweaker extends Entity {
             }
 
             if (this.hasStatusEffect(Antiquities.BOUNCE_EFFECT)) {
+                this.setVelocity(newVelocity);
+            } else if (movementInput.length() > 0.1) {
+                this.setVelocity(newVelocity);
+            }
+        }
+    }
+
+    @Inject(method = "travelInFluid", at = @At("HEAD"))
+    private void boostHorizontalAccelerationInWater(Vec3d movementInput, CallbackInfo ci) {
+        // Get the entity (LivingEntity)
+        Entity entity = this;
+
+        if ((LivingEntity) (Object) this instanceof PlayerEntity player && !entity.isOnGround() && player.getGlidingTicks() == 0) {
+            // Scale horizontal movement input for better acceleration
+            double horizontalBoost = 0.01; // Adjust this value for more/less acceleration
+            if (this.isSprinting()) horizontalBoost = 0.011;
+            if (this.isUsingRiptide()) horizontalBoost = 0.125;
+            if (this.hasStatusEffect(Antiquities.BOUNCE_EFFECT)) horizontalBoost = 0.15;
+            double maxHorizontalSpeed = 0.75; // Cap horizontal speed to prevent over-speeding
+            if (this.isSprinting()) maxHorizontalSpeed = 1.15;
+
+
+            // Convert movementInput to global (world) coordinates
+            float yaw = entity.getYaw(); // Get player yaw in degrees
+            double yawRad = Math.toRadians(yaw); // Convert to radians for trigonometric functions
+
+            // Rotate movementInput based on yaw
+            double globalX = movementInput.x * Math.cos(yawRad) - movementInput.z * Math.sin(yawRad);
+            double globalZ = movementInput.x * Math.sin(yawRad) + movementInput.z * Math.cos(yawRad);
+
+            // Create the global movement vector
+            Vec3d boostedInput = new Vec3d(globalX * horizontalBoost, 0, globalZ * horizontalBoost);
+
+            // Apply the adjusted input to the entity's velocity
+            Vec3d currentVelocity = this.getVelocity();
+            Vec3d newVelocity = currentVelocity.add(boostedInput);
+
+            // Limit the horizontal velocity
+            double horizontalSpeed = Math.sqrt(newVelocity.x * newVelocity.x + newVelocity.z * newVelocity.z);
+            if (horizontalSpeed > maxHorizontalSpeed) {
+                double scale = maxHorizontalSpeed / horizontalSpeed;
+                newVelocity = new Vec3d(newVelocity.x * scale, newVelocity.y, newVelocity.z * scale);
+            }
+
+            if (this.hasStatusEffect(Antiquities.BOUNCE_EFFECT)) {
+                this.setVelocity(newVelocity);
+            } else if (movementInput.length() > 0.1) {
                 this.setVelocity(newVelocity);
             }
         }
