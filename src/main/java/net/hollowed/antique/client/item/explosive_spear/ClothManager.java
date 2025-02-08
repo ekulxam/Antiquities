@@ -9,8 +9,14 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.model.GuardianEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
+import net.minecraft.util.hit.BlockHitResult;
+import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.RaycastContext;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
 import org.spongepowered.asm.mixin.Unique;
@@ -39,15 +45,14 @@ public class ClothManager {
 
     public void tick(double delta) {
         CLOTH_LENGTH = 1.5;
-        CLOTH_WIDTH = 0.05;
+        CLOTH_WIDTH = 0.075;
 
         // Update parent position
         var root = bodies.getFirst();
         root.pos = new Vector3d(pos);
 
-        for (int i = 0; i < bodies.size(); i++) {
-            var body = bodies.get(i);
-
+        // Update pass
+        for (ClothBody body : bodies) {
             Vector3d vel = body.pos.sub(body.posCache, new Vector3d());
             body.accel.add(vel.mul(-0.15));
             body.accel.add(0.0, -0.000098, 0.0);
@@ -55,6 +60,7 @@ public class ClothManager {
             body.update(delta);
         }
 
+        // Constraint pass
         for (int i = 0; i < bodies.size() - 1; i++) {
             var body = bodies.get(i);
             var nextBody = bodies.get(i + 1);
@@ -62,6 +68,13 @@ public class ClothManager {
             for (int j = 0; j < bodies.size() - 1; j++) { body.containDistance(nextBody, (1.0/bodies.size()) * CLOTH_LENGTH ); }
         }
 
+        // Collision pass
+        var world = MinecraftClient.getInstance().world;
+        if(world != null) {
+            for (ClothBody body : bodies) {
+                body.slideOutOfBlocks(world);
+            }
+        }
     }
 
 
