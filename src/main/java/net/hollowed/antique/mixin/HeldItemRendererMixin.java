@@ -56,7 +56,6 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             matrices.translate(0, 0.6, 0);
 
             Entity entity = access.antique$getEntity();
-            World world = entity.getWorld();
 
             // Extract transformation matrix
             Matrix4f matrix = matrices.peek().getPositionMatrix();
@@ -65,18 +64,24 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
             Vec3d itemWorldPos = transformToWorld(matrix, camera);
 
-            ClothManager manager = new ClothManager(new Vector3d(itemWorldPos.x, itemWorldPos.y, itemWorldPos.z), 4);
+            ClothManager manager;
 
             if (entity instanceof SpearClothAccess clothAccess) {
-                manager = arm == Arm.RIGHT ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
+                if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(ModItems.EXPLOSIVE_SPEAR)) {
+                    manager = arm == Arm.RIGHT ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
+                    if(manager != null) {
+                        manager.tick(MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false));
+                        manager.renderCloth(itemWorldPos, matrices, vertexConsumers, light);
+                    }
+                }
             }
 
             renderCloth(manager, itemWorldPos, matrices, vertexConsumers, light);
             //this.renderDebugPoint(matrices, vertexConsumers);
 
-            if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(ModItems.EXPLOSIVE_SPEAR)) {
-                world.addParticle(ParticleTypes.SMALL_FLAME, itemWorldPos.x, itemWorldPos.y, itemWorldPos.z, 0, 0, 0);
-            }
+//            if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(ModItems.EXPLOSIVE_SPEAR)) {
+//                world.addParticle(ParticleTypes.SMALL_FLAME, itemWorldPos.x, itemWorldPos.y, itemWorldPos.z, 0, 0, 0);
+//            }
 
             matrices.pop();
         }
