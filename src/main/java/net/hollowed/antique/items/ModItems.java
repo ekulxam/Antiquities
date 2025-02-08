@@ -19,7 +19,7 @@ public class ModItems {
 
     public static RegistryEntryLookup<Block> registryEntryLookup = Registries.createEntryLookup(Registries.BLOCK);
 
-    public static final Item EXPLOSIVE_SPEAR = registerItem("explosive_spear", new Item(new Item.Settings()
+    public static final Item EXPLOSIVE_SPEAR = registerItem("explosive_spear", new ExplosiveSpearItem(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "explosive_spear")))
             .maxCount(1)
     ));

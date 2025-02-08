@@ -1,14 +1,11 @@
 package net.hollowed.antique.mixin;
 
-import net.hollowed.antique.client.item.explosive_spear.ClothBody;
 import net.hollowed.antique.client.item.explosive_spear.ClothManager;
 import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.util.ArmedRenderStateAccess;
 import net.hollowed.antique.util.SpearClothAccess;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.debug.DebugRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
@@ -21,15 +18,10 @@ import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import org.joml.Matrix4f;
-import org.joml.Vector3d;
-import org.joml.Vector3f;
 import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -56,6 +48,10 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             matrices.translate(0, 0.6, 0);
 
             Entity entity = access.antique$getEntity();
+
+            if (entity instanceof LivingEntity living && living.getActiveItem().isOf(ModItems.EXPLOSIVE_SPEAR)) {
+                matrices.translate(0, -1.4, 0.2);
+            }
 
             // Extract transformation matrix
             Matrix4f matrix = matrices.peek().getPositionMatrix();

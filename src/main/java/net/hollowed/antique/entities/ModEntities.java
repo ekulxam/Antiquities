@@ -2,6 +2,7 @@ package net.hollowed.antique.entities;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.entities.custom.ExplosiveSpearEntity;
 import net.hollowed.antique.entities.custom.MyriadShovelEntity;
 import net.hollowed.antique.entities.custom.PaleWardenEntity;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
@@ -33,6 +34,13 @@ public class ModEntities {
             EntityType.Builder.create(MyriadShovelPart::new, SpawnGroup.MISC)
                     .dropsNothing()
                     .dimensions(0.4F, 0.4F)
+    );
+
+    public static final EntityType<ExplosiveSpearEntity> EXPLOSIVE_SPEAR = register(
+            "explosive_spear",
+            EntityType.Builder.<ExplosiveSpearEntity>create(ExplosiveSpearEntity::new, SpawnGroup.MISC)
+                    .dropsNothing()
+                    .dimensions(1.2F, 0.75F)
     );
 
     private static <T extends Entity> EntityType<T> register(RegistryKey<EntityType<?>> key, EntityType.Builder<T> type) {

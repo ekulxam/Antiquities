@@ -1,0 +1,29 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:item/handheld",
+	"textures": {
+		"layer0": "antique:item/explosive_spear"
+	},
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [125, -90, 0],
+			"translation": [0, -8.5, 3],
+			"scale": [1.7, 1.7, 0.85]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [125, 90, 0],
+			"translation": [0, -8, 3],
+			"scale": [1.7, 1.7, 0.85]
+		},
+		"firstperson_righthand": {
+			"rotation": [-80, -90, 0],
+			"translation": [1.13, 5.2, 1.13],
+			"scale": [1.36, 1.36, 0.68]
+		},
+		"firstperson_lefthand": {
+			"rotation": [-80, 90, 0],
+			"translation": [1.13, 5.2, 1.13],
+			"scale": [1.36, 1.36, 0.68]
+		}
+	}
+}

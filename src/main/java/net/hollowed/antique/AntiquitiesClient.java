@@ -20,6 +20,7 @@ import net.hollowed.antique.client.pedestal.PedestalTooltipRenderer;
 import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.entities.models.ExplosiveSpearCloth;
 import net.hollowed.antique.entities.models.PaleWardenModel;
+import net.hollowed.antique.entities.renderer.ExplosiveSpearEntityRenderer;
 import net.hollowed.antique.entities.renderer.MyriadShovelEntityRenderer;
 import net.hollowed.antique.entities.renderer.MyriadShovelPartRenderer;
 import net.hollowed.antique.entities.renderer.PaleWardenRenderer;
@@ -94,6 +95,7 @@ public class AntiquitiesClient implements ClientModInitializer {
         EntityRendererRegistry.register(ModEntities.MYRIAD_SHOVEL_PART, MyriadShovelPartRenderer::new);
 
         EntityModelLayerRegistry.registerModelLayer(EXPLOSIVE_SPEAR_CLOTH_LAYER, ExplosiveSpearCloth::getTexturedModelData);
+        EntityRendererRegistry.register(ModEntities.EXPLOSIVE_SPEAR, ExplosiveSpearEntityRenderer::new);
 
         /*
             Satchel Overlay

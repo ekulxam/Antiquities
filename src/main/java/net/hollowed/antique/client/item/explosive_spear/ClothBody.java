@@ -47,17 +47,17 @@ public class ClothBody {
 
     public Vector3d getPos() { return new Vector3d(pos); }
 
-    public Vec3d slideOutOfBlocks(ClientWorld world) {
-        double padding = 0.0001;
+    public void slideOutOfBlocks(ClientWorld world) {
+        double padding = 0.00025;
 
         Vec3d startPos = new Vec3d(pos.x, pos.y, pos.z);
         BlockPos blockPos = BlockPos.ofFloored(startPos);
         BlockState state = world.getBlockState(blockPos);
 
         // If there's no collision shape, just return the original point
-        if (state.isAir()) return startPos;
+        if (state.isAir()) return;
         VoxelShape shape = state.getCollisionShape(world, blockPos);
-        if (shape.isEmpty()) return startPos;
+        if (shape.isEmpty()) return;
 
         // Convert the shape to world space
         VoxelShape worldShape = shape.offset(blockPos.getX(), blockPos.getY(), blockPos.getZ());
@@ -91,7 +91,6 @@ public class ClothBody {
         }
 
         pos = new Vector3d(x + dx, y + dy, z + dz);
-        return new Vec3d(x + dx, y + dy, z + dz);
     }
 
     // Helper to find overlap between two intervals

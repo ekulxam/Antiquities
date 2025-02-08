@@ -15,18 +15,27 @@
       },
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "antique:item/explosive_spear"
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "antique:item/explosive_spear"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "antique:item/explosive_spear_throwing"
+          },
+          "property": "minecraft:using_item"
         },
         "when": [
           "firstperson_righthand",
           "firstperson_lefthand",
           "thirdperson_righthand",
           "thirdperson_lefthand",
-          "head"
+          "head",
+          "none"
         ]
       }
     ],
     "property": "minecraft:display_context"
+    }
   }
-}

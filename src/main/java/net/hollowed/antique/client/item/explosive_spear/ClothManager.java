@@ -1,37 +1,42 @@
 package net.hollowed.antique.client.item.explosive_spear;
 
-import net.fabricmc.loader.impl.lib.sat4j.core.Vec;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.mixin.HeldItemRendererMixin;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.model.GuardianEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Box;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RaycastContext;
+import net.minecraft.util.math.noise.PerlinNoiseSampler;
+import net.minecraft.util.math.random.Random;
+import net.minecraft.world.World;
+import net.minecraft.world.gen.noise.NoiseHelper;
 import org.joml.Matrix4f;
 import org.joml.Vector3d;
-import org.spongepowered.asm.mixin.Unique;
 
 import java.util.ArrayList;
 
 public class ClothManager {
 
-    public static double CLOTH_LENGTH = 0.25;
-    public static double CLOTH_WIDTH = 0.5;
+    public static double CLOTH_LENGTH = 2;
+    public static double CLOTH_WIDTH = 0.1;
 
     public Vector3d pos = new Vector3d();
     public ArrayList<ClothBody> bodies = new ArrayList<>();
 
+    public static long windNoiseSeed = 4L;
+    public Vector3d windPos = new Vector3d();
+
+    private int bodyCount;
+
     public ClothManager(Vector3d pos, int BodyCount) {
+        this.bodyCount = BodyCount;
         reset(pos, BodyCount);
     }
 
@@ -41,42 +46,73 @@ public class ClothManager {
             ClothBody body = new ClothBody(pos);
             bodies.add(body);
         }
+        this.bodyCount = BodyCount;
     }
 
     public void tick(double delta) {
-        CLOTH_LENGTH = 1.5;
-        CLOTH_WIDTH = 0.075;
 
         // Update parent position
         var root = bodies.getFirst();
         root.pos = new Vector3d(pos);
 
-        // Update pass
-        for (ClothBody body : bodies) {
-            Vector3d vel = body.pos.sub(body.posCache, new Vector3d());
-            body.accel.add(vel.mul(-0.15));
-            body.accel.add(0.0, -0.000098, 0.0);
+        // Check if cloth is too far from the root position
+        double maxDistance = 5.0;
+        if (root.pos.distance(root.posCache) > maxDistance) {
+            resetCloth(); // Call reset method
+            return; // Exit tick early after resetting
+        }
 
-            body.update(delta);
+        ClientWorld world = MinecraftClient.getInstance().world;
+
+        if (world != null) {
+
+            // Update pass
+            for (int i = 0; i < bodies.size(); i++) {
+                ClothBody body = bodies.get(i);
+                Vec3d startPos = new Vec3d(body.pos.x, body.pos.y, body.pos.z);
+                BlockPos blockPos = BlockPos.ofFloored(startPos);
+                BlockState state = world.getBlockState(blockPos);
+                Vector3d vel = body.pos.sub(body.posCache, new Vector3d());
+                body.accel.add(vel.mul(-0.15));
+
+                // Gravity and wind
+                if (state.getBlock() == Blocks.WATER) {
+                    body.accel.add(0.0, 0.00049, 0.0);
+                    ClothWindHelper.applyWindToBody(body, (i*i*0.5), 0.75, 0.25);
+                } else {
+                    body.accel.add(0.0, -0.00245, 0.0);
+                    ClothWindHelper.applyWindToBody(body, (i*i*0.5), 1.0, 1.0);
+                }
+
+                body.update(delta);
+            }
         }
 
         // Constraint pass
-        for (int i = 0; i < bodies.size() - 1; i++) {
-            var body = bodies.get(i);
-            var nextBody = bodies.get(i + 1);
-
-            for (int j = 0; j < bodies.size() - 1; j++) { body.containDistance(nextBody, (1.0/bodies.size()) * CLOTH_LENGTH ); }
+        for (int k = 0; k < bodies.size(); k++) {
+            for (int i = 0; i < bodies.size() - 1; i++) {
+                var body = bodies.get(i);
+                var nextBody = bodies.get(i + 1);
+                body.containDistance(nextBody, (1.0 / bodies.size()) * CLOTH_LENGTH);
+            }
         }
 
         // Collision pass
-        var world = MinecraftClient.getInstance().world;
-        if(world != null) {
+        if (world != null) {
             for (ClothBody body : bodies) {
                 body.slideOutOfBlocks(world);
             }
         }
     }
 
+    // Reset all body segments to be near the root position
+    private void resetCloth() {
+        Vector3d offset = new Vector3d(0, -0.2, 0); // Slight offset for natural repositioning
+        for (int i = 0; i < bodies.size(); i++) {
+            bodies.get(i).pos.set(pos.add(offset.mul(i)));
+            bodies.get(i).posCache.set(bodies.get(i).pos);
+        }
+    }
 
     public void renderCloth(Vec3d position, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
         matrices.push();
