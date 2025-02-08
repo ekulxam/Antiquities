@@ -76,7 +76,6 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                 }
             }
 
-            renderCloth(manager, itemWorldPos, matrices, vertexConsumers, light);
             //this.renderDebugPoint(matrices, vertexConsumers);
 
 //            if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(ModItems.EXPLOSIVE_SPEAR)) {
@@ -85,64 +84,6 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
 
             matrices.pop();
         }
-    }
-
-    @Unique
-    public void renderCloth(ClothManager manager, Vec3d position, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
-        matrices.push();
-
-        VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.getCutoutMipped());
-        Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
-
-        manager.pos = new Vector3d(danglePos);
-        double thickness = 0.1;
-
-        int count = manager.bodies.size();
-        for (int i = 0; i < count - 1; i++) {
-
-            ClothBody body = manager.bodies.get(i);
-            ClothBody nextBody = manager.bodies.get(i + 1);
-
-            var pos = body.getPos();
-            var nextPos = nextBody.getPos();
-
-            float uvTop = (1f / count) * i;
-            float uvBot = uvTop + (1f / count);
-
-            var a1 = pos.add(thickness, 0.0, 0.0, new Vector3d());
-            var b1 = pos.add(-thickness, 0.0, 0.0, new Vector3d());
-            var c1 = nextPos.add(-thickness, 0.0, 0.0, new Vector3d());
-            drawTriangle(
-                    new Matrix4f(),
-                    vertexConsumer,
-                    a1, b1, c1,
-                    new Vec2f(0f,uvTop),
-                    new Vec2f(1f,uvTop),
-                    new Vec2f(0f,uvBot),
-                    light);
-
-            var a2 = nextPos.add(-thickness, 0.0, 0.0, new Vector3d());
-            var b2 = pos.add(thickness, 0.0, 0.0, new Vector3d());
-            var c2 = nextPos.add(thickness, 0.0, 0.0, new Vector3d());
-            drawTriangle(
-                    new Matrix4f(),
-                    vertexConsumer,
-                    a2, b2, c2,
-                    new Vec2f(0f,uvBot),
-                    new Vec2f(1f,uvTop),
-                    new Vec2f(1f,uvBot),
-                    light);
-        }
-
-        matrices.pop();
-    }
-
-    @Unique
-    public void drawTriangle(Matrix4f matrix, VertexConsumer vertexConsumer, Vector3d posA, Vector3d posB, Vector3d posC, Vec2f uvA, Vec2f uvB, Vec2f uvC, int light) {
-        // Draw a line from pos1 to pos2
-        vertexConsumer.vertex(matrix, (float) posA.x, (float) posA.y, (float) posA.z).color(255, 255, 255, 255).normal(1f,0f,0f).light(light).texture(uvA.x, uvA.y);
-        vertexConsumer.vertex(matrix, (float) posB.x, (float) posB.y, (float) posB.z).color(255, 255, 255, 255).normal(1f,0f,0f).light(light).texture(uvB.x, uvB.y);
-        vertexConsumer.vertex(matrix, (float) posC.x, (float) posC.y, (float) posC.z).color(255, 255, 255, 255).normal(1f,0f,0f).light(light).texture(uvC.x, uvC.y);
     }
 
     // **Helper Method: Converts Rendered Item Position to World Space**

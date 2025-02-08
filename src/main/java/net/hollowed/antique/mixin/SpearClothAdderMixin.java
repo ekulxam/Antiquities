@@ -27,11 +27,11 @@ public abstract class SpearClothAdderMixin extends Entity implements SpearClothA
         super(type, world);
     }
 
-    @Inject(method = "<init>", at = @At("TAIL"))
-    public void addCloth(EntityType entityType, World world, CallbackInfo ci) {
-        this.clothManager = new ClothManager(new Vector3d(this.getX(), this.getY(), this.getZ()), 4);
-        this.clothManager1 = new ClothManager(new Vector3d(this.getX(), this.getY(), this.getZ()), 4);
-        this.clothManager2 = new ClothManager(new Vector3d(this.getX(), this.getY(), this.getZ()), 4);
+    @Inject(method = "tick", at = @At("TAIL"))
+    public void addCloth(CallbackInfo ci) {
+        if(this.clothManager == null) this.clothManager = new ClothManager(new Vector3d(this.getX(), this.getY(), this.getZ()), 4);
+        if(this.clothManager1 == null) this.clothManager1 = new ClothManager(new Vector3d(this.getX(), this.getY(), this.getZ()), 4);
+        if(this.clothManager2 == null) this.clothManager2 = new ClothManager(new Vector3d(this.getX(), this.getY(), this.getZ()), 4);
     }
 
     @Override
