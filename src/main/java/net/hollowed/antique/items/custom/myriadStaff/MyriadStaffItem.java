@@ -198,7 +198,10 @@ public class MyriadStaffItem extends Item {
                 breakSphere(attacker.getWorld(), target.getBlockPos(), 2);
                 int time = 30;
                 access.antiquities$setDestroy(time);
-                TickDelayScheduler.schedule(1, () -> target.setVelocity(attacker.getRotationVec(0).multiply(4, 2, 4)));
+                TickDelayScheduler.schedule(1, () -> {
+                    target.setVelocity(attacker.getRotationVec(0).multiply(4, 2, 4));
+                    target.velocityModified = true;
+                });
             }
         }
     }
