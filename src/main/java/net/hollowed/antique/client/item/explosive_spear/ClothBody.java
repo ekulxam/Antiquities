@@ -12,8 +12,8 @@ import java.util.List;
 
 public class ClothBody {
 
-    Vector3d pos = new Vector3d();
-    Vector3d posCache = new Vector3d();
+    Vector3d pos;
+    Vector3d posCache;
     Vector3d accel = new Vector3d();
 
     public ClothBody(Vector3d worldPos) {

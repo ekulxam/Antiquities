@@ -1,7 +1,6 @@
 package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.enchantments.EnchantmentListener;
-import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.items.custom.SatchelItem;
 import net.minecraft.block.TntBlock;
 import net.minecraft.component.DataComponentTypes;
@@ -10,6 +9,7 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.entity.projectile.thrown.PotionEntity;
+import net.minecraft.entity.projectile.thrown.SplashPotionEntity;
 import net.minecraft.entity.vehicle.AbstractMinecartEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.*;
@@ -21,6 +21,8 @@ import net.minecraft.stat.Stats;
 import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.Position;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
@@ -29,12 +31,10 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.*;
-import java.util.stream.Stream;
 
 @Mixin(BundleItem.class)
 public abstract class BundleItemMixin extends Item {
@@ -80,7 +80,7 @@ public abstract class BundleItemMixin extends Item {
         PlayerEntity player = context.getPlayer();
         ItemStack stack = Objects.requireNonNull(player).getStackInHand(hand);
 
-        if (EnchantmentListener.hasCustomEnchantment(stack, "antique:jumbling")) {
+        if (EnchantmentListener.hasEnchantment(stack, "antique:jumbling")) {
 
             // Filter for BlockItems directly and create a list of matching items
             BundleContentsComponent bundleContentsComponent = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
@@ -134,7 +134,7 @@ public abstract class BundleItemMixin extends Item {
 
     @Inject(method = "onStackClicked", at = @At("RETURN"))
     public void onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player, CallbackInfoReturnable<Boolean> cir) {
-        if (EnchantmentListener.hasCustomEnchantment(stack, "antique:curse_of_voiding")) {
+        if (EnchantmentListener.hasEnchantment(stack, "antique:curse_of_voiding")) {
             // Get the current contents of the bundle
             BundleContentsComponent bundleContentsComponent = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
             assert bundleContentsComponent != null;
@@ -160,7 +160,7 @@ public abstract class BundleItemMixin extends Item {
 
     @Inject(method = "onClicked", at = @At("RETURN"))
     public void onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference, CallbackInfoReturnable<Boolean> cir) {
-        if (EnchantmentListener.hasCustomEnchantment(stack, "antique:curse_of_voiding")) {
+        if (EnchantmentListener.hasEnchantment(stack, "antique:curse_of_voiding")) {
             // Get the current contents of the bundle
             BundleContentsComponent bundleContentsComponent = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
             assert bundleContentsComponent != null;
@@ -217,7 +217,7 @@ public abstract class BundleItemMixin extends Item {
     @Inject(method = "popFirstBundledStack", at = @At("HEAD"), cancellable = true)
     private static void popFirstBundledStackInject(ItemStack stack, PlayerEntity player, BundleContentsComponent contents, CallbackInfoReturnable<Optional<ItemStack>> cir) {
 
-        boolean hasProjectingEnchantment = EnchantmentListener.hasCustomEnchantment(stack, "antique:projecting");
+        boolean hasProjectingEnchantment = EnchantmentListener.hasEnchantment(stack, "antique:projecting");
 
         BundleContentsComponent.Builder builder = new BundleContentsComponent.Builder(contents);
         ItemStack itemStack = builder.removeSelected();
@@ -321,7 +321,7 @@ public abstract class BundleItemMixin extends Item {
      */
     @Overwrite
     private boolean dropFirstBundledStack(ItemStack stack, PlayerEntity player) {
-        boolean hasProjectingEnchantment = EnchantmentListener.hasCustomEnchantment(stack, "antique:projecting");
+        boolean hasProjectingEnchantment = EnchantmentListener.hasEnchantment(stack, "antique:projecting");
 
         BundleContentsComponent bundleContentsComponent = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
         assert bundleContentsComponent != null;
@@ -350,7 +350,10 @@ public abstract class BundleItemMixin extends Item {
     @Unique
     private void handlePotionThrow(PlayerEntity player, ItemStack itemStack) {
         if (player.getWorld() instanceof ServerWorld) {
-            ProjectileEntity.spawnWithVelocity(PotionEntity::new, (ServerWorld) player.getWorld(), itemStack, player, -20.0F, 0.8F, 1.0F);
+            SplashPotionEntity potionEntity = new SplashPotionEntity(player.getWorld(), player, itemStack);
+            potionEntity.setPosition(player.getPos().add(0, 1.5, 0));
+            potionEntity.setVelocity(player.getRotationVector().add(0, 0.25, 0));
+            player.getWorld().spawnEntity(potionEntity);
             playPotionThrowSound(player.getWorld(), player);
         }
         player.incrementStat(Stats.USED.getOrCreateStat(itemStack.getItem()));

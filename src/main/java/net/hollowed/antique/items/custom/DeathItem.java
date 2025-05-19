@@ -35,7 +35,7 @@ public class DeathItem extends Item {
     }
 
     @Override
-    public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+    public void postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         Box box = target.getBoundingBox().expand(40);
         for (Entity entity : target.getWorld().getOtherEntities(null, box)) {
             if (entity instanceof PlayerEntity player) {
@@ -43,6 +43,5 @@ public class DeathItem extends Item {
             }
         }
         target.discard();
-        return super.postHit(stack, target, attacker);
     }
 }

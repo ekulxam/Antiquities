@@ -4,5 +4,17 @@
     "sounds": [
       "antique:parry_ultrakill"
     ]
+  },
+  "firecracker": {
+    "subtitle": "subtitles.antique.firecracker",
+    "sounds": [
+      "antique:firecracker"
+    ]
+  },
+  "warhorn": {
+    "subtitle": "subtitles.antique.warhorn",
+    "sounds": [
+      "antique:warhorn"
+    ]
   }
 }

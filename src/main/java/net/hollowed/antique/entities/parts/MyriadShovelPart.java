@@ -7,6 +7,7 @@ import net.minecraft.entity.Ownable;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -45,7 +46,8 @@ public class MyriadShovelPart extends Entity implements Ownable {
 		}
 	}
 
-	protected void setOwner(UUID uuid) {
+	protected void setOwner(String string) {
+		UUID uuid = UUID.fromString(string);
 		if (this.ownerId != uuid) {
 			this.ownerId = uuid;
 			this.owner = this.getEntity(uuid);
@@ -87,16 +89,16 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 	@Override
 	protected void readCustomDataFromNbt(NbtCompound nbt) {
-		if (nbt.containsUuid("Owner")) {
-			this.setOwner(nbt.getUuid("Owner"));
+		if (nbt.contains("Owner")) {
+			this.setOwner(String.valueOf(nbt.getString("Owner")));
 		}
-		this.id = nbt.getInt("Id");
+		if (nbt.getInt("Id").isPresent()) this.id = nbt.getInt("Id").get();
     }
 
 	@Override
 	protected void writeCustomDataToNbt(NbtCompound nbt) {
 		if (this.ownerId != null) {
-			nbt.putUuid("Owner", this.ownerId);
+			nbt.putString("Owner", this.ownerId.toString());
 		}
 		nbt.putInt("Id", this.id);
 	}

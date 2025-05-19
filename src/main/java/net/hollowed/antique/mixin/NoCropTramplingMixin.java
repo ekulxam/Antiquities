@@ -14,7 +14,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class NoCropTramplingMixin {
 
     @Inject(method = "onLandedUpon", at = @At("HEAD"), cancellable = true)
-    public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, float fallDistance, CallbackInfo ci) {
+    public void onLandedUpon(World world, BlockState state, BlockPos pos, Entity entity, double fallDistance, CallbackInfo ci) {
         ci.cancel();
     }
 }

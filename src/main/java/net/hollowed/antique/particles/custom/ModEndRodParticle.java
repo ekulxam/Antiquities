@@ -75,17 +75,17 @@ public class ModEndRodParticle extends AnimatedParticle {
 		Quaternionf quaternionf = MathUtils.vec3ToQuaternion(direction).rotateX((float) Math.toRadians(-90.0F));
 
 		if (this.angle != 0.0F) {
-			quaternionf.rotateZ(MathHelper.lerp(tickDelta, this.prevAngle, this.angle));
+			quaternionf.rotateZ(MathHelper.lerp(tickDelta, this.lastAngle, this.angle));
 		}
 
-		this.method_60373(vertexConsumer, camera, quaternionf, tickDelta);
+		this.render(vertexConsumer, camera, quaternionf, tickDelta);
 		Quaternionf quaternionf1 = MathUtils.vec3ToQuaternion(new Vec3d(-direction.x, -direction.y, -direction.z)).rotateX((float) Math.toRadians(-90.0F));
-		this.method_60373(vertexConsumer, camera, quaternionf1, tickDelta);
+		this.render(vertexConsumer, camera, quaternionf1, tickDelta);
 	}
 
 	@Override
 	public int getBrightness(float tint) {
 		BlockPos blockPos = BlockPos.ofFloored(this.x, this.y, this.z);
-		return this.world.isChunkLoaded(blockPos) ? WorldRenderer.getLightmapCoordinates(this.world, blockPos) : 0;
+		return WorldRenderer.getLightmapCoordinates(this.world, blockPos);
 	}
 }

@@ -1,8 +1,24 @@
 {
   "item": "antique:myriad_tool",
   "scale": [2.0, 2.0, 1.0],
-  "rotation": [0.0, 180.0, 0.0],
-  "translation": [0.1, 0.0, 0.1],
+  "rotation": [180.0, 0.0, 90.0],
+  "translation": [-0.1, -0.1, 0.0],
   "mode": "NONE",
-  "sway": 1.0
+  "sway": 0.4,
+  "componentTransforms": {
+    "4": {
+      "scale": [3.0, 3.0, 1.0],
+      "rotation": [180.0, 0.0, 90.0],
+      "translation": [-0.2333333, -0.2333333, 0.0],
+      "mode": "NONE",
+      "sway": 0.4
+    },
+    "5": {
+      "scale": [3.0, 3.0, 1.0],
+      "rotation": [180.0, 0.0, 90.0],
+      "translation": [-0.2333333, -0.2333333, 0.0],
+      "mode": "NONE",
+      "sway": 0.4
+    }
+  }
 }

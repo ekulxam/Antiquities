@@ -4,8 +4,8 @@ import net.hollowed.antique.client.item.explosive_spear.ClothManager;
 import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.util.ArmedRenderStateAccess;
 import net.hollowed.antique.util.SpearClothAccess;
+import net.hollowed.antique.util.Temp;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.debug.DebugRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
@@ -15,19 +15,23 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.ModelWithArms;
 import net.minecraft.client.render.entity.state.ArmedEntityRenderState;
 import net.minecraft.client.render.item.ItemRenderState;
+import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Matrix4f;
-import org.joml.Vector4f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.awt.*;
+import java.util.Objects;
 
 @Mixin(HeldItemFeatureRenderer.class)
 public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M extends EntityModel<S> & ModelWithArms> extends FeatureRenderer<S, M> {
@@ -47,61 +51,68 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             matrices.translate((float)(bl ? -1 : 1) / 16.0F, 0.125F, -0.625F);
             matrices.translate(0, 0.6, 0);
 
+            MinecraftClient client = MinecraftClient.getInstance();
+            ItemRenderer itemRenderer = client.getItemRenderer();
+
             Entity entity = access.antique$getEntity();
 
             if (entity instanceof LivingEntity living && living.getActiveItem().isOf(ModItems.EXPLOSIVE_SPEAR)) {
                 matrices.translate(0, -1.4, 0.2);
             }
-
-            // Extract transformation matrix
-            Matrix4f matrix = matrices.peek().getPositionMatrix();
-
-            // Convert local position to world space
-            Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
-            Vec3d itemWorldPos = transformToWorld(matrix, camera);
+            if (entity instanceof LivingEntity living && living.getActiveItem().isOf(ModItems.MYRIAD_TOOL)
+                    && living.getActiveItem().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null
+                    && Objects.requireNonNull(living.getActiveItem().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 3) {
+                matrices.translate(0, -1.2, 0.2);
+            }
+            if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(ModItems.MYRIAD_TOOL)
+                    && living.getStackInArm(arm).get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null
+                    && Objects.requireNonNull(living.getStackInArm(arm).get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 2) {
+                matrices.translate(0, -0.3, 0);
+                if (living.isUsingItem()) {
+                    matrices.translate(-0.45, -0.5, 0);
+                }
+            }
+            if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(ModItems.MYRIAD_STAFF)) {
+                matrices.translate(0, -0.5, 0);
+            }
 
             ClothManager manager;
+            Vec3d itemWorldPos = ClothManager.matrixToVec(matrices);
 
             if (entity instanceof SpearClothAccess clothAccess) {
-                if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(ModItems.EXPLOSIVE_SPEAR)) {
-                    manager = arm == Arm.RIGHT ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
-                    if(manager != null) {
-                        manager.tick(MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false));
-                        manager.renderCloth(itemWorldPos, matrices, vertexConsumers, light);
+                if (entity instanceof LivingEntity living) {
+                    if (living.getStackInArm(arm).isOf(ModItems.EXPLOSIVE_SPEAR)) {
+                        manager = arm == Arm.RIGHT ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
+                        if (manager != null) {
+                            manager.renderCloth(itemWorldPos, matrices, vertexConsumers, light, false, new Color(255, 0, 0, 255), false, ClothManager.BLANK_CLOTH_STRIP, 2, 0.1);
+                        }
+                    }
+                    Object name = living.getStackInArm(arm).getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
+                    if (living.getStackInArm(arm).isOf(ModItems.MYRIAD_TOOL) || (living.getStackInArm(arm).isOf(ModItems.MYRIAD_STAFF) && !(name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
+                        manager = arm == Arm.RIGHT ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
+                        if (manager != null && living.getStackInArm(arm).get(DataComponentTypes.DYED_COLOR) != null) {
+                            manager.renderCloth(itemWorldPos, matrices, vertexConsumers, light, false, new Color(Objects.requireNonNull(living.getStackInArm(arm).get(DataComponentTypes.DYED_COLOR)).rgb()), false, ClothManager.TATTERED_CLOTH_STRIP, 2, 0.1);
+                        }
                     }
                 }
             }
 
-            //this.renderDebugPoint(matrices, vertexConsumers);
-
-//            if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(ModItems.EXPLOSIVE_SPEAR)) {
-//                world.addParticle(ParticleTypes.SMALL_FLAME, itemWorldPos.x, itemWorldPos.y, itemWorldPos.z, 0, 0, 0);
-//            }
+            if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(ModItems.MYRIAD_STAFF)) {
+                Temp.method1(itemRenderer, living, arm, light, matrices, vertexConsumers, client);
+            }
 
             matrices.pop();
         }
     }
 
-    // **Helper Method: Converts Rendered Item Position to World Space**
-    @Unique
-    private Vec3d transformToWorld(Matrix4f matrix, Camera camera) {
-        // Convert (0,0,0) in local item space to transformed coordinates
-        Vector4f localPos = new Vector4f(0, 0, 0, 1);
-        matrix.transform(localPos);
-
-        // Convert view space to world space by adding the camera position
-        Vec3d cameraPos = camera.getPos();
-        return new Vec3d(cameraPos.x + localPos.x(), cameraPos.y + localPos.y(), cameraPos.z + localPos.z());
-    }
-
-
+    @SuppressWarnings("unused")
     @Unique
     private void renderDebugPoint(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider) {
 		DebugRenderer.drawBox(
 				matrixStack,
 				vertexConsumerProvider,
-				-0.05F, -0.05F, -0.05F, // Box min (relative to pivot)
-				0.05F,  0.05F,  0.05F, // Box max (relative to pivot)
+				-0.02F, -0.02F, -0.02F, // Box min (relative to pivot)
+				0.02F,  0.02F,  0.02F, // Box max (relative to pivot)
 				1.0F, 0.0F, 0.0F, 1.0F  // Red color
 		);
     }

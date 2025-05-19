@@ -2,7 +2,8 @@
 	"credit": "Made with Blockbench",
 	"parent": "minecraft:item/handheld",
 	"textures": {
-		"layer0": "antique:item/myriad_handle"
+		"layer0": "antique:item/myriad_cloth",
+		"layer1": "antique:item/myriad_handle"
 	},
 	"display": {
 		"thirdperson_righthand": {

@@ -1,0 +1,17 @@
+{
+  "item": "antique:myriad_staff",
+  "scale": [3.0, 3.0, 1.0],
+  "rotation": [180.0, 0.0, 90.0],
+  "translation": [-0.23333, -0.23333, 0.0],
+  "mode": "NONE",
+  "sway": 0.4,
+  "componentTransforms": {
+    "1": {
+      "scale": [2.55, 2.55, 2.55],
+      "rotation": [180.0, 0.0, 90.0],
+      "translation": [-0.13333, -0.13333, -0.025],
+      "mode": "NONE",
+      "sway": 0.4
+    }
+  }
+},

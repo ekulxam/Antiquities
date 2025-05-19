@@ -26,8 +26,6 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
 
     @Shadow public abstract boolean isSwimming();
 
-    @Shadow public abstract ItemStack getEquippedStack(EquipmentSlot slot);
-
     protected CrawlLogicMixin(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
     }
@@ -71,7 +69,7 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
     public void tick(CallbackInfo ci) {
         if (this.dataTracker.get(SLIDE_TIMER) > 0 && this.isSwimming()) {
             if (this.dataTracker.get(SLIDE_TIMER) < 9) {
-                this.addVelocity(this.getRotationVec(0).getHorizontal().normalize().multiply(this.isOnGround() ? EnchantmentListener.hasCustomEnchantment(this.getEquippedStack(EquipmentSlot.LEGS), "minecraft:swift_sneak") ? 0.55 : 0.3 : 0));
+                this.addVelocity(this.getRotationVec(0).getHorizontal().normalize().multiply(this.isOnGround() ? EnchantmentListener.hasEnchantment(this.getEquippedStack(EquipmentSlot.LEGS), "minecraft:swift_sneak") ? 0.55 : 0.3 : 0));
                 if (this.getVelocity().length() < 0.2) {
                     this.dataTracker.set(SLIDE_TIMER, 0);
                 }
@@ -92,7 +90,7 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
     @Override
     public void jump() {
         super.jump();
-        if (this.dataTracker.get(SLIDE_TIMER) > 0 && this.dataTracker.get(SLIDE_TIMER) < 4) {
+        if (this.dataTracker.get(SLIDE_TIMER) > 0 && this.dataTracker.get(SLIDE_TIMER) < 4 && this.dataTracker.get(CRAWLING)) {
             this.dataTracker.set(CRAWLING, false);
             this.addVelocity(this.getRotationVec(0).getHorizontal().normalize().multiply(0.25).add(0, 0.2, 0));
             this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GOAT_LONG_JUMP, SoundCategory.PLAYERS, 1.0F, 1.0F);

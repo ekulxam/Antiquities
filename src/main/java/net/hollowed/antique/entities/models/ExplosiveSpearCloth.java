@@ -25,13 +25,13 @@ public class ExplosiveSpearCloth extends EntityModel<EntityRenderState> {
 	public static TexturedModelData getTexturedModelData() {
 		ModelData modelData = new ModelData();
 		ModelPartData modelPartData = modelData.getRoot();
-		ModelPartData segment = modelPartData.addChild("segment", ModelPartBuilder.create().uv(0, 0).cuboid(0.0F, 0.0F, -1.5F, 0.0F, 4.0F, 3.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 24.0F, 0.0F));
+		ModelPartData segment = modelPartData.addChild("segment", ModelPartBuilder.create().uv(0, 0).cuboid(0.0F, 0.0F, -1.5F, 0.0F, 4.0F, 3.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 24.0F, 0.0F));
 
-		ModelPartData segment2 = modelPartData.addChild("segment2", ModelPartBuilder.create().uv(6, 0).cuboid(0.0F, 0.0F, -1.5F, 0.0F, 4.0F, 3.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 28.0F, 0.0F));
+		ModelPartData segment2 = modelPartData.addChild("segment2", ModelPartBuilder.create().uv(6, 0).cuboid(0.0F, 0.0F, -1.5F, 0.0F, 4.0F, 3.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 28.0F, 0.0F));
 
-		ModelPartData segment3 = modelPartData.addChild("segment3", ModelPartBuilder.create().uv(0, 7).cuboid(0.0F, 0.0F, -1.5F, 0.0F, 4.0F, 3.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 32.0F, 0.0F));
+		ModelPartData segment3 = modelPartData.addChild("segment3", ModelPartBuilder.create().uv(0, 7).cuboid(0.0F, 0.0F, -1.5F, 0.0F, 4.0F, 3.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 32.0F, 0.0F));
 
-		ModelPartData segment4 = modelPartData.addChild("segment4", ModelPartBuilder.create().uv(6, 7).cuboid(0.0F, 0.0F, -1.5F, 0.0F, 4.0F, 3.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, 36.0F, 0.0F));
+		ModelPartData segment4 = modelPartData.addChild("segment4", ModelPartBuilder.create().uv(6, 7).cuboid(0.0F, 0.0F, -1.5F, 0.0F, 4.0F, 3.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 36.0F, 0.0F));
 		return TexturedModelData.of(modelData, 16, 16);
 	}
 

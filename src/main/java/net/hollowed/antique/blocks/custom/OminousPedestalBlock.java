@@ -152,7 +152,7 @@ public class OminousPedestalBlock extends BlockWithEntity implements BlockEntity
                     && pedestalBlockEntity.getItems().getFirst().hasEnchantments()) {
                 for (BlockPos blockPos : POWER_PROVIDER_OFFSETS) {
                     if (random.nextInt(16) == 0 && canAccessPowerProvider(world, pos, blockPos)) {
-                        world.addParticle(ParticleTypes.ENCHANT, (double) pos.getX() + 0.5, (double) pos.getY() + 2.75, (double) pos.getZ() + 0.5, (double) ((float) blockPos.getX() + random.nextFloat()) - 0.5, (double) ((float) blockPos.getY() - random.nextFloat() - 1.0F), (double) ((float) blockPos.getZ() + random.nextFloat()) - 0.5);
+                        world.addParticleClient(ParticleTypes.ENCHANT, (double) pos.getX() + 0.5, (double) pos.getY() + 2.75, (double) pos.getZ() + 0.5, (double) ((float) blockPos.getX() + random.nextFloat()) - 0.5, (double) ((float) blockPos.getY() - random.nextFloat() - 1.0F), (double) ((float) blockPos.getZ() + random.nextFloat()) - 0.5);
                     }
                 }
             }
@@ -231,7 +231,7 @@ public class OminousPedestalBlock extends BlockWithEntity implements BlockEntity
                 playSound(world, pos, SoundEvents.BLOCK_LODESTONE_PLACE, 1f);
                 ((ServerWorld) world).getChunkManager().markForUpdate(pos);
                 world.setBlockState(pos, state.with(OminousPedestalBlock.HELD_ITEM, !pedestalEntity.getStack(0).isEmpty()), Block.NOTIFY_ALL);
-                world.updateNeighborsAlways(pos, state.getBlock());
+                world.updateNeighborsAlways(pos, state.getBlock(), null);
 
                 ServerWorld serverWorld = (ServerWorld) world;
                 for (ServerPlayerEntity serverPlayerEntity : serverWorld.getPlayers()) {
@@ -251,14 +251,14 @@ public class OminousPedestalBlock extends BlockWithEntity implements BlockEntity
     }
 
     @Override
-    public void onStateReplaced(BlockState state, World world, BlockPos pos, BlockState newState, boolean moved) {
-        if (state.getBlock() != newState.getBlock()) {
+    protected void onStateReplaced(BlockState state, ServerWorld world, BlockPos pos, boolean moved) {
+        if (state != world.getBlockState(pos)) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof PedestalBlockEntity) {
                 ((PedestalBlockEntity) blockEntity).drops();
             }
         }
-        super.onStateReplaced(state, world, pos, newState, moved);
+        super.onStateReplaced(state, world, pos, moved);
     }
 
     @Override

@@ -2,24 +2,27 @@ package net.hollowed.antique.mixin;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.items.custom.MyriadToolBitItem;
 import net.hollowed.antique.networking.WallJumpPacketPayload;
 import net.hollowed.antique.util.FastAir;
+import net.hollowed.antique.util.ItemHoldingUtil;
 import net.hollowed.antique.util.MovementUtilsClass;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.*;
+import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.entity.damage.DamageTypes;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.profiler.Profiler;
-import net.minecraft.util.profiler.Profilers;
 import net.minecraft.world.World;
+import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -30,6 +33,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntity.class)
 public abstract class ClimbButNotFasterInsteadActuallyNotClimbAtAllMixin extends Entity implements Attackable {
+
+    @Unique
+    private static final TrackedData<Vector3f> MOVEMENT_INPUT = DataTracker.registerData(ClimbButNotFasterInsteadActuallyNotClimbAtAllMixin.class, TrackedDataHandlerRegistry.VECTOR_3F);
 
     @Shadow protected abstract float getMovementSpeed(float slipperiness);
 
@@ -59,19 +65,43 @@ public abstract class ClimbButNotFasterInsteadActuallyNotClimbAtAllMixin extends
     @Unique
     private int coyoteWallJumpTicks;
 
+    @Unique
+    private boolean ran = false;
+
+    @Unique
+    private Vec3d playerVelocity = new Vec3d(0, 0, 0);
+
+    @Unique
+    private Vec3d startTickPosition = new Vec3d(0, 0, 0);
+
+    @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
+    public void damage(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if (this.playerVelocity.length() > 4 && source.isOf(DamageTypes.FALL) && !ran) {
+            LivingEntity self = (LivingEntity) (Object) this;
+
+            float reducedAmount = amount * 0.5F;
+
+            this.ran = true;
+            self.damage(world, source, reducedAmount);
+            cir.setReturnValue(false);
+        } else {
+            this.ran = false;
+        }
+    }
+
     @SuppressWarnings("all")
     @Inject(method = "applyMovementInput", at = @At("HEAD"), cancellable = true)
     private void applyMovementInput(Vec3d movementInput, float slipperiness, CallbackInfoReturnable<Vec3d> cir) {
         if ((LivingEntity) (Object) this instanceof PlayerEntity player) {
-            this.moveInput = movementInput;
+            this.dataTracker.set(MOVEMENT_INPUT, new Vector3f((float) movementInput.x, (float) movementInput.y, (float) movementInput.z));
 
-            if (player.getInventory().contains(TagKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "walljumper"))) && this.coyoteWallJumpTicks > 0) {
+            if (ItemHoldingUtil.isHoldingItem(player, Identifier.of(Antiquities.MOD_ID, "walljumper")) && this.coyoteWallJumpTicks > 0) {
 
                 this.updateVelocity(this.getMovementSpeed(slipperiness), movementInput);
                 this.setVelocity(MovementUtilsClass.applyAxeClimbingSpeed(this.getVelocity(), (LivingEntity) (Object) this));
                 this.move(MovementType.SELF, this.getVelocity());
                 Vec3d vec3d = this.getVelocity();
-                if (this.isClimbing() && player.getInventory().contains(TagKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "walljumper")))) {
+                if (this.isClimbing() && ItemHoldingUtil.isHoldingItem(player, Identifier.of(Antiquities.MOD_ID, "walljumper"))) {
                     if (!this.jumping && !this.isSneaking()) vec3d = new Vec3d(vec3d.x, 0, vec3d.z);
                 }
 
@@ -81,12 +111,42 @@ public abstract class ClimbButNotFasterInsteadActuallyNotClimbAtAllMixin extends
         }
     }
 
-    @Unique
-    private Vec3d moveInput;
+    @Inject(method = "initDataTracker", at = @At("HEAD"))
+    protected void initDataTracker(DataTracker.Builder builder, CallbackInfo ci) {
+        builder.add(MOVEMENT_INPUT, new Vector3f());
+    }
 
     @Inject(method = "tickMovement", at = @At("HEAD"))
     private void onJumpWhileClimbing(CallbackInfo ci) {
         LivingEntity entity = (LivingEntity) (Object) this;
+
+
+        // Track the start position of the tick
+        if (startTickPosition == null) {
+            startTickPosition = entity.getPos();
+        }
+
+        // Calculate velocity at the end of the tick (this will be after position has changed)
+        Vec3d endTickPosition = entity.getPos();
+
+        // Check if there has been a position change
+        if (!startTickPosition.equals(endTickPosition)) {
+            // Calculate velocity as the difference between start and end position
+            playerVelocity = endTickPosition.subtract(startTickPosition);
+        }
+
+        // Update start position for the next tick
+        startTickPosition = endTickPosition;
+
+        if (!entity.isOnGround() && entity.isSneaking() && entity.getVelocity().y < 0 && entity.fallDistance > 15 && entity.getVelocity().length() < 10 && entity instanceof PlayerEntity player && !player.getAbilities().flying) {
+            if ((!player.hasStatusEffect(Antiquities.BOUNCE_EFFECT) && !player.hasStatusEffect(Antiquities.VOLATILE_BOUNCE_EFFECT)) || player.isCreative()) {
+                if (entity.isHolding(ModItems.MYRIAD_AXE_HEAD) && !this.isClimbing()) {
+                    entity.addVelocity(new Vec3d(0, -0.25, 0));
+                } else if (!entity.isHolding(ModItems.MYRIAD_AXE_HEAD)) {
+                    entity.addVelocity(new Vec3d(0, -0.25, 0));
+                }
+            }
+        }
 
         if (this.isSprinting()) {
             this.sidewaysSpeed *= 1.5F;
@@ -114,7 +174,7 @@ public abstract class ClimbButNotFasterInsteadActuallyNotClimbAtAllMixin extends
         }
 
         if (entity instanceof PlayerEntity player) {
-            if (player.getInventory().contains(TagKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "walljumper"))) && jumping && (this.isClimbing() || this.coyoteWallJumpTicks > 0) && this.jumpingCooldown1 == 0) {
+            if (ItemHoldingUtil.isHoldingItem(player, Identifier.of(Antiquities.MOD_ID, "walljumper")) && jumping && (this.isClimbing() || this.coyoteWallJumpTicks > 0) && this.jumpingCooldown1 == 0) {
 
                 if (player instanceof ClientPlayerEntity) {
                     ClientPlayNetworking.send(new WallJumpPacketPayload(entity.getId()));
@@ -152,32 +212,31 @@ public abstract class ClimbButNotFasterInsteadActuallyNotClimbAtAllMixin extends
                 boolean lookingSouth = correctedYaw < 45 || correctedYaw > 315;
                 boolean lookingWest = correctedYaw > 45 && correctedYaw < 135;
 
-                boolean movingNorth = this.moveInput.getHorizontal().z < 0;
-                boolean movingEast = this.moveInput.getHorizontal().x > 0;
-                boolean movingSouth = this.moveInput.getHorizontal().z > 0;
-                boolean movingWest = this.moveInput.getHorizontal().x < 0;
+                Vec3d moveInput = new Vec3d(this.dataTracker.get(MOVEMENT_INPUT));
+
+                boolean movingForward = moveInput.getHorizontal().z > 0;
 
                 // Apply velocity in the opposite direction of the collision
                 if (collidingWest) {
-                    pushVector = pushVector.add(lookingWest && movingWest ? 0.5 : 0.3, 0, 0); // Push east
+                    pushVector = pushVector.add(lookingWest && movingForward ? 0.5 : 0.3, 0, 0); // Push east
                     if (ledgeWest && lookingWest) {
                         pushVector = pushVector.multiply(0, 1, 0).add(this.getVelocity());
                     }
                 }
                 if (collidingEast) {
-                    pushVector = pushVector.add(lookingEast && movingEast && player.isSprinting() ? -0.5 : -0.3, 0, 0); // Push west
+                    pushVector = pushVector.add(lookingEast && movingForward ? -0.5 : -0.3, 0, 0); // Push west
                     if (ledgeEast && lookingEast) {
                         pushVector = pushVector.multiply(0, 1, 0).add(this.getVelocity());
                     }
                 }
                 if (collidingNorth) {
-                    pushVector = pushVector.add(0, 0, lookingNorth && movingNorth ? 0.5 : 0.3); // Push south
+                    pushVector = pushVector.add(0, 0, lookingNorth && movingForward ? 0.5 : 0.3); // Push south
                     if (ledgeNorth && lookingNorth) {
                         pushVector = pushVector.multiply(0, 1, 0).add(this.getVelocity());
                     }
                 }
                 if (collidingSouth) {
-                    pushVector = pushVector.add(0, 0, lookingSouth && movingSouth ? -0.5 : -0.3); // Push north
+                    pushVector = pushVector.add(0, 0, lookingSouth && movingForward ? -0.5 : -0.3); // Push north
                     if (ledgeSouth && lookingSouth) {
                         pushVector = pushVector.multiply(0, 1, 0).add(this.getVelocity());
                     }
@@ -218,6 +277,13 @@ public abstract class ClimbButNotFasterInsteadActuallyNotClimbAtAllMixin extends
         if (this.coyoteJumpTicks > 0 && this.jumping && this.coyoteJumpCooldown == 0 && !this.isOnGround() && (!this.isTouchingWater() || this.isSubmergedInWater())) {
             this.coyoteJumpCooldown = 6;
             this.coyoteJump();
+        }
+    }
+
+    @Inject(method = "canGlide", at = @At("HEAD"), cancellable = true)
+    protected void canGlide(CallbackInfoReturnable<Boolean> cir) {
+        if (this.coyoteWallJumpTicks > 0 || this.coyoteJumpTicks > 0) {
+            cir.setReturnValue(false);
         }
     }
 

@@ -41,41 +41,41 @@ public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implemen
 	public static TexturedModelData getTexturedModelData() {
 		ModelData modelData = new ModelData();
 		ModelPartData modelPartData = modelData.getRoot();
-		ModelPartData big_guy = modelPartData.addChild("big_guy", ModelPartBuilder.create(), ModelTransform.pivot(19.0F, -16.25F, 1.0F));
+		ModelPartData big_guy = modelPartData.addChild("big_guy", ModelPartBuilder.create(), ModelTransform.origin(19.0F, -16.25F, 1.0F));
 
-		ModelPartData right_leg = big_guy.addChild("right_leg", ModelPartBuilder.create().uv(30, 47).cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 18.0F, 4.0F, new Dilation(0.0F)), ModelTransform.pivot(-21.0F, 22.25F, -1.0F));
+		ModelPartData right_leg = big_guy.addChild("right_leg", ModelPartBuilder.create().uv(30, 47).cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 18.0F, 4.0F, new Dilation(0.0F)), ModelTransform.origin(-21.0F, 22.25F, -1.0F));
 
-		ModelPartData left_leg = big_guy.addChild("left_leg", ModelPartBuilder.create().uv(46, 47).cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 18.0F, 4.0F, new Dilation(0.0F)), ModelTransform.pivot(-17.0F, 22.25F, -1.0F));
+		ModelPartData left_leg = big_guy.addChild("left_leg", ModelPartBuilder.create().uv(46, 47).cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 18.0F, 4.0F, new Dilation(0.0F)), ModelTransform.origin(-17.0F, 22.25F, -1.0F));
 
-		ModelPartData body = big_guy.addChild("body", ModelPartBuilder.create().uv(32, 20).cuboid(-5.0F, -9.0F, -2.0F, 10.0F, 11.0F, 4.0F, new Dilation(0.0F)), ModelTransform.pivot(-19.0F, 20.25F, -1.0F));
+		ModelPartData body = big_guy.addChild("body", ModelPartBuilder.create().uv(32, 20).cuboid(-5.0F, -9.0F, -2.0F, 10.0F, 11.0F, 4.0F, new Dilation(0.0F)), ModelTransform.origin(-19.0F, 20.25F, -1.0F));
 
 		ModelPartData cube_r1 = body.addChild("cube_r1", ModelPartBuilder.create().uv(0, 0).cuboid(-11.0F, -4.0F, -6.0F, 16.0F, 10.0F, 10.0F, new Dilation(0.0F)), ModelTransform.of(3.0F, -13.0F, 0.0F, 0.7854F, 0.0F, 0.0F));
 
-		ModelPartData right_arm = body.addChild("right_arm", ModelPartBuilder.create().uv(0, 48).cuboid(-4.0F, 0.0F, -3.0F, 4.0F, 12.0F, 5.0F, new Dilation(0.0F)), ModelTransform.pivot(-8.0F, -15.0F, 0.5F));
+		ModelPartData right_arm = body.addChild("right_arm", ModelPartBuilder.create().uv(0, 48).cuboid(-4.0F, 0.0F, -3.0F, 4.0F, 12.0F, 5.0F, new Dilation(0.0F)), ModelTransform.origin(-8.0F, -15.0F, 0.5F));
 
 		ModelPartData cube_r2 = right_arm.addChild("cube_r2", ModelPartBuilder.create().uv(32, 35).cuboid(-4.0F, -5.0F, -3.5F, 8.0F, 5.0F, 7.0F, new Dilation(0.0F)), ModelTransform.of(-2.0F, 1.0F, -0.5F, 0.0F, 3.1416F, 0.0F));
 
-		ModelPartData right_lower_arm = right_arm.addChild("right_lower_arm", ModelPartBuilder.create().uv(52, 0).cuboid(-2.0F, 0.0F, -2.5F, 4.0F, 12.0F, 5.0F, new Dilation(0.0F)), ModelTransform.pivot(-2.0F, 12.0F, -0.5F));
+		ModelPartData right_lower_arm = right_arm.addChild("right_lower_arm", ModelPartBuilder.create().uv(52, 0).cuboid(-2.0F, 0.0F, -2.5F, 4.0F, 12.0F, 5.0F, new Dilation(0.0F)), ModelTransform.origin(-2.0F, 12.0F, -0.5F));
 
-		ModelPartData sword = right_lower_arm.addChild("sword", ModelPartBuilder.create(), ModelTransform.pivot(0.0F, 10.0F, 0.0F));
+		ModelPartData sword = right_lower_arm.addChild("sword", ModelPartBuilder.create(), ModelTransform.origin(0.0F, 10.0F, 0.0F));
 
 		ModelPartData cube_r3 = sword.addChild("cube_r3", ModelPartBuilder.create().uv(3, 87).cuboid(-1.0F, 0.0F, -1.0F, 0.0F, 0.0F, 0.0F, new Dilation(0.0F)), ModelTransform.of(1.0F, -1.0F, 0.0F, 1.5708F, 0.0F, 0.0F));
 
-		ModelPartData left_arm = body.addChild("left_arm", ModelPartBuilder.create().uv(0, 36).cuboid(-2.0F, -4.0F, -4.0F, 8.0F, 5.0F, 7.0F, new Dilation(0.0F)), ModelTransform.pivot(8.0F, -15.0F, 0.5F));
+		ModelPartData left_arm = body.addChild("left_arm", ModelPartBuilder.create().uv(0, 36).cuboid(-2.0F, -4.0F, -4.0F, 8.0F, 5.0F, 7.0F, new Dilation(0.0F)), ModelTransform.origin(8.0F, -15.0F, 0.5F));
 
 		ModelPartData cube_r4 = left_arm.addChild("cube_r4", ModelPartBuilder.create().uv(62, 34).cuboid(-2.0F, -11.0F, -2.5F, 4.0F, 12.0F, 5.0F, new Dilation(0.0F)), ModelTransform.of(2.0F, 11.0F, -0.5F, 0.0F, 3.1416F, 0.0F));
 
-		ModelPartData left_lower_arm = left_arm.addChild("left_lower_arm", ModelPartBuilder.create(), ModelTransform.pivot(2.0F, 12.0F, -0.5F));
+		ModelPartData left_lower_arm = left_arm.addChild("left_lower_arm", ModelPartBuilder.create(), ModelTransform.origin(2.0F, 12.0F, -0.5F));
 
 		ModelPartData cube_r5 = left_lower_arm.addChild("cube_r5", ModelPartBuilder.create().uv(60, 17).cuboid(-2.0F, -11.0F, -2.5F, 4.0F, 12.0F, 5.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 11.0F, 0.0F, 0.0F, 3.1416F, 0.0F));
 
 		ModelPartData head = body.addChild("head", ModelPartBuilder.create().uv(18, 48).cuboid(-11.0F, -12.0F, -1.0F, 6.0F, 11.0F, 0.0F, new Dilation(0.0F))
-		.uv(32, 69).cuboid(5.0F, -12.0F, -1.0F, 6.0F, 11.0F, 0.0F, new Dilation(0.0F)), ModelTransform.pivot(0.0F, -19.25F, 0.0F));
+		.uv(32, 69).cuboid(5.0F, -12.0F, -1.0F, 6.0F, 11.0F, 0.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, -19.25F, 0.0F));
 
 		ModelPartData cube_r6 = head.addChild("cube_r6", ModelPartBuilder.create().uv(80, 32).cuboid(-4.5F, -4.5F, -4.5F, 9.0F, 9.0F, 9.0F, new Dilation(0.0F))
 		.uv(78, 16).cuboid(-4.0F, -4.0F, -4.0F, 8.0F, 8.0F, 8.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, -2.75F, -1.0F, 0.3622F, -0.7519F, -0.2533F));
 
-		ModelPartData kilt = big_guy.addChild("kilt", ModelPartBuilder.create(), ModelTransform.pivot(-19.0F, 20.25F, 1.0F));
+		ModelPartData kilt = big_guy.addChild("kilt", ModelPartBuilder.create(), ModelTransform.origin(-19.0F, 20.25F, 1.0F));
 
 		ModelPartData cube_r7 = kilt.addChild("cube_r7", ModelPartBuilder.create().uv(16, 69).cuboid(-3.0F, 0.0F, -1.0F, 6.0F, 9.0F, 2.0F, new Dilation(0.0F)), ModelTransform.of(0.0F, 0.0F, 0.0F, 0.1745F, 0.0F, 0.0F));
 
@@ -90,9 +90,9 @@ public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implemen
 	public void setAngles(PaleWardenRenderState state) {
 		this.resetTransforms();
 		PaleWardenEntity entity = (PaleWardenEntity) state.entity;
-		this.setHeadAngle(state.yawDegrees, state.pitch);
-		this.animate(entity.awakenAnimationState, PaleWardenAnimations.awaken, entity.age + MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(true), 1F);
-		this.animate(entity.idleAnimationState, PaleWardenAnimations.idle, entity.age + MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(true), 1F);
+		this.setHeadAngle(state.relativeHeadYaw, state.pitch);
+		this.animate(entity.awakenAnimationState, PaleWardenAnimations.awaken, entity.age + MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(true), 1F);
+		this.animate(entity.idleAnimationState, PaleWardenAnimations.idle, entity.age + MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(true), 1F);
 	}
 
 	private void setHeadAngle(float yaw, float pitch) {
@@ -106,14 +106,14 @@ public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implemen
 
 	@Override
 	public void setArmAngle(Arm arm, MatrixStack matrices) {
-		this.root.rotate(matrices);
+		this.root.applyTransform(matrices);
 		if (arm == Arm.RIGHT) {
-			this.right_arm.rotate(matrices);
-			this.right_lower_arm.rotate(matrices);
-			this.sword.rotate(matrices);
+			this.right_arm.applyTransform(matrices);
+			this.right_lower_arm.applyTransform(matrices);
+			this.sword.applyTransform(matrices);
 		} else {
-			this.left_arm.rotate(matrices);
-			this.left_lower_arm.rotate(matrices);
+			this.left_arm.applyTransform(matrices);
+			this.left_lower_arm.applyTransform(matrices);
 		}
 	}
 

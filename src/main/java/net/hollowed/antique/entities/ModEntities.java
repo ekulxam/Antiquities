@@ -2,9 +2,7 @@ package net.hollowed.antique.entities;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.entities.custom.ExplosiveSpearEntity;
-import net.hollowed.antique.entities.custom.MyriadShovelEntity;
-import net.hollowed.antique.entities.custom.PaleWardenEntity;
+import net.hollowed.antique.entities.custom.*;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -20,6 +18,30 @@ public class ModEntities {
             Registries.ENTITY_TYPE,
             Identifier.of(Antiquities.MOD_ID, "pale_warden"),
             EntityType.Builder.create(PaleWardenEntity::new, SpawnGroup.MISC).dimensions(0.9f, 3f).build(keyOf("pale_warden"))
+    );
+
+    public static final EntityType<IllusionerEntity> ILLUSIONER = register(
+            "illusioner",
+            EntityType.Builder.create(IllusionerEntity::new, SpawnGroup.MONSTER)
+                    .dropsNothing()
+                    .dimensions(0.6F, 1.95F)
+                    .maxTrackingRange(8)
+    );
+
+    public static final EntityType<IllusionerCloneEntity> ILLUSIONER_CLONE = register(
+            "illusioner_clone",
+            EntityType.Builder.create(IllusionerCloneEntity::new, SpawnGroup.MONSTER)
+                    .dropsNothing()
+                    .dimensions(0.6F, 1.95F)
+                    .maxTrackingRange(8)
+    );
+
+    public static final EntityType<SmokeBombEntity> SMOKE_BOMB = register(
+            "smoke_bomb",
+            EntityType.Builder.create(SmokeBombEntity::new, SpawnGroup.MISC)
+                    .dropsNothing()
+                    .dimensions(0.25F, 25F)
+                    .maxTrackingRange(8)
     );
 
     public static final EntityType<MyriadShovelEntity> MYRIAD_SHOVEL = register(
@@ -57,5 +79,7 @@ public class ModEntities {
 
     public static void initialize() {
         FabricDefaultAttributeRegistry.register(ModEntities.PALE_WARDEN, PaleWardenEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(ModEntities.ILLUSIONER_CLONE, IllusionerCloneEntity.createIllusionerAttributes());
+        FabricDefaultAttributeRegistry.register(ModEntities.ILLUSIONER, IllusionerEntity.createIllusionerAttributes());
     }
 }

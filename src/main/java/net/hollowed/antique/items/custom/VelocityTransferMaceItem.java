@@ -6,6 +6,7 @@ import net.minecraft.block.BlockState;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -14,7 +15,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.consume.UseAction;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -27,20 +27,23 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class VelocityTransferMaceItem extends Item {
 
     private static Vec3d startTickPosition;
-    private static Vec3d playerVelocity = new Vec3d(0, 0, 0);
+    public static Vec3d playerVelocity = new Vec3d(0, 0, 0);
+    public static Vec3d lastHitVelocity = new Vec3d(0, 0, 0);
 
     public VelocityTransferMaceItem(Settings settings) {
         super(settings);
     }
 
-    public boolean canMine(BlockState state, World world, BlockPos pos, PlayerEntity miner) {
-        return !miner.isCreative();
+    @Override
+    public boolean canMine(ItemStack stack, BlockState state, World world, BlockPos pos, LivingEntity user) {
+        return !user.isInCreativeMode();
     }
 
     public static AttributeModifiersComponent createAttributeModifiers() {
@@ -59,9 +62,9 @@ public class VelocityTransferMaceItem extends Item {
 
         Vec3d multiplier;
 
-        if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic") || EnchantmentListener.hasCustomEnchantment(stack, "antique:impetus")) {
-            if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
-                multiplier = new Vec3d(-1, -1, -1);
+        if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic") || EnchantmentListener.hasEnchantment(stack, "antique:impetus")) {
+            if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
+                multiplier = new Vec3d(-4, -0.5, -4);
             } else {
                 multiplier = new Vec3d(4, -1, 4);
             }
@@ -72,10 +75,13 @@ public class VelocityTransferMaceItem extends Item {
             HitResult hitResult = player.raycast(5.0D, 0.0F, false);
             if (hitResult.getType() == HitResult.Type.BLOCK) {
                 // Interact with a block
-                float velocity = Math.clamp(chargeTime * 0.02F + 0.25F, 1.0F, 4.0F);
+                float velocity = Math.clamp(chargeTime * 0.04F + 0.25F, 1.0F, 6.0F);
 
                 if (!world.isClient) {
                     player.setVelocity(player.getRotationVec(0).multiply(multiplier).multiply(velocity));
+                    if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
+                        player.addVelocity(0, 0.25, 0);
+                    }
                     player.velocityModified = true;
                 }
 
@@ -84,7 +90,7 @@ public class VelocityTransferMaceItem extends Item {
                 user.swingHand(user.getActiveHand());
                 if (!user.getWorld().isClient) {
                     ((PlayerEntity) user).getItemCooldownManager().set(stack, 130);
-                    if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
+                    if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
                         user.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, (int) ((velocity - 0.625) * 55), 0, true, true));
                     } else {
                         user.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, (int) ((velocity - 0.625) * 65), 0, true, true));
@@ -115,7 +121,7 @@ public class VelocityTransferMaceItem extends Item {
                         target.velocityModified = true;
 
                         // Apply a custom effect
-                        if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
+                        if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
                             target.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, 60, 0, true, true));
                         } else {
                             target.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, 30, 0, true, true));
@@ -142,10 +148,10 @@ public class VelocityTransferMaceItem extends Item {
 
     @Override
     public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        if (EnchantmentListener.hasCustomEnchantment(user.getStackInHand(hand), "antique:kinematic")) {
+        if (EnchantmentListener.hasEnchantment(user.getStackInHand(hand), "antique:kinematic")) {
             user.setCurrentHand(hand);
             return ActionResult.PASS;
-        } else if (EnchantmentListener.hasCustomEnchantment(user.getStackInHand(hand), "antique:impetus")) {
+        } else if (EnchantmentListener.hasEnchantment(user.getStackInHand(hand), "antique:impetus")) {
             user.setCurrentHand(hand);
             return ActionResult.PASS;
         }
@@ -154,133 +160,19 @@ public class VelocityTransferMaceItem extends Item {
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        if (EnchantmentListener.hasCustomEnchantment(stack, "antique:impetus")) {
+        if (EnchantmentListener.hasEnchantment(stack, "antique:impetus")) {
             return UseAction.SPEAR;
         }
         return UseAction.NONE;
     }
 
     @Override
-    public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        if (!attacker.getWorld().isClient() && attacker instanceof PlayerEntity player) {
-
-            ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity) player;
-            ServerWorld serverWorld = serverPlayerEntity.getServerWorld();
-
-            // Calculate velocity
-            Vec3d effectiveVelocity = playerVelocity;
-
-            if (effectiveVelocity.length() > 0.1) { // Adjust the threshold if needed
-
-                // Apply damage based on the velocity magnitude
-                float damage = Math.min((float) (effectiveVelocity.length() * 5 + 5), 30); // Clamp to a max of 30
-                target.damage((ServerWorld) attacker.getWorld(),
-                        attacker.getWorld().getDamageSources().flyIntoWall(), damage);
-
-                // Apply velocity to the target
-                Vec3d targetVelocity = effectiveVelocity.multiply(5, 3, 5);
-
-                if (target instanceof PlayerEntity || target instanceof ServerPlayerEntity) {
-                    targetVelocity = targetVelocity.multiply(2, 0.2, 2);
-                }
-
-                target.setVelocity(targetVelocity.multiply(0.9));
-                target.velocityModified = true;
-
-                // Find and apply reduced velocity to nearby entities
-                double radius = 5.0; // Radius to check for nearby entities
-                List<Entity> nearbyEntities = serverWorld.getOtherEntities(
-                        target, target.getBoundingBox().expand(radius));
-
-                for (Entity nearby : nearbyEntities) {
-                    if (nearby instanceof LivingEntity && nearby != target && nearby != attacker) {
-                        double distance = target.getPos().distanceTo(nearby.getPos());
-                        if (distance <= radius) {
-                            double scalingFactor = 1.5 - (distance / radius); // Closer entities get more velocity
-                            Vec3d reducedVelocity = effectiveVelocity.multiply(scalingFactor); // Reduce strength
-                            nearby.setVelocity(reducedVelocity);
-                            nearby.velocityModified = true;
-                        }
-                    }
-                }
-
-                // Reset attacker's velocity
-                player.setVelocity(0, 0.01, 0);
-                player.velocityModified = true;
-
-                // Handle enchantments
-                if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
-                    Vec3d playerVelocity = effectiveVelocity.multiply(-1, -1, -1); // Reverse the velocity
-                    player.setVelocity(playerVelocity);
-                    player.velocityModified = true;
-
-                    player.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, 30, 0, true, true));
-                } else if (EnchantmentListener.hasCustomEnchantment(stack, "antique:impetus")) {
-                    Vec3d playerVelocity = effectiveVelocity.multiply(1.5, 1.25, 1.5); // Enhance the velocity
-                    player.setVelocity(playerVelocity);
-                    player.velocityModified = true;
-
-                    player.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, 30, 0, true, true));
-                }
-
-                if (target instanceof PlayerEntity && !EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
-                    target.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, 30, 0, true, true));
-                } else {
-                    target.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, 30, 0, true, true));
-                }
-            }
-        }
-
-        return super.postHit(stack, target, attacker);
-    }
-
-    public void postEntityHit(Entity target, LivingEntity attacker) {
-        if (!attacker.getWorld().isClient() && attacker instanceof PlayerEntity player) {
-
-            ServerPlayerEntity serverPlayerEntity = (ServerPlayerEntity) player;
-            ServerWorld serverWorld = serverPlayerEntity.getServerWorld();
-
-            // Calculate velocity
-            Vec3d effectiveVelocity = playerVelocity;
-
-            if (effectiveVelocity.length() > 0.1) { // Adjust the threshold if needed
-
-                // Apply velocity to the target
-                Vec3d targetVelocity = effectiveVelocity.multiply(5, 2, 5);
-
-                if (target instanceof PlayerEntity || target instanceof ServerPlayerEntity) {
-                    targetVelocity = targetVelocity.multiply(2, 0.2, 2);
-                }
-
-                target.setVelocity(targetVelocity.multiply(0.9));
-                target.velocityModified = true;
-
-                // Find and apply reduced velocity to nearby entities
-                double radius = 5.0; // Radius to check for nearby entities
-                List<Entity> nearbyEntities = serverWorld.getOtherEntities(
-                        target, target.getBoundingBox().expand(radius));
-
-                for (Entity nearby : nearbyEntities) {
-                    if (nearby instanceof LivingEntity && nearby != target && nearby != attacker) {
-                        double distance = target.getPos().distanceTo(nearby.getPos());
-                        if (distance <= radius) {
-                            double scalingFactor = 1 - (distance / radius); // Closer entities get more velocity
-                            Vec3d reducedVelocity = effectiveVelocity.multiply(scalingFactor); // Reduce strength
-                            nearby.setVelocity(reducedVelocity);
-                            nearby.velocityModified = true;
-                        }
-                    }
-                }
-
-                // Reset attacker's velocity
-                player.setVelocity(0, 0.01, 0);
-                player.velocityModified = true;
-            }
-        }
+    public void postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+        VelocityTransferMaceItem.lastHitVelocity = playerVelocity;
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
+    public void inventoryTick(ItemStack stack, ServerWorld world, Entity entity, @Nullable EquipmentSlot slot) {
         if (!world.isClient() && entity instanceof PlayerEntity player) {
 
             // Track the start position of the tick
@@ -305,5 +197,4 @@ public class VelocityTransferMaceItem extends Item {
             startTickPosition = endTickPosition;
         }
     }
-
 }

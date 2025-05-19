@@ -17,12 +17,13 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.item.*;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.registry.tag.TagKey;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-
-import java.util.Objects;
 
 public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity> {
 
@@ -33,15 +34,16 @@ public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity
     }
 
     @Override
-    public void render(PedestalBlockEntity pedestalBlockEntity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+    public void render(PedestalBlockEntity pedestalBlockEntity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, Vec3d cameraPos) {
         ItemStack heldItem = pedestalBlockEntity.getStack(0);
 
         // Proceed only if the item stack is not empty
-        if (!heldItem.isEmpty()) {
-            // Get the world time for animation
-            long worldTime = Objects.requireNonNull(pedestalBlockEntity.getWorld()).getTime();
-            float rotation = ((worldTime + tickDelta) * 2) % 360; // Smooth rotation
-            float bob = (float) Math.sin((worldTime % 63 + tickDelta) * 0.1f) * 0.0875f; // Smooth bobbing
+        if (!heldItem.isEmpty() && pedestalBlockEntity.getWorld() != null) {
+            long worldTime = pedestalBlockEntity.getWorld().getTime();
+            double preciseTime = (worldTime) % 360; // Converts ticks to seconds
+            float rotation = (float) ((preciseTime + tickDelta) * 3.0); // Smooth rotation
+
+            float bob = (float) Math.sin((Math.toRadians(worldTime))) * 0.0875f; // Smooth bobbing
 
             if (heldItem.getItem() instanceof EndCrystalItem) {
                 renderEndCrystalEntity(ITEM_POS.add(0, 0, 0), tickDelta, matrices, vertexConsumers, light, pedestalBlockEntity.getWorld());
@@ -54,6 +56,12 @@ public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity
         }
     }
 
+    private static final TagKey<Item> PICKAXE_TAG = TagKey.of(Registries.ITEM.getKey(), Identifier.ofVanilla("pickaxes"));
+    private static final TagKey<Item> AXE_TAG = TagKey.of(Registries.ITEM.getKey(), Identifier.ofVanilla("axes"));
+    private static final TagKey<Item> SHOVEL_TAG = TagKey.of(Registries.ITEM.getKey(), Identifier.ofVanilla("shovels"));
+    private static final TagKey<Item> HOE_TAG = TagKey.of(Registries.ITEM.getKey(), Identifier.ofVanilla("hoes"));
+    private static final TagKey<Item> SWORD_TAG = TagKey.of(Registries.ITEM.getKey(), Identifier.ofVanilla("swords"));
+
     private void renderItem(ItemStack itemStack, Vec3d offset, float yRot, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, World world) {
         matrices.push();
 
@@ -65,13 +73,14 @@ public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yRot));
         matrices.scale(0.65f, 0.65f, 0.65f);
 
-        if (itemStack.getItem() instanceof SwordItem || itemStack.getItem() instanceof MiningToolItem || itemStack.getItem() instanceof MaceItem || itemStack.getItem() instanceof VelocityTransferMaceItem) {
+        if (itemStack.getItem() instanceof MaceItem || itemStack.getItem() instanceof VelocityTransferMaceItem
+            || itemStack.isIn(SWORD_TAG) || itemStack.isIn(PICKAXE_TAG) || itemStack.isIn(AXE_TAG) || itemStack.isIn(SHOVEL_TAG) || itemStack.isIn(HOE_TAG)) {
             matrices.translate(0, 0.1f, 0);
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(45));
         }
 
         // Render the item
-        itemRenderer.renderItem(itemStack, ModelTransformationMode.GUI, light, overlay, matrices, vertexConsumers, world, (int) world.getTime());
+        itemRenderer.renderItem(itemStack, ItemDisplayContext.GUI, light, overlay, matrices, vertexConsumers, world, (int) world.getTime());
 
         matrices.pop();
     }

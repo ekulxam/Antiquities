@@ -1,40 +1,36 @@
 package net.hollowed.antique.util;
 
+import net.fabricmc.fabric.api.client.rendering.v1.HudLayerRegistrationCallback;
+import net.hollowed.antique.client.hud.ParryScreen;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Text;
 
 public class FreezeFrameManager {
     private static int freezeTicks = 0;
-    private static int ultrakill = 0;
+    private static int overlayTime = 0;
 
-    public static void triggerFreeze(int duration, boolean ultrakill) {
+    // Freeze Frame Overlay
+    private static HudLayerRegistrationCallback overlay;
+
+    public static void triggerFreeze(int duration) {
         FreezeFrameManager.freezeTicks = duration;
-        if (ultrakill) {
-            FreezeFrameManager.ultrakill = 2;
-        }
-    }
-
-    public static boolean isFrozen() {
-        return freezeTicks > 0;
-    }
-
-    public static boolean isUltrakill() {
-        return ultrakill > 0;
     }
 
     public static void tick() {
+        MinecraftClient client = MinecraftClient.getInstance();
         if (freezeTicks > 0) {
             freezeTicks--;
+            client.setScreen(new ParryScreen(Text.literal("")));
+        } else if (freezeTicks == 0) {
+            client.setScreen(null);
+            freezeTicks = -1;
         }
-        if (ultrakill > 0) {
-            ultrakill--;
+        if (overlayTime > 0) {
+            overlayTime--;
         }
     }
 
-    public static void renderFreeze() {
-        if (freezeTicks > 0) {
-            // Pause the game's frame progression
-            MinecraftClient client = MinecraftClient.getInstance();
-            client.getFramebuffer().beginWrite(false);
-        }
+    public static HudLayerRegistrationCallback getOverlay() {
+        return overlay;
     }
 }

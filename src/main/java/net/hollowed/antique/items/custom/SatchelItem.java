@@ -1,20 +1,13 @@
 package net.hollowed.antique.items.custom;
 
 import net.hollowed.antique.component.ModComponents;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.equipment.ArmorMaterial;
-import net.minecraft.item.equipment.EquipmentType;
-import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
 import net.minecraft.util.ClickType;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.math.ColorHelper;
 
 import java.util.ArrayList;
@@ -29,9 +22,10 @@ public class SatchelItem extends Item {
     private static final int FULL_ITEM_BAR_COLOR = ColorHelper.fromFloats(1.0F, 1.0F, 0.33F, 0.33F);
     private static final int ITEM_BAR_COLOR = ColorHelper.fromFloats(1.0F, 0.44F, 0.53F, 1.0F);
 
-    public SatchelItem(ArmorMaterial material, EquipmentType type, Item.Settings settings) {
-        super(material.applySettings(settings, type));
+    public SatchelItem(Settings settings) {
+        super(settings);
     }
+
 
     public boolean isItemBarVisible(ItemStack stack) {
         List<ItemStack> storedStacks = new ArrayList<>(getStoredStacks(stack));  // Create a mutable copy of the list
@@ -161,64 +155,64 @@ public class SatchelItem extends Item {
         return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
     }
 
-    @Override
-    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        List<ItemStack> storedStacks = getStoredStacks(stack);
-        MinecraftClient client = MinecraftClient.getInstance();
-        int maxWidth = 0;
-
-        // Add item information to the tooltip
-        for (int i = 0; i < storedStacks.size(); i++) {
-            ItemStack storedStack = storedStacks.get(i);
-            if (!storedStack.isEmpty()) {
-                assert Formatting.GRAY.getColorValue() != null;
-                assert storedStack.getRarity().getFormatting().getColorValue() != null;
-
-                // Determine the prefix based on the index
-                String prefix = (i == this.getInternalIndex()) ? "[-] " : " -  ";
-
-                assert Formatting.WHITE.getColorValue() != null;
-                int color = Formatting.WHITE.getColorValue(); // Default color
-                Text customName = storedStack.get(DataComponentTypes.ITEM_NAME);
-                if (customName != null && customName.getStyle() != null && customName.getStyle().getColor() != null) {
-                    color = customName.getStyle().getColor().getRgb();
-                } else if (storedStack.getRarity().getFormatting().getColorValue() != null) {
-                    color = storedStack.getRarity().getFormatting().getColorValue();
-                }
-
-
-                // Build the line
-                Text line = Text.literal(prefix).withColor(Formatting.GRAY.getColorValue())
-                        .append(Text.literal(storedStack.getCount() + "x ").withColor(color))
-                        .append(Text.translatable(storedStack.getItem().getTranslationKey()).withColor(color));
-
-                // Add to tooltip
-                tooltip.add(line);
-
-                // Calculate max width
-                int lineWidth = client.textRenderer.getWidth(line);
-                maxWidth = Math.max(maxWidth, lineWidth);
-            }
-        }
-
-        // Check if satchel is full and center the full message
-        if (getStoredStacks(stack).size() == MAX_STACKS) {
-            assert Formatting.RED.getColorValue() != null;
-
-            // Add empty line for spacing
-            tooltip.add(Text.literal(""));
-
-            // Calculate padding for centering
-            Text fullMessage = Text.translatable("item.satchel.satchel_full").withColor(Formatting.RED.getColorValue());
-            int fullMessageWidth = client.textRenderer.getWidth(fullMessage);
-            int padding = (maxWidth - fullMessageWidth) / 2 + 1;
-
-            // Add the centered thinga-ma-bobber
-            tooltip.add(Text.literal(" ".repeat(Math.max(0, padding / client.textRenderer.getWidth(" ")))).append(fullMessage));
-        }
-
-        super.appendTooltip(stack, context, tooltip, type);
-    }
+//    @Override
+//    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
+//        List<ItemStack> storedStacks = getStoredStacks(stack);
+//        MinecraftClient client = MinecraftClient.getInstance();
+//        int maxWidth = 0;
+//
+//        // Add item information to the tooltip
+//        for (int i = 0; i < storedStacks.size(); i++) {
+//            ItemStack storedStack = storedStacks.get(i);
+//            if (!storedStack.isEmpty()) {
+//                assert Formatting.GRAY.getColorValue() != null;
+//                assert storedStack.getRarity().getFormatting().getColorValue() != null;
+//
+//                // Determine the prefix based on the index
+//                String prefix = (i == this.getInternalIndex()) ? "[-] " : " -  ";
+//
+//                assert Formatting.WHITE.getColorValue() != null;
+//                int color = Formatting.WHITE.getColorValue(); // Default color
+//                Text customName = storedStack.get(DataComponentTypes.ITEM_NAME);
+//                if (customName != null && customName.getStyle() != null && customName.getStyle().getColor() != null) {
+//                    color = customName.getStyle().getColor().getRgb();
+//                } else if (storedStack.getRarity().getFormatting().getColorValue() != null) {
+//                    color = storedStack.getRarity().getFormatting().getColorValue();
+//                }
+//
+//
+//                // Build the line
+//                Text line = Text.literal(prefix).withColor(Formatting.GRAY.getColorValue())
+//                        .append(Text.literal(storedStack.getCount() + "x ").withColor(color))
+//                        .append(Text.translatable(storedStack.getItem().getTranslationKey()).withColor(color));
+//
+//                // Add to tooltip
+//                tooltip.add(line);
+//
+//                // Calculate max width
+//                int lineWidth = client.textRenderer.getWidth(line);
+//                maxWidth = Math.max(maxWidth, lineWidth);
+//            }
+//        }
+//
+//        // Check if satchel is full and center the full message
+//        if (getStoredStacks(stack).size() == MAX_STACKS) {
+//            assert Formatting.RED.getColorValue() != null;
+//
+//            // Add empty line for spacing
+//            tooltip.add(Text.literal(""));
+//
+//            // Calculate padding for centering
+//            Text fullMessage = Text.translatable("item.satchel.satchel_full").withColor(Formatting.RED.getColorValue());
+//            int fullMessageWidth = client.textRenderer.getWidth(fullMessage);
+//            int padding = (maxWidth - fullMessageWidth) / 2 + 1;
+//
+//            // Add the centered thinga-ma-bobber
+//            tooltip.add(Text.literal(" ".repeat(Math.max(0, padding / client.textRenderer.getWidth(" ")))).append(fullMessage));
+//        }
+//
+//        super.appendTooltip(stack, context, tooltip, type);
+//    }
 
     public boolean isInvalidItem(ItemStack stack) {
         // Check if the item is a bundle, satchel, or shulker box

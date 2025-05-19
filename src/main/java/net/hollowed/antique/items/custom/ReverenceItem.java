@@ -56,7 +56,5 @@ public class ReverenceItem extends Item {
     }
 
     @Override
-    public boolean postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        return super.postHit(stack, target, attacker);
-    }
+    public void postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {}
 }

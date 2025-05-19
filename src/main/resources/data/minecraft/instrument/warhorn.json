@@ -1,0 +1,8 @@
+{
+  "description": {
+    "translate": "instrument.antique.warhorn"
+  },
+  "range": 512.0,
+  "sound_event": "antique:warhorn",
+  "use_duration": 7.0
+}

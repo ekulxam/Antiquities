@@ -4,11 +4,13 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
@@ -106,8 +108,8 @@ public class MyriadToolBitItem extends ShearsItem {
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, World world, Entity entity, int slot, boolean selected) {
-        super.inventoryTick(stack, world, entity, slot, selected);
+    public void inventoryTick(ItemStack stack, ServerWorld world, Entity entity, @Nullable EquipmentSlot slot) {
+        super.inventoryTick(stack, world, entity, slot);
         if (entity.isOnGround()) {
             this.counter++;
         }
@@ -123,10 +125,6 @@ public class MyriadToolBitItem extends ShearsItem {
         if (this.stamina > 0) {
             this.stamina--;
         }
-    }
-
-    public int getStamina() {
-        return this.stamina;
     }
 
     @Override
@@ -202,15 +200,6 @@ public class MyriadToolBitItem extends ShearsItem {
     }
 
     @Override
-    public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        if (this.id == 2) {
-            user.setCurrentHand(hand);
-            return ActionResult.PASS;
-        }
-        return ActionResult.FAIL;
-    }
-
-    @Override
     public int getMaxUseTime(ItemStack stack, LivingEntity user) {
         return 72000;
     }
@@ -254,7 +243,7 @@ public class MyriadToolBitItem extends ShearsItem {
     }
 
     @Override
-    public boolean canMine(BlockState state, World world, BlockPos pos, PlayerEntity miner) {
+    public boolean canMine(ItemStack stack, BlockState state, World world, BlockPos pos, LivingEntity miner) {
         if (this.id == 1) {
             if (state.getBlock() instanceof CropBlock cropBlock && !(state.getBlock() instanceof BeetrootsBlock)) {
                 if (state.get(CropBlock.AGE) != cropBlock.getMaxAge() && !miner.isSneaking()) {
@@ -274,7 +263,7 @@ public class MyriadToolBitItem extends ShearsItem {
                 }
             }
         }
-        return super.canMine(state, world, pos, miner);
+        return super.canMine(stack, state, world, pos, miner);
     }
 
     public int getId() {

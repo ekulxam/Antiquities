@@ -2,6 +2,7 @@ package net.hollowed.antique.entities.renderer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.hollowed.antique.client.item.explosive_spear.ClothManager;
 import net.hollowed.antique.entities.custom.MyriadShovelEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
@@ -11,9 +12,13 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.DyedColorComponent;
+import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.util.math.RotationAxis;
+import net.minecraft.util.math.Vec3d;
+
+import java.awt.*;
 
 @Environment(EnvType.CLIENT)
 public class MyriadShovelEntityRenderer extends EntityRenderer<MyriadShovelEntity, MyriadShovelRenderState> {
@@ -41,12 +46,20 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<MyriadShovelEntit
 		matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-20.0F));
 
 		if (myriadShovelRenderState.entity instanceof MyriadShovelEntity entity) {
-			ItemStack shovel = entity.shovelStack;
-			shovel.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, entity.isEnchanted());
+			ItemStack shovel = myriadShovelRenderState.stack;
+			shovel.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, myriadShovelRenderState.isEnchanted);
+			shovel.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(myriadShovelRenderState.color));
 
 			// Use the ItemRenderer to render the trident item with a FIRST_PERSON_RIGHT_HAND transformation
 			ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
-			itemRenderer.renderItem(shovel, ModelTransformationMode.FIRST_PERSON_RIGHT_HAND, light, OverlayTexture.DEFAULT_UV, matrixStack, vertexConsumerProvider, MinecraftClient.getInstance().world, 0);
+			itemRenderer.renderItem(shovel, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, light, OverlayTexture.DEFAULT_UV, matrixStack, vertexConsumerProvider, MinecraftClient.getInstance().world, 0);
+
+			ClothManager manager = entity.manager;
+			if(manager != null && shovel.get(DataComponentTypes.DYED_COLOR) != null) {
+				matrixStack.translate(0.05, 0.3, 0.1);
+				Vec3d itemWorldPos = ClothManager.matrixToVec(matrixStack);
+				manager.renderCloth(itemWorldPos, matrixStack, vertexConsumerProvider, light, false, new Color(myriadShovelRenderState.color), false, ClothManager.TATTERED_CLOTH_STRIP, 2, 0.1);
+			}
 		}
 		// Pop the matrix stack to clean up transformations
 		matrixStack.pop();
@@ -59,5 +72,8 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<MyriadShovelEntit
 	public void updateRenderState(MyriadShovelEntity myriadShovelEntity, MyriadShovelRenderState myriadShovelRenderState, float f) {
 		super.updateRenderState(myriadShovelEntity, myriadShovelRenderState, f);
 		myriadShovelRenderState.entity = myriadShovelEntity;
+		myriadShovelRenderState.stack = myriadShovelEntity.shovelStack;
+		myriadShovelRenderState.color = myriadShovelEntity.getDyeColor();
+		myriadShovelRenderState.isEnchanted = myriadShovelEntity.isEnchanted();
 	}
 }

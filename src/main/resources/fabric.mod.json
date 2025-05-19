@@ -3,7 +3,7 @@
 	"id": "antique",
 	"version": "${version}",
 	"name": "Antiquities",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "Adventure awaits...",
 	"authors": [
 		"HollowedWanderer - Main Dev",
 		"Dustley - Coding help",
@@ -11,8 +11,7 @@
 		"Toady - Coding Help"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"sources": "https://github.com/HollowedWanderer/Antiquities"
 	},
 	"license": "ARR - LGPL 3.0",
 	"icon": "assets/antique/icon.png",

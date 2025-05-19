@@ -1,6 +1,7 @@
 package net.hollowed.antique.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.hollowed.antique.items.custom.MyriadToolBitItem;
 import net.hollowed.antique.items.custom.MyriadToolItem;
 import net.hollowed.antique.items.custom.SatchelItem;
 import net.minecraft.entity.EquipmentSlot;
@@ -24,7 +25,7 @@ public class SatchelPacketReceiver {
             if (satchelInventory.getItem() instanceof SatchelItem satchelItem) {
                 PlayerInventory playerInventory = player.getInventory();
 
-                int currentHotbarSlot = playerInventory.selectedSlot;
+                int currentHotbarSlot = playerInventory.getSelectedSlot();
 
                 ItemStack currentHotbarStack = playerInventory.getStack(currentHotbarSlot);
                 ItemStack currentSatchelStack = satchelItem.getSelectedStack(satchelInventory);
@@ -50,8 +51,14 @@ public class SatchelPacketReceiver {
                         myriadItem = MyriadToolItem.getStoredStack(currentHotbarStack);
                         if (myriadItem.isEmpty()) {
                             satchelItem.setSlot(satchelInventory, myriadItem);
+                            if (currentSatchelStack.isEmpty()) {
+                                playerInventory.removeStack(currentHotbarSlot);
+                            } else {
+                                MyriadToolItem.setStoredStack(currentHotbarStack, ItemStack.EMPTY);
+                            }
+                        } else {
+                            MyriadToolItem.setStoredStack(currentHotbarStack, ItemStack.EMPTY);
                         }
-                        MyriadToolItem.setStoredStack(currentHotbarStack, ItemStack.EMPTY);
                     } else {
                         playerInventory.removeStack(currentHotbarSlot);
                     }
@@ -59,7 +66,15 @@ public class SatchelPacketReceiver {
                     // Update the satchel's slot with the hotbar item
                     if (!currentHotbarStack.isEmpty()) {
                         if ((currentHotbarStack.getItem() instanceof MyriadToolItem)) {
-                            satchelItem.setSlot(satchelInventory, myriadItem != ItemStack.EMPTY ? myriadItem : currentHotbarStack);
+                            if (myriadItem == ItemStack.EMPTY) {
+                                if (currentSatchelStack.getItem() instanceof MyriadToolBitItem) {
+                                    satchelItem.setSlot(satchelInventory, ItemStack.EMPTY);
+                                } else {
+                                    satchelItem.setSlot(satchelInventory, currentHotbarStack);
+                                }
+                            } else {
+                                satchelItem.setSlot(satchelInventory, myriadItem);
+                            }
                         } else {
                             satchelItem.setSlot(satchelInventory, currentHotbarStack);
                         }

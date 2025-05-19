@@ -7,7 +7,7 @@ import static net.minecraft.component.DataComponentTypes.ENCHANTMENTS;
 
 public class EnchantmentListener {
 
-    public static boolean hasCustomEnchantment(ItemStack stack, String enchantKey) {
+    public static boolean hasEnchantment(ItemStack stack, String enchantKey) {
         final var enchantments = stack.getOrDefault(ENCHANTMENTS, ItemEnchantmentsComponent.DEFAULT).getEnchantmentEntries();
 
         for (final var entry : enchantments) {

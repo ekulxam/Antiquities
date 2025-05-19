@@ -2,7 +2,7 @@ package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.enchantments.EnchantmentListener;
 import net.hollowed.antique.items.custom.VelocityTransferMaceItem;
-import net.hollowed.combatamenities.client.PlayerEntityRenderStateAccess;
+import net.hollowed.combatamenities.util.interfaces.PlayerEntityRenderStateAccess;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
@@ -40,11 +40,11 @@ public class ThirdPersonItemMixin<S extends PlayerEntityRenderState, M extends E
             Entity entity = ((PlayerEntityRenderStateAccess) playerEntityRenderState).combat_Amenities$getPlayerEntity();
             if (entity instanceof PlayerEntity player && player.getActiveItem().getItem() instanceof VelocityTransferMaceItem) {
                 int useTime = player.getItemUseTime();
-                float tickDelta = MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(true);
+                float tickDelta = MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(true);
 
                 ItemStack stack = player.getActiveItem();
 
-                if (EnchantmentListener.hasCustomEnchantment(stack, "antique:kinematic")) {
+                if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
                     // Define maximum angular velocity and an acceleration factor
                     final float totalRotation = getTotalRotation(useTime, tickDelta);
 

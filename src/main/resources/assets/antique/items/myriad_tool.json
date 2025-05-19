@@ -9,7 +9,13 @@
             {
               "model": {
                 "type": "minecraft:model",
-                "model": "antique:item/myriad_handle_inventory"
+                "model": "antique:item/myriad_handle_inventory",
+                "tints": [
+                  {
+                    "type": "minecraft:dye",
+                    "default": 13893696
+                  }
+                ]
               },
               "when": [
                 "gui",
@@ -20,7 +26,13 @@
             {
               "model": {
                 "type": "minecraft:model",
-                "model": "antique:item/myriad_handle"
+                "model": "antique:item/myriad_handle",
+                "tints": [
+                  {
+                    "type": "minecraft:dye",
+                    "default": 13893696
+                  }
+                ]
               },
               "when": [
                 "firstperson_righthand",
@@ -43,7 +55,13 @@
             {
               "model": {
                 "type": "minecraft:model",
-                "model": "antique:item/myriad_mattock_inventory"
+                "model": "antique:item/myriad_mattock_inventory",
+                "tints": [
+                  {
+                    "type": "minecraft:dye",
+                    "default": 13893696
+                  }
+                ]
               },
               "when": [
                 "gui",
@@ -54,7 +72,13 @@
             {
               "model": {
                 "type": "minecraft:model",
-                "model": "antique:item/myriad_mattock"
+                "model": "antique:item/myriad_mattock",
+                "tints": [
+                  {
+                    "type": "minecraft:dye",
+                    "default": 13893696
+                  }
+                ]
               },
               "when": [
                 "firstperson_righthand",
@@ -77,7 +101,13 @@
             {
               "model": {
                 "type": "minecraft:model",
-                "model": "antique:item/myriad_axe_inventory"
+                "model": "antique:item/myriad_axe_inventory",
+                "tints": [
+                  {
+                    "type": "minecraft:dye",
+                    "default": 13893696
+                  }
+                ]
               },
               "when": [
                 "gui",
@@ -90,11 +120,23 @@
                 "type": "minecraft:condition",
                 "on_false": {
                   "type": "minecraft:model",
-                  "model": "antique:item/myriad_axe"
+                  "model": "antique:item/myriad_axe",
+                  "tints": [
+                    {
+                      "type": "minecraft:dye",
+                      "default": 13893696
+                    }
+                  ]
                 },
                 "on_true": {
                   "type": "minecraft:model",
-                  "model": "antique:item/myriad_axe_blocking"
+                  "model": "antique:item/myriad_axe_blocking",
+                  "tints": [
+                    {
+                      "type": "minecraft:dye",
+                      "default": 13893696
+                    }
+                  ]
                 },
                 "property": "minecraft:using_item"
               },
@@ -119,7 +161,13 @@
             {
               "model": {
                 "type": "minecraft:model",
-                "model": "antique:item/myriad_shovel_inventory"
+                "model": "antique:item/myriad_shovel_inventory",
+                "tints": [
+                  {
+                    "type": "minecraft:dye",
+                    "default": 13893696
+                  }
+                ]
               },
               "when": [
                 "gui",
@@ -132,11 +180,23 @@
                 "type": "minecraft:condition",
                 "on_false": {
                   "type": "minecraft:model",
-                  "model": "antique:item/myriad_shovel"
+                  "model": "antique:item/myriad_shovel",
+                  "tints": [
+                    {
+                      "type": "minecraft:dye",
+                      "default": 13893696
+                    }
+                  ]
                 },
                 "on_true": {
                   "type": "minecraft:model",
-                  "model": "antique:item/myriad_shovel_throwing"
+                  "model": "antique:item/myriad_shovel_throwing",
+                  "tints": [
+                    {
+                      "type": "minecraft:dye",
+                      "default": 13893696
+                    }
+                  ]
                 },
                 "property": "minecraft:using_item"
               },
@@ -153,8 +213,100 @@
           "property": "minecraft:display_context"
         },
         "threshold": 3
+      },
+      {
+        "model": {
+          "type": "minecraft:select",
+          "cases": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/myriad_cleaver_inventory",
+                "tints": [
+                  {
+                    "type": "minecraft:dye",
+                    "default": 13893696
+                  }
+                ]
+              },
+              "when": [
+                "gui",
+                "ground",
+                "fixed"
+              ]
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/myriad_cleaver",
+                "tints": [
+                  {
+                    "type": "minecraft:dye",
+                    "default": 13893696
+                  }
+                ]
+              },
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand",
+                "thirdperson_righthand",
+                "thirdperson_lefthand",
+                "head",
+                "none"
+              ]
+            }
+          ],
+          "property": "minecraft:display_context"
+        },
+        "threshold": 4
+      },
+      {
+        "model": {
+          "type": "minecraft:select",
+          "cases": [
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/myriad_staff_inventory",
+                "tints": [
+                  {
+                    "type": "minecraft:dye",
+                    "default": 13893696
+                  }
+                ]
+              },
+              "when": [
+                "gui",
+                "ground",
+                "fixed"
+              ]
+            },
+            {
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/myriad_staff",
+                "tints": [
+                  {
+                    "type": "minecraft:dye",
+                    "default": 13893696
+                  }
+                ]
+              },
+              "when": [
+                "firstperson_righthand",
+                "firstperson_lefthand",
+                "thirdperson_righthand",
+                "thirdperson_lefthand",
+                "head",
+                "none"
+              ]
+            }
+          ],
+          "property": "minecraft:display_context"
+        },
+        "threshold": 5
       }
     ],
-    "property": "antique:int_property"
+    "property": "combatamenities:int_property"
   }
 }

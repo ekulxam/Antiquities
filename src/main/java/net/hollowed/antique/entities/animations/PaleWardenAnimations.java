@@ -10,7 +10,7 @@ public class PaleWardenAnimations {
 		.addBoneAnimation("right_arm", new Transformation(Transformation.Targets.ROTATE,
 			new Keyframe(0.0F, AnimationHelper.createRotationalVector(-45.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR)
 		))
-		.addBoneAnimation("right_arm", new Transformation(Transformation.Targets.TRANSLATE, 
+		.addBoneAnimation("right_arm", new Transformation(Transformation.Targets.MOVE_ORIGIN,
 			new Keyframe(0.0F, AnimationHelper.createTranslationalVector(0.0F, -1.0F, -0.5F), Transformation.Interpolations.LINEAR)
 		))
 		.addBoneAnimation("right_lower_arm", new Transformation(Transformation.Targets.ROTATE, 
@@ -19,7 +19,7 @@ public class PaleWardenAnimations {
 		.addBoneAnimation("left_arm", new Transformation(Transformation.Targets.ROTATE, 
 			new Keyframe(0.0F, AnimationHelper.createRotationalVector(-45.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR)
 		))
-		.addBoneAnimation("left_arm", new Transformation(Transformation.Targets.TRANSLATE, 
+		.addBoneAnimation("left_arm", new Transformation(Transformation.Targets.MOVE_ORIGIN,
 			new Keyframe(0.0F, AnimationHelper.createTranslationalVector(0.0F, -1.0F, -0.5F), Transformation.Interpolations.LINEAR)
 		))
 		.addBoneAnimation("left_lower_arm", new Transformation(Transformation.Targets.ROTATE, 
@@ -41,7 +41,7 @@ public class PaleWardenAnimations {
 				new Keyframe(2.7917F, AnimationHelper.createRotationalVector(8.4798F, -7.0614F, 25.5217F), Transformation.Interpolations.LINEAR),
 				new Keyframe(2.875F, AnimationHelper.createRotationalVector(0.9798F, -7.0614F, 25.5217F), Transformation.Interpolations.LINEAR)
 		))
-		.addBoneAnimation("right_arm", new Transformation(Transformation.Targets.TRANSLATE,
+		.addBoneAnimation("right_arm", new Transformation(Transformation.Targets.MOVE_ORIGIN,
 				new Keyframe(0.0F, AnimationHelper.createTranslationalVector(0.0F, -1.0F, -0.5F), Transformation.Interpolations.LINEAR),
 				new Keyframe(1.0F, AnimationHelper.createTranslationalVector(0.0F, -1.0F, -0.5F), Transformation.Interpolations.LINEAR)
 		))
@@ -69,7 +69,7 @@ public class PaleWardenAnimations {
 				new Keyframe(2.4167F, AnimationHelper.createRotationalVector(2.5F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),
 				new Keyframe(2.5F, AnimationHelper.createRotationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR)
 		))
-		.addBoneAnimation("left_arm", new Transformation(Transformation.Targets.TRANSLATE,
+		.addBoneAnimation("left_arm", new Transformation(Transformation.Targets.MOVE_ORIGIN,
 				new Keyframe(0.0F, AnimationHelper.createTranslationalVector(0.0F, -1.0F, -0.5F), Transformation.Interpolations.LINEAR),
 				new Keyframe(1.0F, AnimationHelper.createTranslationalVector(0.0F, -1.0F, -0.5F), Transformation.Interpolations.LINEAR),
 				new Keyframe(2.125F, AnimationHelper.createTranslationalVector(0.0F, -1.0F, -0.5F), Transformation.Interpolations.LINEAR),
@@ -108,7 +108,7 @@ public class PaleWardenAnimations {
 				new Keyframe(2.7917F, AnimationHelper.createRotationalVector(36.9643F, 9.0513F, 41.0299F), Transformation.Interpolations.LINEAR),
 				new Keyframe(2.875F, AnimationHelper.createRotationalVector(31.9576F, 9.7834F, 39.9487F), Transformation.Interpolations.LINEAR)
 		))
-		.addBoneAnimation("sword", new Transformation(Transformation.Targets.TRANSLATE,
+		.addBoneAnimation("sword", new Transformation(Transformation.Targets.MOVE_ORIGIN,
 				new Keyframe(0.0F, AnimationHelper.createTranslationalVector(0.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),
 				new Keyframe(2.0F, AnimationHelper.createTranslationalVector(-1.7F, 1.4F, 0.0F), Transformation.Interpolations.LINEAR),
 				new Keyframe(2.5F, AnimationHelper.createTranslationalVector(-1.7F, 1.4F, 0.0F), Transformation.Interpolations.LINEAR),

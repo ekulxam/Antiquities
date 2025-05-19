@@ -5,6 +5,7 @@ import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexRendering;
 import net.minecraft.client.render.entity.EntityRenderDispatcher;
+import net.minecraft.client.render.entity.state.EntityHitbox;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -16,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class EntityRenderDispatchMixin {
 
     @Inject(method = "renderHitbox", at = @At("HEAD"))
-    private static void renderBox(MatrixStack matrices, VertexConsumer vertices, Entity entity, float tickDelta, float red, float green, float blue, CallbackInfo ci) {
+    private static void renderBox(MatrixStack matrices, VertexConsumer vertexConsumer, EntityHitbox hitbox, CallbackInfo ci) {
 //        if (entity instanceof MyriadShovelEntity) {
 //            for (MyriadShovelPart enderDragonPart : ((MyriadShovelEntity)entity).getBodyParts()) {
 //                matrices.push();

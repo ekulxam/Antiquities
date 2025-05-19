@@ -2,19 +2,16 @@ package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
+import net.hollowed.antique.util.ItemHoldingUtil;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -23,7 +20,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(PlayerEntity.class)
 public abstract class ClimbableShovelMixin extends LivingEntity {
-    @Shadow public abstract PlayerInventory getInventory();
 
     @Unique
     private int coyoteTicks;
@@ -70,7 +66,7 @@ public abstract class ClimbableShovelMixin extends LivingEntity {
     @Inject(method = "tick", at = @At("HEAD"))
     public void tick(CallbackInfo ci) {
         if (!this.getWorld().isClient) {
-            if (this.horizontalCollision && this.getInventory().contains(TagKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "walljumper")))) {
+            if (this.horizontalCollision && ItemHoldingUtil.isHoldingItem(this, Identifier.of(Antiquities.MOD_ID, "walljumper"))) {
                 this.coyoteTicks = 5;
             }
             if (this.isOnGround()) {
@@ -85,7 +81,7 @@ public abstract class ClimbableShovelMixin extends LivingEntity {
 
             if (isCollidingWithSpecificEntity && this.horizontalCollision) {
                 this.setClimbingWall(true);
-            } else if (this.getInventory().contains(TagKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "walljumper"))) && (this.horizontalCollision || this.coyoteTicks > 0) && !this.isOnGround() && !isCollidingWithSpecificEntity && this.lastGroundTime == 0 && this.getVelocity().y <= 0) {
+            } else if (ItemHoldingUtil.isHoldingItem(this, Identifier.of(Antiquities.MOD_ID, "walljumper")) && (this.horizontalCollision || this.coyoteTicks > 0) && !this.isOnGround() && !isCollidingWithSpecificEntity && this.lastGroundTime == 0 && this.getVelocity().y <= 0) {
                 this.setClimbingWall(true);
             } else {
                 this.setClimbingWall(false);

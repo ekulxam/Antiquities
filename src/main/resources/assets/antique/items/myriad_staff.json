@@ -1,0 +1,101 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:component",
+          "component": "minecraft:custom_name",
+          "cases": [
+            {
+              "when": "Perfected Staff",
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/perfected_staff_item"
+              }
+            },
+            {
+              "when": "Orb Staff",
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/orb_staff_item"
+              }
+            },
+            {
+              "when": "Lapis Staff",
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/lapis_staff_item"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "antique:item/myriad_staff_inventory",
+            "tints": [
+              {
+                "type": "minecraft:dye",
+                "default": 13893696
+              }
+            ]
+          }
+        },
+        "when": [
+          "gui",
+          "ground",
+          "fixed"
+        ]
+      },
+      {
+        "model": {
+          "type": "minecraft:select",
+          "property": "minecraft:component",
+          "component": "minecraft:custom_name",
+          "cases": [
+            {
+              "when": "Perfected Staff",
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/perfected_staff"
+              }
+            },
+            {
+              "when": "Orb Staff",
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/orb_staff"
+              }
+            },
+            {
+              "when": "Lapis Staff",
+              "model": {
+                "type": "minecraft:model",
+                "model": "antique:item/lapis_staff"
+              }
+            }
+          ],
+          "fallback": {
+            "type": "minecraft:model",
+            "model": "antique:item/myriad_staff",
+            "tints": [
+              {
+                "type": "minecraft:dye",
+                "default": 13893696
+              }
+            ]
+          }
+        },
+        "when": [
+          "firstperson_righthand",
+          "firstperson_lefthand",
+          "thirdperson_righthand",
+          "thirdperson_lefthand",
+          "head",
+          "none"
+        ]
+      }
+    ],
+    "property": "minecraft:display_context"
+  }
+}

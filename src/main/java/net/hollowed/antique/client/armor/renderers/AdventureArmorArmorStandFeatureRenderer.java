@@ -15,7 +15,9 @@ import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.ArmorStandEntityModel;
 import net.minecraft.client.render.entity.model.LoadedEntityModels;
 import net.minecraft.client.render.entity.state.ArmorStandEntityRenderState;
+import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
@@ -26,7 +28,7 @@ public class AdventureArmorArmorStandFeatureRenderer extends FeatureRenderer<Arm
 
     public AdventureArmorArmorStandFeatureRenderer(FeatureRendererContext<ArmorStandEntityRenderState, ArmorStandEntityModel> context, LoadedEntityModels modelLoader) {
         super(context);
-        this.model = new ArmorStandAdventureArmor(modelLoader.getModelPart(ModEntityLayers.ADVENTURE_ARMOR));
+        this.model = new ArmorStandAdventureArmor(modelLoader.getModelPart(ModEntityLayers.ARMOR_STAND_ADVENTURE_ARMOR));
     }
 
     @Override
@@ -60,7 +62,19 @@ public class AdventureArmorArmorStandFeatureRenderer extends FeatureRenderer<Arm
         }
 
         // Render the armor
-        VertexConsumer vertexConsumer = vertexConsumers.getBuffer(RenderLayer.getEntityCutoutNoCull(TEXTURE));
-        this.model.render(matrices, vertexConsumer, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+        VertexConsumer chestConsumers = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
+                state.equippedChestStack.hasGlint());
+        this.model.body.render(matrices, chestConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+        this.model.rightArm.render(matrices, chestConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+        this.model.leftArm.render(matrices, chestConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+
+        VertexConsumer satchelConsumers = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
+                state.equippedLegsStack.hasGlint());
+        this.model.satchel.render(matrices, satchelConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+
+        VertexConsumer bootsConsumers = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
+                state.equippedFeetStack.hasGlint());
+        this.model.rightLeg.render(matrices, bootsConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+        this.model.leftLeg.render(matrices, bootsConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
     }
 }

@@ -1,6 +1,7 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "antique:item/myriad_shovel_inventory"
+    "layer0": "antique:item/myriad_cloth_item",
+    "layer1": "antique:item/myriad_shovel_inventory"
   }
 }

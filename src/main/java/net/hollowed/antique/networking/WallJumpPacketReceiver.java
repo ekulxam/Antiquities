@@ -77,7 +77,7 @@ public class WallJumpPacketReceiver {
 
     public static void particles(World world, float x, float y, float z, float particleX, float particleZ, Vec3d pushVector) {
         for (int i = 0; i < 10; i++) {
-            world.addImportantParticle(
+            world.addImportantParticleClient(
                     ModParticles.DUST_PARTICLE,
                     particleX + Math.random() * 0.5 - 0.25,
                     y + 0.5 + Math.random() * 0.5 - 0.5,
@@ -88,6 +88,6 @@ public class WallJumpPacketReceiver {
             );
         }
 
-        world.addImportantParticle(ModParticles.SPARKLE_PARTICLE, x, y + 0.5, z, pushVector.x, 0, pushVector.z);
+        world.addImportantParticleClient(ModParticles.SPARKLE_PARTICLE, x, y + 0.5, z, pushVector.x, 0, pushVector.z);
     }
 }

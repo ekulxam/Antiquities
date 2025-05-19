@@ -12,9 +12,7 @@ import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.*;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
-import net.minecraft.component.type.AttributeModifierSlot;
-import net.minecraft.component.type.AttributeModifiersComponent;
-import net.minecraft.component.type.ToolComponent;
+import net.minecraft.component.type.*;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
@@ -26,7 +24,6 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.*;
 import net.minecraft.item.consume.UseAction;
-import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
@@ -38,7 +35,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
-import net.minecraft.text.Text;
 import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -83,7 +79,7 @@ public class MyriadToolItem extends Item {
             .put(Blocks.BAMBOO_BLOCK, Blocks.STRIPPED_BAMBOO_BLOCK)
             .build();
 
-    protected static final Map<Block, com.mojang.datafixers.util.Pair<Predicate<ItemUsageContext>, Consumer<ItemUsageContext>>> TILLING_ACTIONS = Maps.<Block, com.mojang.datafixers.util.Pair<Predicate<ItemUsageContext>, Consumer<ItemUsageContext>>>newHashMap(
+    protected static final Map<Block, com.mojang.datafixers.util.Pair<Predicate<ItemUsageContext>, Consumer<ItemUsageContext>>> TILLING_ACTIONS = Maps.newHashMap(
             ImmutableMap.of(
                     Blocks.GRASS_BLOCK,
                     com.mojang.datafixers.util.Pair.of(HoeItem::canTillFarmland, createTillAction(Blocks.FARMLAND.getDefaultState())),
@@ -114,11 +110,11 @@ public class MyriadToolItem extends Item {
         super(settings);
     }
 
-    public static AttributeModifiersComponent createAttributeModifiers() {
+    public static AttributeModifiersComponent createAttributeModifiers(double damage, double attackSpeed, double reach) {
         return AttributeModifiersComponent.builder()
-                .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 2.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-                .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.2, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-                .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.25, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+                .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, damage - 1, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+                .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -4 + attackSpeed, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+                .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), reach, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                 .build();
     }
 
@@ -163,7 +159,7 @@ public class MyriadToolItem extends Item {
 
     @Override
     public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        if (user instanceof PlayerEntity playerEntity && Objects.requireNonNull(stack.get(ModComponents.INTEGER_PROPERTY)) == 3) {
+        if (user instanceof PlayerEntity playerEntity && Objects.requireNonNull(stack.get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 3) {
             int i = this.getMaxUseTime(stack, user) - remainingUseTicks;
             if (i < 10) {
                 return false;
@@ -211,7 +207,7 @@ public class MyriadToolItem extends Item {
                         j *= f / m;
                         k *= f / m;
                         l *= f / m;
-                        playerEntity.addVelocity((double)j, (double)k, (double)l);
+                        playerEntity.addVelocity(j, k, l);
                         playerEntity.useRiptide(20, 8.0F, stack);
                         if (playerEntity.isOnGround()) {
                             playerEntity.move(MovementType.SELF, new Vec3d(0.0, 1.1999999F, 0.0));
@@ -231,7 +227,7 @@ public class MyriadToolItem extends Item {
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        if (Objects.requireNonNull(stack.get(ModComponents.INTEGER_PROPERTY)) == 3) {
+        if (Objects.requireNonNull(stack.get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 3) {
             return UseAction.SPEAR;
         }
         return super.getUseAction(stack);
@@ -239,8 +235,8 @@ public class MyriadToolItem extends Item {
 
     @Override
     public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        if (Objects.requireNonNull(user.getStackInHand(hand).get(ModComponents.INTEGER_PROPERTY)) == 2
-                || Objects.requireNonNull(user.getStackInHand(hand).get(ModComponents.INTEGER_PROPERTY)) == 3) {
+        if (Objects.requireNonNull(user.getStackInHand(hand).get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 2
+                || Objects.requireNonNull(user.getStackInHand(hand).get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 3) {
             user.setCurrentHand(hand);
             return ActionResult.PASS;
         }
@@ -277,6 +273,12 @@ public class MyriadToolItem extends Item {
                 return false;
             }
 
+            if (otherStack.getItem() instanceof MyriadToolBitItem item && item.getId() == 5) {
+                System.out.println("called");
+                player.getInventory().removeStack(slot.getIndex());
+                player.getInventory().setStack(slot.getIndex(), stack.copyComponentsToNewStack(ModItems.MYRIAD_STAFF, 1));
+            }
+
             ItemStack temp = getStoredStack(stack);
             storedStack = otherStack.split(otherStack.getCount());
             player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 1.0F, 1.0F);
@@ -289,25 +291,12 @@ public class MyriadToolItem extends Item {
         return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
     }
 
-    @Override
-    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        if (stack.get(ModComponents.INTEGER_PROPERTY) != null) {
-            int toolInt = Objects.requireNonNull(stack.get(ModComponents.INTEGER_PROPERTY));
 
-            assert Formatting.GRAY.getColorValue() != null;
-            Text line = Text.translatable("item.antique.myriad_tool.no_tool").withColor(Formatting.GRAY.getColorValue());
-
-            switch (toolInt) {
-                case 1 -> line = Text.translatable("item.antique.myriad_tool.mattock").withColor(Formatting.GRAY.getColorValue());
-                case 2 -> line = Text.translatable("item.antique.myriad_tool.axe").withColor(Formatting.GRAY.getColorValue());
-                case 3 -> line = Text.translatable("item.antique.myriad_tool.shovel").withColor(Formatting.GRAY.getColorValue());
-            }
-
-            // Add to tooltip
-            tooltip.add(line);
-        }
-        super.appendTooltip(stack, context, tooltip, type);
-    }
+//    @Override
+//    public Optional<TooltipData> getTooltipData(ItemStack stack) {
+//        TooltipDisplayComponent tooltipDisplayComponent = stack.getOrDefault(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent.DEFAULT);
+//        return tooltipDisplayComponent.shouldDisplay()
+//    }
 
     public static boolean isInvalidItem(ItemStack stack) {
         Item item = stack.getItem();
@@ -320,7 +309,7 @@ public class MyriadToolItem extends Item {
 
     public static void setStoredStack(ItemStack tool, ItemStack newStack) {
         if (newStack.getItem() instanceof MyriadToolBitItem item) {
-            tool.set(ModComponents.INTEGER_PROPERTY, item.getId());
+            tool.set(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY, item.getId());
             switch (item.getId()) {
                 case 1 -> {
                     tool.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
@@ -334,12 +323,13 @@ public class MyriadToolItem extends Item {
                                     ToolComponent.Rule.ofAlwaysDropping(ModItems.registryEntryLookup.getOrThrow(TagKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "mineable/mattock"))), 20)
                             ),
                             1.0F,
-                            1
+                            1,
+                            true
                     ));
                 }
                 case 2 -> {
                     tool.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
-                            .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 9.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+                            .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 9, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                             .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -3, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                             .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.75, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                             .build());
@@ -349,8 +339,10 @@ public class MyriadToolItem extends Item {
                                     ToolComponent.Rule.ofAlwaysDropping(ModItems.registryEntryLookup.getOrThrow(BlockTags.AXE_MINEABLE), 20)
                             ),
                             1.0F,
-                            1
+                            1,
+                            true
                     ));
+                    tool.set(DataComponentTypes.WEAPON, new WeaponComponent(0, 2));
                 }
                 case 3 -> {
                     tool.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
@@ -364,7 +356,24 @@ public class MyriadToolItem extends Item {
                                     ToolComponent.Rule.ofAlwaysDropping(ModItems.registryEntryLookup.getOrThrow(BlockTags.SHOVEL_MINEABLE), 20)
                             ),
                             1.0F,
-                            1
+                            1,
+                            true
+                    ));
+                }
+                case 4 -> {
+                    tool.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
+                            .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 6, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+                            .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.2, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+                            .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 1, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+                            .build());
+                    tool.set(DataComponentTypes.TOOL, new ToolComponent(
+                            List.of(
+                                    ToolComponent.Rule.ofNeverDropping(ModItems.registryEntryLookup.getOrThrow(BlockTags.INCORRECT_FOR_IRON_TOOL)),
+                                    ToolComponent.Rule.ofAlwaysDropping(ModItems.registryEntryLookup.getOrThrow(BlockTags.SHOVEL_MINEABLE), 20)
+                            ),
+                            1.0F,
+                            1,
+                            true
                     ));
                 }
             }
@@ -374,16 +383,14 @@ public class MyriadToolItem extends Item {
                     .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.2, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                     .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.25, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                     .build());
-            tool.set(ModComponents.INTEGER_PROPERTY, 0);
+            tool.set(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY, 0);
             tool.remove(DataComponentTypes.TOOL);
         }
         tool.set(ModComponents.MYRIAD_STACK, newStack);
     }
 
     /*
-
         Tool Functionality Code
-
      */
 
     @Override
@@ -392,7 +399,8 @@ public class MyriadToolItem extends Item {
         BlockPos blockPos = context.getBlockPos();
         PlayerEntity playerEntity = context.getPlayer();
 
-        if (context.getStack().get(ModComponents.INTEGER_PROPERTY) != null && Objects.requireNonNull(context.getStack().get(ModComponents.INTEGER_PROPERTY)) == 2) {
+        if (context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null
+                && Objects.requireNonNull(context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 2) {
             if (shouldCancelStripAttempt(context)) {
                 return ActionResult.PASS;
             } else {
@@ -406,7 +414,7 @@ public class MyriadToolItem extends Item {
                     }
 
                     world.setBlockState(blockPos, optional.get(), Block.NOTIFY_ALL_AND_REDRAW);
-                    world.emitGameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Emitter.of(playerEntity, (BlockState) optional.get()));
+                    world.emitGameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Emitter.of(playerEntity, optional.get()));
                     if (playerEntity != null) {
                         itemStack.damage(1, playerEntity, LivingEntity.getSlotForHand(context.getHand()));
                     }
@@ -414,7 +422,8 @@ public class MyriadToolItem extends Item {
                     return ActionResult.SUCCESS;
                 }
             }
-        } else if (context.getStack().get(ModComponents.INTEGER_PROPERTY) != null && Objects.requireNonNull(context.getStack().get(ModComponents.INTEGER_PROPERTY)) == 1) {
+        } else if (context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null
+                && Objects.requireNonNull(context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 1) {
             Pair<Predicate<ItemUsageContext>, Consumer<ItemUsageContext>> pair = TILLING_ACTIONS.get(
                     world.getBlockState(blockPos).getBlock()
             );
@@ -438,7 +447,8 @@ public class MyriadToolItem extends Item {
                 }
             }
         } else {
-            if (context.getStack().get(ModComponents.INTEGER_PROPERTY) != null && Objects.requireNonNull(context.getStack().get(ModComponents.INTEGER_PROPERTY)) == 3) {
+            if (context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null
+                    && Objects.requireNonNull(context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 3) {
                 assert playerEntity != null;
                 if (playerEntity.isSneaking()) {
                     BlockState blockState = world.getBlockState(blockPos);

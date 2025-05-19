@@ -1,5 +1,6 @@
 package net.hollowed.antique.mixin;
 
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.ModKeyBindings;
 import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.items.custom.SatchelItem;
@@ -16,8 +17,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
+import net.minecraft.util.Identifier;
 import org.joml.Vector2i;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -25,10 +28,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import static net.hollowed.antique.client.gui.SatchelOverlay.SATCHEL_SELECTORS;
-
 @Mixin(InGameHud.class)
 public class SatchelOverlayMixin {
+
+    @Unique
+    private static final Identifier SATCHEL_SELECTORS = Antiquities.id("textures/gui/satchel_selectors.png");
+
     @Inject(method = "render", at = @At("HEAD"))
     public void render(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         MinecraftClient client = MinecraftClient.getInstance();

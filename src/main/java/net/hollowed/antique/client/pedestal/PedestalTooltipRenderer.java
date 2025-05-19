@@ -32,6 +32,7 @@ public class PedestalTooltipRenderer {
     }
 
     public static void renderTooltip(DrawContext context, int screenWidth, int screenHeight) {
+
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null) return;
 

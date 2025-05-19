@@ -4,9 +4,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.client.item.explosive_spear.ClothManager;
 import net.hollowed.antique.entities.custom.ExplosiveSpearEntity;
-import net.hollowed.antique.entities.custom.MyriadShovelEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.Camera;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRenderer;
@@ -14,13 +12,12 @@ import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.ModelTransformationMode;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Matrix4f;
-import org.joml.Vector4f;
-import org.spongepowered.asm.mixin.Unique;
+
+import java.awt.*;
 
 @Environment(EnvType.CLIENT)
 public class ExplosiveSpearEntityRenderer extends EntityRenderer<ExplosiveSpearEntity, ExplosiveSpearRenderState> {
@@ -51,34 +48,21 @@ public class ExplosiveSpearEntityRenderer extends EntityRenderer<ExplosiveSpearE
 
 			// Use the ItemRenderer to render the trident item with a FIRST_PERSON_RIGHT_HAND transformation
 			ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
-			itemRenderer.renderItem(shovel, ModelTransformationMode.FIRST_PERSON_RIGHT_HAND, light, OverlayTexture.DEFAULT_UV, matrixStack, vertexConsumerProvider, MinecraftClient.getInstance().world, 0);
+			itemRenderer.renderItem(shovel, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, light, OverlayTexture.DEFAULT_UV, matrixStack, vertexConsumerProvider, MinecraftClient.getInstance().world, 0);
 
 			ClothManager manager = entity.manager;
 			if(manager != null) {
 				matrixStack.translate(0.1, 0.5, 0.1);
-				Matrix4f matrix = matrixStack.peek().getPositionMatrix();
-
-				Camera camera = MinecraftClient.getInstance().gameRenderer.getCamera();
-				Vec3d itemWorldPos = transformToWorld(matrix, camera);
-
-				manager.tick(MinecraftClient.getInstance().getRenderTickCounter().getTickDelta(false));
-				manager.renderCloth(itemWorldPos, matrixStack, vertexConsumerProvider, light);
+				Vec3d itemWorldPos = ClothManager.matrixToVec(matrixStack);
+				manager.renderCloth(itemWorldPos, matrixStack, vertexConsumerProvider, light, false, new Color(255, 0, 0, 255), false, ClothManager.BLANK_CLOTH_STRIP, 2, 0.1);
 			}
 		}
+
 		// Pop the matrix stack to clean up transformations
 		matrixStack.pop();
 	}
 
-	@Unique
-	private Vec3d transformToWorld(Matrix4f matrix, Camera camera) {
-		// Convert (0,0,0) in local item space to transformed coordinates
-		Vector4f localPos = new Vector4f(0, 0, 0, 1);
-		matrix.transform(localPos);
-
-		// Convert view space to world space by adding the camera position
-		Vec3d cameraPos = camera.getPos();
-		return new Vec3d(cameraPos.x + localPos.x(), cameraPos.y + localPos.y(), cameraPos.z + localPos.z());
-	}
+	// new Color(212, 59, 105, 255)
 
 	public ExplosiveSpearRenderState createRenderState() {
 		return new ExplosiveSpearRenderState();

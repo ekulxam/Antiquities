@@ -44,7 +44,7 @@ public class ExplosiveSpearEntity extends PersistentProjectileEntity {
 	public ExplosiveSpearEntity(EntityType<ExplosiveSpearEntity> entityType, World world) {
 		super(entityType, world);
 		this.shovelStack = ModItems.EXPLOSIVE_SPEAR.getDefaultStack();
-		this.manager = new ClothManager(new Vector3d(), 6);
+		this.manager = new ClothManager(new Vector3d(), 8);
 	}
 
 	public ExplosiveSpearEntity(World world, LivingEntity owner, ItemStack stack) {
@@ -52,7 +52,7 @@ public class ExplosiveSpearEntity extends PersistentProjectileEntity {
 		this.dataTracker.set(LOYALTY, this.getLoyalty(stack));
 		this.dataTracker.set(ENCHANTED, stack.hasGlint());
 		this.shovelStack = stack;
-		this.manager = new ClothManager(new Vector3d(), 6);
+		this.manager = new ClothManager(new Vector3d(), 8);
 	}
 
 	public boolean isEnchanted() {
@@ -115,10 +115,20 @@ public class ExplosiveSpearEntity extends PersistentProjectileEntity {
 	}
 
 	@Override
+	protected void onBlockHit(BlockHitResult blockHitResult) {
+		super.onBlockHit(blockHitResult);
+		this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), 3, World.ExplosionSourceType.NONE);
+		this.discard();
+	}
+
+	@Override
 	protected void onEntityHit(EntityHitResult entityHitResult) {
 		if (this.age >= 2000) {
 			this.age -= 2000;
 		}
+
+		this.getWorld().createExplosion(this, this.getX(), this.getY(), this.getZ(), 3, World.ExplosionSourceType.NONE);
+		this.discard();
 
 		Entity entity = entityHitResult.getEntity();
 		float f = 8.0F;
@@ -196,7 +206,9 @@ public class ExplosiveSpearEntity extends PersistentProjectileEntity {
 	@Override
 	public void readCustomDataFromNbt(NbtCompound nbt) {
 		super.readCustomDataFromNbt(nbt);
-		this.dealtDamage = nbt.getBoolean("DealtDamage");
+		if (nbt.getBoolean("DealtDamage").isPresent()) {
+			this.dealtDamage = nbt.getBoolean("DealtDamage").get();
+		}
 		this.dataTracker.set(LOYALTY, this.getLoyalty(this.getItemStack()));
 		this.dataTracker.set(ENCHANTED, this.isEnchanted());
 	}

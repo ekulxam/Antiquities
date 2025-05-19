@@ -1,10 +1,10 @@
 package net.hollowed.antique.entities.custom;
 
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.client.item.explosive_spear.ClothManager;
 import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
-import net.hollowed.antique.networking.MyriadShovelSpawnPacketPayload;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -16,11 +16,9 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.entity.projectile.WindChargeEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.packet.s2c.play.EntitySpawnS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
@@ -32,18 +30,22 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3d;
 
 import java.util.List;
 import java.util.Objects;
 
 public class MyriadShovelEntity extends PersistentProjectileEntity {
 	private static final TrackedData<Byte> LOYALTY = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BYTE);
+	private static final TrackedData<Integer> COLOR = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	private static final TrackedData<Boolean> ENCHANTED = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private boolean dealtDamage;
 	public int returnTimer;
 	public ItemStack shovelStack;
 
 	public boolean canPickup;
+	public final ClothManager manager;
+	public int dyeColor;
 
 //	private final MyriadShovelPart[] parts;
 //	public final MyriadShovelPart part1;
@@ -52,6 +54,8 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	public MyriadShovelEntity(EntityType<MyriadShovelEntity> entityType, World world) {
 		super(entityType, world);
 		this.shovelStack = Antiquities.getMyriadShovelStack();
+		this.manager = new ClothManager(new Vector3d(), 8);
+		this.dataTracker.set(COLOR, Objects.requireNonNull(this.shovelStack.get(DataComponentTypes.DYED_COLOR)).rgb());
 
 //		this.part1 = new MyriadShovelPart(this, "part1", 1F, 1F);
 //		this.part2 = new MyriadShovelPart(this, "part2", 1F, 1F);
@@ -63,10 +67,17 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		this.dataTracker.set(LOYALTY, this.getLoyalty(stack));
 		this.dataTracker.set(ENCHANTED, stack.hasGlint());
 		this.shovelStack = stack;
+		this.manager = new ClothManager(new Vector3d(), 8);
+		this.dataTracker.set(COLOR, Objects.requireNonNull(this.shovelStack.get(DataComponentTypes.DYED_COLOR)).rgb());
+		System.out.println(this.dyeColor);
 
 //		this.part1 = new MyriadShovelPart(this, "part1", 0.1F, 0.1F);
 //		this.part2 = new MyriadShovelPart(this, "part2", 0.1F, 0.1F);
 //		this.parts = new MyriadShovelPart[]{this.part1, this.part2};
+	}
+
+	public int getDyeColor() {
+		return this.dataTracker.get(COLOR);
 	}
 
 //	public MyriadShovelPart[] getBodyParts() {
@@ -136,12 +147,6 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		}
 	}
 
-	@Override
-	public void onSpawnPacket(EntitySpawnS2CPacket packet) {
-		ClientPlayNetworking.send(new MyriadShovelSpawnPacketPayload(this.getId()));
-		super.onSpawnPacket(packet);
-	}
-
 	public boolean isEnchanted() {
 		return this.dataTracker.get(ENCHANTED);
 	}
@@ -151,6 +156,7 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		super.initDataTracker(builder);
 		builder.add(LOYALTY, (byte)0);
 		builder.add(ENCHANTED, false);
+		builder.add(COLOR, 1);
 	}
 
 //	private void movePart(MyriadShovelPart enderDragonPart, double dx, double dy, double dz) {
@@ -263,6 +269,12 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	}
 
 	@Override
+	protected void onBlockHit(BlockHitResult blockHitResult) {
+		super.onBlockHit(blockHitResult);
+		summonPart();
+	}
+
+	@Override
 	public ItemStack getWeaponStack() {
 		return this.getItemStack();
 	}
@@ -294,15 +306,18 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	@Override
 	public void readCustomDataFromNbt(NbtCompound nbt) {
 		super.readCustomDataFromNbt(nbt);
-		this.dealtDamage = nbt.getBoolean("DealtDamage");
+		if (nbt.getBoolean("DealtDamage").isPresent()) this.dealtDamage = nbt.getBoolean("DealtDamage").get();
 		this.dataTracker.set(LOYALTY, this.getLoyalty(this.getItemStack()));
-		this.dataTracker.set(ENCHANTED, this.isEnchanted());
+		if (nbt.getBoolean("Glint").isPresent()) this.dataTracker.set(ENCHANTED, nbt.getBoolean("Glint").get());
+		if (nbt.getInt("Color").isPresent()) this.dataTracker.set(COLOR, nbt.getInt("Color").get());
 	}
 
 	@Override
 	public void writeCustomDataToNbt(NbtCompound nbt) {
 		super.writeCustomDataToNbt(nbt);
 		nbt.putBoolean("DealtDamage", this.dealtDamage);
+		nbt.putInt("Color", this.getDyeColor());
+		nbt.putBoolean("Glint", this.isEnchanted());
 	}
 
 	private byte getLoyalty(ItemStack stack) {

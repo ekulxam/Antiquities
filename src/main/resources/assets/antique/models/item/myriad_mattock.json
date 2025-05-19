@@ -2,17 +2,18 @@
 	"credit": "Made with Blockbench",
 	"parent": "minecraft:item/handheld",
 	"textures": {
-		"layer0": "antique:item/myriad_mattock"
+		"layer0": "antique:item/myriad_cloth",
+		"layer1": "antique:item/myriad_mattock"
 	},
 	"display": {
 		"thirdperson_righthand": {
-			"rotation": [10, -90, 55],
-			"translation": [0, 4, 1.5],
+			"rotation": [0, -90, 55],
+			"translation": [0, 4, 0.5],
 			"scale": [1.7, 1.7, 0.85]
 		},
 		"thirdperson_lefthand": {
-			"rotation": [10, 90, -55],
-			"translation": [0, 4, 1.5],
+			"rotation": [0, 90, -55],
+			"translation": [0, 4, 0.5],
 			"scale": [1.7, 1.7, 0.85]
 		},
 		"firstperson_righthand": {
