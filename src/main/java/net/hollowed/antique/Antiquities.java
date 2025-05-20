@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.hollowed.antique.blocks.ModBlocks;
 import net.hollowed.antique.blocks.entities.ModBlockEntities;
 import net.hollowed.antique.component.ModComponents;
+import net.hollowed.antique.effect.AnimeEffect;
 import net.hollowed.antique.effect.BounceEffect;
 import net.hollowed.antique.enchantments.ModEnchantments;
 import net.hollowed.antique.entities.ModEntities;
@@ -20,8 +21,6 @@ import net.hollowed.antique.particles.ModParticles;
 import net.hollowed.antique.util.ModLootTableModifiers;
 import net.hollowed.antique.util.MyriadStaffTransformResourceReloadListener;
 import net.hollowed.antique.util.TickDelayScheduler;
-import net.hollowed.combatamenities.util.json.ItemTransformResourceReloadListener;
-import net.minecraft.block.entity.BrewingStandBlockEntity;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
@@ -139,10 +138,12 @@ public class Antiquities implements ModInitializer {
 
 	public static final RegistryEntry<StatusEffect> VOLATILE_BOUNCE_EFFECT;
 	public static final RegistryEntry<StatusEffect> BOUNCE_EFFECT;
+	public static final RegistryEntry<StatusEffect> ANIME_EFFECT;
 
 	static {
 		BOUNCE_EFFECT = registerEffect("bouncy", new BounceEffect().addAttributeModifier(EntityAttributes.STEP_HEIGHT, Identifier.ofVanilla("effect.step_height"), 1, EntityAttributeModifier.Operation.ADD_VALUE));
 		VOLATILE_BOUNCE_EFFECT = registerEffect("volatile_bouncy", new BounceEffect().addAttributeModifier(EntityAttributes.STEP_HEIGHT, Identifier.ofVanilla("effect.step_height"), 1, EntityAttributeModifier.Operation.ADD_VALUE));
+		ANIME_EFFECT = registerEffect("anime_effect", new AnimeEffect());
 	}
 
 	private static RegistryEntry<StatusEffect> registerEffect(String id, StatusEffect statusEffect) {

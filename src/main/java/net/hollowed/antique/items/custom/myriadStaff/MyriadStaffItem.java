@@ -1,5 +1,6 @@
 package net.hollowed.antique.items.custom.myriadStaff;
 
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.component.ModComponents;
 import net.hollowed.antique.enchantments.EnchantmentListener;
 import net.hollowed.antique.util.EntityAnimeActivator;
@@ -11,6 +12,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.BlockItem;
@@ -194,15 +196,12 @@ public class MyriadStaffItem extends Item {
     public void postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         super.postHit(stack, target, attacker);
         if (stack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(Blocks.GOLD_BLOCK.asItem())) {
-            if (target instanceof EntityAnimeActivator access) {
-                breakSphere(attacker.getWorld(), target.getBlockPos(), 2);
-                int time = 30;
-                access.antiquities$setDestroy(time);
-                TickDelayScheduler.schedule(1, () -> {
-                    target.setVelocity(attacker.getRotationVec(0).multiply(4, 2, 4));
-                    target.velocityModified = true;
-                });
-            }
+            breakSphere(attacker.getWorld(), target.getBlockPos(), 2);
+            target.addStatusEffect(new StatusEffectInstance(Antiquities.ANIME_EFFECT, 30, 0, true, true));
+            TickDelayScheduler.schedule(1, () -> {
+                target.setVelocity(attacker.getRotationVec(0).multiply(4, 2, 4));
+                target.velocityModified = true;
+            });
         }
     }
 

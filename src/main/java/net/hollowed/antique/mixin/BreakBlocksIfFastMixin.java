@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin;
 
-import net.hollowed.antique.util.EntityAnimeActivator;
+import net.hollowed.antique.Antiquities;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityPose;
 import net.minecraft.entity.EntityType;
@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(LivingEntity.class)
-public abstract class BreakBlocksIfFastMixin extends Entity implements EntityAnimeActivator {
+public abstract class BreakBlocksIfFastMixin extends Entity {
 
     public BreakBlocksIfFastMixin(EntityType<?> type, World world) {
         super(type, world);
@@ -25,18 +25,13 @@ public abstract class BreakBlocksIfFastMixin extends Entity implements EntityAni
 
     @Shadow public abstract Box getBoundingBox(EntityPose pose);
 
-    @Unique
-    int destroy = 0;
-
     @Inject(method = "tick", at = @At("TAIL"))
     public void tick(CallbackInfo ci) {
         LivingEntity user = (LivingEntity) (Object) this;
         World world = user.getWorld();
 
-        this.noClip = destroy > 0 || this.isSpectator();
-        this.setNoGravity(destroy > 0);
-        if (destroy > 0) {
-            destroy--;
+        this.setNoGravity(user.hasStatusEffect(Antiquities.ANIME_EFFECT));
+        if (user.hasStatusEffect(Antiquities.ANIME_EFFECT)) {
             int radius = 2;
 
             // First sphere: around the entity
@@ -68,10 +63,5 @@ public abstract class BreakBlocksIfFastMixin extends Entity implements EntityAni
                 }
             }
         }
-    }
-
-    @Override
-    public void antiquities$setDestroy(int frozen) {
-        this.destroy = frozen;
     }
 }
