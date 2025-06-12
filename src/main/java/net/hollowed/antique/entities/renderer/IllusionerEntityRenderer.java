@@ -11,7 +11,9 @@ import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.entities.custom.IllusionerEntity;
 import net.hollowed.antique.util.IllusionerRenderUtil;
+import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.entity.EndermanEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.IllagerEntityRenderer;
 import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
@@ -73,7 +75,6 @@ public class IllusionerEntityRenderer extends IllagerEntityRenderer<IllusionerEn
         } else {
             super.render(illusionerEntityRenderState, matrixStack, vertexConsumerProvider, i);
         }
-
     }
 
     protected boolean isVisible(IllusionerEntityRenderState illusionerEntityRenderState) {

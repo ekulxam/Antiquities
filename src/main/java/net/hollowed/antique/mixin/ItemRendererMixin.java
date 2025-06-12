@@ -36,41 +36,48 @@ public abstract class ItemRendererMixin {
 
     @Inject(method = "drawItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/world/World;Lnet/minecraft/item/ItemStack;IIII)V", at = @At("TAIL"))
     public void renderItem(LivingEntity entity, World world, ItemStack stack, int x, int y, int seed, int z, CallbackInfo ci) {
-        matrices.push();
-        this.matrices.translate((float)(x + 10), (float)(y + 6), (float)(150 + z));
-        this.matrices.scale(5.0F, -5.0F, 5.0F);
-        this.matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-45));
-        this.matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90));
-        this.draw();
-        DiffuseLighting.disableGuiDepthLighting();
+        if (stack.isOf(ModItems.MYRIAD_STAFF)) {
+            matrices.push();
+            this.matrices.translate((float) (x + 10), (float) (y + 6), (float) (150 + z));
+            this.matrices.scale(5.0F, -5.0F, 5.0F);
+            this.matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-45));
+            this.matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(90));
+            this.draw();
+            DiffuseLighting.disableGuiDepthLighting();
 
-        ItemStack stackToRender = stack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY);
+            ItemStack stackToRender = stack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY);
 
-        MyriadStaffTransformData data = MyriadStaffTransformResourceReloadListener.getTransform(Registries.ITEM.getId(stackToRender.getItem()));
-        matrices.scale(data.scale().get(0), data.scale().get(1), data.scale().get(2));
-        matrices.translate(data.translation().get(0), data.translation().get(1), data.translation().get(2));
-        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(data.rotation().getFirst()));
-        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(data.rotation().get(1)));
-        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(data.rotation().get(2)));
+            matrices.scale(0.875F, 0.875F, 0.875F);
+            matrices.translate(0.0, -0.035, 0.05);
 
-        Identifier customModel = stackToRender.getOrDefault(DataComponentTypes.ITEM_MODEL, Registries.ITEM.getId(stackToRender.getItem()));
-        stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
+            MyriadStaffTransformData data = MyriadStaffTransformResourceReloadListener.getTransform(Registries.ITEM.getId(stackToRender.getItem()));
+            matrices.scale(data.scale().get(0), data.scale().get(1), data.scale().get(2));
+            matrices.translate(data.translation().get(0), data.translation().get(1), data.translation().get(2));
+            matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(data.rotation().getFirst()));
+            matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(data.rotation().get(1)));
+            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(data.rotation().get(2)));
 
-        MinecraftClient.getInstance().getItemRenderer().renderItem(
-                stackToRender,
-                ItemDisplayContext.NONE,
-                15728880,
-                OverlayTexture.DEFAULT_UV,
-                matrices,
-                this.vertexConsumers,
-                MinecraftClient.getInstance().world,
-                seed
-        );
+            Identifier customModel = stackToRender.getOrDefault(DataComponentTypes.ITEM_MODEL, Registries.ITEM.getId(stackToRender.getItem()));
+            if (!data.model().equals(Identifier.of("default"))) {
+                stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
+            }
 
-        stackToRender.set(DataComponentTypes.ITEM_MODEL, customModel);
+            MinecraftClient.getInstance().getItemRenderer().renderItem(
+                    stackToRender,
+                    ItemDisplayContext.NONE,
+                    15728880,
+                    OverlayTexture.DEFAULT_UV,
+                    matrices,
+                    this.vertexConsumers,
+                    MinecraftClient.getInstance().world,
+                    seed
+            );
 
-        this.draw();
-        DiffuseLighting.enableGuiDepthLighting();
-        matrices.pop();
+            stackToRender.set(DataComponentTypes.ITEM_MODEL, customModel);
+
+            this.draw();
+            DiffuseLighting.enableGuiDepthLighting();
+            matrices.pop();
+        }
     }
 }

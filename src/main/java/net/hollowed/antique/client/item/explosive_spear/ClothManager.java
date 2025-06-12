@@ -66,6 +66,7 @@ public class ClothManager {
             // Update pass
             for (int i = 0; i < bodies.size(); i++) {
                 ClothBody body = bodies.get(i);
+
                 Vec3d startPos = new Vec3d(body.pos.x, body.pos.y, body.pos.z);
                 BlockPos blockPos = BlockPos.ofFloored(startPos);
                 BlockState state = world.getBlockState(blockPos);
@@ -73,15 +74,15 @@ public class ClothManager {
                 body.accel.add(vel.mul(-0.15));
 
                 // Compute new drag value smoothly
-                double newDrag = Math.random() * (state.getBlock() == Blocks.WATER ? 0.25 : 1.25);
+                double newDrag = Math.random() * (state.getBlock() == Blocks.WATER ? 0.25 : 1.0);
                 double smoothDrag = MathHelper.lerp(delta * 0.1, previousDrag, newDrag); // Lerp for smooth transition
 
                 // Apply gravity and wind
                 if (state.getBlock() == Blocks.WATER) {
-                    body.accel.add(0.0, 0.00049, 0.0);
+                    body.accel.add(0.0, 0.0049, 0.0);
                     ClothWindHelper.applyWindToBody(body, i, (i * i * 0.5), 0.75, smoothDrag);
                 } else {
-                    body.accel.add(0.0, -0.00245, 0.0);
+                    body.accel.add(0.0, -0.0035, 0.0);
                     ClothWindHelper.applyWindToBody(body, i, (i * i * 0.5), 1.0, smoothDrag);
                 }
 
@@ -95,7 +96,7 @@ public class ClothManager {
             for (int i = 0; i < bodies.size() - 1; i++) {
                 var body = bodies.get(i);
                 var nextBody = bodies.get(i + 1);
-                body.containDistance(nextBody, (1.0 / bodies.size()) * length);
+                body.containDistance(nextBody, (0.9 / bodies.size()) * length);
             }
         }
 
@@ -103,6 +104,9 @@ public class ClothManager {
         if (world != null) {
             for (ClothBody body : bodies) {
                 body.slideOutOfBlocks(world);
+                body.pos.x = MathHelper.lerp(0.075, body.pos.x, body.posCache.x);
+                body.pos.y = MathHelper.lerp(0.2, body.pos.y, body.posCache.y); // More smoothing on Y
+                body.pos.z = MathHelper.lerp(0.075, body.pos.z, body.posCache.z);
             }
         }
     }

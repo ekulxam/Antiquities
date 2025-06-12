@@ -127,6 +127,9 @@ public abstract class BackSlotRendererMixin extends HeldItemFeatureRenderer<Play
                             matrixStack.translate(0, 0.9, 0);
                         }
 
+                        matrixStack.scale(0.875F, 0.875F, 0.875F);
+                        matrixStack.translate(0.0, -0.035, 0.05);
+
                         MyriadStaffTransformData data = MyriadStaffTransformResourceReloadListener.getTransform(Registries.ITEM.getId(stackToRender.getItem()));
                         matrixStack.scale(data.scale().get(0), data.scale().get(1), data.scale().get(2));
 
@@ -137,7 +140,9 @@ public abstract class BackSlotRendererMixin extends HeldItemFeatureRenderer<Play
                         matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(data.rotation().get(2)));
 
                         Identifier customModel = stackToRender.getOrDefault(DataComponentTypes.ITEM_MODEL, Registries.ITEM.getId(stackToRender.getItem()));
-                        stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
+                        if (!data.model().equals(Identifier.of("default"))) {
+                            stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
+                        }
 
                         itemRenderer.renderItem(
                                 stackToRender,

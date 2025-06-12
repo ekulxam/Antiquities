@@ -1,5 +1,8 @@
 {
   "values": [
-    "antique:diamond_greatsword"
+    "antique:iron_greatsword",
+    "antique:golden_greatsword",
+    "antique:diamond_greatsword",
+    "antique:netherite_greatsword"
   ]
 }

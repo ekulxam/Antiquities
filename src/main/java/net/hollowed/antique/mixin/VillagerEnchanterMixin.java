@@ -3,7 +3,6 @@ package net.hollowed.antique.mixin;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.VertexConsumers;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
@@ -44,18 +43,18 @@ public abstract class VillagerEnchanterMixin<T extends LivingEntity, S extends L
         super(context);
     }
 
-    @Redirect(
-            method = "render(Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/VertexConsumerProvider;getBuffer(Lnet/minecraft/client/render/RenderLayer;)Lnet/minecraft/client/render/VertexConsumer;"
-            )
-    )
-    private VertexConsumer redirectGetBuffer(VertexConsumerProvider provider, RenderLayer layer) {
-        boolean bl = this.isVisible((S) livingEntityRenderState);
-        boolean bl2 = !bl && !livingEntityRenderState.invisibleToPlayer;
-        RenderLayer renderLayer = this.getRenderLayer((S) livingEntityRenderState, bl, bl2, livingEntityRenderState.hasOutline);
-        //return VertexConsumers.union(provider.getBuffer(RenderLayer.getEntityGlint()), provider.getBuffer(renderLayer));
-        return provider.getBuffer(renderLayer);
-    }
+//    @Redirect(
+//            method = "render(Lnet/minecraft/client/render/entity/state/LivingEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+//            at = @At(
+//                    value = "INVOKE",
+//                    target = "Lnet/minecraft/client/render/VertexConsumerProvider;getBuffer(Lnet/minecraft/client/render/RenderLayer;)Lnet/minecraft/client/render/VertexConsumer;"
+//            )
+//    )
+//    private VertexConsumer redirectGetBuffer(VertexConsumerProvider provider, RenderLayer layer) {
+//        boolean bl = this.isVisible((S) livingEntityRenderState);
+//        boolean bl2 = !bl && !livingEntityRenderState.invisibleToPlayer;
+//        RenderLayer renderLayer = this.getRenderLayer((S) livingEntityRenderState, bl, bl2, livingEntityRenderState.hasOutline);
+//        //return VertexConsumers.union(provider.getBuffer(RenderLayer.getEntityGlint()), provider.getBuffer(renderLayer));
+//        return provider.getBuffer(renderLayer);
+//    }
 }

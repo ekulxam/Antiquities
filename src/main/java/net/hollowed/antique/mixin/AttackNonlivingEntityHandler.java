@@ -6,9 +6,8 @@ import net.hollowed.antique.enchantments.EnchantmentListener;
 import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.items.custom.NetheritePauldronsItem;
 import net.hollowed.antique.items.custom.VelocityTransferMaceItem;
-import net.hollowed.antique.util.EntityFreezer;
-import net.hollowed.antique.util.FreezeFrameManager;
 import net.hollowed.antique.util.TickDelayScheduler;
+import net.hollowed.combatamenities.particles.ModParticles;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.*;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -67,20 +66,9 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
     @Shadow public abstract void addExhaustion(float exhaustion);
 
     @Shadow private ItemStack selectedItem;
-    @Unique
-    private int lastAttackTicks;
 
     protected AttackNonlivingEntityHandler(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
-    }
-
-    @Inject(method = "tick", at = @At("HEAD"))
-    public void tick(CallbackInfo ci) {
-        if (this instanceof EntityFreezer access) {
-            if (this.lastAttackTicks <= 0 && access.antiquities$getFrozen()) {
-                access.antiquities$setFrozen(false);
-            }
-        }
     }
 
     @Inject(at = @At("HEAD"), method = "attack", cancellable = true)
@@ -91,30 +79,30 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
         ItemStack stack = player.getStackInHand(Hand.MAIN_HAND);
 
         if (stack.getItem() instanceof VelocityTransferMaceItem) {
-            this.lastAttackTicks = player.getVelocity().length() > 0.6 ? (int) (player.getVelocity().length() * 5F) : 0;
             player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.3F);
+
+            if (this.getWorld() instanceof ServerWorld serverWorld) {
+                serverWorld.spawnParticles(ModParticles.RING, target.getX(), target.getBodyY(0.6), target.getZ(), 1, 0.1, 0.2, 0.1, 0);
+            }
 
             Vec3d effectiveVelocity = VelocityTransferMaceItem.playerVelocity;
 
             if (player.getVelocity().length() > 0.1) {
-                if (target instanceof EntityFreezer access) {
-                    access.antiquities$setFrozen(true);
-                }
-                if (player instanceof EntityFreezer access) {
-                    access.antiquities$setFrozen(true);
-                }
                 int delay = player.getVelocity().length() > 0.6 ? (int) (player.getVelocity().length() * 5F) : 0;
+                if (target instanceof net.hollowed.combatamenities.util.interfaces.EntityFreezer access) {
+                    access.antiquities$setFrozen(true, delay - 1);
+                }
+                if (player instanceof net.hollowed.combatamenities.util.interfaces.EntityFreezer access) {
+                    access.antiquities$setFrozen(true, delay - 1);
+                }
                 TickDelayScheduler.schedule(delay, () -> {
-                    if (target instanceof EntityFreezer access) {
-                        access.antiquities$setFrozen(false);
-                    }
-                    if (player instanceof EntityFreezer access) {
-                        access.antiquities$setFrozen(false);
-                    }
 
                     if (attackPower > 0.9f) {
                         float pitch = 1.1f + (player.getRandom().nextFloat() * .2f);
+                        if (this.getWorld() instanceof ServerWorld serverWorld) {
+                            serverWorld.spawnParticles(ParticleTypes.GUST_EMITTER_SMALL, target.getX(), target.getBodyY(0.5), target.getZ(), 1, 0.1, 0.0, 0.1, 0);
+                        }
 
                         if (!target.isOnGround()) {
                             player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
@@ -372,8 +360,15 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
         PlayerEntity player = (PlayerEntity) (Object) this;
         ItemStack stack = player.getEquippedStack(EquipmentSlot.CHEST);
         if (stack.getItem() instanceof NetheritePauldronsItem && target instanceof ProjectileEntity entity) {
+
+            if (this.getWorld() instanceof ServerWorld serverWorld) {
+                serverWorld.spawnParticles(ParticleTypes.GUST, target.getX(), target.getBodyY(0.5), target.getZ(), 1, 0.1, 0.0, 0.1, 0);
+            }
+
             player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
-                    ModSounds.PARRY_ULTRAKILL, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                    SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.3F);
+            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.ENTITY_WIND_CHARGE_WIND_BURST, SoundCategory.PLAYERS, 1.0F, 0.7F);
             Vec3d velocity = player.getRotationVec(0).normalize();
             if (Objects.equals(entity.getOwner(), player)) {
                 target.setVelocity(velocity.x * 1.5F * target.getVelocity().length(), velocity.y * 1.5F * target.getVelocity().length(), velocity.z * 1.5F * target.getVelocity().length());
@@ -382,7 +377,6 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
             }
             target.velocityModified = true;
             target.velocityDirty = true;
-            FreezeFrameManager.triggerFreeze(6);
         }
     }
 
@@ -392,7 +386,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
         if (player.getStackInHand(Hand.MAIN_HAND).isOf(ModItems.MYRIAD_STAFF)) {
             float attackPower = player.getAttackCooldownProgress(0.0f);
             player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
-                    attackPower > 0.9f ? SoundEvents.ITEM_MACE_SMASH_AIR : SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.3F);
+                    attackPower > 0.9f ? ModSounds.STAFF_HIT : SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 2.0F, attackPower > 0.9f ? (float) (1.0 + (Math.random() * 0.2) - 0.1) : 1.3F);
         }
     }
 

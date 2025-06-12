@@ -16,6 +16,7 @@ import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
+import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKeys;
@@ -44,7 +45,7 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
     @Inject(method = "<init>", at = @At("TAIL"))
     private void addCustomFeature(EntityRendererFactory.Context ctx, boolean slim, CallbackInfo ci) {
         this.slim = slim;
-        this.armorModel = new AdventureArmor(ctx.getEntityModels().getModelPart(ModEntityLayers.ADVENTURE_ARMOR));
+        this.armorModel = new AdventureArmor<>(ctx.getEntityModels().getModelPart(ModEntityLayers.ADVENTURE_ARMOR));
         this.addFeature(new AdventureArmorFeatureRenderer<>(this, ctx.getEntityModels(), slim));
     }
 
@@ -66,6 +67,7 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
             }
         }
     }
+
 
     @Inject(method = "renderLeftArm", at = @At("TAIL"))
     public void renderArmoredLeftArm(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {

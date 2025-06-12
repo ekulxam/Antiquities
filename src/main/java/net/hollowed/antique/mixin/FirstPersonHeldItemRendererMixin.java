@@ -1,18 +1,15 @@
 package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.client.item.explosive_spear.ClothManager;
-import net.hollowed.antique.component.ModComponents;
 import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.util.SpearClothAccess;
 import net.hollowed.antique.util.Temp;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;

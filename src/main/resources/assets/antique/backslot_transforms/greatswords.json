@@ -9,7 +9,7 @@
     "model": "antique:greatsword_scabbard",
     "scale": [2.0, 2.0, 1.0],
     "rotation": [0.0, 0.0, 90.0],
-    "translation": [0.1, 0.0, 0.0],
+    "translation": [0.125, -0.025, 0.0],
     "mode": "NONE",
     "sway": 0.5
   },

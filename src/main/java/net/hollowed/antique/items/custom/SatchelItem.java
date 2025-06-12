@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class SatchelItem extends Item {
-    private static final int MAX_STACKS = 8;
+    public static final int MAX_STACKS = 8;
     private int index = 0;
     private int internalIndex = 0;
 

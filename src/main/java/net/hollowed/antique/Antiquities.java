@@ -1,5 +1,6 @@
 package net.hollowed.antique;
 
+import com.nitron.nitrogen.config.Config;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -8,6 +9,8 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.loader.api.FabricLoader;
 import net.hollowed.antique.blocks.ModBlocks;
 import net.hollowed.antique.blocks.entities.ModBlockEntities;
 import net.hollowed.antique.component.ModComponents;
@@ -22,17 +25,11 @@ import net.hollowed.antique.util.ModLootTableModifiers;
 import net.hollowed.antique.util.MyriadStaffTransformResourceReloadListener;
 import net.hollowed.antique.util.TickDelayScheduler;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.AttributeModifierSlot;
-import net.minecraft.component.type.AttributeModifiersComponent;
-import net.minecraft.component.type.ToolComponent;
-import net.minecraft.component.type.WeaponComponent;
+import net.minecraft.component.type.*;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemGroups;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -134,6 +131,28 @@ public class Antiquities implements ModInitializer {
 				Predicate.isEqual(ModItems.REVERENCE),
 				(builder, item) -> builder.add(DataComponentTypes.ITEM_NAME, Text.translatable(item.getTranslationKey()).withColor(0xff5a00))
 		));
+
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+				List.of(
+						Items.BUNDLE, Items.WHITE_BUNDLE, Items.LIGHT_GRAY_BUNDLE, Items.GRAY_BUNDLE, Items.BLACK_BUNDLE, Items.BROWN_BUNDLE, Items.RED_BUNDLE,
+						Items.ORANGE_BUNDLE, Items.YELLOW_BUNDLE, Items.LIME_BUNDLE, Items.GREEN_BUNDLE, Items.CYAN_BUNDLE, Items.LIGHT_BLUE_BUNDLE, Items.BLUE_BUNDLE,
+						Items.PURPLE_BUNDLE, Items.MAGENTA_BUNDLE, Items.PINK_BUNDLE
+						),
+				(builder, item) -> builder.add(DataComponentTypes.ENCHANTABLE, new EnchantableComponent(10))
+		));
+
+		/*
+			Resource Pack
+		 */
+
+		FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent((container) ->
+				ResourceManagerHelper.registerBuiltinResourcePack(Identifier.of(MOD_ID, "antique"), container, Text.translatable("resourcePack.hmi.name"), ResourcePackActivationType.NORMAL));
+
+		/*
+			Shenanigans
+		 */
+
+		Config.trailRenderers = false;
 	}
 
 	public static final RegistryEntry<StatusEffect> VOLATILE_BOUNCE_EFFECT;
@@ -159,6 +178,8 @@ public class Antiquities implements ModInitializer {
 	private void addItems() {
 		// Register items to the custom item group.
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_GROUP_KEY).register(itemGroup -> {
+			itemGroup.add(ModItems.MYRIAD_INGOT);
+			itemGroup.add(ModBlocks.MYRIAD_BLOCK);
 			itemGroup.add(ModItems.NETHERITE_PAULDRONS);
 			itemGroup.add(ModItems.SATCHEL);
 			itemGroup.add(ModItems.FUR_BOOTS);
@@ -246,7 +267,10 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(ModItems.MYRIAD_CLEAVER_BLADE);
 			itemGroup.add(ModItems.MYRIAD_CLAW);
 			itemGroup.add(ModItems.WARHORN);
+			itemGroup.add(ModItems.IRON_GREATSWORD);
+			itemGroup.add(ModItems.GOLDEN_GREATSWORD);
 			itemGroup.add(ModItems.DIAMOND_GREATSWORD);
+			itemGroup.add(ModItems.NETHERITE_GREATSWORD);
 			itemGroup.add(ModBlocks.JAR);
 
 			itemGroup.add(ModItems.IRREVERENT);

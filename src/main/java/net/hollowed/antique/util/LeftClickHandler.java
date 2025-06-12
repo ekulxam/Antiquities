@@ -5,6 +5,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.BlockPos;
@@ -54,7 +55,11 @@ public class LeftClickHandler {
 
         if (client.options.attackKey.isPressed() && client.player.getMainHandStack() != ItemStack.EMPTY) {
             lastItemUseTime = System.currentTimeMillis();
-            client.player.stopUsingItem();
+            if (client.player.isUsingItem()) {
+                client.player.stopUsingItem();
+                client.player.getItemCooldownManager().set(client.player.getMainHandStack(), 5);
+                client.player.swingHand(Hand.MAIN_HAND);
+            }
         }
     }
 

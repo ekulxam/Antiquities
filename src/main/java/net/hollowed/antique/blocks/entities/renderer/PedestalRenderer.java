@@ -43,7 +43,7 @@ public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity
             double preciseTime = (worldTime) % 360; // Converts ticks to seconds
             float rotation = (float) ((preciseTime + tickDelta) * 3.0); // Smooth rotation
 
-            float bob = (float) Math.sin((Math.toRadians(worldTime))) * 0.0875f; // Smooth bobbing
+            float bob = (float) Math.sin((Math.toRadians(rotation))) * 0.0875f; // Smooth bobbing
 
             if (heldItem.getItem() instanceof EndCrystalItem) {
                 renderEndCrystalEntity(ITEM_POS.add(0, 0, 0), tickDelta, matrices, vertexConsumers, light, pedestalBlockEntity.getWorld());

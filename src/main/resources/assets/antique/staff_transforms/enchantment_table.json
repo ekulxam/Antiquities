@@ -1,7 +1,4 @@
 {
   "item": "minecraft:enchanting_table",
-  "model": "antique:enchantment_table",
-  "scale": [1.0, 1.0, 1.0],
-  "rotation": [0.0, 0.0, 0.0],
-  "translation": [0.0, 0.0, 0.0]
+  "model": "antique:enchantment_table"
 }

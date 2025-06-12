@@ -7,6 +7,7 @@ import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.items.custom.*;
 import net.hollowed.antique.items.custom.myriadStaff.MyriadStaffItem;
 import net.minecraft.block.Block;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.component.type.InstrumentComponent;
@@ -26,13 +27,33 @@ public class ModItems {
 
     public static RegistryEntryLookup<Block> registryEntryLookup = Registries.createEntryLookup(Registries.BLOCK);
 
-    public static final Item DIAMOND_GREATSWORD = registerItem("diamond_greatsword", new GreatswordItem(ModToolMaterial.DIAMOND, 4.0F, -2.7F, 0.5F, 0.5F, new Item.Settings()
+    public static final Item IRON_GREATSWORD = registerItem("iron_greatsword", new GreatswordItem(ModToolMaterial.IRON, 4.0F, -2.7F, 0.3F, 0.5F, new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "iron_greatsword")))
+            .maxCount(1)
+    ));
+
+    public static final Item GOLDEN_GREATSWORD = registerItem("golden_greatsword", new GreatswordItem(ModToolMaterial.GOLD, 4.0F, -2.7F, 0.2F, 0.5F, new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "golden_greatsword")))
+            .maxCount(1)
+    ));
+
+    public static final Item DIAMOND_GREATSWORD = registerItem("diamond_greatsword", new GreatswordItem(ModToolMaterial.DIAMOND, 4.0F, -2.7F, 0.4F, 0.5F, new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "diamond_greatsword")))
+            .maxCount(1)
+    ));
+
+    public static final Item NETHERITE_GREATSWORD = registerItem("netherite_greatsword", new GreatswordItem(ModToolMaterial.NETHERITE, 4.0F, -2.7F, 0.6F, 0.5F, new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "netherite_greatsword")))
             .maxCount(1)
     ));
 
     public static final Item EXPLOSIVE_SPEAR = registerItem("explosive_spear", new ExplosiveSpearItem(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "explosive_spear")))
+            .maxCount(1)
+    ));
+
+    public static final Item MYRIAD_INGOT = registerItem("myriad_ingot", new ExplosiveSpearItem(new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_ingot")))
             .maxCount(1)
     ));
 
@@ -194,6 +215,61 @@ public class ModItems {
                 text = text.copy().append(itemStack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).getItemName());
                 text = text.copy().append(" -");
                 list.add(1, text.getString().equals(" - Air -") ? Text.translatable("item.antique.myriad_staff.empty") : text);
+            }
+            if (itemStack.getItem() instanceof SatchelItem satchelItem) {
+                List<ItemStack> storedStacks = SatchelItem.getStoredStacks(itemStack);
+                MinecraftClient client = MinecraftClient.getInstance();
+                int maxWidth = 0;
+
+                // Check if satchel is full and center the full message
+                if (SatchelItem.getStoredStacks(itemStack).size() == SatchelItem.MAX_STACKS) {
+                    assert Formatting.RED.getColorValue() != null;
+
+                    // Calculate padding for centering
+                    Text fullMessage = Text.translatable("item.antique.satchel.satchel_full").withColor(Formatting.RED.getColorValue());
+                    int fullMessageWidth = client.textRenderer.getWidth(fullMessage);
+                    int padding = (maxWidth - fullMessageWidth) / 2 + 1;
+
+                    // Add the centered thinga-ma-bobber
+                    list.add(1, Text.literal(" ".repeat(Math.max(0, padding / client.textRenderer.getWidth(" ")))).append(fullMessage));
+
+                    // Add empty line for spacing
+                    list.add(1, Text.literal(""));
+                }
+
+                // Add item information to the tooltip
+                for (int i = storedStacks.size() - 1; i >= 0 ; i--) {
+                    ItemStack storedStack = storedStacks.get(i);
+                    if (!storedStack.isEmpty()) {
+                        assert Formatting.GRAY.getColorValue() != null;
+                        assert storedStack.getRarity().getFormatting().getColorValue() != null;
+
+                        // Determine the prefix based on the index
+                        String prefix = (i == satchelItem.getInternalIndex()) ? "[-] " : " -  ";
+
+                        assert Formatting.WHITE.getColorValue() != null;
+                        int color = Formatting.WHITE.getColorValue(); // Default color
+                        Text customName = storedStack.get(DataComponentTypes.ITEM_NAME);
+                        if (customName != null && customName.getStyle() != null && customName.getStyle().getColor() != null) {
+                            color = customName.getStyle().getColor().getRgb();
+                        } else if (storedStack.getRarity().getFormatting().getColorValue() != null) {
+                            color = storedStack.getRarity().getFormatting().getColorValue();
+                        }
+
+
+                        // Build the line
+                        Text line = Text.literal(prefix).withColor(Formatting.GRAY.getColorValue())
+                                .append(Text.literal(storedStack.getCount() + "x ").withColor(color))
+                                .append(Text.translatable(storedStack.getItem().getTranslationKey()).withColor(color));
+
+                        // Add to tooltip
+                        list.add(1, line);
+
+                        // Calculate max width
+                        int lineWidth = client.textRenderer.getWidth(line);
+                        maxWidth = Math.max(maxWidth, lineWidth);
+                    }
+                }
             }
         });
     }

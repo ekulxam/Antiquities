@@ -17,5 +17,5 @@
   ],
   "exclusive_set": "#antique:exclusive_set/bundle",
   "supported_items": "#minecraft:bundles",
-  "weight": 5
+  "weight": 1
 }

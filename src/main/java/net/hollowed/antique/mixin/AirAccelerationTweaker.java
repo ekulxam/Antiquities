@@ -6,16 +6,22 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.effect.StatusEffect;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.Objects;
 
 @Mixin(LivingEntity.class)
 public abstract class AirAccelerationTweaker extends Entity {
@@ -24,9 +30,10 @@ public abstract class AirAccelerationTweaker extends Entity {
 
     @Shadow public abstract boolean damage(ServerWorld world, DamageSource source, float amount);
 
-    @Shadow protected abstract Vec3d getControlledMovementInput(PlayerEntity controllingPlayer, Vec3d movementInput);
-
     @Shadow public abstract boolean isUsingRiptide();
+
+    @Shadow
+    public abstract @Nullable StatusEffectInstance getStatusEffect(RegistryEntry<StatusEffect> effect);
 
     public AirAccelerationTweaker(EntityType<?> type, World world) {
         super(type, world);
@@ -37,7 +44,7 @@ public abstract class AirAccelerationTweaker extends Entity {
         // Get the entity (LivingEntity)
         Entity entity = this;
 
-        if ((LivingEntity) (Object) this instanceof PlayerEntity player && !entity.isOnGround() && player.getGlidingTicks() == 0) {
+        if ((LivingEntity) (Object) this instanceof PlayerEntity player && !entity.isOnGround() && player.getGlidingTicks() == 0 && !(player.getAbilities().flying || player.isSpectator())) {
             // Scale horizontal movement input for better acceleration
             double horizontalBoost = 0.01; // Adjust this value for more/less acceleration
             if (this.isSprinting()) horizontalBoost = 0.015;
@@ -82,7 +89,7 @@ public abstract class AirAccelerationTweaker extends Entity {
         // Get the entity (LivingEntity)
         Entity entity = this;
 
-        if ((LivingEntity) (Object) this instanceof PlayerEntity player && !entity.isOnGround() && player.getGlidingTicks() == 0) {
+        if ((LivingEntity) (Object) this instanceof PlayerEntity player && !entity.isOnGround() && player.getGlidingTicks() == 0 && !(player.getAbilities().flying || player.isSpectator())) {
             // Scale horizontal movement input for better acceleration
             double horizontalBoost = 0.01; // Adjust this value for more/less acceleration
             if (this.isSprinting()) horizontalBoost = 0.011;
@@ -120,5 +127,10 @@ public abstract class AirAccelerationTweaker extends Entity {
                 this.setVelocity(newVelocity);
             }
         }
+    }
+
+    @Inject(method = "getJumpBoostVelocityModifier", at = @At("HEAD"), cancellable = true)
+    public void jumpModifier(CallbackInfoReturnable<Float> cir) {
+        cir.setReturnValue(this.hasStatusEffect(StatusEffects.JUMP_BOOST) ? 0.3F * (Objects.requireNonNull(this.getStatusEffect(StatusEffects.JUMP_BOOST)).getAmplifier() + 1.0F) : 0.0F);
     }
 }

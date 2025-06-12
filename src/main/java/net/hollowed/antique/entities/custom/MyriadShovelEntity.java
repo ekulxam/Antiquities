@@ -4,6 +4,7 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.item.explosive_spear.ClothManager;
 import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
+import net.hollowed.combatamenities.particles.ModParticles;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -19,12 +20,14 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
+import net.minecraft.util.hit.HitResult;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
@@ -216,6 +219,14 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	@Override
 	protected EntityHitResult getEntityCollision(Vec3d currentPosition, Vec3d nextPosition) {
 		return this.dealtDamage ? null : super.getEntityCollision(currentPosition, nextPosition);
+	}
+
+	@Override
+	protected void onCollision(HitResult hitResult) {
+		super.onCollision(hitResult);
+		if (this.getWorld() instanceof ServerWorld serverWorld) {
+			serverWorld.spawnParticles(ModParticles.RING, this.getX(), this.getY(), this.getZ(), 1, 0.0, 0.0, 0.0, 0);
+		}
 	}
 
 	@Override

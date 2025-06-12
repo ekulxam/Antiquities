@@ -45,6 +45,15 @@ public class MyriadStaffTransformResourceReloadListener implements SimpleSynchro
                         DataResult<MyriadStaffTransformData> result = MyriadStaffTransformData.CODEC.parse(JsonOps.INSTANCE, json);
 
                         result.resultOrPartial(CombatAmenities.LOGGER::error).ifPresent(data -> {
+                            if (data.model().equals(Identifier.of("default"))) {
+                                data = new MyriadStaffTransformData(
+                                        data.item(),
+                                        Identifier.of(data.item()),
+                                        data.scale(),
+                                        data.rotation(),
+                                        data.translation()
+                                );
+                            }
                             if (data.item().equals("default")) {
                                 defaultTransforms = data;
                             } else if (data.item().startsWith("#")) {
@@ -55,10 +64,11 @@ public class MyriadStaffTransformResourceReloadListener implements SimpleSynchro
                                 TagKey<Item> tag = TagKey.of(Registries.ITEM.getKey(), tagId);
 
                                 if (tag != null) {
+                                    MyriadStaffTransformData finalData = data;
                                     Registries.ITEM.forEach(item -> {
                                         Identifier itemId = Registries.ITEM.getId(item);
                                         if (item.getDefaultStack().getRegistryEntry().isIn(tag)) {
-                                            transforms.put(itemId, data);
+                                            transforms.put(itemId, finalData);
                                         }
                                     });
                                 } else {

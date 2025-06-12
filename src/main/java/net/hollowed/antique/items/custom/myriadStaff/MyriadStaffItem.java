@@ -1,9 +1,10 @@
 package net.hollowed.antique.items.custom.myriadStaff;
 
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.ModSounds;
 import net.hollowed.antique.component.ModComponents;
-import net.hollowed.antique.enchantments.EnchantmentListener;
-import net.hollowed.antique.util.EntityAnimeActivator;
+import net.hollowed.antique.entities.ModEntities;
+import net.hollowed.antique.entities.custom.CakeEntity;
 import net.hollowed.antique.util.LeftClickHandler;
 import net.hollowed.antique.util.TickDelayScheduler;
 import net.minecraft.block.BlockState;
@@ -18,9 +19,11 @@ import net.minecraft.inventory.StackReference;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsageContext;
 import net.minecraft.item.consume.UseAction;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
@@ -30,6 +33,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Unique;
+
+import java.util.Objects;
 
 public class MyriadStaffItem extends Item {
     public MyriadStaffItem(Settings settings) {
@@ -46,7 +51,7 @@ public class MyriadStaffItem extends Item {
                 if (!storedStack.isEmpty()) {
                     cursorStackReference.set(storedStack.copy());
                     storedStack = ItemStack.EMPTY;
-                    player.playSound(SoundEvents.ITEM_BUNDLE_REMOVE_ONE, 1.0F, 1.0F);
+                    player.playSound(ModSounds.STAFF_REMOVE, 0.5F, 1.0F);
                     setStoredStack(stack, storedStack); // Re-set without empty stacks
                     return true;
                 }
@@ -62,7 +67,7 @@ public class MyriadStaffItem extends Item {
 
             ItemStack temp = getStoredStack(stack);
             storedStack = otherStack.split(otherStack.getCount());
-            player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 1.0F, 1.0F);
+            player.playSound(ModSounds.STAFF_INSERT, 1.0F, 1.0F);
             setStoredStack(stack, storedStack); // Re-set without empty stacks
 
             cursorStackReference.set(temp);
@@ -82,7 +87,7 @@ public class MyriadStaffItem extends Item {
                 if (!storedStack.isEmpty()) {
                     slot.setStack(storedStack.copy());
                     storedStack = ItemStack.EMPTY;
-                    player.playSound(SoundEvents.ITEM_BUNDLE_REMOVE_ONE, 0.8F, 1.0F);
+                    player.playSound(ModSounds.STAFF_REMOVE, 0.5F, 1.0F);
                     setStoredStack(stack, storedStack);
                     return true;
                 }
@@ -99,7 +104,7 @@ public class MyriadStaffItem extends Item {
 
             if (storedStack.isEmpty()) {
                 storedStack = otherStack.split(otherStack.getCount());
-                player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 0.8F, 1.0F);
+                player.playSound(ModSounds.STAFF_INSERT, 1.0F, 1.0F);
                 setStoredStack(stack, storedStack); // Re-set without empty stacks
 
                 // Clear the cursor stack after adding an item to the tool
@@ -190,16 +195,27 @@ public class MyriadStaffItem extends Item {
     public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks) {
         super.usageTick(world, user, stack, remainingUseTicks);
         LeftClickHandler.checkRightClickInAir();
+        if (stack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(Blocks.CAKE.asItem())) {
+            if (!world.isClient) {
+                CakeEntity cake = new CakeEntity(ModEntities.CAKE_ENTITY, world);
+                cake.setPos(user.getX(), user.getY() + 2, user.getZ());
+                cake.setVelocity(user.getRotationVector().multiply(0.75));
+                cake.setAngles(-user.getHeadYaw(), -user.getPitch());
+                world.spawnEntity(cake);
+
+                world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ENTITY_WIND_CHARGE_THROW, SoundCategory.NEUTRAL, 0.5F, 0.1F);
+            }
+        }
     }
 
     @Override
     public void postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         super.postHit(stack, target, attacker);
         if (stack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(Blocks.GOLD_BLOCK.asItem())) {
-            breakSphere(attacker.getWorld(), target.getBlockPos(), 2);
-            target.addStatusEffect(new StatusEffectInstance(Antiquities.ANIME_EFFECT, 30, 0, true, true));
+            target.addStatusEffect(new StatusEffectInstance(Antiquities.ANIME_EFFECT, 60, 0, true, true));
             TickDelayScheduler.schedule(1, () -> {
-                target.setVelocity(attacker.getRotationVec(0).multiply(4, 2, 4));
+                TickDelayScheduler.schedule(1, () -> breakSphere(attacker.getWorld(), target.getBlockPos().up(), 2));
+                target.setVelocity(attacker.getRotationVec(0).multiply(10, 5, 10));
                 target.velocityModified = true;
             });
         }
@@ -220,5 +236,22 @@ public class MyriadStaffItem extends Item {
                 }
             }
         }
+    }
+
+    @Override
+    public ActionResult useOnBlock(ItemUsageContext context) {
+        if (context.getStack().getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).isEmpty() && Objects.requireNonNull(context.getPlayer()).isSneaking()) {
+            PlayerEntity user = context.getPlayer();
+            context.getWorld().playSound(null, user.getX(), user.getY(), user.getZ(), ModSounds.STAFF_INSERT, SoundCategory.NEUTRAL, 1.0F, 1.0F);
+
+            BlockState block = context.getWorld().getBlockState(context.getBlockPos());
+            ItemStack stack = block.getBlock().asItem().getDefaultStack();
+            TickDelayScheduler.schedule(8, () -> {
+                context.getStack().set(ModComponents.MYRIAD_STACK, stack);
+                context.getWorld().breakBlock(context.getBlockPos(), false);
+            });
+            return ActionResult.SUCCESS;
+        }
+        return ActionResult.PASS;
     }
 }

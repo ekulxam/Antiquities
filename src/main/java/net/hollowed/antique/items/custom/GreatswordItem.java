@@ -14,7 +14,6 @@ public class GreatswordItem extends Item implements ShieldPiercer {
 
     public GreatswordItem(ModToolMaterial material, float attackDamage, float attackSpeed, float shieldPierce, float reach, Settings settings) {
         super(material.applyGreatswordSettings(settings, attackDamage, attackSpeed, reach));
-
         this.shieldPierce = shieldPierce;
     }
 
@@ -22,9 +21,6 @@ public class GreatswordItem extends Item implements ShieldPiercer {
     public boolean canMine(ItemStack stack, BlockState state, World world, BlockPos pos, LivingEntity user) {
         return !user.isInCreativeMode();
     }
-
-    @Override
-    public void postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {}
 
     @Override
     public void postDamageEntity(ItemStack stack, LivingEntity target, LivingEntity attacker) {

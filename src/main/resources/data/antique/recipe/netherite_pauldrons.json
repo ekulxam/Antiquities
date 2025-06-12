@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "W W",
+    "NLM",
+    "HLM"
+  ],
+  "key": {
+    "H": "antique:hollow_core",
+    "L": "minecraft:leather",
+    "M": "antique:myriad_ingot",
+    "N": "minecraft:netherite_scrap",
+    "W": "#minecraft:wool"
+  },
+  "result": {
+    "id": "antique:netherite_pauldrons",
+    "count": 1
+  }
+}

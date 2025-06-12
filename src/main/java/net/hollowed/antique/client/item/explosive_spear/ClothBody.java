@@ -30,20 +30,27 @@ public class ClothBody {
         Vector3d vel = pos.sub(posCache, new Vector3d());
         posCache = new Vector3d(pos);
 
-        var dAccel = accel.mul(delta * delta, new Vector3d());
+        var dAccel = accel.mul(delta * 0.5, new Vector3d());
         pos.add(vel.add(dAccel, new Vector3d()));
         accel = new Vector3d();
     }
 
     public void containDistance(ClothBody other, double distance) {
-
         Vector3d axis = pos.sub(other.pos, new Vector3d());
         double dist = axis.length();
+
+        if (dist == 0) return; // Prevent division by zero
+
         Vector3d norm = axis.div(dist, new Vector3d());
         double delta = distance - dist;
-        pos.add(norm.mul(0.5 * delta, new Vector3d()));
-        other.pos.sub(norm.mul(0.5 * delta, new Vector3d()));
+
+        double strength = 1; // Looseness factor (0 = no correction, 1 = strict)
+        Vector3d correction = norm.mul(0.5 * delta * strength, new Vector3d());
+
+        pos.add(correction);
+        other.pos.sub(correction);
     }
+
 
     public Vector3d getPos() { return new Vector3d(pos); }
 

@@ -48,7 +48,7 @@ public class IllusionerArrowEntity extends ArrowEntity {
                 true  // hasTwinkle
         );
 
-        return new FireworksComponent(1, List.of(explosion));
+        return new FireworksComponent(-3, List.of(explosion));
     }
 
     public static FireworksComponent randomFirework() {

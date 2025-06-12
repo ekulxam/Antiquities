@@ -14,6 +14,7 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.EnchantmentEffectComponentTypes;
 import net.minecraft.component.type.*;
 import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MovementType;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -24,6 +25,7 @@ import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.*;
 import net.minecraft.item.consume.UseAction;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
@@ -36,10 +38,7 @@ import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.*;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 import net.minecraft.world.event.GameEvent;
@@ -240,6 +239,26 @@ public class MyriadToolItem extends Item {
             user.setCurrentHand(hand);
             return ActionResult.PASS;
         }
+        if (Objects.requireNonNull(user.getStackInHand(hand).get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 1) {
+            double d = -MathHelper.sin(user.getYaw() * (float) (Math.PI / 180.0));
+            double e = MathHelper.cos(user.getYaw() * (float) (Math.PI / 180.0));
+            if (user.getWorld() instanceof ServerWorld serverWorld) {
+                serverWorld.spawnParticles(ParticleTypes.SWEEP_ATTACK, user.getX() + d, user.getBodyY(0.5), user.getZ() + e, 0, d, 0.0, e, 0.0);
+            }
+            user.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 1, 1);
+            user.swingHand(hand, true);
+            user.getItemCooldownManager().set(user.getStackInHand(hand), 10);
+            Vec3d forward = user.getPos().add(user.getRotationVector().multiply(2));
+            Box box = new Box(
+                    forward.x - 1.5, forward.y - 1.5, forward.z - 1.5,
+                    forward.x + 1.5, forward.y + 1.5, forward.z + 1.5
+            );
+            for (Entity entity : world.getOtherEntities(user, box)) {
+                entity.addVelocity(user.getRotationVector().multiply(-1));
+                entity.velocityModified = true;
+            }
+            return ActionResult.PASS;
+        }
         return ActionResult.FAIL;
     }
 
@@ -423,7 +442,7 @@ public class MyriadToolItem extends Item {
                 }
             }
         } else if (context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null
-                && Objects.requireNonNull(context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 1) {
+                && Objects.requireNonNull(context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 1 && playerEntity != null && playerEntity.isSneaking()) {
             Pair<Predicate<ItemUsageContext>, Consumer<ItemUsageContext>> pair = TILLING_ACTIONS.get(
                     world.getBlockState(blockPos).getBlock()
             );
@@ -436,9 +455,7 @@ public class MyriadToolItem extends Item {
                     world.playSound(playerEntity, blockPos, SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
                     if (!world.isClient) {
                         consumer.accept(context);
-                        if (playerEntity != null) {
-                            context.getStack().damage(1, playerEntity, LivingEntity.getSlotForHand(context.getHand()));
-                        }
+                        context.getStack().damage(1, playerEntity, LivingEntity.getSlotForHand(context.getHand()));
                     }
 
                     return ActionResult.SUCCESS;
@@ -497,27 +514,30 @@ public class MyriadToolItem extends Item {
 
     private Optional<BlockState> tryStrip(World world, BlockPos pos, @Nullable PlayerEntity player, BlockState state) {
         Optional<BlockState> optional = this.getStrippedState(state);
-        if (optional.isPresent()) {
-            world.playSound(player, pos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0F, 1.0F);
-            return optional;
-        } else {
-            Optional<BlockState> optional2 = Oxidizable.getDecreasedOxidationState(state);
-            if (optional2.isPresent()) {
-                world.playSound(player, pos, SoundEvents.ITEM_AXE_SCRAPE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                world.syncWorldEvent(player, WorldEvents.BLOCK_SCRAPED, pos, 0);
-                return optional2;
+        if (player != null && player.isSneaking()) {
+            if (optional.isPresent()) {
+                world.playSound(player, pos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                return optional;
             } else {
-                Optional<BlockState> optional3 = Optional.ofNullable((Block)((BiMap<?, ?>)HoneycombItem.WAXED_TO_UNWAXED_BLOCKS.get()).get(state.getBlock()))
-                        .map(block -> block.getStateWithProperties(state));
-                if (optional3.isPresent()) {
-                    world.playSound(player, pos, SoundEvents.ITEM_AXE_WAX_OFF, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                    world.syncWorldEvent(player, WorldEvents.WAX_REMOVED, pos, 0);
-                    return optional3;
+                Optional<BlockState> optional2 = Oxidizable.getDecreasedOxidationState(state);
+                if (optional2.isPresent()) {
+                    world.playSound(player, pos, SoundEvents.ITEM_AXE_SCRAPE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                    world.syncWorldEvent(player, WorldEvents.BLOCK_SCRAPED, pos, 0);
+                    return optional2;
                 } else {
-                    return Optional.empty();
+                    Optional<BlockState> optional3 = Optional.ofNullable((Block) ((BiMap<?, ?>) HoneycombItem.WAXED_TO_UNWAXED_BLOCKS.get()).get(state.getBlock()))
+                            .map(block -> block.getStateWithProperties(state));
+                    if (optional3.isPresent()) {
+                        world.playSound(player, pos, SoundEvents.ITEM_AXE_WAX_OFF, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                        world.syncWorldEvent(player, WorldEvents.WAX_REMOVED, pos, 0);
+                        return optional3;
+                    } else {
+                        return Optional.empty();
+                    }
                 }
             }
         }
+        return Optional.empty();
     }
 
     private Optional<BlockState> getStrippedState(BlockState state) {

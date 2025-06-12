@@ -24,6 +24,9 @@ public class Temp {
         matrices.scale(0.55F, 0.55F, 0.55F);
         ItemStack stackToRender = living.getStackInArm(arm).getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY);
 
+        matrices.scale(0.875F, 0.875F, 0.875F);
+        matrices.translate(0.0, -0.035, 0.05);
+
         MyriadStaffTransformData data = MyriadStaffTransformResourceReloadListener.getTransform(Registries.ITEM.getId(stackToRender.getItem()));
         matrices.scale(data.scale().get(0), data.scale().get(1), data.scale().get(2));
         matrices.translate(data.translation().get(0), data.translation().get(1), data.translation().get(2));
@@ -32,7 +35,9 @@ public class Temp {
         matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(data.rotation().get(2)));
 
         Identifier customModel = stackToRender.getOrDefault(DataComponentTypes.ITEM_MODEL, Registries.ITEM.getId(stackToRender.getItem()));
-        stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
+        if (!data.model().equals(Identifier.of("default"))) {
+            stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
+        }
 
         if (stackToRender.isOf(Blocks.CONDUIT.asItem())) {
 
@@ -60,6 +65,9 @@ public class Temp {
 
             ItemStack stackToRender = stack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY);
 
+            matrices.scale(0.875F, 0.875F, 0.875F);
+            matrices.translate(0.0, -0.035, 0.05);
+
             MyriadStaffTransformData data = MyriadStaffTransformResourceReloadListener.getTransform(Registries.ITEM.getId(stackToRender.getItem()));
             matrices.scale(data.scale().get(0), data.scale().get(1), data.scale().get(2));
             matrices.translate(data.translation().get(0), data.translation().get(1), data.translation().get(2));
@@ -68,7 +76,9 @@ public class Temp {
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(data.rotation().get(2)));
 
             Identifier customModel = stackToRender.getOrDefault(DataComponentTypes.ITEM_MODEL, Registries.ITEM.getId(stackToRender.getItem()));
-            stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
+            if (!data.model().equals(Identifier.of("default"))) {
+                stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
+            }
 
             itemRenderer.renderItem(
                     stackToRender,

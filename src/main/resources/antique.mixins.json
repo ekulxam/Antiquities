@@ -4,13 +4,16 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "AirAccelerationTweaker",
+    "ArrowVisualsMixin",
     "AttackableProjectiles",
     "AttackNonlivingEntityHandler",
     "BlockNoCollisionMixin",
     "BreakBlocksIfFastMixin",
     "BundleItemMixin",
     "BundleItemWeightChanger",
+    "BundleJumblingPreventStackDecrement",
     "BundleShowsAllContents",
+    "CakeThrowMixin",
     "ClimbableShovelMixin",
     "ClimbButFasterMixin",
     "ClimbButNotFasterInsteadActuallyNotClimbAtAllMixin",
@@ -37,7 +40,11 @@
     "ServerPlayerClipMixin",
     "SheepEntityMixin",
     "ShieldPierceMixin",
+    "SpectralArrowVisualsMixin",
+    "SpeedFasterInAirMixin",
     "SpellTicksAccessor",
+    "PotionEntityMixin",
+    "TridentVisualsMixin",
     "features.PlayerClothAdderMixin"
   ],
   "injectors": {

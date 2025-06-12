@@ -1,8 +1,7 @@
 package net.hollowed.antique.mixin;
 
-import net.minecraft.client.MinecraftClient;
+import net.hollowed.antique.items.ModItems;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.Box;
@@ -65,7 +64,7 @@ public abstract class CameraMixin {
 
             float targetRoll = 0.0F;
 
-            if (player.isClimbing() && (this.pitch < 30 && this.pitch > -30) && !thirdPerson && !player.isOnGround()) {
+            if (player.isClimbing() && (this.pitch < 30 && this.pitch > -30) && !thirdPerson && !player.isOnGround() && player.isHolding(ModItems.MYRIAD_AXE_HEAD)) {
                 if (collidingNorth) {
                     if (lookingEast) {
                         targetRoll = -15;

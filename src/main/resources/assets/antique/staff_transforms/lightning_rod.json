@@ -1,7 +1,5 @@
 {
   "item": "minecraft:lightning_rod",
   "model": "minecraft:lightning_rod",
-  "scale": [1.0, 1.0, 1.0],
-  "rotation": [0.0, 0.0, 0.0],
-  "translation": [0.0, 1.4, 0.075]
+  "translation": [0.0, 1.125, 0.075]
 }

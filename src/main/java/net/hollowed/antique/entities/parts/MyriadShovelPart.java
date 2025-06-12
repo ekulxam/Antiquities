@@ -7,18 +7,22 @@ import net.minecraft.entity.Ownable;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
+import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Uuids;
+import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public class MyriadShovelPart extends Entity implements Ownable {
 
 	private Entity owner;
-	private UUID ownerId;
+	private UUID ownerUuid;
+	private boolean leftOwner = false;
 
 	private int id;
 
@@ -39,25 +43,14 @@ public class MyriadShovelPart extends Entity implements Ownable {
 		return this.id;
 	}
 
-	public void setOwner(@Nullable Entity entity) {
-		if (entity != null) {
-			this.ownerId = entity.getUuid();
-			this.owner = entity;
-		}
-	}
-
-	protected void setOwner(String string) {
-		UUID uuid = UUID.fromString(string);
-		if (this.ownerId != uuid) {
-			this.ownerId = uuid;
-			this.owner = this.getEntity(uuid);
-		}
-	}
-
 	@Override
 	public void tick() {
 		if (this.age >= 20) {
 			this.age -= 9;
+		}
+
+		if (!this.leftOwner) {
+			this.leftOwner = this.shouldLeaveOwner();
 		}
 
 		super.tick();
@@ -89,16 +82,16 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 	@Override
 	protected void readCustomDataFromNbt(NbtCompound nbt) {
-		if (nbt.contains("Owner")) {
-			this.setOwner(String.valueOf(nbt.getString("Owner")));
-		}
+		this.setOwner(nbt.get("Owner", Uuids.INT_STREAM_CODEC).orElse(null));
+		this.leftOwner = nbt.getBoolean("LeftOwner", false);
 		if (nbt.getInt("Id").isPresent()) this.id = nbt.getInt("Id").get();
     }
 
 	@Override
 	protected void writeCustomDataToNbt(NbtCompound nbt) {
-		if (this.ownerId != null) {
-			nbt.putString("Owner", this.ownerId.toString());
+		nbt.putNullable("Owner", Uuids.INT_STREAM_CODEC, this.ownerUuid);
+		if (this.leftOwner) {
+			nbt.putBoolean("LeftOwner", true);
 		}
 		nbt.putInt("Id", this.id);
 	}
@@ -126,16 +119,40 @@ public class MyriadShovelPart extends Entity implements Ownable {
 		return true;
 	}
 
+	public void setOwner(@Nullable Entity entity) {
+		if (entity != null) {
+			this.ownerUuid = entity.getUuid();
+			this.owner = entity;
+		}
+	}
+
 	@Nullable
 	@Override
 	public Entity getOwner() {
 		if (this.owner != null && !this.owner.isRemoved()) {
 			return this.owner;
-		} else if (this.ownerId != null) {
-			this.owner = this.getEntity(this.ownerId);
+		} else if (this.ownerUuid != null) {
+			this.owner = this.getEntity(this.ownerUuid);
 			return this.owner;
 		} else {
 			return null;
+		}
+	}
+
+	protected void setOwner(@Nullable UUID ownerUuid) {
+		if (!Objects.equals(this.ownerUuid, ownerUuid)) {
+			this.ownerUuid = ownerUuid;
+			this.owner = ownerUuid != null ? this.getEntity(ownerUuid) : null;
+		}
+	}
+
+	private boolean shouldLeaveOwner() {
+		Entity entity = this.getOwner();
+		if (entity != null) {
+			Box box = this.getBoundingBox().stretch(this.getVelocity()).expand(1.0);
+			return entity.getRootVehicle().streamSelfAndPassengers().filter(EntityPredicates.CAN_HIT).noneMatch(entityx -> box.intersects(entityx.getBoundingBox()));
+		} else {
+			return true;
 		}
 	}
 }

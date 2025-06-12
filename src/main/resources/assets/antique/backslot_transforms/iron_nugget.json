@@ -1,0 +1,23 @@
+{
+  "item": "minecraft:iron_nugget",
+  "componentTransforms": {
+    "1": {
+      "scale": [0.0, 0.0, 0.0],
+      "secondary": {
+        "model": "antique:kings_cape",
+        "scale": [1.0, 1.0, 1.0],
+        "rotation": [0.0, 180.0, 180.0],
+        "translation": [0.0, 0.325, -0.1],
+        "mode": "NONE",
+        "sway": 1.0
+      },
+      "tertiary": {
+        "model": "antique:kings_cape_fur",
+        "scale": [1.0, 1.0, 1.0],
+        "rotation": [0.0, 90.0, 0.0],
+        "translation": [0.0, 0.45, 0.1],
+        "mode": "NONE"
+      }
+    }
+  }
+}

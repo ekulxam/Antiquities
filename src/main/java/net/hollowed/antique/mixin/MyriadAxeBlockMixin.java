@@ -1,6 +1,7 @@
 package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.items.custom.MyriadToolItem;
+import net.hollowed.combatamenities.particles.ModParticles;
 import net.minecraft.entity.Attackable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -15,6 +16,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -82,12 +84,19 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
                 }
             }
 
+            double d = -MathHelper.sin(this.getYaw() * (float) (Math.PI / 180.0)) * 1.5;
+            double e = MathHelper.cos(this.getYaw() * (float) (Math.PI / 180.0)) * 1.5;
+            world.spawnParticles(ModParticles.RING, this.getX() + d, this.getBodyY(0.5) + 0.25, this.getZ() + e, 0, d, 0.0, e, 0.0);
+
             // Cancel further processing as we've handled the custom shield behavior
             cir.setReturnValue(false);
         } else {
             if (source.isIn(DamageTypeTags.IS_PROJECTILE) && this.getAxeBlockingItem() != null && (angle > 0.0F)) {
                 self.getWorld().playSound(null, self.getBlockPos(), SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.2F);
                 self.getWorld().playSound(null, self.getBlockPos(), SoundEvents.ITEM_SHIELD_BLOCK.value(), SoundCategory.PLAYERS, 0.25F, 1.2F);
+                if (source.getSource() != null) {
+                    world.spawnParticles(ModParticles.RING, source.getSource().getX(), source.getSource().getY(), source.getSource().getZ(), 1, 0.0, 0.0, 0.0, 0);
+                }
                 cir.setReturnValue(false);
             }
             this.ran = false;

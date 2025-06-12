@@ -7,7 +7,6 @@ import net.hollowed.antique.blocks.custom.PedestalBlock;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.NoteBlockInstrument;
 import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.client.render.block.entity.SkullBlockEntityRenderer;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
@@ -38,6 +37,10 @@ public class ModBlocks {
     public static final Block BLACK_SAND = registerBlock("black_sand",
             new ColoredFallingBlock(new ColorCode(14406560), AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "black_sand")))
                     .sounds(BlockSoundGroup.SAND).strength(1.5F, 6F)), Rarity.COMMON);
+
+    public static final Block MYRIAD_BLOCK = registerBlock("myriad_block",
+            new Block(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "myriad_block")))
+                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F)), Rarity.COMMON);
 
     public static final Block IVY = registerBlock(
             "ivy",

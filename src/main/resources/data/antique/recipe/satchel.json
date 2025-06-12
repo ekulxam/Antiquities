@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SM",
+    "LN"
+  ],
+  "key": {
+    "L": "minecraft:leather",
+    "M": "antique:myriad_ingot",
+    "N": "minecraft:netherite_scrap",
+    "S": "minecraft:string"
+  },
+  "result": {
+    "id": "antique:satchel",
+    "count": 1
+  }
+}

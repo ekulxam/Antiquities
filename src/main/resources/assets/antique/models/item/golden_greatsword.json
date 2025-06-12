@@ -1,0 +1,6 @@
+{
+  "parent": "antique:item/greatsword",
+  "textures": {
+    "layer0": "antique:item/golden_greatsword"
+  }
+}

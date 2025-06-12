@@ -40,7 +40,15 @@ public class ModEntities {
             "smoke_bomb",
             EntityType.Builder.create(SmokeBombEntity::new, SpawnGroup.MISC)
                     .dropsNothing()
-                    .dimensions(0.25F, 25F)
+                    .dimensions(0.25F, 0.25F)
+                    .maxTrackingRange(8)
+    );
+
+    public static final EntityType<CakeEntity> CAKE_ENTITY = register(
+            "cake",
+            EntityType.Builder.create(CakeEntity::new, SpawnGroup.MISC)
+                    .dropsNothing()
+                    .dimensions(0.25F, 0.25F)
                     .maxTrackingRange(8)
     );
 

@@ -2,6 +2,7 @@ package net.hollowed.antique.items.custom;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.enchantments.EnchantmentListener;
+import net.hollowed.antique.particles.ModParticles;
 import net.minecraft.block.BlockState;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
@@ -15,6 +16,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.consume.UseAction;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -85,6 +87,10 @@ public class VelocityTransferMaceItem extends Item {
                     player.velocityModified = true;
                 }
 
+                if (user.getWorld() instanceof ServerWorld serverWorld) {
+                    serverWorld.spawnParticles(ParticleTypes.GUST, user.getX(), user.getY() + 0.25F, user.getZ(), 1, 0.1, 0.0, 0.1, 0);
+                }
+
                 world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ITEM_MACE_SMASH_AIR, SoundCategory.NEUTRAL, 1F, 0.9f + (player.getRandom().nextFloat() * .2f));
                 player.incrementStat(Stats.USED.getOrCreateStat(this));
                 user.swingHand(user.getActiveHand());
@@ -96,7 +102,6 @@ public class VelocityTransferMaceItem extends Item {
                         user.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, (int) ((velocity - 0.625) * 65), 0, true, true));
                     }
                 }
-                return false;
             } else {
                 // Spawn a hitbox and interact with entities inside it
                 Vec3d forwardVec = user.getRotationVec(1.0F); // Get the direction the player is facing
@@ -135,8 +140,8 @@ public class VelocityTransferMaceItem extends Item {
                     ((PlayerEntity) user).getItemCooldownManager().set(stack, 80);
                 }
                 user.swingHand(user.getActiveHand());
-                return false;
             }
+            return false;
         }
         return true;
     }
