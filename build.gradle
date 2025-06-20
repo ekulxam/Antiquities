@@ -59,16 +59,16 @@ dependencies {
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
 	modImplementation "maven.modrinth:combat-amenities:${project.combat_amenities}"
-	modImplementation "maven.modrinth:nitrogen_rbn:${project.nitrogen_version}"
+	//modImplementation "maven.modrinth:nitrogen_rbn:${project.nitrogen_version}"
 	modImplementation "maven.modrinth:midnightlib:${project.midnightlib_version}"
 
 	// Cloth Config
-	modApi ("me.shedaniel.cloth:cloth-config-fabric:18.0.145") {
+	modApi ("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_config_version}") {
 		exclude(group: "net.fabricmc.fabric-api")
 	}
 
 	// Mod Menu
-	modApi "com.terraformersmc:modmenu:14.0.0-rc.2"
+	modApi "com.terraformersmc:modmenu:${project.modmenu_version}"
 }
 
 processResources {

@@ -22,6 +22,8 @@ public abstract class PlayerClothAdderMixin extends Entity implements SpearCloth
     ClothManager clothManager1;
     @Unique
     ClothManager clothManager2;
+    @Unique
+    ClothManager clothManager3;
 
     public PlayerClothAdderMixin(EntityType<?> type, World world) {
         super(type, world);
@@ -32,6 +34,7 @@ public abstract class PlayerClothAdderMixin extends Entity implements SpearCloth
         if (this.clothManager == null || this.clothManager.bodies.isEmpty()) this.clothManager = new ClothManager(new Vector3d(this.getX(), this.getY(), this.getZ()), 8);
         if (this.clothManager1 == null || this.clothManager1.bodies.isEmpty()) this.clothManager1 = new ClothManager(new Vector3d(this.getX(), this.getY(), this.getZ()), 8);
         if (this.clothManager2 == null || this.clothManager2.bodies.isEmpty()) this.clothManager2 = new ClothManager(new Vector3d(this.getX(), this.getY(), this.getZ()), 8);
+        if (this.clothManager3 == null || this.clothManager3.bodies.isEmpty()) this.clothManager3 = new ClothManager(new Vector3d(this.getX(), this.getY(), this.getZ()), 8);
     }
 
     @Override
@@ -47,5 +50,10 @@ public abstract class PlayerClothAdderMixin extends Entity implements SpearCloth
     @Override
     public ClothManager antique$getBackCloth() {
         return this.clothManager2;
+    }
+
+    @Override
+    public ClothManager antique$getBeltCloth() {
+        return this.clothManager3;
     }
 }

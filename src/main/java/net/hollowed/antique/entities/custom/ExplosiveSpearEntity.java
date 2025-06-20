@@ -21,6 +21,8 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.math.MathHelper;
@@ -204,19 +206,17 @@ public class ExplosiveSpearEntity extends PersistentProjectileEntity {
 	}
 
 	@Override
-	public void readCustomDataFromNbt(NbtCompound nbt) {
-		super.readCustomDataFromNbt(nbt);
-		if (nbt.getBoolean("DealtDamage").isPresent()) {
-			this.dealtDamage = nbt.getBoolean("DealtDamage").get();
-		}
+	protected void readCustomData(ReadView view) {
+		super.readCustomData(view);
+		this.dealtDamage = view.getBoolean("DealtDamage", false);
 		this.dataTracker.set(LOYALTY, this.getLoyalty(this.getItemStack()));
 		this.dataTracker.set(ENCHANTED, this.isEnchanted());
 	}
 
 	@Override
-	public void writeCustomDataToNbt(NbtCompound nbt) {
-		super.writeCustomDataToNbt(nbt);
-		nbt.putBoolean("DealtDamage", this.dealtDamage);
+	protected void writeCustomData(WriteView view) {
+		super.writeCustomData(view);
+		view.putBoolean("DealtDamage", this.dealtDamage);
 	}
 
 	private byte getLoyalty(ItemStack stack) {

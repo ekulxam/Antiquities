@@ -10,12 +10,12 @@ public class ClothWindHelper {
 
     public static long WIND_NOISE_SEED = 4L;
     public static double WIND_NOISE_FREQ = 0.000005;   // Frequency for baseline wind variation
-    public static double WIND_NOISE_SCALE = 0.2;       // Scale factor for directional variation
+    public static double WIND_NOISE_SCALE = 0.1;       // Scale factor for directional variation
     public static double WIND_NOISE_HERTZ = 0.00001;   // Adjusted to control wind response time
     public static Vector3d windPos = new Vector3d();
 
     public static void applyWindToBody(ClothBody body, int bodyIndex, double eff, double flow, double drag) {
-        WIND_NOISE_HERTZ = 0.0001;
+        WIND_NOISE_HERTZ = 0.00001;
         double frequency = WIND_NOISE_FREQ * flow;
         double multiplier = WIND_NOISE_HERTZ * drag;
         assert MinecraftClient.getInstance().world != null;
@@ -33,9 +33,8 @@ public class ClothWindHelper {
 
         windPos.add(frequency, 0, frequency);
 
-        // Wind gusting effect: smoothly oscillates between calm and strong gusts
-        double gustFactor = (Math.sin(time * 0.8) * 0.5 + 0.5)  // Base oscillation
-                * MathHelper.map(gustNoise.sample(time * 0.1, bodyIndex * 0.2, 0), -1.0, 1.0, 0.3, 1.2); // Noise-based randomness
+        double gustFactor = (Math.sin(time * 0.8) * 0.5 + 0.5)
+                * MathHelper.map(gustNoise.sample(time * 0.1, bodyIndex * 0.2, 0), -1.0, 1.0, 0.3, 1.2);
 
         double strengthSample = strengthNoise.sample(
                 windPos.x + body.pos.x * WIND_NOISE_SCALE + offsetX,
@@ -43,9 +42,9 @@ public class ClothWindHelper {
                 windPos.z - body.pos.z * WIND_NOISE_SCALE - offsetZ
         );
 
-        double windStrength = MathHelper.map(strengthSample, -1.0, 1.0, 0.2, 1.5)
-                * 12.0 * (multiplier * eff)
-                * gustFactor; // Apply gust modulation
+        double windStrength = MathHelper.map(strengthSample, -1.0, 1.0, 0.5, 2.2)
+                * 20.0 * (multiplier * eff)
+                * gustFactor;
 
         // Generate smooth X and Z wind components using noise
         double windX = directionXNoise.sample(

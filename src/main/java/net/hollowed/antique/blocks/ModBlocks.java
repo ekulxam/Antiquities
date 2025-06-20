@@ -34,6 +34,14 @@ public class ModBlocks {
             new OminousPedestalBlock(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "ominous_pedestal")))
                     .sounds(BlockSoundGroup.LODESTONE).strength(1.5F, 6F).nonOpaque().requiresTool()), Rarity.COMMON);
 
+    public static final Block MYRIAD_CLUSTER = registerBlock("myriad_cluster",
+            new AmethystClusterBlock(8, 8, AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "myriad_cluster")))
+                    .sounds(BlockSoundGroup.AMETHYST_CLUSTER).strength(1.5F, 6F)), Rarity.COMMON);
+
+    public static final Block MYRIAD_ORE = registerBlock("myriad_ore",
+            new Block(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "myriad_ore")))
+                    .sounds(BlockSoundGroup.IRON).strength(25F, 600F)), Rarity.COMMON);
+
     public static final Block BLACK_SAND = registerBlock("black_sand",
             new ColoredFallingBlock(new ColorCode(14406560), AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "black_sand")))
                     .sounds(BlockSoundGroup.SAND).strength(1.5F, 6F)), Rarity.COMMON);

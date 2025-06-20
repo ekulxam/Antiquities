@@ -6,6 +6,7 @@ import net.hollowed.antique.networking.PaleWardenTickPacketPayload;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.AnimationState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.goal.LookAroundGoal;
@@ -21,6 +22,7 @@ import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Hand;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 public class PaleWardenEntity extends PathAwareEntity {
 
@@ -111,7 +113,7 @@ public class PaleWardenEntity extends PathAwareEntity {
     }
 
     @Override
-    public boolean isCollidable() {
+    public boolean isCollidable(@Nullable Entity entity) {
         return true;
     }
 

@@ -6,8 +6,10 @@ import net.hollowed.antique.entities.renderer.PaleWardenRenderState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.VertexConsumer;
+import net.minecraft.client.render.entity.animation.Animation;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.ModelWithArms;
+import net.minecraft.client.render.entity.model.WardenEntityModel;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Arm;
 
@@ -23,6 +25,9 @@ public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implemen
 	public final ModelPart left_lower_arm;
 	public final ModelPart head;
 	public final ModelPart kilt;
+	public final Animation awaken;
+	public final Animation idle;
+
 	public PaleWardenModel(ModelPart root) {
         super(root);
         this.big_guy = root.getChild("big_guy");
@@ -36,6 +41,8 @@ public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implemen
 		this.left_lower_arm = this.left_arm.getChild("left_lower_arm");
 		this.head = this.body.getChild("head");
 		this.kilt = this.big_guy.getChild("kilt");
+		this.awaken = PaleWardenAnimations.awaken.createAnimation(root);
+		this.idle = PaleWardenAnimations.idle.createAnimation(root);
 	}
 
 	public static TexturedModelData getTexturedModelData() {
@@ -91,8 +98,8 @@ public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implemen
 		this.resetTransforms();
 		PaleWardenEntity entity = (PaleWardenEntity) state.entity;
 		this.setHeadAngle(state.relativeHeadYaw, state.pitch);
-		this.animate(entity.awakenAnimationState, PaleWardenAnimations.awaken, entity.age + MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(true), 1F);
-		this.animate(entity.idleAnimationState, PaleWardenAnimations.idle, entity.age + MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(true), 1F);
+		this.awaken.apply(entity.awakenAnimationState, entity.age + MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(true), 1F);
+		this.idle.apply(entity.idleAnimationState, entity.age + MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(true), 1F);
 	}
 
 	private void setHeadAngle(float yaw, float pitch) {

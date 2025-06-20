@@ -46,17 +46,6 @@ public class ClothManager {
 
     public void tick(boolean ignoreFreeze, double length) {
         double delta = MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(ignoreFreeze);
-        // Update parent position
-        var root = bodies.getFirst();
-        root.pos = new Vector3d(pos);
-
-        // Check if cloth is too far from the root position
-        double maxDistance = 5.0;
-        if (root.pos.distance(root.posCache) > maxDistance) {
-            resetCloth(); // Call reset method
-            return; // Exit tick early after resetting
-        }
-
         ClientWorld world = MinecraftClient.getInstance().world;
 
         if (world != null) {
@@ -74,16 +63,18 @@ public class ClothManager {
                 body.accel.add(vel.mul(-0.15));
 
                 // Compute new drag value smoothly
-                double newDrag = Math.random() * (state.getBlock() == Blocks.WATER ? 0.25 : 1.0);
+                double newDrag = Math.random() * (state.getBlock() == Blocks.WATER ? 0.25 : 1.25);
                 double smoothDrag = MathHelper.lerp(delta * 0.1, previousDrag, newDrag); // Lerp for smooth transition
 
                 // Apply gravity and wind
                 if (state.getBlock() == Blocks.WATER) {
-                    body.accel.add(0.0, 0.0049, 0.0);
-                    ClothWindHelper.applyWindToBody(body, i, (i * i * 0.5), 0.75, smoothDrag);
+                    body.accel.add(0.0, 0.0025, 0.0);
+
+                    //ClothWindHelper.applyWindToBody(body, i, (i * i * 0.5), 0.75, smoothDrag);
                 } else {
-                    body.accel.add(0.0, -0.0035, 0.0);
-                    ClothWindHelper.applyWindToBody(body, i, (i * i * 0.5), 1.0, smoothDrag);
+                    body.accel.add(0, -0.005, 0);
+
+                    //ClothWindHelper.applyWindToBody(body, i, (i * i * 0.5), 1.00, smoothDrag);
                 }
 
                 previousDrag = smoothDrag; // Store for next iteration
@@ -91,12 +82,11 @@ public class ClothManager {
             }
         }
 
-        // Constraint pass
         for (int k = 0; k < bodies.size(); k++) {
             for (int i = 0; i < bodies.size() - 1; i++) {
                 var body = bodies.get(i);
                 var nextBody = bodies.get(i + 1);
-                body.containDistance(nextBody, (0.9 / bodies.size()) * length);
+                body.containDistance(nextBody, (1.0 / bodies.size()) * length);
             }
         }
 
@@ -104,10 +94,21 @@ public class ClothManager {
         if (world != null) {
             for (ClothBody body : bodies) {
                 body.slideOutOfBlocks(world);
-                body.pos.x = MathHelper.lerp(0.075, body.pos.x, body.posCache.x);
-                body.pos.y = MathHelper.lerp(0.2, body.pos.y, body.posCache.y); // More smoothing on Y
-                body.pos.z = MathHelper.lerp(0.075, body.pos.z, body.posCache.z);
+                body.pos.x = MathHelper.lerp(0.125, body.pos.x, body.posCache.x);
+                body.pos.y = MathHelper.lerp(0.125, body.pos.y, body.posCache.y);
+                body.pos.z = MathHelper.lerp(0.125, body.pos.z, body.posCache.z);
             }
+        }
+
+        // Update parent position
+        var root = bodies.getFirst();
+        root.pos = new Vector3d(pos);
+
+        // Check if cloth is too far from the root position
+        double maxDistance = 5.0;
+        if (root.pos.distance(root.posCache) > maxDistance) {
+            resetCloth(); // Call reset method
+            System.out.println("reset cloth");
         }
     }
 
@@ -141,14 +142,14 @@ public class ClothManager {
     }
 
     public void renderCloth(Vec3d position, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, boolean firstPerson, Color color, boolean ignoreFreeze, RenderLayer layer, double length, double width) {
+        Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
+        pos = new Vector3d(danglePos);
+
         this.tick(ignoreFreeze, length);
 
         matrices.push();
 
         VertexConsumer vertexConsumer = vertexConsumers.getBuffer(layer);
-        Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
-
-        pos = new Vector3d(danglePos);
 
         int count = bodies.size() - 1;
         for (int i = 0; i < count; i++) {
@@ -158,6 +159,10 @@ public class ClothManager {
 
             var pos = body.getPos();
             var nextPos = nextBody.getPos();
+
+            if (i == 0) {
+                pos = this.pos;
+            }
 
             float uvTop = (1f / count) * i;
             float uvBot = uvTop + (1f / count);

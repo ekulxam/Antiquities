@@ -17,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class SkeletonFeatureAdder<T extends AbstractSkeletonEntity, S extends SkeletonEntityRenderState>
         extends BipedEntityRenderer<T, S, SkeletonEntityModel<S>> {
 
-
     public SkeletonFeatureAdder(EntityRendererFactory.Context context, SkeletonEntityModel<S> model, float shadowRadius) {
         super(context, model, shadowRadius);
     }

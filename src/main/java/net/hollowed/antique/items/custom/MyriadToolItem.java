@@ -442,26 +442,30 @@ public class MyriadToolItem extends Item {
                 }
             }
         } else if (context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null
-                && Objects.requireNonNull(context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 1 && playerEntity != null && playerEntity.isSneaking()) {
-            Pair<Predicate<ItemUsageContext>, Consumer<ItemUsageContext>> pair = TILLING_ACTIONS.get(
-                    world.getBlockState(blockPos).getBlock()
-            );
-            if (pair == null) {
-                return ActionResult.PASS;
-            } else {
-                Predicate<ItemUsageContext> predicate = pair.getFirst();
-                Consumer<ItemUsageContext> consumer = pair.getSecond();
-                if (predicate.test(context)) {
-                    world.playSound(playerEntity, blockPos, SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                    if (!world.isClient) {
-                        consumer.accept(context);
-                        context.getStack().damage(1, playerEntity, LivingEntity.getSlotForHand(context.getHand()));
-                    }
-
-                    return ActionResult.SUCCESS;
-                } else {
+                && Objects.requireNonNull(context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 1 && playerEntity != null) {
+            if (playerEntity.isSneaking()) {
+                Pair<Predicate<ItemUsageContext>, Consumer<ItemUsageContext>> pair = TILLING_ACTIONS.get(
+                        world.getBlockState(blockPos).getBlock()
+                );
+                if (pair == null) {
                     return ActionResult.PASS;
+                } else {
+                    Predicate<ItemUsageContext> predicate = pair.getFirst();
+                    Consumer<ItemUsageContext> consumer = pair.getSecond();
+                    if (predicate.test(context)) {
+                        world.playSound(playerEntity, blockPos, SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                        if (!world.isClient) {
+                            consumer.accept(context);
+                            context.getStack().damage(1, playerEntity, LivingEntity.getSlotForHand(context.getHand()));
+                        }
+
+                        return ActionResult.SUCCESS;
+                    } else {
+                        return ActionResult.PASS;
+                    }
                 }
+            } else {
+                this.use(world, playerEntity, context.getHand());
             }
         } else {
             if (context.getStack().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null

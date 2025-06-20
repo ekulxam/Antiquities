@@ -25,12 +25,13 @@ import net.minecraft.entity.projectile.ProjectileUtil;
 import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.tag.FluidTags;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.Uuids;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -72,12 +73,16 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
         this.targetSelector.add(3, (new ActiveTargetGoal(this, IronGolemEntity.class, false)).setMaxTimeWithoutVisibility(300));
     }
 
-    public void writeCustomDataToNbt(NbtCompound nbt) {
-        nbt.putNullable("Owner", Uuids.INT_STREAM_CODEC, this.ownerUuid);
+    @Override
+    protected void writeCustomData(WriteView view) {
+        super.writeCustomData(view);
+        view.putNullable("Owner", Uuids.INT_STREAM_CODEC, this.ownerUuid);
     }
 
-    public void readCustomDataFromNbt(NbtCompound nbt) {
-        this.setOwner(nbt.get("Owner", Uuids.INT_STREAM_CODEC).orElse(null));
+    @Override
+    protected void readCustomData(ReadView view) {
+        super.readCustomData(view);
+        this.setOwner(view.read("Owner", Uuids.INT_STREAM_CODEC).orElse(null));
     }
 
     public static DefaultAttributeContainer.Builder createIllusionerAttributes() {

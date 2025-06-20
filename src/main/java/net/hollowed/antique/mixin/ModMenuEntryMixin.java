@@ -4,9 +4,9 @@ import com.terraformersmc.modmenu.gui.ModsScreen;
 import com.terraformersmc.modmenu.gui.widget.entries.ModListEntry;
 import com.terraformersmc.modmenu.util.mod.Mod;
 import net.hollowed.antique.Antiquities;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -47,7 +47,7 @@ public abstract class ModMenuEntryMixin extends Screen {
 
             if ("antique".equals(mod.getId())) {
                 DrawContext.drawText(this.textRenderer, Language.getInstance().reorder(trimmedName), this.rightPaneX + imageOffset, 49, nameColor, true);
-                DrawContext.drawTexture(RenderLayer::getGuiTexturedOverlay, Identifier.of(Antiquities.MOD_ID, "antiquities_small_icon.png"), this.rightPaneX + imageOffset + 50, 45, 0, 0, 16, 16, 16, 16);
+                DrawContext.drawTexture(RenderPipelines.GUI_TEXTURED, Identifier.of(Antiquities.MOD_ID, "antiquities_small_icon.png"), this.rightPaneX + imageOffset + 50, 45, 0, 0, 16, 16, 16, 16);
             }
         }
     }

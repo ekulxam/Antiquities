@@ -26,7 +26,6 @@ public class ModParticles {
     }
 
     public static void initializeClient() {
-        // For this example, we will use the end rod particle behaviour.
         ParticleFactoryRegistry.getInstance().register(SPARKLE_PARTICLE, FacingRingParticle.Factory::new);
         ParticleFactoryRegistry.getInstance().register(CAKE_SMEAR, CakeSmearParticle.Factory::new);
         ParticleFactoryRegistry.getInstance().register(DUST_PARTICLE, DustParticle.CosySmokeFactory::new);

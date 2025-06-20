@@ -79,7 +79,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
         ItemStack stack = player.getStackInHand(Hand.MAIN_HAND);
 
         if (stack.getItem() instanceof VelocityTransferMaceItem) {
-            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+            player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.3F);
 
             if (this.getWorld() instanceof ServerWorld serverWorld) {
@@ -105,10 +105,10 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                         }
 
                         if (!target.isOnGround()) {
-                            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+                            player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                                     SoundEvents.ITEM_MACE_SMASH_AIR, SoundCategory.PLAYERS, 1.0F, 1.3F);
                         } else {
-                            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+                            player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                                     SoundEvents.ITEM_MACE_SMASH_GROUND, SoundCategory.PLAYERS, 1.0F, pitch);
                         }
                     }
@@ -365,9 +365,9 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                 serverWorld.spawnParticles(ParticleTypes.GUST, target.getX(), target.getBodyY(0.5), target.getZ(), 1, 0.1, 0.0, 0.1, 0);
             }
 
-            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+            player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.3F);
-            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+            player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.ENTITY_WIND_CHARGE_WIND_BURST, SoundCategory.PLAYERS, 1.0F, 0.7F);
             Vec3d velocity = player.getRotationVec(0).normalize();
             if (Objects.equals(entity.getOwner(), player)) {
@@ -385,7 +385,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
         PlayerEntity player = (PlayerEntity) (Object) this;
         if (player.getStackInHand(Hand.MAIN_HAND).isOf(ModItems.MYRIAD_STAFF)) {
             float attackPower = player.getAttackCooldownProgress(0.0f);
-            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+            player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                     attackPower > 0.9f ? ModSounds.STAFF_HIT : SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 2.0F, attackPower > 0.9f ? (float) (1.0 + (Math.random() * 0.2) - 0.1) : 1.3F);
         }
     }
@@ -401,7 +401,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
 
         PlayerEntity player = (PlayerEntity) (Object) this;
         if (player.getStackInHand(Hand.MAIN_HAND).isOf(ModItems.MYRIAD_STAFF)) {
-            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+            player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS, 1.0F, 0.6F);
         }
     }

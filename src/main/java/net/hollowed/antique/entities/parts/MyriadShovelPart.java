@@ -9,6 +9,8 @@ import net.minecraft.entity.data.DataTracker;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.Uuids;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
@@ -59,7 +61,7 @@ public class MyriadShovelPart extends Entity implements Ownable {
 			world.getChunkManager().loadEntity(this);
 		}
 		if (this.getOwner() != null) {
-			float multiplier = 0.0F;
+			float multiplier = 0.25F;
 			this.setPosition(this.getOwner().getPos().x, this.getOwner().getPos().y - 0.25, this.getOwner().getPos().z);
 
 			if (this.getOrderId() != 0) {
@@ -72,7 +74,7 @@ public class MyriadShovelPart extends Entity implements Ownable {
 	}
 
 	@Override
-	public boolean isCollidable() {
+	public boolean isCollidable(@Nullable Entity entity) {
         return true;
 	}
 
@@ -81,19 +83,19 @@ public class MyriadShovelPart extends Entity implements Ownable {
 	}
 
 	@Override
-	protected void readCustomDataFromNbt(NbtCompound nbt) {
-		this.setOwner(nbt.get("Owner", Uuids.INT_STREAM_CODEC).orElse(null));
-		this.leftOwner = nbt.getBoolean("LeftOwner", false);
-		if (nbt.getInt("Id").isPresent()) this.id = nbt.getInt("Id").get();
-    }
+	protected void readCustomData(ReadView view) {
+		this.setOwner(view.read("Owner", Uuids.INT_STREAM_CODEC).orElse(null));
+		this.leftOwner = view.getBoolean("LeftOwner", false);
+		this.id = view.getInt("Id", 0);
+	}
 
 	@Override
-	protected void writeCustomDataToNbt(NbtCompound nbt) {
-		nbt.putNullable("Owner", Uuids.INT_STREAM_CODEC, this.ownerUuid);
+	protected void writeCustomData(WriteView view) {
+		view.putNullable("Owner", Uuids.INT_STREAM_CODEC, this.ownerUuid);
 		if (this.leftOwner) {
-			nbt.putBoolean("LeftOwner", true);
+			view.putBoolean("LeftOwner", true);
 		}
-		nbt.putInt("Id", this.id);
+		view.putInt("Id", this.id);
 	}
 
 	@Override

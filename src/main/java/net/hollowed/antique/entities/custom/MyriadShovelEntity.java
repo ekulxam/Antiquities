@@ -20,11 +20,12 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
@@ -315,20 +316,20 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	}
 
 	@Override
-	public void readCustomDataFromNbt(NbtCompound nbt) {
-		super.readCustomDataFromNbt(nbt);
-		if (nbt.getBoolean("DealtDamage").isPresent()) this.dealtDamage = nbt.getBoolean("DealtDamage").get();
+	protected void readCustomData(ReadView view) {
+		super.readCustomData(view);
+		this.dealtDamage = view.getBoolean("DealtDamage", false);
 		this.dataTracker.set(LOYALTY, this.getLoyalty(this.getItemStack()));
-		if (nbt.getBoolean("Glint").isPresent()) this.dataTracker.set(ENCHANTED, nbt.getBoolean("Glint").get());
-		if (nbt.getInt("Color").isPresent()) this.dataTracker.set(COLOR, nbt.getInt("Color").get());
+		this.dataTracker.set(ENCHANTED, view.getBoolean("Glint", false));
+		this.dataTracker.set(COLOR, view.getInt("Color", 0));
 	}
 
 	@Override
-	public void writeCustomDataToNbt(NbtCompound nbt) {
-		super.writeCustomDataToNbt(nbt);
-		nbt.putBoolean("DealtDamage", this.dealtDamage);
-		nbt.putInt("Color", this.getDyeColor());
-		nbt.putBoolean("Glint", this.isEnchanted());
+	protected void writeCustomData(WriteView view) {
+		super.writeCustomData(view);
+		view.putBoolean("DealtDamage", this.dealtDamage);
+		view.putInt("Color", this.getDyeColor());
+		view.putBoolean("Glint", this.isEnchanted());
 	}
 
 	private byte getLoyalty(ItemStack stack) {

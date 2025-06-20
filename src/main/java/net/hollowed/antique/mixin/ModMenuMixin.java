@@ -6,8 +6,8 @@ import com.terraformersmc.modmenu.util.mod.Mod;
 import net.hollowed.antique.Antiquities;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -71,13 +71,13 @@ public abstract class ModMenuMixin {
             );
 
             // Draws the small icon
-            drawContext.drawTexture(RenderLayer::getGuiTexturedOverlay, Identifier.of(Antiquities.MOD_ID, "antiquities_small_icon.png"), x + iconSize + 53, y - 3, 0, 0, 16, 16, 16, 16);
+            drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, Identifier.of(Antiquities.MOD_ID, "antiquities_small_icon.png"), x + iconSize + 53, y - 3, 0, 0, 16, 16, 16, 16);
 
             // Draws the colored line below the one line of text
-            drawContext.drawTexture(RenderLayer::getGuiTexturedOverlay, Identifier.of(Antiquities.MOD_ID, "antiquities_line.png"), x + iconSize + 3, y + 22, 0, 0, 76, 1, 76, 1);
+            drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, Identifier.of(Antiquities.MOD_ID, "antiquities_line.png"), x + iconSize + 3, y + 22, 0, 0, 76, 1, 76, 1);
 
             // Draws the H signature
-            drawContext.drawTexture(RenderLayer::getGuiTexturedOverlay, Identifier.of(Antiquities.MOD_ID, "h.png"), rowWidth - 2, y, 0, 0, 16, 16, 16, 16);
+            drawContext.drawTexture(RenderPipelines.GUI_TEXTURED, Identifier.of(Antiquities.MOD_ID, "h.png"), rowWidth - 2, y, 0, 0, 16, 16, 16, 16);
         }
     }
 }

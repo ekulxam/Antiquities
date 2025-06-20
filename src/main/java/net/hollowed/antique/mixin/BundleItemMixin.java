@@ -30,7 +30,6 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.*;
@@ -231,35 +230,33 @@ public abstract class BundleItemMixin extends Item {
             boolean isMainhand = player.getMainHandStack().getItem() instanceof FlintAndSteelItem ||
                     player.getMainHandStack().getItem() instanceof FireChargeItem;
 
-            if (itemStack.getItem() instanceof BlockItem && ((BlockItem) itemStack.getItem()).getBlock() instanceof TntBlock && hasFlintAndSteel && player.getWorld() instanceof ServerWorld) {
-                // Update the builder by removing one TNT item directly
-                itemStack.decrement(1);
-                builder.add(itemStack);
+            if (itemStack.getItem() instanceof BlockItem && ((BlockItem) itemStack.getItem()).getBlock() instanceof TntBlock && player.getWorld() instanceof ServerWorld) {
+                if (hasFlintAndSteel || player.isCreative()) {
+                    // Update the builder by removing one TNT item directly
+                    itemStack.decrement(1);
+                    builder.add(itemStack);
 
-                ItemStack item = isMainhand ? player.getMainHandStack() : player.getOffHandStack();
+                    ItemStack item = isMainhand ? player.getMainHandStack() : player.getOffHandStack();
 
-                // Damage flint and steel or consume fire charge
-                if (!player.isCreative()) {
+                    // Damage flint and steel or consume fire charge
                     if (item.getItem() instanceof FlintAndSteelItem) {
                         item.damage(1, player);
                     } else {
                         item.decrement(1);
                     }
-                }
 
-                // Spawn a TNT entity and set its fuse
-                TntEntity tntEntity = new TntEntity(player.getWorld(), player.getX(), player.getY() + 0.75, player.getZ(), player);
-                tntEntity.setFuse(40);
+                    // Spawn a TNT entity and set its fuse
+                    TntEntity tntEntity = new TntEntity(player.getWorld(), player.getX(), player.getY() + 0.75, player.getZ(), player);
+                    tntEntity.setFuse(40);
 
-                // Launch the TNT entity in the direction the player is facing
-                Vec3d forward = player.getRotationVec(1.5F);
-                tntEntity.setVelocity(forward);
+                    // Launch the TNT entity in the direction the player is facing
+                    Vec3d forward = player.getRotationVec(1.5F);
+                    tntEntity.setVelocity(forward);
 
-                player.getWorld().spawnEntity(tntEntity);
-                playTntThrowSound(player.getWorld(), player);
+                    player.getWorld().spawnEntity(tntEntity);
+                    playTntThrowSound(player.getWorld(), player);
 
-                player.incrementStat(Stats.USED.getOrCreateStat(itemStack.getItem()));
-                if (!player.isCreative()) {
+                    player.incrementStat(Stats.USED.getOrCreateStat(itemStack.getItem()));
                     stack.set(DataComponentTypes.BUNDLE_CONTENTS, builder.build());
                 }
             } else if (itemStack.getItem() instanceof MinecartItem) {
@@ -327,6 +324,12 @@ public abstract class BundleItemMixin extends Item {
                 // Check if the item is a ThrowablePotionItem and if the bundle has the projecting enchantment
                 if (itemStack.getItem() instanceof ThrowablePotionItem && hasProjectingEnchantment) {
                         handlePotionThrow(player, itemStack);
+                } else if (hasProjectingEnchantment) {
+                    ItemEntity entity = player.dropItem(itemStack, true);
+                    if (entity != null) {
+                        entity.setVelocity(entity.getVelocity().multiply(2));
+                        entity.velocityModified = true;
+                    }
                 } else {
                     player.dropItem(itemStack, true);
                 }

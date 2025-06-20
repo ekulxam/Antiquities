@@ -27,10 +27,10 @@ public class ClothBody {
     }
 
     public void update(double delta) {
-        Vector3d vel = pos.sub(posCache, new Vector3d());
-        posCache = new Vector3d(pos);
+        Vector3d vel = pos.sub(posCache, new Vector3d()).mul(0.96);
+        posCache.set(pos);
 
-        var dAccel = accel.mul(delta * 0.5, new Vector3d());
+        Vector3d dAccel = accel.mul(delta, new Vector3d()); // <-- THAT ONE
         pos.add(vel.add(dAccel, new Vector3d()));
         accel = new Vector3d();
     }
@@ -45,17 +45,16 @@ public class ClothBody {
         double delta = distance - dist;
 
         double strength = 1; // Looseness factor (0 = no correction, 1 = strict)
-        Vector3d correction = norm.mul(0.5 * delta * strength, new Vector3d());
+        Vector3d correction = norm.mul(delta * strength, new Vector3d());
 
-        pos.add(correction);
+        //pos.add(correction);
         other.pos.sub(correction);
     }
-
 
     public Vector3d getPos() { return new Vector3d(pos); }
 
     public void slideOutOfBlocks(ClientWorld world) {
-        double padding = 0.00025;
+        double padding = 0.0015;
 
         Vec3d startPos = new Vec3d(pos.x, pos.y, pos.z);
         BlockPos blockPos = BlockPos.ofFloored(startPos);

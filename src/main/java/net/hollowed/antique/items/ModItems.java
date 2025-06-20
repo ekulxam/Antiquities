@@ -52,9 +52,12 @@ public class ModItems {
             .maxCount(1)
     ));
 
-    public static final Item MYRIAD_INGOT = registerItem("myriad_ingot", new ExplosiveSpearItem(new Item.Settings()
+    public static final Item MYRIAD_INGOT = registerItem("myriad_ingot", new Item(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_ingot")))
-            .maxCount(1)
+    ));
+
+    public static final Item SNOWBALL_ON_A_STICK = registerItem("snowball_on_a_stick", new Item(new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "snowball_on_a_stick")))
     ));
 
     public static final Item NETHERITE_PAULDRONS = registerItem("netherite_pauldrons", new NetheritePauldronsItem(ModArmorMaterials.ADVENTURE, EquipmentType.CHESTPLATE, new Item.Settings()
@@ -175,6 +178,15 @@ public class ModItems {
         Antiquities.LOGGER.info("Antiquities Items Initialized");
 
         ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipType, list) -> {
+            if (itemStack.isOf(ModItems.MYRIAD_TOOL) || itemStack.isOf(MYRIAD_STAFF)) {
+                int toRemove = -1;
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).toString().contains("dyed")) {
+                        toRemove = i;
+                    }
+                }
+                if (toRemove != -1) list.remove(toRemove);
+            }
             if (itemStack.isOf(MYRIAD_CLAW)) {
                 list.add(1, Text.translatable("item.antique.myriad_claw.tooltip"));
             }

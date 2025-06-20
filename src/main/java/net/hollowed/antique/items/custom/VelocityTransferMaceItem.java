@@ -109,7 +109,7 @@ public class VelocityTransferMaceItem extends Item {
                 Box hitbox = new Box(hitboxCenter.subtract(1, 1, 1), hitboxCenter.add(1, 1, 1)); // 2x2x2 box
 
                 // Get all entities in the hitbox, excluding the player
-                List<Entity> entities = world.getOtherEntities(user, hitbox, entity -> entity instanceof LivingEntity);
+                List<Entity> entities = world.getOtherEntities(user, hitbox);
 
                 for (Entity entity : entities) {
                     if (entity instanceof LivingEntity target) {

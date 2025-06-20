@@ -9,7 +9,6 @@ import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.ItemEntityRenderer;
 import net.minecraft.client.render.entity.state.ItemEntityRenderState;
-import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
@@ -22,7 +21,6 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -30,11 +28,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ItemEntityRenderer.class)
 public abstract class ItemEntityRendererMixin {
-
-    @Shadow
-    private static Box getBoundingBox(ItemRenderState state) {
-        return null;
-    }
 
     @Unique
     private ItemStack stack = ItemStack.EMPTY;
@@ -48,7 +41,7 @@ public abstract class ItemEntityRendererMixin {
     public void render(ItemEntityRenderState itemEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
         if (!itemEntityRenderState.itemRenderState.isEmpty()) {
             matrixStack.push();
-            Box box = getBoundingBox(itemEntityRenderState.itemRenderState);
+            Box box = itemEntityRenderState.itemRenderState.getModelBoundingBox();
             assert box != null;
             float f = -((float)box.minY) + 0.0625F;
             float g = MathHelper.sin(itemEntityRenderState.age / 10.0F + itemEntityRenderState.uniqueOffset) * 0.1F + 0.1F;

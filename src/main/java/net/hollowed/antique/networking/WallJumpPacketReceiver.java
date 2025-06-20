@@ -61,7 +61,7 @@ public class WallJumpPacketReceiver {
                 }
 
                 if (entity instanceof ServerPlayerEntity serverPlayer) {
-                    for (ServerPlayerEntity playerEntity : serverPlayer.getServerWorld().getPlayers().stream().toList()) {
+                    for (ServerPlayerEntity playerEntity : serverPlayer.getWorld().getPlayers().stream().toList()) {
                         ServerPlayNetworking.send(playerEntity, new WallJumpParticlePacketPayload((float) x, (float) entity.getY(), (float) z, (float) particleX, (float) particleZ, pushVector));
                     }
                 }

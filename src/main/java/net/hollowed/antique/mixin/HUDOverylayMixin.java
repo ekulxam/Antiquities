@@ -1,6 +1,5 @@
 package net.hollowed.antique.mixin;
 
-import net.hollowed.antique.client.hud.DefaultOverlay;
 import net.hollowed.antique.client.pedestal.PedestalTooltipRenderer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -22,7 +21,5 @@ public class HUDOverylayMixin {
             int screenHeight = client.getWindow().getScaledHeight();
             PedestalTooltipRenderer.renderTooltip(context, screenWidth, screenHeight);
         }
-
-        new DefaultOverlay();
     }
 }

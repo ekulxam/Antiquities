@@ -6,10 +6,13 @@ import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.items.custom.SatchelItem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.hud.InGameHud;
-import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.gui.tooltip.HoveredTooltipPositioner;
+import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
@@ -75,7 +78,7 @@ public class SatchelOverlayMixin {
 
                     // Render the slot background
                     context.drawTexture(
-                            RenderLayer::getGuiTexturedOverlay,
+                            RenderPipelines.GUI_TEXTURED,
                             SATCHEL_SELECTORS,
                             slotX, slotY,
                             0, 0,
@@ -94,17 +97,11 @@ public class SatchelOverlayMixin {
             // Display the tooltip for the selected stack
             ItemStack selectedStack = allStacks.get(satchelItem.getIndex());
             if (selectedStack != null && !selectedStack.isEmpty()) {
-                List<Text> textTooltip = selectedStack.getTooltip(Item.TooltipContext.create(client.world), player, TooltipType.BASIC);
-                List<OrderedText> orderedTooltip = new ArrayList<>();
-                for (Text text : textTooltip) {
-                    orderedTooltip.add(text.asOrderedText());
-                }
-                context.drawTooltip(
-                        textRenderer,
-                        orderedTooltip,
-                        (screenWidth, screenHeight, tipX, tipY, width, height) -> new Vector2i(x - (width / 2), y - (height) - 20),
-                        x, y
-                );
+                Text text = selectedStack.getFormattedName();
+                int i = textRenderer.getWidth(text.asOrderedText());
+                TooltipComponent tooltipComponent = TooltipComponent.of(text.asOrderedText());
+                context.drawTooltipImmediately(textRenderer, List.of(tooltipComponent), x - 12 - i /2, y - 15, HoveredTooltipPositioner.INSTANCE, selectedStack.get(DataComponentTypes.TOOLTIP_STYLE));
+
             }
 
             // Draw the selected stack's selector at the end to render it on top
@@ -112,7 +109,7 @@ public class SatchelOverlayMixin {
             int selectorY = (y - 2) + (22 * (satchelItem.getIndex() > 3 ? 1 : 0));
 
             context.drawTexture(
-                    RenderLayer::getGuiTexturedOverlay,
+                    RenderPipelines.GUI_TEXTURED,
                     SATCHEL_SELECTORS,
                     selectorX, selectorY,
                     20, 0,

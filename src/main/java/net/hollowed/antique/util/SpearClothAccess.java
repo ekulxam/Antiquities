@@ -6,4 +6,5 @@ public interface SpearClothAccess {
     ClothManager antique$getRightArmCloth();
     ClothManager antique$getLeftArmCloth();
     ClothManager antique$getBackCloth();
+    ClothManager antique$getBeltCloth();
 }

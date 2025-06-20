@@ -11,6 +11,7 @@ import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
@@ -48,12 +49,15 @@ public abstract class FirstPersonHeldItemRendererMixin {
         Vec3d itemWorldPos = ClothManager.matrixToVec(matrices);
 
         if (entity instanceof SpearClothAccess clothAccess) {
-            if (entity instanceof LivingEntity) {
+            if (entity instanceof PlayerEntity player) {
                 if (stack.isOf(ModItems.EXPLOSIVE_SPEAR)) {
                     manager = !leftHanded ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
                     switch (renderMode) {
                         case ItemDisplayContext.NONE -> manager = clothAccess.antique$getBackCloth();
                         case ItemDisplayContext.GUI -> manager = null;
+                    }
+                    if (player.getInventory().getStack(42).equals(stack)) {
+                        manager = clothAccess.antique$getBeltCloth();
                     }
                     if (manager != null) {
                         manager.renderCloth(itemWorldPos, matrices, vertexConsumer, light, renderMode != ItemDisplayContext.NONE, new Color(255, 0, 0, 255), false, ClothManager.BLANK_CLOTH_STRIP, 2, 0.1);
@@ -79,6 +83,9 @@ public abstract class FirstPersonHeldItemRendererMixin {
                     switch (renderMode) {
                         case ItemDisplayContext.NONE -> manager = clothAccess.antique$getBackCloth();
                         case ItemDisplayContext.GUI -> manager = null;
+                    }
+                    if (player.getInventory().getStack(42).equals(stack)) {
+                        manager = clothAccess.antique$getBeltCloth();
                     }
                     if (manager != null && stack.get(DataComponentTypes.DYED_COLOR) != null) {
                         Object name = stack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "");

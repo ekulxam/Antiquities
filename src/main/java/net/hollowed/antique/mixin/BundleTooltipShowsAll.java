@@ -1,9 +1,9 @@
 package net.hollowed.antique.mixin;
 
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.BundleTooltipComponent;
-import net.minecraft.client.render.RenderLayer;
 import net.minecraft.component.type.BundleContentsComponent;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -68,6 +68,8 @@ public abstract class BundleTooltipShowsAll {
     @Shadow @Final private static Identifier BUNDLE_SLOT_HIGHLIGHT_BACK_TEXTURE;
 
     @Shadow @Final private static Identifier BUNDLE_SLOT_BACKGROUND_TEXTURE;
+
+    @Shadow @Final private static Identifier BUNDLE_SLOT_HIGHLIGHT_FRONT_TEXTURE;
 
     @Inject(method = "getNumVisibleSlots", at = @At("HEAD"), cancellable = true)
     private void modifySlotCount(CallbackInfoReturnable<Integer> cir) {
@@ -144,16 +146,19 @@ public abstract class BundleTooltipShowsAll {
         boolean bl = i == this.bundleContents.getSelectedStackIndex(); // Assuming access to bundleContents is handled
 
         ItemStack itemStack = stacks.get(i);
-        drawContext.drawItem(itemStack, x - 1, y - 1, seed);
-        drawContext.drawStackOverlay(textRenderer, itemStack, x -1, y -1);
         // Modify the drawing of the background textures
         if (bl) {
-            drawContext.drawGuiTexture(RenderLayer::getGuiTextured, BUNDLE_SLOT_HIGHLIGHT_BACK_TEXTURE, adjustedX, adjustedY, 20, 20);
+            drawContext.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BUNDLE_SLOT_HIGHLIGHT_BACK_TEXTURE, adjustedX, adjustedY, 20, 20);
         } else {
-            drawContext.drawGuiTexture(RenderLayer::getGuiTextured, BUNDLE_SLOT_BACKGROUND_TEXTURE, adjustedX, adjustedY, 20, 20);
+            drawContext.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BUNDLE_SLOT_BACKGROUND_TEXTURE, adjustedX, adjustedY, 20, 20);
         }
 
-        // Proceed with other parts of the method (item rendering)
+        drawContext.drawItem(itemStack, x - 1, y - 1, seed);
+        drawContext.drawStackOverlay(textRenderer, itemStack, x -1, y -1);
+        if (bl) {
+            drawContext.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BUNDLE_SLOT_HIGHLIGHT_FRONT_TEXTURE, adjustedX, adjustedY, 20, 20);
+        }
+
         ci.cancel(); // Prevents the original background render
     }
 }

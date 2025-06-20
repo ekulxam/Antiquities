@@ -7,12 +7,12 @@
 	"display": {
 		"thirdperson_righthand": {
 			"rotation": [0, -90, 55],
-			"translation": [0, 7.75, -4.75],
+			"translation": [0, 8.25, -4.75],
 			"scale": [1.7, 1.7, 0.85]
 		},
 		"thirdperson_lefthand": {
 			"rotation": [0, 90, -55],
-			"translation": [0, 7.75, -4.75],
+			"translation": [0, 8.25, -4.75],
 			"scale": [1.7, 1.7, 0.85]
 		},
 		"firstperson_righthand": {

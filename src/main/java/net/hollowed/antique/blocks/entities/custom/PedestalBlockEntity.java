@@ -1,10 +1,13 @@
 package net.hollowed.antique.blocks.entities.custom;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.blocks.entities.ModBlockEntities;
 import net.hollowed.antique.networking.PedestalPacketPayload;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.CampfireBlockEntity;
+import net.minecraft.block.entity.CrafterBlockEntity;
 import net.minecraft.component.ComponentHolder;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.inventory.Inventories;
@@ -14,6 +17,10 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.storage.NbtWriteView;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
+import net.minecraft.util.ErrorReporter;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -39,22 +46,38 @@ public class PedestalBlockEntity extends BlockEntity implements ComponentHolder,
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-        Inventories.writeNbt(nbt, items, registries);
-        super.writeNbt(nbt, registries);
+    protected void writeData(WriteView view) {
+        Inventories.writeData(view, items);
+        super.writeData(view);
     }
 
     @Override
-    protected void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registries) {
-        super.readNbt(nbt, registries);
-        Inventories.readNbt(nbt, items, registries);
+    protected void readData(ReadView view) {
+        super.readData(view);
+        Inventories.readData(view, items);
     }
 
     @Override
     public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registries) {
-        NbtCompound nbt = new NbtCompound();
-        Inventories.writeNbt(nbt, items, registries); // Write the current inventory data to NBT
-        return nbt; // Return the NBT data for synchronization
+        ErrorReporter.Logging logging = new ErrorReporter.Logging(this.getReporterContext(), Antiquities.LOGGER);
+
+        NbtCompound var4;
+        try {
+            NbtWriteView nbtWriteView = NbtWriteView.create(logging, registries);
+            Inventories.writeData(nbtWriteView, items, true);
+            var4 = nbtWriteView.getNbt();
+        } catch (Throwable var6) {
+            try {
+                logging.close();
+            } catch (Throwable var5) {
+                var6.addSuppressed(var5);
+            }
+
+            throw var6;
+        }
+
+        logging.close();
+        return var4;
     }
 
     @Override

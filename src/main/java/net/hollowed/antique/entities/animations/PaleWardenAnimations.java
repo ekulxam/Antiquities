@@ -1,12 +1,9 @@
 package net.hollowed.antique.entities.animations;
 
-import net.minecraft.client.render.entity.animation.Animation;
-import net.minecraft.client.render.entity.animation.AnimationHelper;
-import net.minecraft.client.render.entity.animation.Keyframe;
-import net.minecraft.client.render.entity.animation.Transformation;
+import net.minecraft.client.render.entity.animation.*;
 
 public class PaleWardenAnimations {
-	public static final Animation idle = Animation.Builder.create(0.0417F).looping()
+	public static final AnimationDefinition idle = AnimationDefinition.Builder.create(0.0417F).looping()
 		.addBoneAnimation("right_arm", new Transformation(Transformation.Targets.ROTATE,
 			new Keyframe(0.0F, AnimationHelper.createRotationalVector(-45.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR)
 		))
@@ -27,7 +24,7 @@ public class PaleWardenAnimations {
 		))
 		.build();
 
-	public static final Animation awaken = Animation.Builder.create(3.0F)
+	public static final AnimationDefinition awaken = AnimationDefinition.Builder.create(3.0F)
 		.addBoneAnimation("right_arm", new Transformation(Transformation.Targets.ROTATE,
 				new Keyframe(0.0F, AnimationHelper.createRotationalVector(-45.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),
 				new Keyframe(1.0F, AnimationHelper.createRotationalVector(-45.0F, 0.0F, 0.0F), Transformation.Interpolations.LINEAR),
