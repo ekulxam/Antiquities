@@ -35,7 +35,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -119,7 +118,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                     if (effectiveVelocity.length() > 0.1) { // Adjust the threshold if needed
 
                         // Apply damage based on the velocity magnitude
-                        float damage = Math.min((float) (effectiveVelocity.length() * 5 + 5), 30); // Clamp to a max of 30
+                        float damage = Math.min((float) (effectiveVelocity.length() * 7.5 + 6), 30); // Clamp to a max of 30
                         target.serverDamage(
                                 player.getWorld().getDamageSources().flyIntoWall(), damage);
 
@@ -130,7 +129,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                             targetVelocity = targetVelocity.multiply(2, 0.2, 2);
                         }
 
-                        target.setVelocity(targetVelocity.multiply(0.9));
+                        target.setVelocity(targetVelocity.multiply(0.6 / targetVelocity.length() * targetVelocity.length()));
                         target.velocityModified = true;
 
                         // Find and apply reduced velocity to nearby entities
@@ -159,7 +158,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                             player.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, 30, 0, true, true));
                         } else if (EnchantmentListener.hasEnchantment(stack, "antique:impetus")) {
                             Vec3d playerVelocity = effectiveVelocity.multiply(1.5, 1.25, 1.5); // Enhance the velocity
-                            player.setVelocity(playerVelocity);
+                            player.setVelocity(playerVelocity.multiply(0.6 / targetVelocity.length() * targetVelocity.length()));
                             player.velocityModified = true;
 
                             player.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, 30, 0, true, true));
@@ -350,6 +349,16 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                 });
 
                 ci.cancel(); // Prevent the original attack from happening immediately
+            }
+        }
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"))
+    public void tick(CallbackInfo ci) {
+        if (this.getActiveItem().isOf(ModItems.SCEPTER)) {
+            float time = this.getItemUseTime() * 0.04F;
+            if (time == 2.0F) {
+                this.getWorld().playSoundClient(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.NEUTRAL, 1, 1);
             }
         }
     }

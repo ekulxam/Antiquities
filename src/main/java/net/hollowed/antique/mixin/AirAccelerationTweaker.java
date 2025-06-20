@@ -50,8 +50,8 @@ public abstract class AirAccelerationTweaker extends Entity {
             if (this.isSprinting()) horizontalBoost = 0.015;
             if (this.isUsingRiptide()) horizontalBoost = 0.125;
             if (this.hasStatusEffect(Antiquities.BOUNCE_EFFECT)) horizontalBoost = 0.15;
-            double maxHorizontalSpeed = 0.75; // Cap horizontal speed to prevent over-speeding
-            if (this.isSprinting()) maxHorizontalSpeed = 1.15;
+            double maxHorizontalSpeed = 0.55; // Cap horizontal speed to prevent over-speeding
+            if (this.isSprinting()) maxHorizontalSpeed = 0.95;
 
 
             // Convert movementInput to global (world) coordinates

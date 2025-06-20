@@ -35,6 +35,7 @@ public abstract class AbstractBoatMixin extends VehicleEntity {
     public void passenger(CallbackInfo ci) {
         if (this.getLeashData() != null && this.getLeashData().leashHolder instanceof BoatControllable controllable) {
             controllable.antique$setEntity(this.getFirstPassenger());
+            controllable.antique$setBoat(this);
         }
     }
 }

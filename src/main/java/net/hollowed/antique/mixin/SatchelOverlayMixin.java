@@ -15,13 +15,9 @@ import net.minecraft.client.render.RenderTickCounter;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import org.joml.Vector2i;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -35,7 +31,9 @@ import java.util.List;
 public class SatchelOverlayMixin {
 
     @Unique
-    private static final Identifier SATCHEL_SELECTORS = Antiquities.id("textures/gui/satchel_selectors.png");
+    private static final Identifier HOTBAR_SLOT = Identifier.ofVanilla("textures/gui/sprites/hud/hotbar_offhand_left.png");
+    @Unique
+    private static final Identifier HOTBAR_SELECTORS = Identifier.ofVanilla("textures/gui/sprites/hud/hotbar_selection.png");
 
     @Inject(method = "render", at = @At("HEAD"))
     public void render(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
@@ -73,22 +71,36 @@ public class SatchelOverlayMixin {
                     int index = row * 4 + col; // Calculate the correct index for the list
 
                     ItemStack stack = allStacks.get(index); // Get the stack (could be empty)
-                    int slotX = (x - 43) + (22 * col);
-                    int slotY = y + (22 * row);
+                    int slotX = (x - 44) + (22 * col);
+                    int slotY = y - 1 + (22 * row);
 
                     // Render the slot background
                     context.drawTexture(
                             RenderPipelines.GUI_TEXTURED,
-                            SATCHEL_SELECTORS,
+                            HOTBAR_SLOT,
                             slotX, slotY,
-                            0, 0,
-                            20, 20,
-                            64, 64
+                            0, 1,
+                            22, 22,
+                            29, 24
                     );
+                     if (row == 0 && col < 3) {
+                         for (int inRow = 0; inRow < 4; inRow++) {
+                             for (int inCol = 0; inCol < 4; inCol++) {
+                                 context.drawTexture(
+                                         RenderPipelines.GUI_TEXTURED,
+                                         HOTBAR_SLOT,
+                                         slotX + 20 + inRow, slotY + 20 + inCol,
+                                         2, 1,
+                                         1, 1,
+                                         29, 24
+                                 );
+                             }
+                         }
+                     }
 
                     // Render the item stack and overlay
                     if (!stack.isEmpty()) {
-                        context.drawItem(stack, slotX + 2, slotY + 2);
+                        context.drawItem(stack, slotX + 3, slotY + 3);
                         context.drawStackOverlay(textRenderer, stack, slotX + 2, slotY + 2);
                     }
                 }
@@ -110,11 +122,19 @@ public class SatchelOverlayMixin {
 
             context.drawTexture(
                     RenderPipelines.GUI_TEXTURED,
-                    SATCHEL_SELECTORS,
+                    HOTBAR_SELECTORS,
                     selectorX, selectorY,
-                    20, 0,
-                    24, 24,
-                    64, 64
+                    0, 0,
+                    24, 23,
+                    24, 23
+            );
+            context.drawTexture(
+                    RenderPipelines.GUI_TEXTURED,
+                    HOTBAR_SELECTORS,
+                    selectorX, selectorY + 23,
+                    0, 0,
+                    24, 1,
+                    24, 23
             );
         }
     }

@@ -27,8 +27,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 
-import java.util.*;
-
 public class AntiquitiesClient implements ClientModInitializer {
 
     //private static final Map<UUID, Deque<Vec3d>> TRAILS = new HashMap<>();

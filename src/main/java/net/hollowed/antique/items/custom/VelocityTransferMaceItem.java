@@ -2,7 +2,6 @@ package net.hollowed.antique.items.custom;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.enchantments.EnchantmentListener;
-import net.hollowed.antique.particles.ModParticles;
 import net.minecraft.block.BlockState;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
@@ -50,7 +49,7 @@ public class VelocityTransferMaceItem extends Item {
 
     public static AttributeModifiersComponent createAttributeModifiers() {
         return AttributeModifiersComponent.builder()
-                .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 4.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+                .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 5.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                 .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.2, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                 .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.75, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                 .build();
@@ -66,7 +65,7 @@ public class VelocityTransferMaceItem extends Item {
 
         if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic") || EnchantmentListener.hasEnchantment(stack, "antique:impetus")) {
             if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
-                multiplier = new Vec3d(-4, -0.5, -4);
+                multiplier = new Vec3d(-2, -1.5, -2);
             } else {
                 multiplier = new Vec3d(4, -1, 4);
             }
@@ -77,13 +76,10 @@ public class VelocityTransferMaceItem extends Item {
             HitResult hitResult = player.raycast(5.0D, 0.0F, false);
             if (hitResult.getType() == HitResult.Type.BLOCK) {
                 // Interact with a block
-                float velocity = Math.clamp(chargeTime * 0.04F + 0.25F, 1.0F, 6.0F);
+                float velocity = Math.clamp(chargeTime * 0.04F + 0.25F, 1.0F, 2.0F);
 
                 if (!world.isClient) {
                     player.setVelocity(player.getRotationVec(0).multiply(multiplier).multiply(velocity));
-                    if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
-                        player.addVelocity(0, 0.25, 0);
-                    }
                     player.velocityModified = true;
                 }
 
@@ -97,9 +93,9 @@ public class VelocityTransferMaceItem extends Item {
                 if (!user.getWorld().isClient) {
                     ((PlayerEntity) user).getItemCooldownManager().set(stack, 130);
                     if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
-                        user.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, (int) ((velocity - 0.625) * 55), 0, true, true));
+                        user.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, (int) ((velocity - 0.625) * 40), 0, true, true));
                     } else {
-                        user.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, (int) ((velocity - 0.625) * 65), 0, true, true));
+                        user.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, (int) ((velocity - 0.625) * 50), 0, true, true));
                     }
                 }
             } else {

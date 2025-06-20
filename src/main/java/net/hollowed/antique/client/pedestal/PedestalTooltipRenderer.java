@@ -4,6 +4,9 @@ import net.hollowed.antique.blocks.custom.PedestalBlock;
 import net.hollowed.antique.blocks.entities.custom.PedestalBlockEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.tooltip.HoveredTooltipPositioner;
+import net.minecraft.client.gui.tooltip.TooltipComponent;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipType;
@@ -21,14 +24,19 @@ public class PedestalTooltipRenderer {
         if (client == null || client.player == null) return;
 
         // Get the tooltip text
-        List<Text> tooltip = itemStack.getTooltip(Item.TooltipContext.DEFAULT, client.player, client.options.advancedItemTooltips ? TooltipType.BASIC : TooltipType.ADVANCED);
+        List<Text> textList = itemStack.getTooltip(Item.TooltipContext.DEFAULT, client.player, client.options.advancedItemTooltips ? TooltipType.BASIC : TooltipType.ADVANCED);
+        List<TooltipComponent> components = new java.util.ArrayList<>();
+
+        for (Text text : textList) {
+            components.add(TooltipComponent.of(text.asOrderedText()));
+        }
 
         // Tooltip positioning (slightly to the side of the crosshair)
         int posX = screenWidth / 2 + 8;
-        int posY = screenHeight / 2 - tooltip.size() * 10 / 2;
+        int posY = screenHeight / 2 - textList.size() * 10 / 2;
 
         // Render the tooltip
-        context.drawTooltip(client.textRenderer, tooltip, posX, posY);
+        context.drawTooltipImmediately(client.textRenderer, components, posX, posY, HoveredTooltipPositioner.INSTANCE, itemStack.get(DataComponentTypes.TOOLTIP_STYLE));
     }
 
     public static void renderTooltip(DrawContext context, int screenWidth, int screenHeight) {
