@@ -5,7 +5,7 @@ import net.hollowed.antique.client.ModEntityLayers;
 import net.hollowed.antique.client.armor.models.AdventureArmor;
 import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
 import net.hollowed.antique.client.armor.renderers.FirstPersonRenderer;
-import net.hollowed.antique.items.custom.MyriadToolItem;
+import net.hollowed.antique.items.custom.myriadTool.MyriadToolItem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;

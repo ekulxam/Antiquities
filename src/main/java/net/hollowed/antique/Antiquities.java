@@ -1,5 +1,6 @@
 package net.hollowed.antique;
 
+import com.nitron.nitrogen.config.Config;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -23,16 +24,12 @@ import net.hollowed.antique.particles.ModParticles;
 import net.hollowed.antique.util.ModLootTableModifiers;
 import net.hollowed.antique.util.MyriadStaffTransformResourceReloadListener;
 import net.hollowed.antique.util.TickDelayScheduler;
-import net.minecraft.block.LeafLitterBlock;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.passive.PigEntity;
-import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.item.*;
-import net.minecraft.network.packet.s2c.play.PositionFlag;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
@@ -42,16 +39,12 @@ import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.dimension.DimensionTypes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
-import java.util.Set;
 import java.util.function.Predicate;
 
 import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
@@ -159,7 +152,7 @@ public class Antiquities implements ModInitializer {
 			Shenanigans
 		 */
 
-		//Config.trailRenderers = false;
+		Config.trailRenderers = false;
 	}
 
 	public static final RegistryEntry<StatusEffect> VOLATILE_BOUNCE_EFFECT;

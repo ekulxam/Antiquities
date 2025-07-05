@@ -61,13 +61,12 @@ public abstract class ModMenuMixin {
 
         if ("antique".equals(modId)) {
             // Modify the text rendering with a new color
-            drawContext.drawText(
+            drawContext.drawTextWithShadow(
                     this.client.textRenderer,
                     Language.getInstance().reorder(trimmedName),
                     x + iconSize + 3,
                     y + 1,
-                    nameColor,
-                    true
+                    nameColor
             );
 
             // Draws the small icon

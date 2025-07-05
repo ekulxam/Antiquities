@@ -1,10 +1,16 @@
 package net.hollowed.antique.items.custom;
 
 import net.hollowed.antique.component.ModComponents;
+import net.hollowed.antique.items.SatchelTooltipData;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
+import net.minecraft.item.BundleItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.tooltip.BundleTooltipData;
+import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ClickType;
@@ -13,6 +19,7 @@ import net.minecraft.util.math.ColorHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class SatchelItem extends Item {
     public static final int MAX_STACKS = 8;
@@ -25,7 +32,6 @@ public class SatchelItem extends Item {
     public SatchelItem(Settings settings) {
         super(settings);
     }
-
 
     public boolean isItemBarVisible(ItemStack stack) {
         List<ItemStack> storedStacks = new ArrayList<>(getStoredStacks(stack));  // Create a mutable copy of the list
@@ -42,6 +48,14 @@ public class SatchelItem extends Item {
     public int getItemBarColor(ItemStack stack) {
         List<ItemStack> storedStacks = new ArrayList<>(getStoredStacks(stack));  // Create a mutable copy of the list
         return storedStacks.size() == 8 ? FULL_ITEM_BAR_COLOR : ITEM_BAR_COLOR;
+    }
+
+    @Override
+    public Optional<TooltipData> getTooltipData(ItemStack stack) {
+        TooltipDisplayComponent tooltipDisplayComponent = stack.getOrDefault(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent.DEFAULT);
+        return !tooltipDisplayComponent.shouldDisplay(ModComponents.SATCHEL_STACK)
+                ? Optional.empty()
+                : Optional.ofNullable(stack.get(ModComponents.SATCHEL_STACK)).map(SatchelTooltipData::new);
     }
 
     @Override

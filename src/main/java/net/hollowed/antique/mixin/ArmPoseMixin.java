@@ -3,8 +3,8 @@ package net.hollowed.antique.mixin;
 import net.hollowed.antique.client.poses.BipedEntityRenderStateAccess;
 import net.hollowed.antique.client.poses.MyriadAxeBitPosing;
 import net.hollowed.antique.client.poses.MyriadAxePosing;
-import net.hollowed.antique.items.custom.MyriadToolBitItem;
-import net.hollowed.antique.items.custom.MyriadToolItem;
+import net.hollowed.antique.items.custom.myriadTool.MyriadAxeBit;
+import net.hollowed.antique.items.custom.myriadTool.MyriadToolItem;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.state.BipedEntityRenderState;
@@ -37,16 +37,14 @@ public class ArmPoseMixin {
             }
         }
 
-        if (state instanceof BipedEntityRenderStateAccess access && access.antique$getEntity().getActiveItem().getItem() instanceof MyriadToolBitItem item) {
-            if (item.getId() == 2) {
-                Hand hand = access.antique$getEntity().getActiveHand();
-                if (hand.equals(Hand.MAIN_HAND) && access.antique$getEntity().getMainArm().equals(Arm.RIGHT)) {
-                    MyriadAxeBitPosing.hold(this.rightArm);
-                    ci.cancel();
-                } else if (hand.equals(Hand.OFF_HAND) && access.antique$getEntity().getMainArm().equals(Arm.LEFT)) {
-                    MyriadAxeBitPosing.hold(this.rightArm);
-                    ci.cancel();
-                }
+        if (state instanceof BipedEntityRenderStateAccess access && access.antique$getEntity().getActiveItem().getItem() instanceof MyriadAxeBit) {
+            Hand hand = access.antique$getEntity().getActiveHand();
+            if (hand.equals(Hand.MAIN_HAND) && access.antique$getEntity().getMainArm().equals(Arm.RIGHT)) {
+                MyriadAxeBitPosing.hold(this.rightArm);
+                ci.cancel();
+            } else if (hand.equals(Hand.OFF_HAND) && access.antique$getEntity().getMainArm().equals(Arm.LEFT)) {
+                MyriadAxeBitPosing.hold(this.rightArm);
+                ci.cancel();
             }
         }
     }
@@ -60,16 +58,14 @@ public class ArmPoseMixin {
             }
         }
 
-        if (state instanceof BipedEntityRenderStateAccess access && access.antique$getEntity().getActiveItem().getItem() instanceof MyriadToolBitItem item) {
-            if (item.getId() == 2) {
-                Hand hand = access.antique$getEntity().getActiveHand();
-                if (hand.equals(Hand.MAIN_HAND) && access.antique$getEntity().getMainArm().equals(Arm.LEFT)) {
-                    MyriadAxeBitPosing.hold(this.leftArm);
-                    ci.cancel();
-                } else if (hand.equals(Hand.OFF_HAND) && access.antique$getEntity().getMainArm().equals(Arm.RIGHT)) {
-                    MyriadAxeBitPosing.hold(this.leftArm);
-                    ci.cancel();
-                }
+        if (state instanceof BipedEntityRenderStateAccess access && access.antique$getEntity().getActiveItem().getItem() instanceof MyriadAxeBit) {
+            Hand hand = access.antique$getEntity().getActiveHand();
+            if (hand.equals(Hand.MAIN_HAND) && access.antique$getEntity().getMainArm().equals(Arm.LEFT)) {
+                MyriadAxeBitPosing.hold(this.leftArm);
+                ci.cancel();
+            } else if (hand.equals(Hand.OFF_HAND) && access.antique$getEntity().getMainArm().equals(Arm.RIGHT)) {
+                MyriadAxeBitPosing.hold(this.leftArm);
+                ci.cancel();
             }
         }
     }

@@ -2,8 +2,8 @@ package net.hollowed.antique.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.hollowed.antique.items.ModItems;
-import net.hollowed.antique.items.custom.MyriadToolBitItem;
-import net.hollowed.antique.items.custom.MyriadToolItem;
+import net.hollowed.antique.items.custom.myriadTool.MyriadToolBitItem;
+import net.hollowed.antique.items.custom.myriadTool.MyriadToolItem;
 import net.hollowed.antique.items.custom.SatchelItem;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;

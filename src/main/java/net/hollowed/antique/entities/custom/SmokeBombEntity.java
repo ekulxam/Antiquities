@@ -3,10 +3,10 @@ package net.hollowed.antique.entities.custom;
 import net.hollowed.antique.ModSounds;
 import net.hollowed.antique.util.TickDelayScheduler;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.entity.projectile.thrown.SnowballEntity;
+import net.minecraft.entity.projectile.thrown.ThrownItemEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
@@ -16,9 +16,14 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.HitResult;
 import net.minecraft.world.World;
 
-public class SmokeBombEntity extends SnowballEntity {
-    public SmokeBombEntity(EntityType<? extends SnowballEntity> entityType, World world) {
+public class SmokeBombEntity extends ThrownItemEntity {
+    public SmokeBombEntity(EntityType<? extends ThrownItemEntity> entityType, World world) {
         super(entityType, world);
+    }
+
+    @Override
+    protected Item getDefaultItem() {
+        return Items.SNOWBALL;
     }
 
     @Override

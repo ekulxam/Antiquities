@@ -2,7 +2,7 @@ package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.ModItems;
-import net.hollowed.antique.items.custom.MyriadToolItem;
+import net.hollowed.antique.items.custom.myriadTool.MyriadToolItem;
 import net.minecraft.client.render.entity.BipedEntityRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.state.BipedEntityRenderState;

@@ -3,7 +3,6 @@ package net.hollowed.antique.mixin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.ModItems;
-import net.hollowed.antique.items.custom.MyriadToolBitItem;
 import net.hollowed.antique.networking.WallJumpPacketPayload;
 import net.hollowed.antique.util.FastAir;
 import net.hollowed.antique.util.ItemHoldingUtil;
@@ -244,12 +243,6 @@ public abstract class ClimbButNotFasterInsteadActuallyNotClimbAtAllMixin extends
 
                 // Apply the velocity to push the player off the wall
                 this.setVelocity(entity.getVelocity().add(pushVector));
-
-                if (entity.getActiveItem().getItem() instanceof MyriadToolBitItem item) {
-                    if (!entity.isInCreativeMode()) {
-                        item.decrementStamina();
-                    }
-                }
 
                 // Cooldown management to prevent spamming jumps
                 this.jumpingCooldown1 = 10;

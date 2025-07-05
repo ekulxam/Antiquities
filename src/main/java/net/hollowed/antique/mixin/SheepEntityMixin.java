@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin;
 
-import net.hollowed.antique.items.custom.MyriadToolBitItem;
+import net.hollowed.antique.items.custom.myriadTool.MyriadMattockBit;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.Shearable;
 import net.minecraft.entity.passive.AnimalEntity;
@@ -33,7 +33,7 @@ public abstract class SheepEntityMixin extends AnimalEntity implements Shearable
     @Inject(method = "interactMob", at = @At("HEAD"))
     public void interact(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         ItemStack itemStack = player.getStackInHand(hand);
-        if (itemStack.getItem() instanceof MyriadToolBitItem item && item.getId() == 1) {
+        if (itemStack.getItem() instanceof MyriadMattockBit) {
             if (this.getWorld() instanceof ServerWorld serverWorld && this.isShearable()) {
                 this.sheared(serverWorld, SoundCategory.PLAYERS, itemStack);
                 this.emitGameEvent(GameEvent.SHEAR, player);

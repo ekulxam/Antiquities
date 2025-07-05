@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin;
 
-import net.hollowed.antique.items.custom.MyriadToolItem;
+import net.hollowed.antique.items.custom.myriadTool.MyriadToolItem;
 import net.hollowed.combatamenities.particles.ModParticles;
 import net.minecraft.entity.Attackable;
 import net.minecraft.entity.Entity;

@@ -6,6 +6,7 @@ import net.hollowed.antique.component.ModComponents;
 import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.items.custom.*;
 import net.hollowed.antique.items.custom.myriadStaff.MyriadStaffItem;
+import net.hollowed.antique.items.custom.myriadTool.*;
 import net.minecraft.block.Block;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
@@ -54,10 +55,6 @@ public class ModItems {
 
     public static final Item MYRIAD_INGOT = registerItem("myriad_ingot", new Item(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_ingot")))
-    ));
-
-    public static final Item SNOWBALL_ON_A_STICK = registerItem("snowball_on_a_stick", new Item(new Item.Settings()
-            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "snowball_on_a_stick")))
     ));
 
     public static final Item NETHERITE_PAULDRONS = registerItem("netherite_pauldrons", new NetheritePauldronsItem(ModArmorMaterials.ADVENTURE, EquipmentType.CHESTPLATE, new Item.Settings()
@@ -117,34 +114,34 @@ public class ModItems {
             .component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd43b69))
     ));
 
-    public static final Item MYRIAD_PICK_HEAD = registerItem("myriad_mattock_head", new MyriadToolBitItem(new Item.Settings()
+    public static final Item MYRIAD_PICK_HEAD = registerItem("myriad_mattock_head", new MyriadMattockBit(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_mattock_head")))
             .maxCount(1).attributeModifiers(MyriadToolItem.createAttributeModifiers(3, 2, 0.25)).enchantable(10).rarity(Rarity.UNCOMMON)
-            .fireproof().component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE).component(DataComponentTypes.TOOL, ShearsItem.createToolComponent()), 1
+            .fireproof().component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE).component(DataComponentTypes.TOOL, ShearsItem.createToolComponent())
     ));
 
-    public static final Item MYRIAD_AXE_HEAD = registerItem("myriad_axe_head", new MyriadToolBitItem(new Item.Settings()
+    public static final Item MYRIAD_AXE_HEAD = registerItem("myriad_axe_head", new MyriadAxeBit(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_axe_head")))
             .maxCount(1).attributeModifiers(MyriadToolItem.createAttributeModifiers(4, 1.7, 0.25)).enchantable(10).rarity(Rarity.UNCOMMON)
-            .fireproof().component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE), 2
+            .fireproof().component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE)
     ));
 
-    public static final Item MYRIAD_SHOVEL_HEAD = registerItem("myriad_shovel_head", new MyriadToolBitItem(new Item.Settings()
+    public static final Item MYRIAD_SHOVEL_HEAD = registerItem("myriad_shovel_head", new MyriadShovelBit(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_shovel_head")))
             .maxCount(1).attributeModifiers(MyriadToolItem.createAttributeModifiers(2, 2.2, 0.25)).enchantable(10).rarity(Rarity.UNCOMMON)
-            .fireproof().component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE), 3
+            .fireproof().component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE)
     ));
 
-    public static final Item MYRIAD_CLEAVER_BLADE = registerItem("myriad_cleaver_blade", new MyriadToolBitItem(new Item.Settings()
+    public static final Item MYRIAD_CLEAVER_BLADE = registerItem("myriad_cleaver_blade", new MyriadCleaverBit(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_cleaver_blade")))
             .maxCount(1).attributeModifiers(MyriadToolItem.createAttributeModifiers(6, 1.6, 0.25)).enchantable(10).rarity(Rarity.UNCOMMON)
-            .fireproof().component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE), 4
+            .fireproof().component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE)
     ));
 
-    public static final Item MYRIAD_CLAW = registerItem("myriad_claw", new MyriadToolBitItem(new Item.Settings()
+    public static final Item MYRIAD_CLAW = registerItem("myriad_claw", new MyriadClawBit(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "myriad_claw")))
             .maxCount(1).attributeModifiers(MyriadToolItem.createAttributeModifiers(4, 1.8, 0.25)).enchantable(10).rarity(Rarity.UNCOMMON)
-            .fireproof().component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE), 5
+            .fireproof().component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE)
     ));
 
     @SuppressWarnings("unused")
@@ -229,59 +226,59 @@ public class ModItems {
                 list.add(1, text.getString().equals(" - Air -") ? Text.translatable("item.antique.myriad_staff.empty") : text);
             }
             if (itemStack.getItem() instanceof SatchelItem satchelItem) {
-                List<ItemStack> storedStacks = SatchelItem.getStoredStacks(itemStack);
-                MinecraftClient client = MinecraftClient.getInstance();
-                int maxWidth = 0;
-
-                // Check if satchel is full and center the full message
-                if (SatchelItem.getStoredStacks(itemStack).size() == SatchelItem.MAX_STACKS) {
-                    assert Formatting.RED.getColorValue() != null;
-
-                    // Calculate padding for centering
-                    Text fullMessage = Text.translatable("item.antique.satchel.satchel_full").withColor(Formatting.RED.getColorValue());
-                    int fullMessageWidth = client.textRenderer.getWidth(fullMessage);
-                    int padding = (maxWidth - fullMessageWidth) / 2 + 1;
-
-                    // Add the centered thinga-ma-bobber
-                    list.add(1, Text.literal(" ".repeat(Math.max(0, padding / client.textRenderer.getWidth(" ")))).append(fullMessage));
-
-                    // Add empty line for spacing
-                    list.add(1, Text.literal(""));
-                }
-
-                // Add item information to the tooltip
-                for (int i = storedStacks.size() - 1; i >= 0 ; i--) {
-                    ItemStack storedStack = storedStacks.get(i);
-                    if (!storedStack.isEmpty()) {
-                        assert Formatting.GRAY.getColorValue() != null;
-                        assert storedStack.getRarity().getFormatting().getColorValue() != null;
-
-                        // Determine the prefix based on the index
-                        String prefix = (i == satchelItem.getInternalIndex()) ? "[-] " : " -  ";
-
-                        assert Formatting.WHITE.getColorValue() != null;
-                        int color = Formatting.WHITE.getColorValue(); // Default color
-                        Text customName = storedStack.get(DataComponentTypes.ITEM_NAME);
-                        if (customName != null && customName.getStyle() != null && customName.getStyle().getColor() != null) {
-                            color = customName.getStyle().getColor().getRgb();
-                        } else if (storedStack.getRarity().getFormatting().getColorValue() != null) {
-                            color = storedStack.getRarity().getFormatting().getColorValue();
-                        }
-
-
-                        // Build the line
-                        Text line = Text.literal(prefix).withColor(Formatting.GRAY.getColorValue())
-                                .append(Text.literal(storedStack.getCount() + "x ").withColor(color))
-                                .append(Text.translatable(storedStack.getItem().getTranslationKey()).withColor(color));
-
-                        // Add to tooltip
-                        list.add(1, line);
-
-                        // Calculate max width
-                        int lineWidth = client.textRenderer.getWidth(line);
-                        maxWidth = Math.max(maxWidth, lineWidth);
-                    }
-                }
+//                List<ItemStack> storedStacks = SatchelItem.getStoredStacks(itemStack);
+//                MinecraftClient client = MinecraftClient.getInstance();
+//                int maxWidth = 0;
+//
+//                // Check if satchel is full and center the full message
+//                if (SatchelItem.getStoredStacks(itemStack).size() == SatchelItem.MAX_STACKS) {
+//                    assert Formatting.RED.getColorValue() != null;
+//
+//                    // Calculate padding for centering
+//                    Text fullMessage = Text.translatable("item.antique.satchel.satchel_full").withColor(Formatting.RED.getColorValue());
+//                    int fullMessageWidth = client.textRenderer.getWidth(fullMessage);
+//                    int padding = (maxWidth - fullMessageWidth) / 2 + 1;
+//
+//                    // Add the centered thinga-ma-bobber
+//                    list.add(1, Text.literal(" ".repeat(Math.max(0, padding / client.textRenderer.getWidth(" ")))).append(fullMessage));
+//
+//                    // Add empty line for spacing
+//                    list.add(1, Text.literal(""));
+//                }
+//
+//                // Add item information to the tooltip
+//                for (int i = storedStacks.size() - 1; i >= 0 ; i--) {
+//                    ItemStack storedStack = storedStacks.get(i);
+//                    if (!storedStack.isEmpty()) {
+//                        assert Formatting.GRAY.getColorValue() != null;
+//                        assert storedStack.getRarity().getFormatting().getColorValue() != null;
+//
+//                        // Determine the prefix based on the index
+//                        String prefix = (i == satchelItem.getInternalIndex()) ? "[-] " : " -  ";
+//
+//                        assert Formatting.WHITE.getColorValue() != null;
+//                        int color = Formatting.WHITE.getColorValue(); // Default color
+//                        Text customName = storedStack.get(DataComponentTypes.ITEM_NAME);
+//                        if (customName != null && customName.getStyle() != null && customName.getStyle().getColor() != null) {
+//                            color = customName.getStyle().getColor().getRgb();
+//                        } else if (storedStack.getRarity().getFormatting().getColorValue() != null) {
+//                            color = storedStack.getRarity().getFormatting().getColorValue();
+//                        }
+//
+//
+//                        // Build the line
+//                        Text line = Text.literal(prefix).withColor(Formatting.GRAY.getColorValue())
+//                                .append(Text.literal(storedStack.getCount() + "x ").withColor(color))
+//                                .append(Text.translatable(storedStack.getItem().getTranslationKey()).withColor(color));
+//
+//                        // Add to tooltip
+//                        list.add(1, line);
+//
+//                        // Calculate max width
+//                        int lineWidth = client.textRenderer.getWidth(line);
+//                        maxWidth = Math.max(maxWidth, lineWidth);
+//                    }
+//                }
             }
         });
     }
