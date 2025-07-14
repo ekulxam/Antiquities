@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "minecraft:white_dye",
+    "minecraft:purple_dye",
+    "minecraft:blue_dye",
+    "minecraft:black_dye",
+    "minecraft:crafting_table",
+    "minecraft:brush",
+    "minecraft:red_dye",
+    "minecraft:yellow_dye",
+    "minecraft:green_dye"
+  ],
+  "result": {
+    "id": "antique:dye_table",
+    "count": 1
+  }
+}

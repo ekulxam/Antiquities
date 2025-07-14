@@ -47,6 +47,7 @@
     "ShieldPierceMixin",
     "SpectralArrowVisualsMixin",
     "SpeedFasterInAirMixin",
+    "SpellCastingIllagerMixin",
     "SpellTicksAccessor",
     "StriderMixin",
     "TridentVisualsMixin",

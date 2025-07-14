@@ -6,7 +6,7 @@
   "mode": "NONE",
   "sway": 0.4,
   "componentTransforms": {
-    "4": {
+    "1": {
       "scale": [2.55, 2.55, 0.85],
       "rotation": [180.0, 180.0, -65.0],
       "translation": [-0.2333333, 0.0, 0.0],

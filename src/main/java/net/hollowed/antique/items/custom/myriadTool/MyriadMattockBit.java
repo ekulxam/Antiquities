@@ -181,5 +181,6 @@ public class MyriadMattockBit extends MyriadToolBitItem{
                 1,
                 true
         ));
+        tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_mattock"));
     }
 }

@@ -1,9 +1,11 @@
 package net.hollowed.antique.items.custom.myriadTool;
 
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.component.ModComponents;
 import net.hollowed.antique.items.ModItems;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -130,8 +132,9 @@ public class MyriadToolItem extends Item {
                     .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.2, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                     .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.25, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                     .build());
-            tool.set(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY, 0);
             tool.remove(DataComponentTypes.TOOL);
+            tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_tool"));
+            tool.remove(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY);
         }
         tool.set(ModComponents.MYRIAD_STACK, newStack);
     }

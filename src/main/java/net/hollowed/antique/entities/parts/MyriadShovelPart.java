@@ -6,7 +6,6 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.Ownable;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.storage.ReadView;
@@ -61,13 +60,13 @@ public class MyriadShovelPart extends Entity implements Ownable {
 			world.getChunkManager().loadEntity(this);
 		}
 		if (this.getOwner() != null) {
-			float multiplier = 0.25F;
-			this.setPosition(this.getOwner().getPos().x, this.getOwner().getPos().y - 0.25, this.getOwner().getPos().z);
-
-			if (this.getOrderId() != 0) {
-				multiplier += this.getOrderId() / 3.5F;
+			if (this.getOwner() instanceof MyriadShovelEntity shovel && shovel.canPickup) {
+				this.discard();
+				return;
 			}
-
+			float multiplier = 0.25F;
+			this.setPosition(Objects.requireNonNull(this.getOwner()).getPos().x, this.getOwner().getPos().y - 0.25, this.getOwner().getPos().z);
+			multiplier += (this.getOrderId() / 3.5F) - 0.2F;
 			Vec3d look = this.getOwner().getRotationVec(0);
 			this.setPosition(this.getPos().add(look.multiply(multiplier, multiplier, -multiplier)));
 		}
@@ -107,6 +106,8 @@ public class MyriadShovelPart extends Entity implements Ownable {
 	public final boolean damage(ServerWorld world, DamageSource source, float amount) {
 		if (this.owner != null && this.owner instanceof MyriadShovelEntity entity) {
 			entity.canPickup = true;
+			entity.getDataTracker().set(MyriadShovelEntity.LOYALTY, (byte) 3);
+			entity.returnTimer = 1;
 		}
 		return false;
 	}

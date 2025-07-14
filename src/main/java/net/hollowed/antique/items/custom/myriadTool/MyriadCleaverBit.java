@@ -1,6 +1,8 @@
 package net.hollowed.antique.items.custom.myriadTool;
 
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.ModItems;
+import net.hollowed.combatamenities.util.items.ModComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
@@ -35,5 +37,7 @@ public class MyriadCleaverBit extends MyriadToolBitItem{
                 1,
                 true
         ));
+        tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_cleaver"));
+        tool.set(ModComponents.INTEGER_PROPERTY, 1);
     }
 }

@@ -1,6 +1,7 @@
 package net.hollowed.antique.blocks;
 
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.blocks.custom.DyeTableBlock;
 import net.hollowed.antique.blocks.custom.JarBlock;
 import net.hollowed.antique.blocks.custom.OminousPedestalBlock;
 import net.hollowed.antique.blocks.custom.PedestalBlock;
@@ -37,6 +38,10 @@ public class ModBlocks {
     public static final Block MYRIAD_CLUSTER = registerBlock("myriad_cluster",
             new AmethystClusterBlock(8, 8, AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "myriad_cluster")))
                     .sounds(BlockSoundGroup.AMETHYST_CLUSTER).strength(1.5F, 6F)), Rarity.COMMON);
+
+    public static final Block DYE_TABLE = registerBlock("dye_table",
+            new DyeTableBlock(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "dye_table")))
+                    .sounds(BlockSoundGroup.WOOD).strength(2.5F)), Rarity.COMMON);
 
     public static final Block MYRIAD_ORE = registerBlock("myriad_ore",
             new Block(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "myriad_ore")))

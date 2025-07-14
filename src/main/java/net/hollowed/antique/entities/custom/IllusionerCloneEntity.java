@@ -41,6 +41,7 @@ import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -193,6 +194,9 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
         }
 
         this.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
+        if (this.getWorld() instanceof ServerWorld serverWorld) {
+            this.kill(serverWorld);
+        }
     }
 
     public IllusionerCloneEntity.State getState() {
@@ -205,13 +209,17 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
 
     public static boolean teleportRandomly(LivingEntity entity) {
         if (entity.isAlive()) {
-            double d = entity.getX() + (entity.getRandom().nextDouble() - 0.5) * 16.0;
-            double e = entity.getY() + (double)(entity.getRandom().nextInt(16) - 8);
-            double f = entity.getZ() + (entity.getRandom().nextDouble() - 0.5) * 16.0;
-            return teleportTo(d, e, f, entity);
-        } else {
+            for (int i = 0; i < 10; i++) {
+                double d = entity.getX() + (entity.getRandom().nextDouble() - 0.5) * 16.0;
+                double e = entity.getY() + (double) (entity.getRandom().nextInt(16) - 8);
+                double f = entity.getZ() + (entity.getRandom().nextDouble() - 0.5) * 16.0;
+                if (teleportTo(d, e, f, entity)) {
+                    return true;
+                }
+            }
             return false;
         }
+        return false;
     }
 
     private static boolean teleportTo(double x, double y, double z, LivingEntity entity) {
@@ -283,6 +291,9 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
         }
 
         public void tick() {
+            if (entity instanceof IllusionerEntity illusionerEntity) {
+                illusionerEntity.getDataTracker().set(IllusionerEntity.SPELL_COLOR, new Vector3f(0.3F, 0.3F, 0.8F));
+            }
             --this.spellCooldown;
             if (this.spellCooldown == 0) {
                 this.castSpell();
@@ -300,11 +311,11 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
         }
 
         protected int getSpellTicks() {
-            return 5;
+            return 20;
         }
 
         protected int startTimeDelay() {
-            return 100;
+            return 200;
         }
 
         @Nullable

@@ -2,6 +2,7 @@ package net.hollowed.antique.items.custom.myriadTool;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableMap;
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.ModItems;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.*;
@@ -159,5 +160,6 @@ public class MyriadAxeBit extends MyriadToolBitItem{
                 true
         ));
         tool.set(DataComponentTypes.WEAPON, new WeaponComponent(0, 2));
+        tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_axe"));
     }
 }

@@ -28,20 +28,18 @@ import net.minecraft.storage.WriteView;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3d;
 
-import java.util.List;
 import java.util.Objects;
 
 public class MyriadShovelEntity extends PersistentProjectileEntity {
-	private static final TrackedData<Byte> LOYALTY = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BYTE);
-	private static final TrackedData<Integer> COLOR = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	private static final TrackedData<Boolean> ENCHANTED = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	public static final TrackedData<Byte> LOYALTY = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BYTE);
+	public static final TrackedData<Integer> COLOR = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	public static final TrackedData<Boolean> ENCHANTED = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private boolean dealtDamage;
 	public int returnTimer;
 	public ItemStack shovelStack;
@@ -72,7 +70,6 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		this.shovelStack = stack;
 		this.manager = new ClothManager(new Vector3d(), 8);
 		this.dataTracker.set(COLOR, Objects.requireNonNull(this.shovelStack.get(DataComponentTypes.DYED_COLOR)).rgb());
-		System.out.println(this.dyeColor);
 
 //		this.part1 = new MyriadShovelPart(this, "part1", 0.1F, 0.1F);
 //		this.part2 = new MyriadShovelPart(this, "part2", 0.1F, 0.1F);
@@ -133,21 +130,6 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		entity7.setOwner(this);
 		entity7.setOrderId(7);
 		this.getWorld().spawnEntity(entity7);
-	}
-
-	@Override
-	public void onRemove(RemovalReason reason) {
-		super.onRemove(reason);
-		List<Entity> list = this.getWorld().getOtherEntities(null, new Box(this.getX() - 4, this.getY() - 4, this.getZ() -4,
-				this.getX() + 4, this.getY() + 4, this.getZ() + 4)).reversed();
-		for (Entity entity : list) {
-			if (entity instanceof MyriadShovelPart part && (part.getOwner() == this || part.getOwner() == null)) {
-				part.discard();
-				if (this.getWorld() instanceof ServerWorld world) {
-					world.getChunkManager().unloadEntity(entity);
-				}
-			}
-		}
 	}
 
 	public boolean isEnchanted() {
@@ -345,10 +327,5 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	@Override
 	protected float getDragInWater() {
 		return 0.7F;
-	}
-
-	@Override
-	public boolean shouldRender(double cameraX, double cameraY, double cameraZ) {
-		return true;
 	}
 }

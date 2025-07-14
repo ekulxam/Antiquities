@@ -43,7 +43,7 @@ public abstract class ModMenuEntryMixin extends Screen {
             }
 
             // Custom color logic
-            int nameColor = 0xaa2f54;
+            int nameColor = 0xFFAA2F54;
 
             if ("antique".equals(mod.getId())) {
                 DrawContext.drawText(this.textRenderer, Language.getInstance().reorder(trimmedName), this.rightPaneX + imageOffset, 49, nameColor, true);

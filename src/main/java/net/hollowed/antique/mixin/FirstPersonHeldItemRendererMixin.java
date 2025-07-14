@@ -1,6 +1,7 @@
 package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.client.item.explosive_spear.ClothManager;
+import net.hollowed.antique.component.ModComponents;
 import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.util.SpearClothAccess;
 import net.hollowed.antique.util.Temp;
@@ -17,9 +18,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.Vec3d;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -30,13 +29,16 @@ import java.util.Objects;
 @Mixin(HeldItemRenderer.class)
 public abstract class FirstPersonHeldItemRendererMixin {
 
-    @Shadow @Final private MinecraftClient client;
-
     @Inject(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemDisplayContext;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("HEAD"))
     public void renderItem(LivingEntity entity, ItemStack stack, ItemDisplayContext renderMode, MatrixStack matrices, VertexConsumerProvider vertexConsumer, int light, CallbackInfo ci) {
         matrices.push();
         boolean leftHanded = entity.getMainArm() == Arm.LEFT;
         matrices.translate((float)(leftHanded ? -1 : 1) / 16.0F, 0.125F, -0.625F);
+        switch (renderMode) {
+            case ItemDisplayContext.FIRST_PERSON_RIGHT_HAND -> matrices.translate(leftHanded ? 0.1 : 0, 0, 0);
+            case ItemDisplayContext.FIRST_PERSON_LEFT_HAND -> matrices.translate(!leftHanded ? -0.1 : 0, 0, 0);
+        }
+
         matrices.translate(0, 0.4, 0.7);
         if (renderMode == ItemDisplayContext.NONE) {
             matrices.translate(0, -0.5, -0.1);
@@ -67,19 +69,19 @@ public abstract class FirstPersonHeldItemRendererMixin {
                     if (renderMode != ItemDisplayContext.NONE) {
                         matrices.translate(0, -0.1, 0.1);
                     }
-                    if (stack.get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null && Objects.requireNonNull(stack.get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 2 && entity.isUsingItem()) {
-                        matrices.translate(-0.5, -0.1, 0);
+                    if (stack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(ModItems.MYRIAD_AXE_HEAD) && entity.isUsingItem()) {
+                        matrices.translate(renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? -0.5 : 0.5, -0.1, 0);
                     }
                     if (renderMode == ItemDisplayContext.NONE && (
-                            stack.getOrDefault(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY, -1) == 4)
-                            || stack.isOf(ModItems.MYRIAD_STAFF)) {
+                            stack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(ModItems.MYRIAD_CLEAVER_BLADE)
+                            || stack.isOf(ModItems.MYRIAD_STAFF))) {
                         matrices.translate(-0.15, -0.15, 0);
                     }
                     if (renderMode.isFirstPerson() && stack.isOf(ModItems.MYRIAD_STAFF)) {
                         matrices.translate(-0.1, -0.1, 0);
                     }
                     itemWorldPos = ClothManager.matrixToVec(matrices);
-                    manager = !leftHanded ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
+                    manager = player.getMainHandStack().equals(stack) ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
                     switch (renderMode) {
                         case ItemDisplayContext.NONE -> manager = clothAccess.antique$getBackCloth();
                         case ItemDisplayContext.GUI -> manager = null;

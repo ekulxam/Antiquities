@@ -67,7 +67,7 @@ public class VelocityTransferMaceItem extends Item {
             if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
                 multiplier = new Vec3d(-2, -1.5, -2);
             } else {
-                multiplier = new Vec3d(4, -1, 4);
+                multiplier = new Vec3d(3, -1, 3);
             }
 
             int chargeTime = user.getItemUseTime();
@@ -76,7 +76,7 @@ public class VelocityTransferMaceItem extends Item {
             HitResult hitResult = player.raycast(5.0D, 0.0F, false);
             if (hitResult.getType() == HitResult.Type.BLOCK) {
                 // Interact with a block
-                float velocity = Math.clamp(chargeTime * 0.04F + 0.25F, 1.0F, 2.0F);
+                float velocity = Math.clamp(chargeTime * 0.04F + 0.25F, EnchantmentListener.hasEnchantment(stack, "antique:impetus") ? 0.6F : 1.0F, 2.0F);
 
                 if (!world.isClient) {
                     player.setVelocity(player.getRotationVec(0).multiply(multiplier).multiply(velocity));
@@ -93,9 +93,9 @@ public class VelocityTransferMaceItem extends Item {
                 if (!user.getWorld().isClient) {
                     ((PlayerEntity) user).getItemCooldownManager().set(stack, 130);
                     if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
-                        user.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, (int) ((velocity - 0.625) * 40), 0, true, true));
+                        user.addStatusEffect(new StatusEffectInstance(Antiquities.VOLATILE_BOUNCE_EFFECT, (int) Math.clamp((velocity - 0.625) * 40, 10, 10000), 0, true, true));
                     } else {
-                        user.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, (int) ((velocity - 0.625) * 50), 0, true, true));
+                        user.addStatusEffect(new StatusEffectInstance(Antiquities.BOUNCE_EFFECT, (int) Math.clamp((velocity - 0.625) * 50, 10, 10000), 0, true, true));
                     }
                 }
             } else {

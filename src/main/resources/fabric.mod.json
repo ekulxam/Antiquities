@@ -6,14 +6,15 @@
 	"description": "Adventure awaits...",
 	"authors": [
 		"HollowedWanderer - Main Dev",
-		"Dustley - Coding help",
+		"Dustley - Coding help + Physics sorceress",
 		"Mercury - Coding Help",
-		"Toady - Coding Help"
+		"Toady - Coding Help",
+		"Yak - Coding Help"
 	],
 	"contact": {
 		"sources": "https://github.com/HollowedWanderer/Antiquities"
 	},
-	"license": "ARR - LGPL 3.0",
+	"license": "ARR - See GitHub",
 	"icon": "assets/antique/icon.png",
 	"environment": "*",
 	"entrypoints": {
@@ -31,12 +32,9 @@
 		"antique.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.16.9",
-		"minecraft": "~1.21.6",
+		"fabricloader": ">=0.16.14",
+		"minecraft": "~1.21.7",
 		"java": ">=21",
 		"fabric-api": "*"
-	},
-	"suggests": {
-		"another-mod": "*"
 	}
 }

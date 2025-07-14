@@ -1,0 +1,59 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "antique:item/myriad_axe_inventory",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": 13893696
+            }
+          ]
+        },
+        "when": [
+          "gui",
+          "ground",
+          "fixed"
+        ]
+      },
+      {
+        "model": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "antique:item/myriad_axe",
+            "tints": [
+              {
+                "type": "minecraft:dye",
+                "default": 13893696
+              }
+            ]
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "antique:item/myriad_axe_blocking",
+            "tints": [
+              {
+                "type": "minecraft:dye",
+                "default": 13893696
+              }
+            ]
+          },
+          "property": "minecraft:using_item"
+        },
+        "when": [
+          "firstperson_righthand",
+          "firstperson_lefthand",
+          "thirdperson_righthand",
+          "thirdperson_lefthand",
+          "head",
+          "none"
+        ]
+      }
+    ],
+    "property": "minecraft:display_context"
+  }
+}

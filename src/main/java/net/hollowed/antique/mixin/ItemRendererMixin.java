@@ -12,6 +12,7 @@ import net.minecraft.client.render.DiffuseLighting;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.ItemRenderState;
+import net.minecraft.client.render.item.KeyedItemRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.LivingEntity;
@@ -55,7 +56,7 @@ public abstract class ItemRendererMixin {
 
             ItemStack stackToRender = stack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY);
 
-            ItemRenderState itemRenderState = new ItemRenderState();
+            KeyedItemRenderState itemRenderState = new KeyedItemRenderState();
             this.client.getItemModelManager().clearAndUpdate(itemRenderState, stack, ItemDisplayContext.GUI, world, entity, seed);
 
             try {

@@ -1,0 +1,45 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "antique:item/myriad_mattock_inventory",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": 13893696
+            }
+          ]
+        },
+        "when": [
+          "gui",
+          "ground",
+          "fixed"
+        ]
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "antique:item/myriad_mattock",
+          "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": 13893696
+            }
+          ]
+        },
+        "when": [
+          "firstperson_righthand",
+          "firstperson_lefthand",
+          "thirdperson_righthand",
+          "thirdperson_lefthand",
+          "head",
+          "none"
+        ]
+      }
+    ],
+    "property": "minecraft:display_context"
+  }
+}

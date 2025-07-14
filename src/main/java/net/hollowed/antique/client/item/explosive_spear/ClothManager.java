@@ -108,7 +108,6 @@ public class ClothManager {
         double maxDistance = 5.0;
         if (root.pos.distance(root.posCache) > maxDistance) {
             resetCloth(); // Call reset method
-            System.out.println("reset cloth");
         }
     }
 

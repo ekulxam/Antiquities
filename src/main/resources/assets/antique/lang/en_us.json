@@ -15,6 +15,9 @@
 
   "item.antique.myriad_ingot": "Myriad Ingot",
   "block.antique.myriad_block": "Block of Myriad",
+  "block.antique.myriad_ore": "Myriad Ore",
+  "block.antique.myriad_cluster": "Myriad Cluster",
+  "block.antique.dye_table": "Dye Table",
   "item.antique.netherite_pauldrons": "Netherite Pauldrons",
   "item.antique.satchel": "Satchel",
   "item.antique.satchel.satchel_full": "- Satchel Full -",
@@ -25,10 +28,10 @@
   "item.antique.pale_warden_statue": "Pale Warden Statue",
   "item.antique.dormant_reverence": "Dormant Reverence",
   "item.antique.myriad_tool": "Myriad Tool",
-  "item.antique.myriad_mattock_head": "Myriad Mattock",
-  "item.antique.myriad_axe_head": "Myriad Axe",
-  "item.antique.myriad_shovel_head": "Myriad Spade",
-  "item.antique.myriad_cleaver_blade": "Myriad Cleaver",
+  "item.antique.myriad_mattock_head": "Myriad Mattock Head",
+  "item.antique.myriad_axe_head": "Myriad Axe Head",
+  "item.antique.myriad_shovel_head": "Myriad Spade Head",
+  "item.antique.myriad_cleaver_blade": "Myriad Cleaver Blade",
   "item.antique.myriad_claw": "Myriad Claw",
   "item.antique.myriad_claw.tooltip": "Cannot be unbound from the Myriad Handle",
   "item.antique.myriad_tool.no_tool": " - No Tool Selected -",
@@ -70,6 +73,8 @@
   "resourcePack.hmi.name": "Antiquities + HMI",
 
   "death.attack.wall_slam": "%s was slammed through a hard surface by %s",
-  "death.attack.wall_slam.item": "%s was slammed through a hard surface by %s using %s"
-
+  "death.attack.wall_slam.item": "%s was slammed through a hard surface by %s using %s",
+  "container.antique.dyeing": "Dyeing",
+  "stat.antique.interact_with_dye_table": "Interactions with Dye Table",
+  "container.antique.hex": "Hex"
 }

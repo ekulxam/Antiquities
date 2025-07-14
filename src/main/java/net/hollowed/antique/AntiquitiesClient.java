@@ -10,6 +10,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.hollowed.antique.blocks.ModBlocks;
+import net.hollowed.antique.blocks.custom.screen.AntiqueScreenHandlerType;
+import net.hollowed.antique.blocks.custom.screen.DyeingScreen;
 import net.hollowed.antique.blocks.entities.ModBlockEntities;
 import net.hollowed.antique.blocks.entities.renderer.PedestalRenderer;
 import net.hollowed.antique.client.ModEntityLayers;
@@ -25,18 +27,24 @@ import net.hollowed.antique.networking.*;
 import net.hollowed.antique.particles.ModParticles;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
+import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.passive.AllayEntity;
 import net.minecraft.entity.projectile.*;
 import net.minecraft.entity.projectile.thrown.LingeringPotionEntity;
 import net.minecraft.entity.projectile.thrown.SnowballEntity;
 import net.minecraft.entity.projectile.thrown.SplashPotionEntity;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.Vec3d;
 import org.joml.Vector3f;
 
@@ -58,6 +66,7 @@ public class AntiquitiesClient implements ClientModInitializer {
     public void onInitializeClient() {
 
         ModParticles.initializeClient();
+        HandledScreens.register(AntiqueScreenHandlerType.DYE_TABLE, DyeingScreen::new);
 
         /*
             Block Renderers
@@ -164,7 +173,7 @@ public class AntiquitiesClient implements ClientModInitializer {
             if (client.world != null) {
                 for (ArrowEntity entity : client.world.getEntitiesByClass(ArrowEntity.class, box, arrowEntity -> true)) {
                     Deque<Vec3d> trail = TRAILS.computeIfAbsent(entity.getUuid(), id -> new ArrayDeque<>());
-                    Vector3f color = new Vector3f((float) 1, (float) 1, (float) 1);
+                    Vector3f color = ColorHelper.toVector(entity.getColor());
 
                     if (entity.isRegionUnloaded()) {
                         TRAILS.remove(entity.getUuid());
@@ -172,7 +181,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                     RenderUtils.renderEntityTrail(
                             context.matrixStack(),
-                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Nitrogen.MOD_ID, "textures/render/color.png"))),
+                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Antiquities.MOD_ID, "textures/render/color.png"))),
                             context.camera(),
                             entity,
                             context.tickCounter().getTickProgress(false),
@@ -180,8 +189,8 @@ public class AntiquitiesClient implements ClientModInitializer {
                             200,
                             0.1f,
                             0.001f,
-                            255,
-                            0,
+                            200,
+                            75,
                             color.x,
                             color.y,
                             color.z,
@@ -190,7 +199,7 @@ public class AntiquitiesClient implements ClientModInitializer {
                 }
                 for (SplashPotionEntity entity : client.world.getEntitiesByClass(SplashPotionEntity.class, box, arrowEntity -> true)) {
                     Deque<Vec3d> trail = TRAILS.computeIfAbsent(entity.getUuid(), id -> new ArrayDeque<>());
-                    Vector3f color = new Vector3f((float) 1, (float) 1, (float) 1);
+                    Vector3f color = ColorHelper.toVector(entity.getStack().getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT).getColor());
 
                     if (entity.isRegionUnloaded()) {
                         TRAILS.remove(entity.getUuid());
@@ -198,15 +207,15 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                     RenderUtils.renderEntityTrail(
                             context.matrixStack(),
-                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Nitrogen.MOD_ID, "textures/render/color.png"))),
+                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucent(Identifier.of(Antiquities.MOD_ID, "textures/render/color.png"))),
                             context.camera(),
                             entity,
                             context.tickCounter().getTickProgress(false),
                             trail,
-                            25,
+                            40,
                             0.1f,
                             0.001f,
-                            150,
+                            200,
                             0,
                             color.x,
                             color.y,
@@ -216,7 +225,7 @@ public class AntiquitiesClient implements ClientModInitializer {
                 }
                 for (LingeringPotionEntity entity : client.world.getEntitiesByClass(LingeringPotionEntity.class, box, arrowEntity -> true)) {
                     Deque<Vec3d> trail = TRAILS.computeIfAbsent(entity.getUuid(), id -> new ArrayDeque<>());
-                    Vector3f color = new Vector3f((float) 1, (float) 1, (float) 1);
+                    Vector3f color = ColorHelper.toVector(entity.getStack().getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT).getColor());
 
                     if (entity.isRegionUnloaded()) {
                         TRAILS.remove(entity.getUuid());
@@ -224,15 +233,15 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                     RenderUtils.renderEntityTrail(
                             context.matrixStack(),
-                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Nitrogen.MOD_ID, "textures/render/color.png"))),
+                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucent(Identifier.of(Antiquities.MOD_ID, "textures/render/color.png"))),
                             context.camera(),
                             entity,
                             context.tickCounter().getTickProgress(false),
                             trail,
-                            25,
+                            40,
                             0.1f,
                             0.001f,
-                            150,
+                            200,
                             0,
                             color.x,
                             color.y,
@@ -242,7 +251,7 @@ public class AntiquitiesClient implements ClientModInitializer {
                 }
                 for (TridentEntity entity : client.world.getEntitiesByClass(TridentEntity.class, box, arrowEntity -> true)) {
                     Deque<Vec3d> trail = TRAILS.computeIfAbsent(entity.getUuid(), id -> new ArrayDeque<>());
-                    Vector3f color = new Vector3f((float) 1, (float) 1, (float) 1);
+                    Vector3f color = new Vector3f((float) 173 / 255.0F, (float) 255 / 255.0F, (float) 237 / 255.0F);
 
                     if (entity.isRegionUnloaded()) {
                         TRAILS.remove(entity.getUuid());
@@ -250,7 +259,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                     RenderUtils.renderEntityTrail(
                             context.matrixStack(),
-                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Nitrogen.MOD_ID, "textures/render/color.png"))),
+                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Antiquities.MOD_ID, "textures/render/color.png"))),
                             context.camera(),
                             entity,
                             context.tickCounter().getTickProgress(false),
@@ -258,8 +267,8 @@ public class AntiquitiesClient implements ClientModInitializer {
                             200,
                             0.1f,
                             0.001f,
-                            255,
-                            0,
+                            200,
+                            75,
                             color.x,
                             color.y,
                             color.z,
@@ -294,7 +303,7 @@ public class AntiquitiesClient implements ClientModInitializer {
                 }
                 for (MyriadShovelEntity entity : client.world.getEntitiesByClass(MyriadShovelEntity.class, box, arrowEntity -> true)) {
                     Deque<Vec3d> trail = TRAILS.computeIfAbsent(entity.getUuid(), id -> new ArrayDeque<>());
-                    Vector3f color = new Vector3f((float) 1, (float) 1, (float) 1);
+                    Vector3f color = ColorHelper.toVector(entity.getDyeColor());
 
                     if (entity.isRegionUnloaded()) {
                         TRAILS.remove(entity.getUuid());
@@ -302,7 +311,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                     RenderUtils.renderEntityTrail(
                             context.matrixStack(),
-                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Nitrogen.MOD_ID, "textures/render/color.png"))),
+                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Antiquities.MOD_ID, "textures/render/color.png"))),
                             context.camera(),
                             entity,
                             context.tickCounter().getTickProgress(false),
@@ -310,8 +319,8 @@ public class AntiquitiesClient implements ClientModInitializer {
                             200,
                             0.1f,
                             0.001f,
-                            255,
-                            0,
+                            200,
+                            75,
                             color.x,
                             color.y,
                             color.z,
@@ -328,7 +337,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                     RenderUtils.renderEntityTrail(
                             context.matrixStack(),
-                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Nitrogen.MOD_ID, "textures/render/color.png"))),
+                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Antiquities.MOD_ID, "textures/render/color.png"))),
                             context.camera(),
                             entity,
                             context.tickCounter().getTickProgress(false),
@@ -336,7 +345,7 @@ public class AntiquitiesClient implements ClientModInitializer {
                             200,
                             0.1f,
                             0.001f,
-                            255,
+                            200,
                             0,
                             color.x,
                             color.y,
@@ -354,7 +363,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                     RenderUtils.renderEntityTrail(
                             context.matrixStack(),
-                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Nitrogen.MOD_ID, "textures/render/color.png"))),
+                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Antiquities.MOD_ID, "textures/render/color.png"))),
                             context.camera(),
                             entity,
                             context.tickCounter().getTickProgress(false),
@@ -362,8 +371,8 @@ public class AntiquitiesClient implements ClientModInitializer {
                             200,
                             0.1f,
                             0.001f,
-                            255,
-                            0,
+                            200,
+                            75,
                             color.x,
                             color.y,
                             color.z,
@@ -380,16 +389,16 @@ public class AntiquitiesClient implements ClientModInitializer {
 
                     RenderUtils.renderEntityTrail(
                             context.matrixStack(),
-                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Nitrogen.MOD_ID, "textures/render/color.png"))),
+                            Objects.requireNonNull(context.consumers()).getBuffer(RenderLayer.getEntityTranslucentEmissive(Identifier.of(Antiquities.MOD_ID, "textures/render/color.png"))),
                             context.camera(),
                             entity,
                             context.tickCounter().getTickProgress(false),
                             trail,
-                            200,
+                            300,
                             0.1f,
                             0.001f,
-                            255,
-                            0,
+                            200,
+                            75,
                             color.x,
                             color.y,
                             color.z,

@@ -195,22 +195,18 @@ public class ModItems {
                     }
                 }
                 if (toRemove != -1) list.remove(toRemove);
-                if (itemStack.get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null) {
-                    int toolInt = Objects.requireNonNull(itemStack.get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY));
+                assert Formatting.GRAY.getColorValue() != null;
+                Text line = Text.translatable("item.antique.myriad_tool.no_tool").withColor(Formatting.GRAY.getColorValue());
 
-                    assert Formatting.GRAY.getColorValue() != null;
-                    Text line = Text.translatable("item.antique.myriad_tool.no_tool").withColor(Formatting.GRAY.getColorValue());
-
-                    switch (toolInt) {
-                        case 1 -> line = Text.translatable("item.antique.myriad_tool.mattock").withColor(Formatting.GRAY.getColorValue());
-                        case 2 -> line = Text.translatable("item.antique.myriad_tool.axe").withColor(Formatting.GRAY.getColorValue());
-                        case 3 -> line = Text.translatable("item.antique.myriad_tool.shovel").withColor(Formatting.GRAY.getColorValue());
-                        case 4 -> line = Text.translatable("item.antique.myriad_tool.cleaver").withColor(Formatting.GRAY.getColorValue());
-                    }
-
-                    // Add to tooltip
-                    list.add(1, line);
+                if (!itemStack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).isEmpty()) {
+                    String string = itemStack.getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).getItem().getTranslationKey();
+                    string = string.substring(20);
+                    string = "item.antique.myriad_tool." + string.substring(0, string.indexOf("_"));
+                    line = Text.translatable(string).withColor(Formatting.GRAY.getColorValue());
                 }
+
+                // Add to tooltip
+                list.add(1, line);
             }
             if (itemStack.isOf(MYRIAD_STAFF)) {
                 int toRemove = -1;

@@ -63,7 +63,7 @@ public abstract class BundleItemMixin extends Item {
     }
 
     @Unique
-    public void placeBlockFromBundle(ItemUsageContext context, ItemStack stack) {
+    public boolean placeBlockFromBundle(ItemUsageContext context, ItemStack stack) {
         BlockItem blockItem = (BlockItem) stack.getItem();
         ItemPlacementContext placementContext = new ItemPlacementContext(context);
         if (!placementContext.getWorld().isClient()) {
@@ -75,8 +75,11 @@ public abstract class BundleItemMixin extends Item {
             if (result.isAccepted()) {
                 placementContext.getWorld().playSound(null, pos, sound.getPlaceSound(), SoundCategory.BLOCKS,
                     (sound.getVolume() + 1.0F) / 2.0F, sound.getPitch() * 0.8F);
+                Objects.requireNonNull(context.getPlayer()).swingHand(context.getHand(), true);
+                return false;
             }
         }
+        return true;
     }
 
     @Inject(method = "use", at = @At("HEAD"), cancellable = true)
@@ -113,7 +116,10 @@ public abstract class BundleItemMixin extends Item {
                         builder.setSelectedStackIndex(randomIndex);
                         ItemStack selectedBlockStack = builder.removeSelected();
                         if (selectedBlockStack != null) {
-                            placeBlockFromBundle(context, selectedBlockStack);
+                            boolean canPlace = placeBlockFromBundle(context, selectedBlockStack);
+                            if (canPlace) {
+                                return ActionResult.FAIL;
+                            }
                             if (!player.isCreative()) {
                                 selectedBlockStack.decrement(1);
                             }

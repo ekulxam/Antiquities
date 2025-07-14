@@ -2,6 +2,7 @@ package net.hollowed.antique.entities.renderer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.item.explosive_spear.ClothManager;
 import net.hollowed.antique.entities.custom.MyriadShovelEntity;
 import net.minecraft.client.MinecraftClient;
@@ -47,6 +48,7 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<MyriadShovelEntit
 
 		if (myriadShovelRenderState.entity instanceof MyriadShovelEntity entity) {
 			ItemStack shovel = myriadShovelRenderState.stack;
+			shovel.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_shovel"));
 			shovel.set(DataComponentTypes.ENCHANTMENT_GLINT_OVERRIDE, myriadShovelRenderState.isEnchanted);
 			shovel.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(myriadShovelRenderState.color));
 
@@ -63,6 +65,11 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<MyriadShovelEntit
 		}
 		// Pop the matrix stack to clean up transformations
 		matrixStack.pop();
+	}
+
+	@Override
+	protected boolean canBeCulled(MyriadShovelEntity entity) {
+		return false;
 	}
 
 	public MyriadShovelRenderState createRenderState() {

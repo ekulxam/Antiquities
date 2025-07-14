@@ -2,6 +2,7 @@ package net.hollowed.antique.items.custom.myriadTool;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.entities.custom.MyriadShovelEntity;
 import net.hollowed.antique.items.ModItems;
 import net.minecraft.advancement.criterion.Criteria;
@@ -325,5 +326,6 @@ public class MyriadShovelBit extends MyriadToolBitItem{
                 1,
                 true
         ));
+        tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_shovel"));
     }
 }

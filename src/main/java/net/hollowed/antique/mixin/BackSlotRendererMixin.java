@@ -4,7 +4,7 @@ import net.hollowed.antique.component.ModComponents;
 import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.util.MyriadStaffTransformData;
 import net.hollowed.antique.util.MyriadStaffTransformResourceReloadListener;
-import net.hollowed.combatamenities.CombatAmenities;
+import net.hollowed.combatamenities.config.ModConfig;
 import net.hollowed.combatamenities.renderer.BackSlotFeatureRenderer;
 import net.hollowed.combatamenities.util.interfaces.PlayerEntityRenderStateAccess;
 import net.hollowed.combatamenities.util.json.BackTransformData;
@@ -62,7 +62,7 @@ public abstract class BackSlotRendererMixin extends HeldItemFeatureRenderer<Play
                     BackTransformData transformData = BackTransformResourceReloadListener.getTransform(itemId, backSlotStack.getOrDefault(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY, -1).toString());
 
                     Arm arm = armedEntityRenderState.mainArm;
-                    boolean right = arm == Arm.RIGHT && !CombatAmenities.CONFIG.flipBackslotDisplay || arm == Arm.LEFT && CombatAmenities.CONFIG.flipBackslotDisplay;
+                    boolean right = arm == Arm.RIGHT && !ModConfig.flipBackslotDisplay || arm == Arm.LEFT && ModConfig.flipBackslotDisplay;
                     boolean flip = !right && !(item instanceof BlockItem) && !transformData.noFlip();
 
                     List<Float> translation;

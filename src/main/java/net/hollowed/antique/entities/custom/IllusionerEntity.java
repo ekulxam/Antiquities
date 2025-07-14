@@ -27,6 +27,9 @@ import net.minecraft.entity.attribute.DefaultAttributeContainer;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.damage.DamageTypes;
+import net.minecraft.entity.data.DataTracker;
+import net.minecraft.entity.data.TrackedData;
+import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.mob.*;
@@ -37,6 +40,7 @@ import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.particle.EntityEffectParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -44,14 +48,17 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.LocalDifficulty;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 
 public class IllusionerEntity extends SpellcastingIllagerEntity implements RangedAttackMob {
+    public static final TrackedData<Vector3f> SPELL_COLOR = DataTracker.registerData(IllusionerEntity.class, TrackedDataHandlerRegistry.VECTOR_3F);
     private int mirrorSpellTimer;
     private final Vec3d[][] mirrorCopyOffsets;
 
@@ -64,6 +71,12 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
             this.mirrorCopyOffsets[0][i] = Vec3d.ZERO;
             this.mirrorCopyOffsets[1][i] = Vec3d.ZERO;
         }
+    }
+
+    @Override
+    protected void initDataTracker(DataTracker.Builder builder) {
+        super.initDataTracker(builder);
+        builder.add(SPELL_COLOR, new Vector3f(0, 0, 0));
     }
 
     protected void initGoals() {
@@ -96,6 +109,20 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
         this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
         return super.initialize(world, difficulty, spawnReason, entityData);
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.getWorld().isClient && this.isSpellcasting()) {
+            float i = this.bodyYaw * 0.017453292F + MathHelper.cos((float)this.age * 0.6662F) * 0.25F;
+            float j = MathHelper.cos(i);
+            float k = MathHelper.sin(i);
+            double d = 0.6 * (double)this.getScale();
+            double e = 1.8 * (double)this.getScale();
+            this.getWorld().addParticleClient(EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, this.dataTracker.get(SPELL_COLOR).x, this.dataTracker.get(SPELL_COLOR).y, this.dataTracker.get(SPELL_COLOR).z), this.getX() + (double)j * d, this.getY() + e, this.getZ() + (double)k * d, 0.0, 0.0, 0.0);
+            this.getWorld().addParticleClient(EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, this.dataTracker.get(SPELL_COLOR).x, this.dataTracker.get(SPELL_COLOR).y, this.dataTracker.get(SPELL_COLOR).z), this.getX() - (double)j * d, this.getY() + e, this.getZ() - (double)k * d, 0.0, 0.0, 0.0);
+        }
     }
 
     @Override
@@ -240,7 +267,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
         }
 
         protected int getSpellTicks() {
-            return 20;
+            return 80;
         }
 
         protected int startTimeDelay() {
@@ -302,13 +329,19 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
             }
         }
 
+        @Override
+        public void tick() {
+            super.tick();
+            IllusionerEntity.this.getDataTracker().set(SPELL_COLOR, new Vector3f(103 / 255.0F, 68 / 255.0F, 99 / 255.0F));
+        }
+
         @Nullable
         protected SoundEvent getSoundPrepare() {
             return SoundEvents.ENTITY_ILLUSIONER_PREPARE_MIRROR;
         }
 
         protected SpellcastingIllagerEntity.Spell getSpell() {
-            return Spell.DISAPPEAR;
+            return Spell.BLINDNESS;
         }
     }
 
@@ -341,11 +374,11 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
         }
 
         protected int getSpellTicks() {
-            return 10;
+            return 60;
         }
 
         protected int startTimeDelay() {
-            return 50;
+            return 300;
         }
 
         protected void castSpell() {
@@ -358,6 +391,12 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
                     IllusionerEntity.this.getWorld().playSound(null, IllusionerEntity.this.getX(), IllusionerEntity.this.getY(), IllusionerEntity.this.getZ(), SoundEvents.ENTITY_WITCH_THROW, SoundCategory.BLOCKS, 1F, 1F);
                 });
             }
+        }
+
+        @Override
+        public void tick() {
+            super.tick();
+            IllusionerEntity.this.getDataTracker().set(SPELL_COLOR, new Vector3f(1, 55 / 255.0F, 130 / 255.0F));
         }
 
         protected SoundEvent getSoundPrepare() {

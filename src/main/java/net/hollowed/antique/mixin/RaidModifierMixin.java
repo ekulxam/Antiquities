@@ -1,7 +1,7 @@
 package net.hollowed.antique.mixin;
 
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.mob.IllusionerEntity;
+import net.hollowed.antique.entities.ModEntities;
+import net.hollowed.antique.entities.custom.IllusionerEntity;
 import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;
@@ -27,22 +27,23 @@ public abstract class RaidModifierMixin {
 
     @Inject(method = "spawnNextWave", at = @At("HEAD"))
     public void spawnNextWave(ServerWorld world, BlockPos pos, CallbackInfo ci) {
-        int i = this.wavesSpawned + 1;
-        IllusionerEntity raiderEntity = new IllusionerEntity(EntityType.ILLUSIONER, world);
+        int i = this.wavesSpawned;
+        IllusionerEntity raiderEntity = new IllusionerEntity(ModEntities.ILLUSIONER, world);
         raiderEntity.setStackInHand(Hand.MAIN_HAND, Items.BOW.getDefaultStack());
+        System.out.println(i);
         switch (world.getDifficulty()) {
             case Difficulty.EASY -> {
-                if (i == this.getMaxWaves(Difficulty.EASY) + 1) {
+                if (i == this.getMaxWaves(Difficulty.EASY)) {
                     this.addRaider(world, i, raiderEntity, pos, false);
                 }
             }
             case Difficulty.NORMAL -> {
-                if (i == this.getMaxWaves(Difficulty.NORMAL) + 1) {
+                if (i == this.getMaxWaves(Difficulty.NORMAL)) {
                     this.addRaider(world, i, raiderEntity, pos, false);
                 }
             }
             case Difficulty.HARD -> {
-                if (i == this.getMaxWaves(Difficulty.HARD) + 1) {
+                if (i == this.getMaxWaves(Difficulty.HARD)) {
                     this.addRaider(world, i, raiderEntity, pos, false);
                 }
             }

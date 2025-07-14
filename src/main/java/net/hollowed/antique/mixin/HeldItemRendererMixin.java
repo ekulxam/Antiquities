@@ -1,6 +1,7 @@
 package net.hollowed.antique.mixin;
 
 import net.hollowed.antique.client.item.explosive_spear.ClothManager;
+import net.hollowed.antique.component.ModComponents;
 import net.hollowed.antique.items.ModItems;
 import net.hollowed.antique.util.ArmedRenderStateAccess;
 import net.hollowed.antique.util.SpearClothAccess;
@@ -20,6 +21,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
 import net.minecraft.util.math.RotationAxis;
@@ -60,16 +62,14 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                 matrices.translate(0, -1.4, 0.2);
             }
             if (entity instanceof LivingEntity living && living.getActiveItem().isOf(ModItems.MYRIAD_TOOL)
-                    && living.getActiveItem().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null
-                    && Objects.requireNonNull(living.getActiveItem().get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 3) {
+                    && living.getStackInArm(arm).getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(ModItems.MYRIAD_SHOVEL_HEAD)) {
                 matrices.translate(0, -1.2, 0.2);
             }
             if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(ModItems.MYRIAD_TOOL)
-                    && living.getStackInArm(arm).get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY) != null
-                    && Objects.requireNonNull(living.getStackInArm(arm).get(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY)) == 2) {
+                    && living.getStackInArm(arm).getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(ModItems.MYRIAD_AXE_HEAD)) {
                 matrices.translate(0, -0.3, 0);
                 if (living.isUsingItem()) {
-                    matrices.translate(-0.45, -0.5, 0);
+                    matrices.translate(arm == Arm.RIGHT ? -0.45 : 0.45, -0.5, 0);
                 }
             }
             if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(ModItems.MYRIAD_STAFF)) {
