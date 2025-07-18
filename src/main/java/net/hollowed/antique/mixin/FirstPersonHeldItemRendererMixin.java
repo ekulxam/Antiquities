@@ -62,7 +62,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                         manager = clothAccess.antique$getBeltCloth();
                     }
                     if (manager != null) {
-                        manager.renderCloth(itemWorldPos, matrices, vertexConsumer, light, renderMode != ItemDisplayContext.NONE, new Color(255, 0, 0, 255), false, ClothManager.BLANK_CLOTH_STRIP, 2, 0.1);
+                        manager.renderCloth(itemWorldPos, matrices, vertexConsumer, light, new Color(255, 0, 0, 255), false, ClothManager.BLANK_CLOTH_STRIP, 2, 0.1);
                     }
                 }
                 if (stack.isOf(ModItems.MYRIAD_TOOL) || stack.isOf(ModItems.MYRIAD_STAFF)) {
@@ -92,7 +92,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                     if (manager != null && stack.get(DataComponentTypes.DYED_COLOR) != null) {
                         Object name = stack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
                         if (!(stack.isOf(ModItems.MYRIAD_STAFF) && (name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
-                            manager.renderCloth(itemWorldPos, matrices, vertexConsumer, light, renderMode != ItemDisplayContext.NONE, new Color(Objects.requireNonNull(stack.get(DataComponentTypes.DYED_COLOR)).rgb()), false, ClothManager.TATTERED_CLOTH_STRIP, 2, 0.1);
+                            manager.renderCloth(itemWorldPos, matrices, vertexConsumer, light, new Color(Objects.requireNonNull(stack.get(DataComponentTypes.DYED_COLOR)).rgb()), false, ClothManager.TATTERED_CLOTH_STRIP, 2, 0.1);
                         }
                     }
                 }

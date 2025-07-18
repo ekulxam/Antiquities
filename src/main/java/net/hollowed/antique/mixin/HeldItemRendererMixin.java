@@ -84,14 +84,14 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                     if (living.getStackInArm(arm).isOf(ModItems.EXPLOSIVE_SPEAR)) {
                         manager = arm == Arm.RIGHT ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
                         if (manager != null) {
-                            manager.renderCloth(itemWorldPos, matrices, vertexConsumers, light, false, new Color(255, 0, 0, 255), false, ClothManager.BLANK_CLOTH_STRIP, 2, 0.1);
+                            manager.renderCloth(itemWorldPos, matrices, vertexConsumers, light, new Color(255, 0, 0, 255), false, ClothManager.BLANK_CLOTH_STRIP, 2, 0.1);
                         }
                     }
                     Object name = living.getStackInArm(arm).getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
                     if (living.getStackInArm(arm).isOf(ModItems.MYRIAD_TOOL) || (living.getStackInArm(arm).isOf(ModItems.MYRIAD_STAFF) && !(name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
                         manager = arm == Arm.RIGHT ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
                         if (manager != null && living.getStackInArm(arm).get(DataComponentTypes.DYED_COLOR) != null) {
-                            manager.renderCloth(itemWorldPos, matrices, vertexConsumers, light, false, new Color(Objects.requireNonNull(living.getStackInArm(arm).get(DataComponentTypes.DYED_COLOR)).rgb()), false, ClothManager.TATTERED_CLOTH_STRIP, 2, 0.1);
+                            manager.renderCloth(itemWorldPos, matrices, vertexConsumers, light, new Color(Objects.requireNonNull(living.getStackInArm(arm).get(DataComponentTypes.DYED_COLOR)).rgb()), false, ClothManager.TATTERED_CLOTH_STRIP, 2, 0.1);
                         }
                     }
                 }

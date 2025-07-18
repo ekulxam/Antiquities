@@ -8,7 +8,6 @@ import net.hollowed.antique.items.custom.*;
 import net.hollowed.antique.items.custom.myriadStaff.MyriadStaffItem;
 import net.hollowed.antique.items.custom.myriadTool.*;
 import net.minecraft.block.Block;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.component.type.InstrumentComponent;
@@ -22,7 +21,6 @@ import net.minecraft.util.Rarity;
 import net.minecraft.util.Unit;
 
 import java.util.List;
-import java.util.Objects;
 
 public class ModItems {
 
@@ -51,6 +49,10 @@ public class ModItems {
     public static final Item EXPLOSIVE_SPEAR = registerItem("explosive_spear", new ExplosiveSpearItem(new Item.Settings()
             .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "explosive_spear")))
             .maxCount(1)
+    ));
+
+    public static final Item RAW_MYRIAD = registerItem("raw_myriad", new Item(new Item.Settings()
+            .registryKey(RegistryKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "raw_myriad")))
     ));
 
     public static final Item MYRIAD_INGOT = registerItem("myriad_ingot", new Item(new Item.Settings()

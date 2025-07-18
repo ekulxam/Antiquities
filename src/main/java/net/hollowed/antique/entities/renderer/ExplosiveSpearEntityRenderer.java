@@ -54,7 +54,7 @@ public class ExplosiveSpearEntityRenderer extends EntityRenderer<ExplosiveSpearE
 			if(manager != null) {
 				matrixStack.translate(0.1, 0.5, 0.1);
 				Vec3d itemWorldPos = ClothManager.matrixToVec(matrixStack);
-				manager.renderCloth(itemWorldPos, matrixStack, vertexConsumerProvider, light, false, new Color(255, 0, 0, 255), false, ClothManager.BLANK_CLOTH_STRIP, 2, 0.1);
+				manager.renderCloth(itemWorldPos, matrixStack, vertexConsumerProvider, light, new Color(255, 0, 0, 255), false, ClothManager.BLANK_CLOTH_STRIP, 2, 0.1);
 			}
 		}
 

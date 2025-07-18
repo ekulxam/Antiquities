@@ -3,30 +3,32 @@ package net.hollowed.antique.items.custom.myriadTool;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableMap;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.blocks.BlockUtil;
 import net.hollowed.antique.items.ModItems;
+import net.hollowed.antique.particles.ModParticles;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.*;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.AttributeModifierSlot;
-import net.minecraft.component.type.AttributeModifiersComponent;
-import net.minecraft.component.type.ToolComponent;
-import net.minecraft.component.type.WeaponComponent;
+import net.minecraft.component.type.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.HoneycombItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
+import net.minecraft.item.consume.UseAction;
+import net.minecraft.particle.ParticleTypes;
+import net.minecraft.particle.ParticleUtil;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.intprovider.UniformIntProvider;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldEvents;
 import net.minecraft.world.event.GameEvent;
@@ -71,7 +73,7 @@ public class MyriadAxeBit extends MyriadToolBitItem{
     @Override
     public ActionResult toolUse(World world, PlayerEntity user, Hand hand) {
         user.setCurrentHand(hand);
-        return ActionResult.PASS;
+        return ActionResult.CONSUME;
     }
 
     @Override
@@ -107,12 +109,12 @@ public class MyriadAxeBit extends MyriadToolBitItem{
         PlayerEntity playerEntity = context.getPlayer();
         if (!context.getHand().equals(Hand.MAIN_HAND)) return false;
         assert playerEntity != null;
-        return playerEntity.getOffHandStack().isOf(Items.SHIELD) && !playerEntity.shouldCancelInteraction();
+        return !playerEntity.isSneaking();
     }
 
     private Optional<BlockState> tryStrip(World world, BlockPos pos, @Nullable PlayerEntity player, BlockState state) {
         Optional<BlockState> optional = this.getStrippedState(state);
-        if (player != null && player.isSneaking()) {
+        if (player != null) {
             if (optional.isPresent()) {
                 world.playSound(player, pos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0F, 1.0F);
                 return optional;
@@ -130,7 +132,21 @@ public class MyriadAxeBit extends MyriadToolBitItem{
                         world.syncWorldEvent(player, WorldEvents.WAX_REMOVED, pos, 0);
                         return optional3;
                     } else {
-                        return Optional.empty();
+                        Optional<BlockState> optional4 = getPreviousTarnishLevel(state);
+                        if (optional4.isPresent()) {
+                            world.playSound(player, pos, SoundEvents.ITEM_AXE_SCRAPE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                            ParticleUtil.spawnParticle(world, pos, ModParticles.SCRAPE, UniformIntProvider.create(3, 5));
+                            return optional4;
+                        } else {
+                            Optional<BlockState> optional5 = getUncoat(state);
+                            if (optional5.isPresent()) {
+                                world.playSound(player, pos, SoundEvents.ITEM_AXE_WAX_OFF, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                                world.syncWorldEvent(player, WorldEvents.WAX_REMOVED, pos, 0);
+                                return optional5;
+                            } else {
+                                return Optional.empty();
+                            }
+                        }
                     }
                 }
             }
@@ -141,6 +157,16 @@ public class MyriadAxeBit extends MyriadToolBitItem{
     private Optional<BlockState> getStrippedState(BlockState state) {
         return Optional.ofNullable(STRIPPED_BLOCKS.get(state.getBlock()))
                 .map(block -> block.getDefaultState().with(PillarBlock.AXIS, state.get(PillarBlock.AXIS)));
+    }
+
+    private Optional<BlockState> getPreviousTarnishLevel(BlockState state) {
+        return Optional.ofNullable(BlockUtil.TARNISHING_BLOCKS_REVERSE.get(state.getBlock()))
+                .map(Block::getDefaultState);
+    }
+
+    private Optional<BlockState> getUncoat(BlockState state) {
+        return Optional.ofNullable(BlockUtil.COATED_MYRIAD_BLOCKS_REVERSE.get(state.getBlock()))
+                .map(Block::getDefaultState);
     }
 
     @Override
@@ -161,5 +187,17 @@ public class MyriadAxeBit extends MyriadToolBitItem{
         ));
         tool.set(DataComponentTypes.WEAPON, new WeaponComponent(0, 2));
         tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_axe"));
+        tool.set(
+                DataComponentTypes.BLOCKS_ATTACKS,
+                new BlocksAttacksComponent(
+                        0.25F,
+                        1.0F,
+                        List.of(new BlocksAttacksComponent.DamageReduction(90.0F, Optional.empty(), 0.0F, 0.5F)),
+                        new BlocksAttacksComponent.ItemDamage(3.0F, 1.0F, 1.0F),
+                        Optional.of(DamageTypeTags.BYPASSES_SHIELD),
+                        Optional.of(SoundEvents.ITEM_SHIELD_BLOCK),
+                        Optional.of(SoundEvents.ITEM_SHIELD_BREAK)
+                )
+        );
     }
 }

@@ -1,10 +1,7 @@
 package net.hollowed.antique.blocks;
 
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.blocks.custom.DyeTableBlock;
-import net.hollowed.antique.blocks.custom.JarBlock;
-import net.hollowed.antique.blocks.custom.OminousPedestalBlock;
-import net.hollowed.antique.blocks.custom.PedestalBlock;
+import net.hollowed.antique.blocks.custom.*;
 import net.minecraft.block.*;
 import net.minecraft.block.enums.NoteBlockInstrument;
 import net.minecraft.block.piston.PistonBehavior;
@@ -35,25 +32,65 @@ public class ModBlocks {
             new OminousPedestalBlock(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "ominous_pedestal")))
                     .sounds(BlockSoundGroup.LODESTONE).strength(1.5F, 6F).nonOpaque().requiresTool()), Rarity.COMMON);
 
-    public static final Block MYRIAD_CLUSTER = registerBlock("myriad_cluster",
-            new AmethystClusterBlock(8, 8, AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "myriad_cluster")))
-                    .sounds(BlockSoundGroup.AMETHYST_CLUSTER).strength(1.5F, 6F)), Rarity.COMMON);
-
     public static final Block DYE_TABLE = registerBlock("dye_table",
             new DyeTableBlock(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "dye_table")))
                     .sounds(BlockSoundGroup.WOOD).strength(2.5F)), Rarity.COMMON);
 
+    public static final Block MYRIAD_CLUSTER = registerBlock("myriad_cluster",
+            new AmethystClusterBlock(8, 8, AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "myriad_cluster")))
+                    .sounds(BlockSoundGroup.IRON).strength(15F, 600F).requiresTool()), Rarity.COMMON);
+
     public static final Block MYRIAD_ORE = registerBlock("myriad_ore",
             new Block(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "myriad_ore")))
-                    .sounds(BlockSoundGroup.IRON).strength(25F, 600F)), Rarity.COMMON);
+                    .sounds(BlockSoundGroup.IRON).strength(25F, 600F).requiresTool()), Rarity.COMMON);
+
+    public static final Block DEEPSLATE_MYRIAD_CLUSTER = registerBlock("deepslate_myriad_cluster",
+            new AmethystClusterBlock(8, 8, AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "deepslate_myriad_cluster")))
+                    .sounds(BlockSoundGroup.IRON).strength(20F, 600F).requiresTool()), Rarity.COMMON);
+
+    public static final Block DEEPSLATE_MYRIAD_ORE = registerBlock("deepslate_myriad_ore",
+            new Block(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "deepslate_myriad_ore")))
+                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F).requiresTool()), Rarity.COMMON);
+
+    public static final Block RAW_MYRIAD_BLOCK = registerBlock("raw_myriad_block",
+            new Block(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "raw_myriad_block")))
+                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F).requiresTool()), Rarity.COMMON);
+
+    public static final Block MYRIAD_BLOCK = registerBlock("myriad_block",
+            new TarnishingBlock(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "myriad_block")))
+                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F).requiresTool()), Rarity.COMMON);
+
+    public static final Block EXPOSED_MYRIAD_BLOCK = registerBlock("exposed_myriad_block",
+            new TarnishingBlock(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "exposed_myriad_block")))
+                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F).requiresTool()), Rarity.COMMON);
+
+    public static final Block WEATHERED_MYRIAD_BLOCK = registerBlock("weathered_myriad_block",
+            new TarnishingBlock(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "weathered_myriad_block")))
+                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F).requiresTool()), Rarity.COMMON);
+
+    public static final Block TARNISHED_MYRIAD_BLOCK = registerBlock("tarnished_myriad_block",
+            new TarnishingBlock(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "tarnished_myriad_block")))
+                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F).requiresTool()), Rarity.COMMON);
+
+    public static final Block COATED_MYRIAD_BLOCK = registerBlock("coated_myriad_block",
+            new Block(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "coated_myriad_block")))
+                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F).requiresTool()), Rarity.COMMON);
+
+    public static final Block COATED_EXPOSED_MYRIAD_BLOCK = registerBlock("coated_exposed_myriad_block",
+            new Block(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "coated_exposed_myriad_block")))
+                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F).requiresTool()), Rarity.COMMON);
+
+    public static final Block COATED_WEATHERED_MYRIAD_BLOCK = registerBlock("coated_weathered_myriad_block",
+            new Block(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "coated_weathered_myriad_block")))
+                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F).requiresTool()), Rarity.COMMON);
+
+    public static final Block COATED_TARNISHED_MYRIAD_BLOCK = registerBlock("coated_tarnished_myriad_block",
+            new Block(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "coated_tarnished_myriad_block")))
+                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F).requiresTool()), Rarity.COMMON);
 
     public static final Block BLACK_SAND = registerBlock("black_sand",
             new ColoredFallingBlock(new ColorCode(14406560), AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "black_sand")))
                     .sounds(BlockSoundGroup.SAND).strength(1.5F, 6F)), Rarity.COMMON);
-
-    public static final Block MYRIAD_BLOCK = registerBlock("myriad_block",
-            new Block(AbstractBlock.Settings.create().registryKey(RegistryKey.of(RegistryKeys.BLOCK, Identifier.of(Antiquities.MOD_ID, "myriad_block")))
-                    .sounds(BlockSoundGroup.IRON).strength(30F, 600F)), Rarity.COMMON);
 
     public static final Block IVY = registerBlock(
             "ivy",

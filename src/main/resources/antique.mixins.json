@@ -8,6 +8,7 @@
     "ArrowVisualsMixin",
     "AttackableProjectiles",
     "AttackNonlivingEntityHandler",
+    "AxeItemMixin",
     "BlockNoCollisionMixin",
     "BreakBlocksIfFastMixin",
     "BundleItemMixin",

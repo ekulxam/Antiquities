@@ -27,7 +27,6 @@ import net.hollowed.antique.networking.*;
 import net.hollowed.antique.particles.ModParticles;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.GenericContainerScreen;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.RenderLayer;
@@ -41,7 +40,6 @@ import net.minecraft.entity.projectile.thrown.LingeringPotionEntity;
 import net.minecraft.entity.projectile.thrown.SnowballEntity;
 import net.minecraft.entity.projectile.thrown.SplashPotionEntity;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.screen.ScreenHandlerType;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.ColorHelper;
@@ -73,7 +71,7 @@ public class AntiquitiesClient implements ClientModInitializer {
          */
 
         BlockEntityRendererFactories.register(ModBlockEntities.PEDESTAL_BLOCK_ENTITY, PedestalRenderer::new);
-        BlockRenderLayerMap.putBlocks(BlockRenderLayer.CUTOUT, ModBlocks.PEDESTAL, ModBlocks.HOLLOW_CORE, ModBlocks.JAR, ModBlocks.MYRIAD_CLUSTER);
+        BlockRenderLayerMap.putBlocks(BlockRenderLayer.CUTOUT, ModBlocks.PEDESTAL, ModBlocks.HOLLOW_CORE, ModBlocks.JAR, ModBlocks.MYRIAD_CLUSTER, ModBlocks.DEEPSLATE_MYRIAD_CLUSTER);
         BlockRenderLayerMap.putBlocks(BlockRenderLayer.TRIPWIRE, ModBlocks.IVY);
         BlockRenderLayerMap.putBlocks(BlockRenderLayer.TRANSLUCENT, Blocks.GLASS, Blocks.GLASS_PANE);
 

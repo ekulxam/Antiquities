@@ -1,5 +1,6 @@
 package net.hollowed.antique.client.item.explosive_spear;
 
+import com.google.common.collect.ImmutableMap;
 import net.hollowed.antique.Antiquities;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -17,11 +18,64 @@ import org.joml.Vector4f;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.Optional;
 
 public class ClothManager {
 
     public static RenderLayer BLANK_CLOTH_STRIP = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/cloth_strip.png"));
     public static RenderLayer TATTERED_CLOTH_STRIP = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/tattered_cloth_strip.png"));
+
+    // Cloth Skins
+    public static RenderLayer LESBIAN_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/lesbian_cloth.png"));
+    public static RenderLayer PRIDE_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/pride_cloth.png"));
+    public static RenderLayer TRANS_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/trans_cloth.png"));
+    public static RenderLayer GAY_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/gay_cloth.png"));
+    public static RenderLayer BI_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/bi_cloth.png"));
+    public static RenderLayer PAN_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/pan_cloth.png"));
+    public static RenderLayer HOLLOWED_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/hollowed_cloth.png"));
+    public static RenderLayer GREEN_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/green_cloth.png"));
+    public static RenderLayer TARNISH_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/tarnish_cloth.png"));
+    public static RenderLayer AROACE_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/aroace_cloth.png"));
+    public static RenderLayer NON_BINARY_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/non_binary_cloth.png"));
+    public static RenderLayer GENDERFLUID_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/genderfluid_cloth.png"));
+    public static RenderLayer INTERSEX_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/intersex_cloth.png"));
+    public static RenderLayer BOUZ_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/bouz_cloth.png"));
+    public static RenderLayer SEMBER_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/sember_cloth.png"));
+    public static RenderLayer CORD_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/cord_cloth.png"));
+    public static RenderLayer SHINY_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/shiny_cloth.png"));
+    public static RenderLayer NITRON_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/nitron_cloth.png"));
+    public static RenderLayer TOADY_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/toady_cloth.png"));
+    public static RenderLayer JUKO_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/juko_cloth.png"));
+    public static RenderLayer LODESTAR_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/lodestar_cloth.png"));
+    public static RenderLayer ECHO_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/echo_cloth.png"));
+    public static RenderLayer LIZARD_CLOTH = RenderLayer.getEntityTranslucent(Antiquities.id("textures/item/lizard_cloth.png"));
+
+    public static final Map<Integer, RenderLayer> CLOTH_MAP = new ImmutableMap.Builder<Integer, RenderLayer>()
+            .put(-2742016, LESBIAN_CLOTH)
+            .put(-4320962, HOLLOWED_CLOTH)
+            .put(-1703936, PRIDE_CLOTH)
+            .put(-10760454, TRANS_CLOTH)
+            .put(-16675216, GAY_CLOTH)
+            .put(-2686864, BI_CLOTH)
+            .put(-58483, PAN_CLOTH)
+            .put(-14778290, GREEN_CLOTH)
+            .put(-2906520, TARNISH_CLOTH)
+            .put(-1864448, AROACE_CLOTH)
+            .put(-3024, NON_BINARY_CLOTH)
+            .put(-35165, GENDERFLUID_CLOTH)
+            .put(-9984, INTERSEX_CLOTH)
+            .put(-8886682, BOUZ_CLOTH)
+            .put(-10136982, SEMBER_CLOTH)
+            .put(-27434, CORD_CLOTH)
+            .put(-17617, SHINY_CLOTH)
+            .put(-3171079, NITRON_CLOTH)
+            .put(-11154066, TOADY_CLOTH)
+            .put(-12631201, JUKO_CLOTH)
+            .put(-11009793, LODESTAR_CLOTH)
+            .put(-13880740, ECHO_CLOTH)
+            .put(-13186541, LIZARD_CLOTH)
+            .build();
 
     public Vector3d pos = new Vector3d();
     public ArrayList<ClothBody> bodies = new ArrayList<>();
@@ -38,11 +92,11 @@ public class ClothManager {
         }
     }
 
-    public void setBodyCount(int count) {
-        if (count != bodies.size()) {
-            reset(this.pos, count);
-        }
-    }
+//    public void setBodyCount(int count) {
+//        if (count != bodies.size()) {
+//            reset(this.pos, count);
+//        }
+//    }
 
     public void tick(boolean ignoreFreeze, double length) {
         double delta = MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(ignoreFreeze);
@@ -53,9 +107,7 @@ public class ClothManager {
             double previousDrag = 0.0; // Store last frame's drag to lerp smoothly
 
             // Update pass
-            for (int i = 0; i < bodies.size(); i++) {
-                ClothBody body = bodies.get(i);
-
+            for (ClothBody body : bodies) {
                 Vec3d startPos = new Vec3d(body.pos.x, body.pos.y, body.pos.z);
                 BlockPos blockPos = BlockPos.ofFloored(startPos);
                 BlockState state = world.getBlockState(blockPos);
@@ -140,16 +192,23 @@ public class ClothManager {
         return new Vec3d(cameraPos.x + localPos.x(), cameraPos.y + localPos.y(), cameraPos.z + localPos.z());
     }
 
-    public void renderCloth(Vec3d position, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, boolean firstPerson, Color color, boolean ignoreFreeze, RenderLayer layer, double length, double width) {
+    public void renderCloth(Vec3d position, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Color color, boolean ignoreFreeze, RenderLayer layer, double length, double width) {
+        Optional<RenderLayer> optional = Optional.ofNullable(CLOTH_MAP.get(color.getRGB()));
+        if (optional.isPresent()) {
+            layer = optional.get();
+            color = Color.WHITE;
+        }
+
+        Vector3d lastA = null;
+        Vector3d lastB = null;
+        Vector3d lastThicknessVec = null;
+
         Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
         pos = new Vector3d(danglePos);
-
         this.tick(ignoreFreeze, length);
 
         matrices.push();
-
         VertexConsumer vertexConsumer = vertexConsumers.getBuffer(layer);
-
         int count = bodies.size() - 1;
         for (int i = 0; i < count; i++) {
 
@@ -166,13 +225,32 @@ public class ClothManager {
             float uvTop = (1f / count) * i;
             float uvBot = uvTop + (1f / count);
 
-            var rot = -MinecraftClient.getInstance().gameRenderer.getCamera().getYaw();
-            var thicknessVec = new Vector3d(width, 0.0, 0.0);
-            if (!firstPerson) thicknessVec.rotateY(Math.toRadians(rot));
-            var a = pos.sub(thicknessVec, new Vector3d());
-            var b = pos.add(thicknessVec, new Vector3d());
-            var c = nextPos.add(thicknessVec, new Vector3d());
-            var d = nextPos.sub(thicknessVec, new Vector3d());
+            // Get camera position
+            Vec3d cameraPosVec3d = MinecraftClient.getInstance().gameRenderer.getCamera().getPos();
+            Vector3d cameraPos = new Vector3d(cameraPosVec3d.x, cameraPosVec3d.y, cameraPosVec3d.z);
+            // Compute thickness vector from segment midpoint
+            Vector3d mid = new Vector3d((pos.x + nextPos.x) / 2.0, (pos.y + nextPos.y) / 2.0, (pos.z + nextPos.z) / 2.0);
+            Vector3d toCam = cameraPos.sub(mid, new Vector3d()).normalize();
+            Vector3d up = new Vector3d(0, 1, 0);
+            Vector3d thicknessVec = up.cross(toCam, new Vector3d()).normalize().mul(width);
+
+            if (lastThicknessVec != null) {
+                thicknessVec = thicknessVec.lerp(lastThicknessVec, 1).normalize().mul(width);
+            }
+
+
+            // Use last segment’s end vertices as this segment’s start
+            Vector3d a = lastA != null ? lastA : pos.sub(thicknessVec, new Vector3d());
+            Vector3d b = lastB != null ? lastB : pos.add(thicknessVec, new Vector3d());
+
+            // Compute end vertices for this segment
+            Vector3d c = nextPos.add(thicknessVec, new Vector3d());
+            Vector3d d = nextPos.sub(thicknessVec, new Vector3d());
+
+            // Cache for next loop
+            lastA = d;
+            lastB = c;
+            lastThicknessVec = thicknessVec;
 
             drawQuad(
                     new Matrix4f(),

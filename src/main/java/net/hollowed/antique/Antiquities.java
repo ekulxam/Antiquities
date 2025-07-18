@@ -26,8 +26,6 @@ import net.hollowed.antique.util.AntiqueStats;
 import net.hollowed.antique.util.ModLootTableModifiers;
 import net.hollowed.antique.util.MyriadStaffTransformResourceReloadListener;
 import net.hollowed.antique.util.TickDelayScheduler;
-import net.minecraft.block.CraftingTableBlock;
-import net.minecraft.client.gui.screen.ingame.SignEditScreen;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -40,15 +38,18 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.registry.tag.DamageTypeTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
@@ -73,10 +74,10 @@ public class Antiquities implements ModInitializer {
 			Initializers
 		 */
 
+		ModBlocks.initialize();
 		AntiqueScreenHandlerType.init();
 		AntiqueStats.init();
 		ModEnchantments.initialize();
-		ModBlocks.initialize();
 		ModBlockEntities.initialize();
 		ModLootTableModifiers.modifyLootTables();
 		ModEntities.initialize();
@@ -186,15 +187,6 @@ public class Antiquities implements ModInitializer {
 	private void addItems() {
 		// Register items to the custom item group.
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_GROUP_KEY).register(itemGroup -> {
-			itemGroup.add(ModItems.MYRIAD_INGOT);
-			itemGroup.add(ModBlocks.MYRIAD_BLOCK);
-			itemGroup.add(ModItems.NETHERITE_PAULDRONS);
-			itemGroup.add(ModItems.SATCHEL);
-			itemGroup.add(ModItems.FUR_BOOTS);
-			itemGroup.add(ModBlocks.HOLLOW_CORE);
-			itemGroup.add(ModItems.SCEPTER);
-			itemGroup.add(ModBlocks.PEDESTAL);
-			itemGroup.add(ModItems.WARHORN);
 //			itemGroup.add(ModItems.PALE_WARDENS_GREATSWORD);
 //			itemGroup.add(ModItems.PALE_WARDEN_STATUE);
 			itemGroup.add(ModItems.MYRIAD_TOOL);
@@ -237,14 +229,26 @@ public class Antiquities implements ModInitializer {
 					true
 			));
 			myriadAxe.set(DataComponentTypes.WEAPON, new WeaponComponent(0, 2));
+			myriadAxe.set(
+					DataComponentTypes.BLOCKS_ATTACKS,
+					new BlocksAttacksComponent(
+							0.25F,
+							1.0F,
+							List.of(new BlocksAttacksComponent.DamageReduction(90.0F, Optional.empty(), 0.0F, 0.5F)),
+							new BlocksAttacksComponent.ItemDamage(3.0F, 1.0F, 1.0F),
+							Optional.of(DamageTypeTags.BYPASSES_SHIELD),
+							Optional.of(SoundEvents.ITEM_SHIELD_BLOCK),
+							Optional.of(SoundEvents.ITEM_SHIELD_BREAK)
+					)
+			);
 			itemGroup.add(myriadAxe);
 
 			ItemStack myriadShovel = ModItems.MYRIAD_TOOL.getDefaultStack();
 			myriadShovel.set(ModComponents.MYRIAD_STACK, ModItems.MYRIAD_SHOVEL_HEAD.getDefaultStack());
 			myriadShovel.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_shovel"));
 			myriadShovel.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
-					.add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 5.5, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-					.add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.8, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+					.add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 8.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+					.add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.9, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
 					.add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.75, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
 					.build());
 			myriadShovel.set(DataComponentTypes.TOOL, new ToolComponent(
@@ -274,14 +278,35 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(ModItems.MYRIAD_SHOVEL_HEAD);
 			itemGroup.add(ModItems.MYRIAD_CLEAVER_BLADE);
 			//itemGroup.add(ModItems.MYRIAD_CLAW);
+			itemGroup.add(ModBlocks.MYRIAD_ORE);
+			itemGroup.add(ModBlocks.DEEPSLATE_MYRIAD_ORE);
+			itemGroup.add(ModBlocks.MYRIAD_CLUSTER);
+			itemGroup.add(ModBlocks.DEEPSLATE_MYRIAD_CLUSTER);
+			itemGroup.add(ModItems.RAW_MYRIAD);
+			itemGroup.add(ModBlocks.RAW_MYRIAD_BLOCK);
+			itemGroup.add(ModItems.MYRIAD_INGOT);
+			itemGroup.add(ModBlocks.MYRIAD_BLOCK);
+			itemGroup.add(ModBlocks.EXPOSED_MYRIAD_BLOCK);
+			itemGroup.add(ModBlocks.WEATHERED_MYRIAD_BLOCK);
+			itemGroup.add(ModBlocks.TARNISHED_MYRIAD_BLOCK);
+			itemGroup.add(ModBlocks.COATED_MYRIAD_BLOCK);
+			itemGroup.add(ModBlocks.COATED_EXPOSED_MYRIAD_BLOCK);
+			itemGroup.add(ModBlocks.COATED_WEATHERED_MYRIAD_BLOCK);
+			itemGroup.add(ModBlocks.COATED_TARNISHED_MYRIAD_BLOCK);
+			itemGroup.add(ModItems.NETHERITE_PAULDRONS);
+			itemGroup.add(ModItems.SATCHEL);
+			itemGroup.add(ModItems.FUR_BOOTS);
+			itemGroup.add(ModBlocks.HOLLOW_CORE);
+			itemGroup.add(ModItems.SCEPTER);
+			itemGroup.add(ModBlocks.PEDESTAL);
+			itemGroup.add(ModItems.WARHORN);
 			itemGroup.add(ModBlocks.IVY);
 			itemGroup.add(ModItems.IRON_GREATSWORD);
 			itemGroup.add(ModItems.GOLDEN_GREATSWORD);
 			itemGroup.add(ModItems.DIAMOND_GREATSWORD);
 			itemGroup.add(ModItems.NETHERITE_GREATSWORD);
-			itemGroup.add(ModBlocks.JAR);
-			itemGroup.add(ModBlocks.MYRIAD_ORE);
-			itemGroup.add(ModBlocks.MYRIAD_CLUSTER);
+			//itemGroup.add(ModBlocks.JAR);
+
 			itemGroup.add(ModBlocks.DYE_TABLE);
 
 			itemGroup.add(ModItems.IRREVERENT);
@@ -291,10 +316,9 @@ public class Antiquities implements ModInitializer {
 	public static ItemStack getMyriadShovelStack() {
 		ItemStack myriadShovel = ModItems.MYRIAD_TOOL.getDefaultStack();
 		myriadShovel.set(ModComponents.MYRIAD_STACK, ModItems.MYRIAD_SHOVEL_HEAD.getDefaultStack());
-		myriadShovel.set(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY, 3);
 		myriadShovel.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
-				.add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 5.5, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-				.add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.8, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+				.add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 8.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+				.add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.9, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
 				.add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.75, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
 				.build());
 		myriadShovel.set(DataComponentTypes.TOOL, new ToolComponent(

@@ -23,7 +23,7 @@ public abstract class MyriadToolBitItem extends ShearsItem {
     }
 
     public ActionResult toolUse(World world, PlayerEntity user, Hand hand) {
-        return ActionResult.FAIL;
+        return ActionResult.PASS;
     }
 
     public void setToolAttributes(ItemStack tool) {
@@ -31,6 +31,6 @@ public abstract class MyriadToolBitItem extends ShearsItem {
     }
 
     public ActionResult toolUseOnBlock(ItemUsageContext context) {
-        return ActionResult.FAIL;
+        return ActionResult.PASS;
     }
 }

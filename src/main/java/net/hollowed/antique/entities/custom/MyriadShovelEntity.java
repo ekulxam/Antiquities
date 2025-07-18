@@ -275,7 +275,7 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	@Override
 	protected boolean tryPickup(PlayerEntity player) {
 		return this.canPickup && !player.isCreative() && player.getInventory().insertStack(this.asItemStack())
-				|| this.isNoClip() && this.isOwner(player) && player.getInventory().insertStack(this.asItemStack())
+				|| this.isNoClip() && !player.isCreative() && this.isOwner(player) && player.getInventory().insertStack(this.asItemStack())
 				|| this.canPickup && player.isCreative();
 	}
 

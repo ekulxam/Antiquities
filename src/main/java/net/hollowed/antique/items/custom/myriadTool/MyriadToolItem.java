@@ -148,7 +148,7 @@ public class MyriadToolItem extends Item {
         if (context.getStack().getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
             return item.toolUseOnBlock(context);
         }
-        return ActionResult.FAIL;
+        return ActionResult.PASS;
     }
 
     @Override
@@ -172,7 +172,7 @@ public class MyriadToolItem extends Item {
         if (user.getStackInHand(hand).getOrDefault(ModComponents.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
             return item.toolUse(world, user, hand);
         }
-        return ActionResult.FAIL;
+        return ActionResult.PASS;
     }
 
     @Override

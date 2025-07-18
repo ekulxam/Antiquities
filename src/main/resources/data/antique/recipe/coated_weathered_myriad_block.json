@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "antique:weathered_myriad_block",
+    "minecraft:magma_cream"
+  ],
+  "result": {
+    "id": "antique:coated_weathered_myriad_block",
+    "count": 1
+  }
+}

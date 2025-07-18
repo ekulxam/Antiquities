@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "antique:raw_myriad",
+    "antique:raw_myriad",
+    "antique:raw_myriad",
+    "antique:raw_myriad",
+    "antique:raw_myriad",
+    "antique:raw_myriad",
+    "antique:raw_myriad",
+    "antique:raw_myriad",
+    "antique:raw_myriad"
+  ],
+  "result": {
+    "id": "antique:raw_myriad_block",
+    "count": 1
+  }
+}
