@@ -10,10 +10,8 @@ public class PaleWardenTickPacketReceiver {
         ServerPlayNetworking.registerGlobalReceiver(PaleWardenTickPacketPayload.ID, (payload, context) -> context.server().execute(() -> {
             Entity entity = context.player().getWorld().getEntityById(payload.entityId());
             if (entity instanceof PaleWardenEntity paleWardenEntity) {
-                // Handle null stacks explicitly
                 ItemStack mainhand = payload.mainhand() == null || payload.mainhand().isEmpty() ? ItemStack.EMPTY : payload.mainhand().copy();
                 ItemStack offhand = payload.offhand() == null || payload.offhand().isEmpty() ? ItemStack.EMPTY : payload.offhand().copy();
-
                 paleWardenEntity.swapStacks(mainhand, offhand);
             }
         }));

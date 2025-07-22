@@ -10,19 +10,23 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.entities.custom.IllusionerEntity;
-import net.hollowed.antique.util.IllusionerRenderUtil;
-import net.minecraft.client.render.LightmapTextureManager;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.render.entity.EndermanEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.IllagerEntityRenderer;
 import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.render.entity.model.IllagerEntityModel;
+import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.item.ItemDisplayContext;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 
 @Environment(EnvType.CLIENT)
@@ -62,8 +66,16 @@ public class IllusionerEntityRenderer extends IllagerEntityRenderer<IllusionerEn
     }
 
     public void render(IllusionerEntityRenderState illusionerEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
-        IllusionerRenderUtil.renderIllusioner(illusionerEntityRenderState, matrixStack, vertexConsumerProvider, i);
         if (illusionerEntityRenderState.invisible) {
+            matrixStack.push();
+            matrixStack.translate(0, 1.4, 0);
+            matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-(illusionerEntityRenderState.relativeHeadYaw + illusionerEntityRenderState.bodyYaw)));
+            matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(illusionerEntityRenderState.pitch));
+            ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
+            ItemStack stack = Items.APPLE.getDefaultStack();
+            stack.set(DataComponentTypes.ITEM_MODEL, Identifier.of(Antiquities.MOD_ID, "illusioner_idol"));
+            itemRenderer.renderItem(stack, ItemDisplayContext.NONE, i, 0, matrixStack, vertexConsumerProvider, MinecraftClient.getInstance().world, 0);
+            matrixStack.pop();
             Vec3d[] vec3ds = illusionerEntityRenderState.mirrorCopyOffsets;
 
             for(int j = 0; j < vec3ds.length; ++j) {

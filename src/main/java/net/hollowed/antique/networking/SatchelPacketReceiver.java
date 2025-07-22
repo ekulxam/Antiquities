@@ -1,10 +1,10 @@
 package net.hollowed.antique.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.hollowed.antique.items.ModItems;
-import net.hollowed.antique.items.custom.myriadTool.MyriadToolBitItem;
-import net.hollowed.antique.items.custom.myriadTool.MyriadToolItem;
-import net.hollowed.antique.items.custom.SatchelItem;
+import net.hollowed.antique.index.AntiqueItems;
+import net.hollowed.antique.items.MyriadToolBitItem;
+import net.hollowed.antique.items.MyriadToolItem;
+import net.hollowed.antique.items.SatchelItem;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -40,7 +40,7 @@ public class SatchelPacketReceiver {
 
                     // Move the selected satchel stack to the hotbar
                     if (!currentSatchelStack.isEmpty()) {
-                        if (currentHotbarStack.getItem() instanceof MyriadToolItem && !MyriadToolItem.isInvalidItem(currentSatchelStack) && !currentSatchelStack.isOf(ModItems.MYRIAD_CLAW)) {
+                        if (currentHotbarStack.getItem() instanceof MyriadToolItem && !MyriadToolItem.isInvalidItem(currentSatchelStack) && !currentSatchelStack.isOf(AntiqueItems.MYRIAD_CLAW)) {
                             myriadItem = MyriadToolItem.getStoredStack(currentHotbarStack);
                             MyriadToolItem.setStoredStack(currentHotbarStack, currentSatchelStack);
                             player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
@@ -68,7 +68,7 @@ public class SatchelPacketReceiver {
                     if (!currentHotbarStack.isEmpty()) {
                         if ((currentHotbarStack.getItem() instanceof MyriadToolItem)) {
                             if (myriadItem == ItemStack.EMPTY) {
-                                if (currentSatchelStack.getItem() instanceof MyriadToolBitItem && !currentSatchelStack.isOf(ModItems.MYRIAD_CLAW)) {
+                                if (currentSatchelStack.getItem() instanceof MyriadToolBitItem && !currentSatchelStack.isOf(AntiqueItems.MYRIAD_CLAW)) {
                                     satchelItem.setSlot(satchelInventory, ItemStack.EMPTY);
                                 } else {
                                     satchelItem.setSlot(satchelInventory, currentHotbarStack);

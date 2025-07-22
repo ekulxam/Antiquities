@@ -1,0 +1,246 @@
+{
+  "skins": [
+    {
+      "texture": "antique:textures/item/lesbian_cloth.png",
+      "color": "d62900"
+    },
+    {
+      "texture": "antique:textures/item/pride_cloth.png",
+      "color": "e60000"
+    },
+    {
+      "texture": "antique:textures/item/trans_cloth.png",
+      "color": "5bcefa"
+    },
+    {
+      "texture": "antique:textures/item/gay_cloth.png",
+      "color": "018e70"
+    },
+    {
+      "texture": "antique:textures/item/bi_cloth.png",
+      "color": "d70070"
+    },
+    {
+      "texture": "antique:textures/item/pan_cloth.png",
+      "color": "ff1b8d"
+    },
+    {
+      "texture": "antique:textures/item/hollowed_cloth.png",
+      "color": "be113e",
+      "width": 0.166,
+      "length": 2.1,
+      "bodies": 12
+    },
+    {
+      "texture": "antique:textures/item/green_cloth.png",
+      "color": "1e804e"
+    },
+    {
+      "texture": "antique:textures/item/tarnish_cloth.png",
+      "color": "d3a668"
+    },
+    {
+      "texture": "antique:textures/item/aroace_cloth.png",
+      "color": "e38d00"
+    },
+    {
+      "texture": "antique:textures/item/non_binary_cloth.png",
+      "color": "fff430"
+    },
+    {
+      "texture": "antique:textures/item/genderfluid_cloth.png",
+      "color": "ff76a3"
+    },
+    {
+      "texture": "antique:textures/item/intersex_cloth.png",
+      "color": "ffd900"
+    },
+    {
+      "texture": "antique:textures/item/bouz_cloth.png",
+      "color": "786666"
+    },
+    {
+      "texture": "antique:textures/item/sember_cloth.png",
+      "color": "65526a"
+    },
+    {
+      "texture": "antique:textures/item/cord_cloth.png",
+      "color": "ff94d6"
+    },
+    {
+      "texture": "antique:textures/item/shiny_cloth.png",
+      "color": "ffbb2f"
+    },
+    {
+      "texture": "antique:textures/item/nitron_cloth.png",
+      "color": "cf9cf9"
+    },
+    {
+      "texture": "antique:textures/item/toady_cloth.png",
+      "color": "55cd6e"
+    },
+    {
+      "texture": "antique:textures/item/juko_cloth.png",
+      "color": "3f435f"
+    },
+    {
+      "texture": "antique:textures/item/lodestar_cloth.png",
+      "color": "5800ff"
+    },
+    {
+      "texture": "antique:textures/item/echo_cloth.png",
+      "color": "2c325c",
+      "length": 2.8,
+      "bodies": 16,
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/lizard_cloth.png",
+      "color": "cb0000",
+      "width": 0.166,
+      "length": 2.1,
+      "bodies": 12,
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/boko_cloth.png",
+      "color": "f4f2ff"
+    },
+    {
+      "texture": "antique:textures/item/doctorish_cloth.png",
+      "color": "2d2e37"
+    },
+    {
+      "texture": "antique:textures/item/beheaded_cloth.png",
+      "color": "ad2b70",
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/bobby_cloth.png",
+      "color": "ff5bc1",
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/grimm_cloth.png",
+      "color": "2a2d35"
+    },
+    {
+      "texture": "antique:textures/item/radiance_cloth.png",
+      "color": "e6c9c2",
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/cult_cloth.png",
+      "color": "201c1c",
+      "width": 0.166,
+      "length": 2.1,
+      "bodies": 12,
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/old_faith_cloth.png",
+      "color": "2e2b30",
+      "width": 0.166,
+      "length": 2.1,
+      "bodies": 12
+    },
+    {
+      "texture": "antique:textures/item/madeline_cloth.png",
+      "color": "ac3232"
+    },
+    {
+      "texture": "antique:textures/item/theo_cloth.png",
+      "color": "dd7127"
+    },
+    {
+      "texture": "antique:textures/item/orange_portal_cloth.png",
+      "color": "f4a414",
+      "width": 0.166,
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/blue_portal_cloth.png",
+      "color": "138dff",
+      "width": 0.166,
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/vtwo_cloth.png",
+      "color": "bf1810",
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/vone_cloth.png",
+      "color": "33437b",
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/demon_eye_cloth.png",
+      "color": "b10800"
+    },
+    {
+      "texture": "antique:textures/item/tree_cloth.png",
+      "color": "1d9045"
+    },
+    {
+      "texture": "antique:textures/item/undyne_cloth.png",
+      "color": "00d6d6",
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/truck_cloth.png",
+      "color": "e50606"
+    },
+    {
+      "texture": "antique:textures/item/susie_cloth.png",
+      "color": "89176b"
+    },
+    {
+      "texture": "antique:textures/item/kris_cloth.png",
+      "color": "eb0095"
+    },
+    {
+      "texture": "antique:textures/item/red_royal_cloth.png",
+      "color": "b3273a",
+      "length": 2.8,
+      "bodies": 16
+    },
+    {
+      "texture": "antique:textures/item/orange_royal_cloth.png",
+      "color": "b35c27",
+      "length": 2.8,
+      "bodies": 16
+    },
+    {
+      "texture": "antique:textures/item/green_royal_cloth.png",
+      "color": "27b345",
+      "length": 2.8,
+      "bodies": 16
+    },
+    {
+      "texture": "antique:textures/item/blue_royal_cloth.png",
+      "color": "276bb3",
+      "length": 2.8,
+      "bodies": 16
+    },
+    {
+      "texture": "antique:textures/item/purple_royal_cloth.png",
+      "color": "b327b3",
+      "length": 2.8,
+      "bodies": 16
+    },
+    {
+      "texture": "antique:textures/item/long_cloth.png",
+      "color": "2779b3",
+      "length": 2.8,
+      "width": 0.166,
+      "bodies": 16
+    },
+    {
+      "texture": "antique:textures/item/typo_cloth.png",
+      "color": "06d7ae",
+      "length": 2.1,
+      "bodies": 12
+    }
+  ]
+}

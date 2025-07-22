@@ -1,7 +1,7 @@
 package net.hollowed.antique.entities.custom;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.hollowed.antique.items.ModItems;
+import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.networking.PaleWardenTickPacketPayload;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -24,6 +24,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+@SuppressWarnings("all")
 public class PaleWardenEntity extends PathAwareEntity {
 
     private boolean awakened = false;
@@ -38,7 +39,7 @@ public class PaleWardenEntity extends PathAwareEntity {
     public PaleWardenEntity(EntityType<? extends PathAwareEntity> entityType, World world) {
         super(entityType, world);
         if (MinecraftClient.getInstance().player != null) {
-            ClientPlayNetworking.send(new PaleWardenTickPacketPayload(this.getId(), ModItems.PALE_WARDENS_GREATSWORD.getDefaultStack(), ItemStack.EMPTY));
+            ClientPlayNetworking.send(new PaleWardenTickPacketPayload(this.getId(), AntiqueItems.PALE_WARDENS_GREATSWORD.getDefaultStack(), ItemStack.EMPTY));
         }
     }
 

@@ -9,22 +9,16 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
-import net.hollowed.antique.blocks.ModBlocks;
-import net.hollowed.antique.blocks.custom.screen.AntiqueScreenHandlerType;
-import net.hollowed.antique.blocks.custom.screen.DyeingScreen;
-import net.hollowed.antique.blocks.entities.ModBlockEntities;
+import net.hollowed.antique.index.*;
+import net.hollowed.antique.blocks.screens.DyeingScreen;
 import net.hollowed.antique.blocks.entities.renderer.PedestalRenderer;
-import net.hollowed.antique.client.ModEntityLayers;
 import net.hollowed.antique.client.armor.models.AdventureArmor;
 import net.hollowed.antique.client.armor.models.ArmorStandAdventureArmor;
-import net.hollowed.antique.entities.ModEntities;
 import net.hollowed.antique.entities.custom.MyriadShovelEntity;
 import net.hollowed.antique.entities.custom.SmokeBombEntity;
-import net.hollowed.antique.entities.models.ExplosiveSpearCloth;
 import net.hollowed.antique.entities.models.PaleWardenModel;
 import net.hollowed.antique.entities.renderer.*;
 import net.hollowed.antique.networking.*;
-import net.hollowed.antique.particles.ModParticles;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
@@ -58,21 +52,20 @@ public class AntiquitiesClient implements ClientModInitializer {
     private static boolean wasCrawling = false; // Store previous key state
 
     public static final EntityModelLayer PALE_WARDEN_LAYER = new EntityModelLayer(Identifier.of(Antiquities.MOD_ID, "pale_warden"), "main");
-    public static final EntityModelLayer EXPLOSIVE_SPEAR_CLOTH_LAYER = new EntityModelLayer(Identifier.of(Antiquities.MOD_ID, "explosive_spear_cloth"), "main");
 
     @Override
     public void onInitializeClient() {
 
-        ModParticles.initializeClient();
+        AntiqueParticles.initializeClient();
         HandledScreens.register(AntiqueScreenHandlerType.DYE_TABLE, DyeingScreen::new);
 
         /*
             Block Renderers
          */
 
-        BlockEntityRendererFactories.register(ModBlockEntities.PEDESTAL_BLOCK_ENTITY, PedestalRenderer::new);
-        BlockRenderLayerMap.putBlocks(BlockRenderLayer.CUTOUT, ModBlocks.PEDESTAL, ModBlocks.HOLLOW_CORE, ModBlocks.JAR, ModBlocks.MYRIAD_CLUSTER, ModBlocks.DEEPSLATE_MYRIAD_CLUSTER);
-        BlockRenderLayerMap.putBlocks(BlockRenderLayer.TRIPWIRE, ModBlocks.IVY);
+        BlockEntityRendererFactories.register(AntiqueBlockEntities.PEDESTAL_BLOCK_ENTITY, context1 -> new PedestalRenderer());
+        BlockRenderLayerMap.putBlocks(BlockRenderLayer.CUTOUT, AntiqueBlocks.PEDESTAL, AntiqueBlocks.HOLLOW_CORE, AntiqueBlocks.JAR, AntiqueBlocks.MYRIAD_CLUSTER, AntiqueBlocks.DEEPSLATE_MYRIAD_CLUSTER);
+        BlockRenderLayerMap.putBlocks(BlockRenderLayer.TRIPWIRE, AntiqueBlocks.IVY);
         BlockRenderLayerMap.putBlocks(BlockRenderLayer.TRANSLUCENT, Blocks.GLASS, Blocks.GLASS_PANE);
 
         /*
@@ -87,29 +80,26 @@ public class AntiquitiesClient implements ClientModInitializer {
             Entity Renderers
          */
 
-        EntityModelLayerRegistry.registerModelLayer(ModEntityLayers.ADVENTURE_ARMOR, AdventureArmor::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(ModEntityLayers.ARMOR_STAND_ADVENTURE_ARMOR, ArmorStandAdventureArmor::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ARMOR_STAND_ADVENTURE_ARMOR, ArmorStandAdventureArmor::getTexturedModelData);
 
-        EntityRendererRegistry.register(ModEntities.PALE_WARDEN, PaleWardenRenderer::new);
+        EntityRendererRegistry.register(AntiqueEntities.PALE_WARDEN, PaleWardenRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(PALE_WARDEN_LAYER, PaleWardenModel::getTexturedModelData);
 
-        EntityRendererRegistry.register(ModEntities.MYRIAD_SHOVEL, MyriadShovelEntityRenderer::new);
-        EntityRendererRegistry.register(ModEntities.MYRIAD_SHOVEL_PART, MyriadShovelPartRenderer::new);
+        EntityRendererRegistry.register(AntiqueEntities.MYRIAD_SHOVEL, MyriadShovelEntityRenderer::new);
+        EntityRendererRegistry.register(AntiqueEntities.MYRIAD_SHOVEL_PART, MyriadShovelPartRenderer::new);
 
-        EntityModelLayerRegistry.registerModelLayer(EXPLOSIVE_SPEAR_CLOTH_LAYER, ExplosiveSpearCloth::getTexturedModelData);
-        EntityRendererRegistry.register(ModEntities.EXPLOSIVE_SPEAR, ExplosiveSpearEntityRenderer::new);
-
-        EntityRendererRegistry.register(ModEntities.ILLUSIONER, IllusionerEntityRenderer::new);
-        EntityRendererRegistry.register(ModEntities.ILLUSIONER_CLONE, IllusionerCloneEntityRenderer::new);
-        EntityRendererRegistry.register(ModEntities.SMOKE_BOMB, SmokeBombRenderer::new);
-        EntityRendererRegistry.register(ModEntities.CAKE_ENTITY, CakeRenderer::new);
+        EntityRendererRegistry.register(AntiqueEntities.ILLUSIONER, IllusionerEntityRenderer::new);
+        EntityRendererRegistry.register(AntiqueEntities.ILLUSIONER_CLONE, IllusionerCloneEntityRenderer::new);
+        EntityRendererRegistry.register(AntiqueEntities.SMOKE_BOMB, SmokeBombRenderer::new);
+        EntityRendererRegistry.register(AntiqueEntities.CAKE_ENTITY, CakeRenderer::new);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             if (client.player == null) {
                 return;
             }
 
-            if (ModKeyBindings.crawl.wasPressed() && !client.player.isSubmergedInWater()) { // Detect key press event
+            if (AntiqueKeyBindings.crawl.wasPressed() && !client.player.isSubmergedInWater()) { // Detect key press event
                 wasCrawling = !wasCrawling; // Toggle crawling state
                 ClientPlayNetworking.send(new CrawlPacketPayload(wasCrawling));
             }
@@ -144,7 +134,7 @@ public class AntiquitiesClient implements ClientModInitializer {
             long currentTime = System.currentTimeMillis();  // Get current time in milliseconds
 
             // Check if the show satchel key is pressed and if the cooldown period has passed
-            if (ModKeyBindings.showSatchel.isPressed()) {
+            if (AntiqueKeyBindings.showSatchel.isPressed()) {
                 // Check if right-click is pressed and if the cooldown has passed
                 if (client.options.useKey.isPressed() && currentTime - lastUseTime >= COOLDOWN_TIME) {
                     // Send the packet if right-click is detected and the other keys are pressed

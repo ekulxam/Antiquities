@@ -2,13 +2,10 @@ package net.hollowed.antique.entities.renderer;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.hollowed.antique.entities.models.PaleWardenModel;
-import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
-import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.ModelWithArms;
 import net.minecraft.client.render.entity.state.ArmedEntityRenderState;
@@ -27,11 +24,11 @@ public class PaleWardenHeldItemFeatureRenderer<S extends ArmedEntityRenderState,
 
     @Override
     public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, S armedEntityRenderState, float f, float g) {
-        this.renderItem(armedEntityRenderState, armedEntityRenderState.rightHandItemState, Arm.RIGHT, matrixStack, vertexConsumerProvider, light);
-        this.renderItem(armedEntityRenderState, armedEntityRenderState.leftHandItemState, Arm.LEFT, matrixStack, vertexConsumerProvider, light);
+        this.renderItem(armedEntityRenderState.rightHandItemState, Arm.RIGHT, matrixStack, vertexConsumerProvider, light);
+        this.renderItem(armedEntityRenderState.leftHandItemState, Arm.LEFT, matrixStack, vertexConsumerProvider, light);
     }
 
-    protected void renderItem(S entityState, ItemRenderState itemState, Arm arm, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
+    protected void renderItem(ItemRenderState itemState, Arm arm, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
         if (!itemState.isEmpty()) {
             matrices.push();
 

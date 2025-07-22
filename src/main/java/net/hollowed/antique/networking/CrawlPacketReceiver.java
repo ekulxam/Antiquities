@@ -1,7 +1,7 @@
 package net.hollowed.antique.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.hollowed.antique.util.Crawl;
+import net.hollowed.antique.util.interfaces.duck.Crawl;
 
 public class CrawlPacketReceiver {
     public static void registerServerPacket() {

@@ -1,7 +1,8 @@
 package net.hollowed.antique.entities.custom;
 
-import net.hollowed.antique.ModSounds;
-import net.hollowed.antique.util.TickDelayScheduler;
+import net.hollowed.antique.index.AntiqueSounds;
+import net.hollowed.antique.util.FireworkUtil;
+import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
@@ -39,9 +40,9 @@ public class SmokeBombEntity extends ThrownItemEntity {
         World world = this.getWorld();
 
         ItemStack stack = Items.FIREWORK_ROCKET.getDefaultStack();
-        stack.set(DataComponentTypes.FIREWORKS, IllusionerArrowEntity.randomFireworkBall());
+        stack.set(DataComponentTypes.FIREWORKS, FireworkUtil.randomFireworkBall());
 
-        world.playSound(null, this.getX(), this.getY(), this.getZ(), ModSounds.FIRECRACKER, SoundCategory.BLOCKS, 1F, (float) ((Math.random() * 0.5) + 0.75));
+        world.playSound(null, this.getX(), this.getY(), this.getZ(), AntiqueSounds.FIRECRACKER, SoundCategory.BLOCKS, 1F, (float) ((Math.random() * 0.5) + 0.75));
         world.playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.BLOCK_FIRE_EXTINGUISH, SoundCategory.BLOCKS, 0.75F, 1.5F);
         if (world instanceof ServerWorld serverWorld) {
             FireworkRocketEntity projectile = new FireworkRocketEntity(world, null, this.getX(), this.getY() + 1, this.getZ(), stack);

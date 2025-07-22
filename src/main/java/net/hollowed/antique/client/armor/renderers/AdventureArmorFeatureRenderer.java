@@ -3,11 +3,11 @@ package net.hollowed.antique.client.armor.renderers;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.client.ModEntityLayers;
+import net.hollowed.antique.index.AntiqueEntityLayers;
 import net.hollowed.antique.client.armor.models.AdventureArmor;
-import net.hollowed.antique.items.ModItems;
-import net.hollowed.antique.util.IsHuskGetter;
-import net.hollowed.antique.util.IsWitherGetter;
+import net.hollowed.antique.index.AntiqueItems;
+import net.hollowed.antique.util.interfaces.duck.IsHuskGetter;
+import net.hollowed.antique.util.interfaces.duck.IsWitherGetter;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -17,7 +17,6 @@ import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.LoadedEntityModels;
 import net.minecraft.client.render.entity.state.BipedEntityRenderState;
-import net.minecraft.client.render.entity.state.SkeletonEntityRenderState;
 import net.minecraft.client.render.entity.state.ZombieEntityRenderState;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -35,14 +34,13 @@ public class AdventureArmorFeatureRenderer<S extends BipedEntityRenderState, M e
     public AdventureArmorFeatureRenderer(FeatureRendererContext<S, M> context, LoadedEntityModels modelLoader, boolean slim) {
         super(context);
         this.slim = slim;
-        this.model = new AdventureArmor<>(modelLoader.getModelPart(ModEntityLayers.ADVENTURE_ARMOR));
+        this.model = new AdventureArmor<>(modelLoader.getModelPart(AntiqueEntityLayers.ADVENTURE_ARMOR));
     }
 
     @Override
     public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, S state, float limbAngle, float limbDistance) {
         this.getContextModel().copyTransforms(this.model);
 
-        // Link the armor parts to the correct body parts
         this.model.head.copyTransform(this.getContextModel().head);
         this.model.body.copyTransform(this.getContextModel().body);
         this.model.rightArm.copyTransform(this.getContextModel().rightArm);
@@ -57,7 +55,7 @@ public class AdventureArmorFeatureRenderer<S extends BipedEntityRenderState, M e
         this.model.leftArmThick.visible = false;
         this.model.rightArmThick.visible = false;
 
-        if (state.equippedChestStack.getItem() == ModItems.NETHERITE_PAULDRONS) {
+        if (state.equippedChestStack.getItem() == AntiqueItems.NETHERITE_PAULDRONS) {
             this.model.body.visible = true;
             if (this.slim) {
                 this.model.leftArm.visible = true;
@@ -67,14 +65,13 @@ public class AdventureArmorFeatureRenderer<S extends BipedEntityRenderState, M e
                 this.model.leftArmThick.visible = true;
             }
         }
-        this.model.satchel.visible = state.equippedLegsStack.getItem() == ModItems.SATCHEL;
+        this.model.satchel.visible = state.equippedLegsStack.getItem() == AntiqueItems.SATCHEL;
 
-        if (state.equippedFeetStack.getItem() == ModItems.FUR_BOOTS) {
+        if (state.equippedFeetStack.getItem() == AntiqueItems.FUR_BOOTS) {
             this.model.rightLeg.visible = true;
             this.model.leftLeg.visible = true;
         }
 
-        // Render the armor
         if (this.slim) {
             VertexConsumer chestConsumers = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
                     state.equippedChestStack.hasGlint());

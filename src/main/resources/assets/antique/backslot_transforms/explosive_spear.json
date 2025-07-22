@@ -1,8 +1,0 @@
-{
-  "item": "antique:explosive_spear",
-  "scale": [2.0, 2.0, 1.0],
-  "rotation": [180.0, 180.0, 180.0],
-  "translation": [0.3, -0.2, -0.5],
-  "mode": "NONE",
-  "sway": 1.0
-}

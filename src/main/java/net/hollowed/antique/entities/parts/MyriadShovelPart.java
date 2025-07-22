@@ -46,6 +46,11 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 	@Override
 	public void tick() {
+		if (this.getOwner() == null && this.getWorld() instanceof ServerWorld) {
+			this.discard();
+			return;
+		}
+
 		if (this.age >= 20) {
 			this.age -= 9;
 		}
@@ -59,11 +64,13 @@ public class MyriadShovelPart extends Entity implements Ownable {
 			world.getChunkManager().unloadEntity(this);
 			world.getChunkManager().loadEntity(this);
 		}
+
+		if (this.getOwner() instanceof MyriadShovelEntity shovel && shovel.canPickup) {
+			this.discard();
+			return;
+		}
+
 		if (this.getOwner() != null) {
-			if (this.getOwner() instanceof MyriadShovelEntity shovel && shovel.canPickup) {
-				this.discard();
-				return;
-			}
 			float multiplier = 0.25F;
 			this.setPosition(Objects.requireNonNull(this.getOwner()).getPos().x, this.getOwner().getPos().y - 0.25, this.getOwner().getPos().z);
 			multiplier += (this.getOrderId() / 3.5F) - 0.2F;

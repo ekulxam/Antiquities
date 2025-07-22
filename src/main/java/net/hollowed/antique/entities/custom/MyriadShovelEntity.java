@@ -1,8 +1,8 @@
 package net.hollowed.antique.entities.custom;
 
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.client.item.explosive_spear.ClothManager;
-import net.hollowed.antique.entities.ModEntities;
+import net.hollowed.antique.client.renderer.cloth.ClothManager;
+import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.combatamenities.particles.ModParticles;
 import net.minecraft.component.DataComponentTypes;
@@ -46,87 +46,59 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 
 	public boolean canPickup;
 	public final ClothManager manager;
-	public int dyeColor;
-
-//	private final MyriadShovelPart[] parts;
-//	public final MyriadShovelPart part1;
-//	public final MyriadShovelPart part2;
 
 	public MyriadShovelEntity(EntityType<MyriadShovelEntity> entityType, World world) {
 		super(entityType, world);
 		this.shovelStack = Antiquities.getMyriadShovelStack();
 		this.manager = new ClothManager(new Vector3d(), 8);
 		this.dataTracker.set(COLOR, Objects.requireNonNull(this.shovelStack.get(DataComponentTypes.DYED_COLOR)).rgb());
-
-//		this.part1 = new MyriadShovelPart(this, "part1", 1F, 1F);
-//		this.part2 = new MyriadShovelPart(this, "part2", 1F, 1F);
-//		this.parts = new MyriadShovelPart[]{this.part1, this.part2};
 	}
 
 	public MyriadShovelEntity(World world, LivingEntity owner, ItemStack stack) {
-		super(ModEntities.MYRIAD_SHOVEL, owner, world, stack, null);
+		super(AntiqueEntities.MYRIAD_SHOVEL, owner, world, stack, null);
 		this.dataTracker.set(LOYALTY, this.getLoyalty(stack));
 		this.dataTracker.set(ENCHANTED, stack.hasGlint());
 		this.shovelStack = stack;
 		this.manager = new ClothManager(new Vector3d(), 8);
 		this.dataTracker.set(COLOR, Objects.requireNonNull(this.shovelStack.get(DataComponentTypes.DYED_COLOR)).rgb());
-
-//		this.part1 = new MyriadShovelPart(this, "part1", 0.1F, 0.1F);
-//		this.part2 = new MyriadShovelPart(this, "part2", 0.1F, 0.1F);
-//		this.parts = new MyriadShovelPart[]{this.part1, this.part2};
 	}
 
 	public int getDyeColor() {
 		return this.dataTracker.get(COLOR);
 	}
 
-//	public MyriadShovelPart[] getBodyParts() {
-//		return this.parts;
-//	}
-
-
-//	@Override
-//	public void onSpawnPacket(EntitySpawnS2CPacket packet) {
-//		super.onSpawnPacket(packet);
-//		MyriadShovelPart[] enderDragonParts = this.getBodyParts();
-//
-//		for (int i = 0; i < enderDragonParts.length; i++) {
-//			enderDragonParts[i].setId(i + packet.getEntityId() + 1);
-//		}
-//	}
-
 	public void summonPart() {
-		MyriadShovelPart entity1 = new MyriadShovelPart(ModEntities.MYRIAD_SHOVEL_PART, this.getWorld());
+		MyriadShovelPart entity1 = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.getWorld());
 		entity1.setOwner(this);
 		entity1.setOrderId(1);
 		this.getWorld().spawnEntity(entity1);
 
-		MyriadShovelPart entity2 = new MyriadShovelPart(ModEntities.MYRIAD_SHOVEL_PART, this.getWorld());
+		MyriadShovelPart entity2 = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.getWorld());
 		entity2.setOwner(this);
 		entity2.setOrderId(2);
 		this.getWorld().spawnEntity(entity2);
 
-		MyriadShovelPart entity3 = new MyriadShovelPart(ModEntities.MYRIAD_SHOVEL_PART, this.getWorld());
+		MyriadShovelPart entity3 = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.getWorld());
 		entity3.setOwner(this);
 		entity3.setOrderId(3);
 		this.getWorld().spawnEntity(entity3);
 
-		MyriadShovelPart entity4 = new MyriadShovelPart(ModEntities.MYRIAD_SHOVEL_PART, this.getWorld());
+		MyriadShovelPart entity4 = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.getWorld());
 		entity4.setOwner(this);
 		entity4.setOrderId(4);
 		this.getWorld().spawnEntity(entity4);
 
-		MyriadShovelPart entity5 = new MyriadShovelPart(ModEntities.MYRIAD_SHOVEL_PART, this.getWorld());
+		MyriadShovelPart entity5 = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.getWorld());
 		entity5.setOwner(this);
 		entity5.setOrderId(5);
 		this.getWorld().spawnEntity(entity5);
 
-		MyriadShovelPart entity6 = new MyriadShovelPart(ModEntities.MYRIAD_SHOVEL_PART, this.getWorld());
+		MyriadShovelPart entity6 = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.getWorld());
 		entity6.setOwner(this);
 		entity6.setOrderId(6);
 		this.getWorld().spawnEntity(entity6);
 
-		MyriadShovelPart entity7 = new MyriadShovelPart(ModEntities.MYRIAD_SHOVEL_PART, this.getWorld());
+		MyriadShovelPart entity7 = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.getWorld());
 		entity7.setOwner(this);
 		entity7.setOrderId(7);
 		this.getWorld().spawnEntity(entity7);
@@ -144,19 +116,8 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		builder.add(COLOR, 1);
 	}
 
-//	private void movePart(MyriadShovelPart enderDragonPart, double dx, double dy, double dz) {
-//		enderDragonPart.setPosition(this.getX() + dx, this.getY() + dy, this.getZ() + dz);
-//	}
-
 	@Override
 	public void tick() {
-
-//		for (MyriadShovelPart part : this.getBodyParts()) {
-//			this.movePart(part, 0, 0, 0);
-//
-//			Box box = part.getBoundingBox();
-//		}
-
 		if (this.inGroundTime > 4) {
 			this.dealtDamage = true;
 		}
@@ -223,21 +184,18 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		DamageSource damageSource = this.getDamageSources().trident(this, entity2 == null ? this : entity2);
 		if (this.getWorld() instanceof ServerWorld serverWorld) {
 			f = EnchantmentHelper.getDamage(serverWorld, Objects.requireNonNull(this.getWeaponStack()), entity, damageSource, f);
-		}
+			this.dealtDamage = true;
+			if (entity.damage(serverWorld, damageSource, f)) {
+				if (entity.getType() == EntityType.ENDERMAN) {
+					return;
+				}
 
-		this.dealtDamage = true;
-		if (entity.sidedDamage(damageSource, f)) {
-			if (entity.getType() == EntityType.ENDERMAN) {
-				return;
-			}
-
-			if (this.getWorld() instanceof ServerWorld serverWorld) {
 				EnchantmentHelper.onTargetDamaged(serverWorld, entity, damageSource, this.getWeaponStack(), item -> this.kill(serverWorld));
-			}
 
-			if (entity instanceof LivingEntity livingEntity) {
-				this.knockback(livingEntity, damageSource);
-				this.onHit(livingEntity);
+				if (entity instanceof LivingEntity livingEntity) {
+					this.knockback(livingEntity, damageSource);
+					this.onHit(livingEntity);
+				}
 			}
 		}
 

@@ -1,7 +1,7 @@
 package net.hollowed.antique.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.hollowed.antique.blocks.custom.screen.DyeingScreenHandler;
+import net.hollowed.antique.blocks.screens.DyeingScreenHandler;
 
 public class DyePacketReceiver {
     public static void registerServerPacket() {

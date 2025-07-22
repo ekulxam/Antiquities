@@ -1,8 +1,8 @@
 package net.hollowed.antique.entities.custom;
 
-import net.hollowed.antique.ModSounds;
-import net.hollowed.antique.particles.ModParticles;
-import net.hollowed.antique.util.TickDelayScheduler;
+import net.hollowed.antique.index.AntiqueSounds;
+import net.hollowed.antique.index.AntiqueParticles;
+import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.EntityStatuses;
 import net.minecraft.entity.EntityType;
@@ -55,7 +55,7 @@ public class CakeEntity extends PersistentProjectileEntity {
                     Vec3d particlePos = this.getPos();
 
                     world.addParticleClient(
-                            ModParticles.CAKE_SMEAR,
+                            AntiqueParticles.CAKE_SMEAR,
                             particlePos.x + direction.getOffsetX() * (Math.random() / 10.0),
                             particlePos.y + direction.getOffsetY() * (Math.random() / 10.0),
                             particlePos.z + direction.getOffsetZ() * (Math.random() / 10.0),
@@ -163,7 +163,7 @@ public class CakeEntity extends PersistentProjectileEntity {
         }
 
         super.onBlockHit(blockHitResult);
-        this.setSound(ModSounds.CAKE_SPLAT);
+        this.setSound(AntiqueSounds.CAKE_SPLAT);
     }
 
     @Override
@@ -173,6 +173,6 @@ public class CakeEntity extends PersistentProjectileEntity {
 
     @Override
     protected SoundEvent getHitSound() {
-        return ModSounds.CAKE_SPLAT;
+        return AntiqueSounds.CAKE_SPLAT;
     }
 }

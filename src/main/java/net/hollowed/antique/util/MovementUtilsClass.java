@@ -7,7 +7,6 @@ import net.minecraft.util.math.Box;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import org.spongepowered.asm.mixin.Unique;
 
 public class MovementUtilsClass {
 
@@ -55,7 +54,6 @@ public class MovementUtilsClass {
         return motion;
     }
 
-    @Unique
     public static boolean collidesWithSolidBlock(World world, Box box, Entity entity) {
         // Check for collision with any solid block in the given bounding box
         return world.getBlockCollisions(entity, box).iterator().hasNext();

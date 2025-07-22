@@ -1,7 +1,7 @@
 package net.hollowed.antique.networking;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.hollowed.antique.blocks.entities.custom.PedestalBlockEntity;
+import net.hollowed.antique.blocks.entities.PedestalBlockEntity;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.item.ItemStack;

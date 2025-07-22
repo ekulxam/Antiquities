@@ -1,10 +1,4 @@
 {
-  "parry_ultrakill": {
-    "subtitle": "subtitles.antique.ultrakill",
-    "sounds": [
-      "antique:parry_ultrakill"
-    ]
-  },
   "firecracker": {
     "subtitle": "subtitles.antique.firecracker",
     "sounds": [

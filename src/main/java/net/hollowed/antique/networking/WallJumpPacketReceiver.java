@@ -1,7 +1,7 @@
 package net.hollowed.antique.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.hollowed.antique.particles.ModParticles;
+import net.hollowed.antique.index.AntiqueParticles;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -18,15 +18,10 @@ public class WallJumpPacketReceiver {
 
             if (entity != null) {
                 entity.getWorld().playSound(null, entity.getBlockPos(), SoundEvents.ENTITY_GOAT_LONG_JUMP, SoundCategory.PLAYERS, 1.0F, 1.0F);
-
-                // Create a push vector that moves the player away from the wall
-                Vec3d pushVector = new Vec3d(0, 0, 0); // Apply horizontal push and vertical boost
-
-                // Determine the direction of the collided wall and add velocity
+                Vec3d pushVector = new Vec3d(0, 0, 0);
                 Box box = entity.getBoundingBox();
                 double offset = 1;
 
-                // Check in each cardinal direction for solid blocks
                 boolean collidingWest = collidesWithSolidBlock(entity.getWorld(), box.offset(-offset, 0, 0), entity);
                 boolean collidingEast = collidesWithSolidBlock(entity.getWorld(), box.offset(offset, 0, 0), entity);
                 boolean collidingNorth = collidesWithSolidBlock(entity.getWorld(), box.offset(0, 0, -offset), entity);
@@ -38,7 +33,6 @@ public class WallJumpPacketReceiver {
                 double particleX = entity.getX();
                 double particleZ = entity.getZ();
 
-                // Apply velocity in the opposite direction of the collision
                 if (collidingWest) {
                     pushVector = pushVector.add(10, 0, 0); // Push east
                     x -= 0.15;
@@ -71,14 +65,13 @@ public class WallJumpPacketReceiver {
 
     @Unique
     private static boolean collidesWithSolidBlock(World world, Box box, Entity entity) {
-        // Check for collision with any solid block in the given bounding box
         return world.getBlockCollisions(entity, box).iterator().hasNext();
     }
 
     public static void particles(World world, float x, float y, float z, float particleX, float particleZ, Vec3d pushVector) {
         for (int i = 0; i < 10; i++) {
             world.addImportantParticleClient(
-                    ModParticles.DUST_PARTICLE,
+                    AntiqueParticles.DUST_PARTICLE,
                     particleX + Math.random() * 0.5 - 0.25,
                     y + 0.5 + Math.random() * 0.5 - 0.5,
                     particleZ + Math.random() * 0.5 - 0.25,
@@ -88,6 +81,6 @@ public class WallJumpPacketReceiver {
             );
         }
 
-        world.addImportantParticleClient(ModParticles.SPARKLE_PARTICLE, x, y + 0.5, z, pushVector.x, 0, pushVector.z);
+        world.addImportantParticleClient(AntiqueParticles.SPARKLE_PARTICLE, x, y + 0.5, z, pushVector.x, 0, pushVector.z);
     }
 }

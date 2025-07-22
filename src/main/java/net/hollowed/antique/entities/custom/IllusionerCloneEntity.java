@@ -5,8 +5,8 @@
 
 package net.hollowed.antique.entities.custom;
 
-import net.hollowed.antique.util.SetSpellTicks;
-import net.hollowed.antique.util.TickDelayScheduler;
+import net.hollowed.antique.util.interfaces.duck.SetSpellTicks;
+import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.*;
 import net.minecraft.entity.ai.RangedAttackMob;
@@ -69,9 +69,9 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
         this.goalSelector.add(9, new LookAtEntityGoal(this, PlayerEntity.class, 3.0F, 1.0F));
         this.goalSelector.add(10, new LookAtEntityGoal(this, MobEntity.class, 8.0F));
         this.targetSelector.add(1, (new RevengeGoal(this, RaiderEntity.class)).setGroupRevenge());
-        this.targetSelector.add(2, (new ActiveTargetGoal(this, PlayerEntity.class, true)).setMaxTimeWithoutVisibility(300));
-        this.targetSelector.add(3, (new ActiveTargetGoal(this, MerchantEntity.class, false)).setMaxTimeWithoutVisibility(300));
-        this.targetSelector.add(3, (new ActiveTargetGoal(this, IronGolemEntity.class, false)).setMaxTimeWithoutVisibility(300));
+        this.targetSelector.add(2, (new ActiveTargetGoal<>(this, PlayerEntity.class, true)).setMaxTimeWithoutVisibility(300));
+        this.targetSelector.add(3, (new ActiveTargetGoal<>(this, MerchantEntity.class, false)).setMaxTimeWithoutVisibility(300));
+        this.targetSelector.add(3, (new ActiveTargetGoal<>(this, IronGolemEntity.class, false)).setMaxTimeWithoutVisibility(300));
     }
 
     @Override
@@ -222,6 +222,7 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean teleportTo(double x, double y, double z, LivingEntity entity) {
         BlockPos.Mutable mutable = new BlockPos.Mutable(x, y, z);
 

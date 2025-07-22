@@ -6,9 +6,10 @@
 package net.hollowed.antique.entities.custom;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.hollowed.antique.entities.ModEntities;
+import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.networking.IllusionerParticlePacketPayload;
-import net.hollowed.antique.util.TickDelayScheduler;
+import net.hollowed.antique.util.FireworkUtil;
+import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
@@ -91,10 +92,10 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
         this.goalSelector.add(8, new WanderAroundGoal(this, 0.6));
         this.goalSelector.add(9, new LookAtEntityGoal(this, PlayerEntity.class, 3.0F, 1.0F));
         this.goalSelector.add(10, new LookAtEntityGoal(this, MobEntity.class, 8.0F));
-        this.targetSelector.add(1, (new RevengeGoal(this, new Class[]{RaiderEntity.class})).setGroupRevenge(new Class[0]));
-        this.targetSelector.add(2, (new ActiveTargetGoal(this, PlayerEntity.class, true)).setMaxTimeWithoutVisibility(300));
-        this.targetSelector.add(3, (new ActiveTargetGoal(this, MerchantEntity.class, false)).setMaxTimeWithoutVisibility(300));
-        this.targetSelector.add(3, (new ActiveTargetGoal(this, IronGolemEntity.class, false)).setMaxTimeWithoutVisibility(300));
+        this.targetSelector.add(1, (new RevengeGoal(this, RaiderEntity.class)).setGroupRevenge());
+        this.targetSelector.add(2, (new ActiveTargetGoal<>(this, PlayerEntity.class, true)).setMaxTimeWithoutVisibility(300));
+        this.targetSelector.add(3, (new ActiveTargetGoal<>(this, MerchantEntity.class, false)).setMaxTimeWithoutVisibility(300));
+        this.targetSelector.add(3, (new ActiveTargetGoal<>(this, IronGolemEntity.class, false)).setMaxTimeWithoutVisibility(300));
     }
 
     public static DefaultAttributeContainer.Builder createIllusionerAttributes() {
@@ -127,7 +128,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
 
     @Override
     protected void applyDamage(ServerWorld world, DamageSource source, float amount) {
-        IllusionerCloneEntity clone = new IllusionerCloneEntity(ModEntities.ILLUSIONER_CLONE, this.getWorld());
+        IllusionerCloneEntity clone = new IllusionerCloneEntity(AntiqueEntities.ILLUSIONER_CLONE, this.getWorld());
         clone.equipStack(EquipmentSlot.MAINHAND, Items.BOW.getDefaultStack());
         clone.setPosition(this.getX(), this.getY(), this.getZ());
         clone.setOwner(this);
@@ -171,7 +172,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
                 int j;
                 for(j = 0; j < 4; ++j) {
                     this.mirrorCopyOffsets[0][j] = this.mirrorCopyOffsets[1][j];
-                    this.mirrorCopyOffsets[1][j] = new Vec3d((double)(-6.0F + (float)this.random.nextInt(13)) * 0.5, (double)Math.max(0, this.random.nextInt(6) - 4), (double)(-6.0F + (float)this.random.nextInt(13)) * 0.5);
+                    this.mirrorCopyOffsets[1][j] = new Vec3d((double)(-6.0F + (float)this.random.nextInt(13)) * 0.5, Math.max(0, this.random.nextInt(6) - 4), (double)(-6.0F + (float)this.random.nextInt(13)) * 0.5);
                 }
 
                 for(j = 0; j < 16; ++j) {
@@ -232,7 +233,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
     public void shootAt(LivingEntity target, float pullProgress) {
         World world = this.getWorld();
         ItemStack stack = Items.FIREWORK_ROCKET.getDefaultStack();
-        stack.set(DataComponentTypes.FIREWORKS, IllusionerArrowEntity.randomFirework());
+        stack.set(DataComponentTypes.FIREWORKS, FireworkUtil.randomFirework());
         if (world instanceof ServerWorld serverWorld) {
             FireworkRocketEntity projectile = new FireworkRocketEntity(world, stack, this.getX(), this.getY() + 1, this.getZ(), true);
             Vec3d direction = this.getPos().subtract(target.getPos());
@@ -309,7 +310,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
                     }
 
                     if (bestY != -1) {
-                        IllusionerCloneEntity clone = new IllusionerCloneEntity(ModEntities.ILLUSIONER_CLONE, IllusionerEntity.this.getWorld());
+                        IllusionerCloneEntity clone = new IllusionerCloneEntity(AntiqueEntities.ILLUSIONER_CLONE, IllusionerEntity.this.getWorld());
                         clone.equipStack(EquipmentSlot.MAINHAND, Items.BOW.getDefaultStack());
                         clone.setPosition(x, bestY, z);
                         clone.setOwner(IllusionerEntity.this);
@@ -384,7 +385,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
         protected void castSpell() {
             for (int i = 0; i < 3; i++) {
                 TickDelayScheduler.schedule(random.nextBetween(0, 10), () -> {
-                    SmokeBombEntity smokeBomb = new SmokeBombEntity(ModEntities.SMOKE_BOMB, IllusionerEntity.this.getWorld());
+                    SmokeBombEntity smokeBomb = new SmokeBombEntity(AntiqueEntities.SMOKE_BOMB, IllusionerEntity.this.getWorld());
                     smokeBomb.setPosition(IllusionerEntity.this.getPos().add((Math.random() - 0.5) * 2, 3, (Math.random() - 0.5) * 2));
                     smokeBomb.setVelocity((Math.random() - 0.5) * 0.8, 0.25, (Math.random() - 0.5) * 0.8);
                     IllusionerEntity.this.getWorld().spawnEntity(smokeBomb);
