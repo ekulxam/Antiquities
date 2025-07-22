@@ -3,7 +3,7 @@ package net.hollowed.antique.mixin.items;
 import net.hollowed.antique.index.AntiqueComponents;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.MyriadToolItem;
-import net.hollowed.combatamenities.particles.ModParticles;
+import net.hollowed.combatamenities.index.CAParticles;
 import net.minecraft.entity.Attackable;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -82,7 +82,7 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
 
             double d = -MathHelper.sin(this.getYaw() * (float) (Math.PI / 180.0)) * 1.5;
             double e = MathHelper.cos(this.getYaw() * (float) (Math.PI / 180.0)) * 1.5;
-            world.spawnParticles(ModParticles.RING, this.getX() + d, this.getBodyY(0.5) + 0.25, this.getZ() + e, 0, d, 0.0, e, 0.0);
+            world.spawnParticles(CAParticles.RING, this.getX() + d, this.getBodyY(0.5) + 0.25, this.getZ() + e, 0, d, 0.0, e, 0.0);
 
             cir.setReturnValue(false);
         } else {
@@ -90,7 +90,7 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
                 self.getWorld().playSound(null, self.getBlockPos(), SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.2F);
                 self.getWorld().playSound(null, self.getBlockPos(), SoundEvents.ITEM_SHIELD_BLOCK.value(), SoundCategory.PLAYERS, 0.25F, 1.2F);
                 if (source.getSource() != null) {
-                    world.spawnParticles(ModParticles.RING, source.getSource().getX(), source.getSource().getY(), source.getSource().getZ(), 1, 0.0, 0.0, 0.0, 0);
+                    world.spawnParticles(CAParticles.RING, source.getSource().getX(), source.getSource().getY(), source.getSource().getZ(), 1, 0.0, 0.0, 0.0, 0);
                 }
                 cir.setReturnValue(false);
             }

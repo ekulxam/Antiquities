@@ -4,7 +4,7 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
-import net.hollowed.combatamenities.particles.ModParticles;
+import net.hollowed.combatamenities.index.CAParticles;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -168,7 +168,7 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	protected void onCollision(HitResult hitResult) {
 		super.onCollision(hitResult);
 		if (this.getWorld() instanceof ServerWorld serverWorld) {
-			serverWorld.spawnParticles(ModParticles.RING, this.getX(), this.getY(), this.getZ(), 1, 0.0, 0.0, 0.0, 0);
+			serverWorld.spawnParticles(CAParticles.RING, this.getX(), this.getY(), this.getZ(), 1, 0.0, 0.0, 0.0, 0);
 		}
 	}
 

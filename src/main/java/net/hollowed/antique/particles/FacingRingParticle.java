@@ -37,7 +37,7 @@ public class FacingRingParticle extends AnimatedParticle {
 		this.velocityY = 0;
 		this.velocityZ = 0;
 
-		this.maxAge = 12;
+		this.maxAge = 7;
 		this.setSpriteForAge(spriteProvider);
 		this.gravityStrength = 0;
 		this.scale = 1;

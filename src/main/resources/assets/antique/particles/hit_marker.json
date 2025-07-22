@@ -1,8 +1,7 @@
 {
   "textures": [
-    "combatamenities:hit_marker1",
-    "combatamenities:hit_marker2",
-    "combatamenities:hit_marker3",
-    "combatamenities:hit_marker4"
+    "antique:hit_marker1",
+    "antique:hit_marker2",
+    "antique:hit_marker3"
   ]
 }

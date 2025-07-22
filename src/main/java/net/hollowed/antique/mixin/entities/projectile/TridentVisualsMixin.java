@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin.entities.projectile;
 
-import net.hollowed.combatamenities.particles.ModParticles;
+import net.hollowed.combatamenities.index.CAParticles;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.TridentEntity;
@@ -20,7 +20,7 @@ public abstract class TridentVisualsMixin extends PersistentProjectileEntity {
     protected void onCollision(HitResult hitResult) {
         super.onCollision(hitResult);
         if (this.getWorld() instanceof ServerWorld serverWorld) {
-            serverWorld.spawnParticles(ModParticles.RING, this.getX(), this.getY(), this.getZ(), 1, 0.0, 0.0, 0.0, 0);
+            serverWorld.spawnParticles(CAParticles.RING, this.getX(), this.getY(), this.getZ(), 1, 0.0, 0.0, 0.0, 0);
         }
     }
 }

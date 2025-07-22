@@ -4,8 +4,6 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.combatamenities.util.delay.ClientTickDelayScheduler;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
@@ -25,38 +23,30 @@ public class ClothSkinListener implements SimpleSynchronousResourceReloadListene
 
     @Override
     public void reload(ResourceManager manager) {
-        MinecraftClient.getInstance().execute(() -> this.actuallyLoad(manager));
-    }
+        manager.findResources("cloth_skins", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
+            if (manager.getResource(id).isPresent()) {
+                try (InputStream stream = manager.getResource(id).get().getInputStream()) {
+                    var json = JsonHelper.deserialize(new InputStreamReader(stream, StandardCharsets.UTF_8));
+                    DataResult<ClothSkinData> result = ClothSkinData.CODEC.parse(JsonOps.INSTANCE, json);
 
-    private void actuallyLoad(ResourceManager manager) {
-        ClientTickDelayScheduler.schedule(-1, () -> {
-            transforms.clear();
-
-            manager.findResources("cloth_skins", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
-                if (manager.getResource(id).isPresent()) {
-                    try (InputStream stream = manager.getResource(id).get().getInputStream()) {
-                        var json = JsonHelper.deserialize(new InputStreamReader(stream, StandardCharsets.UTF_8));
-                        DataResult<ClothSkinData> result = ClothSkinData.CODEC.parse(JsonOps.INSTANCE, json);
-
-                        result.resultOrPartial(Antiquities.LOGGER::error).ifPresent(data -> {
-                            for (ClothSkinData.ClothSubData entry : data.list()) {
-                                int intValue = 0;
-                                try {
-                                    if (!entry.hex().isBlank()) {
-                                        intValue = Integer.parseInt(entry.hex(), 16);
-                                    }
-                                } catch (NumberFormatException e) {
-                                    System.err.println("Invalid hexadecimal string format: " + e.getMessage());
+                    result.resultOrPartial(Antiquities.LOGGER::error).ifPresent(data -> {
+                        for (ClothSkinData.ClothSubData entry : data.list()) {
+                            int intValue = 0;
+                            try {
+                                if (!entry.hex().isBlank()) {
+                                    intValue = Integer.parseInt(entry.hex(), 16);
                                 }
-
-                                transforms.put(intValue, entry);
+                            } catch (NumberFormatException e) {
+                                System.err.println("Invalid hexadecimal string format: " + e.getMessage());
                             }
-                        });
-                    } catch (Exception e) {
-                        Antiquities.LOGGER.error("Failed to load transform for {}: {}", id, e.getMessage());
-                    }
+
+                            transforms.put(intValue, entry);
+                        }
+                    });
+                } catch (Exception e) {
+                    Antiquities.LOGGER.error("Failed to load transform for {}: {}", id, e.getMessage());
                 }
-            });
+            }
         });
     }
 

@@ -7,7 +7,7 @@ import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.NetheritePauldronsItem;
 import net.hollowed.antique.items.VelocityTransferMaceItem;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
-import net.hollowed.combatamenities.particles.ModParticles;
+import net.hollowed.combatamenities.index.CAParticles;
 import net.minecraft.entity.*;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
@@ -60,7 +60,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                         SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.3F);
 
                 if (this.getWorld() instanceof ServerWorld serverWorld) {
-                    serverWorld.spawnParticles(ModParticles.RING, target.getX(), target.getBodyY(0.6), target.getZ(), 1, 0.1, 0.2, 0.1, 0);
+                    serverWorld.spawnParticles(CAParticles.RING, target.getX(), target.getBodyY(0.6), target.getZ(), 1, 0.1, 0.2, 0.1, 0);
                 }
 
                 Vec3d effectiveVelocity = VelocityTransferMaceItem.playerVelocity;
