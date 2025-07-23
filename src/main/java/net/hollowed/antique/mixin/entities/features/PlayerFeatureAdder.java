@@ -81,7 +81,7 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
     @Inject(method = "renderLeftArm", at = @At("TAIL"))
     public void renderArmoredLeftArm(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        assert player != null;
+        if (player == null) return;
         if (player.getEquippedStack(EquipmentSlot.CHEST).getItem() == AntiqueItems.NETHERITE_PAULDRONS) {
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-5));
             matrices.translate(0.075, 0, 0);
@@ -101,7 +101,7 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
     @Inject(method = "renderRightArm", at = @At("TAIL"))
     public void renderArmoredRightArm(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        assert player != null;
+        if (player == null) return;
         if (player.getEquippedStack(EquipmentSlot.CHEST).getItem() == AntiqueItems.NETHERITE_PAULDRONS) {
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(5));
             matrices.translate(-0.075, 0, 0);

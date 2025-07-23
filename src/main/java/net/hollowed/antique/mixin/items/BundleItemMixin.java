@@ -140,7 +140,7 @@ public abstract class BundleItemMixin extends Item {
     public void onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player, CallbackInfoReturnable<Boolean> cir) {
         if (EnchantmentListener.hasEnchantment(stack, "antique:curse_of_voiding")) {
             BundleContentsComponent bundleContentsComponent = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
-            assert bundleContentsComponent != null;
+            if (bundleContentsComponent == null) return;
 
             BundleContentsComponent.Builder builder = new BundleContentsComponent.Builder(bundleContentsComponent);
             ItemStack itemStack = builder.removeSelected();
@@ -161,7 +161,7 @@ public abstract class BundleItemMixin extends Item {
     public void onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference, CallbackInfoReturnable<Boolean> cir) {
         if (EnchantmentListener.hasEnchantment(stack, "antique:curse_of_voiding")) {
             BundleContentsComponent bundleContentsComponent = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
-            assert bundleContentsComponent != null;
+            if (bundleContentsComponent == null) return;
 
             BundleContentsComponent.Builder builder = new BundleContentsComponent.Builder(bundleContentsComponent);
             ItemStack itemStack = builder.removeSelected();
@@ -268,7 +268,7 @@ public abstract class BundleItemMixin extends Item {
                                 minecartType, SpawnReason.DISPENSER, itemStack, player
                         );
 
-                        assert abstractMinecartEntity != null;
+                        if (abstractMinecartEntity == null) return;
                         abstractMinecartEntity.setVelocity(forward.add(player.getVelocity()));
                         player.getWorld().spawnEntity(abstractMinecartEntity);
                         playPotionThrowSound(player.getWorld(), player);
@@ -299,7 +299,7 @@ public abstract class BundleItemMixin extends Item {
         boolean hasProjectingEnchantment = EnchantmentListener.hasEnchantment(stack, "antique:projecting");
 
         BundleContentsComponent bundleContentsComponent = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
-        assert bundleContentsComponent != null;
+        if (bundleContentsComponent == null) return false;
 
         if (!bundleContentsComponent.isEmpty()) {
             Optional<ItemStack> optional = popFirstBundledStack(stack, player, bundleContentsComponent);

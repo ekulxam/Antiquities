@@ -39,7 +39,7 @@ public class SatchelOverlayMixin {
         MinecraftClient client = MinecraftClient.getInstance();
         TextRenderer textRenderer = client.textRenderer;
         PlayerEntity player = client.player;
-        assert player != null;
+        if (player == null) return;
 
         ItemStack satchel = player.getEquippedStack(EquipmentSlot.LEGS);
         if (satchel.getItem() != AntiqueItems.SATCHEL || !AntiqueKeyBindings.showSatchel.isPressed()) return;

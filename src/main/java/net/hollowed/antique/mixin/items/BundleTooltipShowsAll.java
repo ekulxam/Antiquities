@@ -116,7 +116,7 @@ public abstract class BundleTooltipShowsAll {
 
         for (int p = 0; p < this.getRows(); ++p) {
             for (int q = 0; q < BundleTooltipShowsAll.columns; ++q) {
-                assert list != null;
+                if (list == null) return;
                 if (o > list.size()) {
                     break;
                 }

@@ -161,7 +161,7 @@ public class MyriadShovelBit extends MyriadToolBitItem{
     private static boolean shouldCancelStripAttempt(ItemUsageContext context) {
         PlayerEntity playerEntity = context.getPlayer();
         if (!context.getHand().equals(Hand.MAIN_HAND)) return false;
-        assert playerEntity != null;
+        if (playerEntity == null) return false;
         return playerEntity.getOffHandStack().isOf(Items.SHIELD) && !playerEntity.shouldCancelInteraction();
     }
 
@@ -267,7 +267,7 @@ public class MyriadShovelBit extends MyriadToolBitItem{
         BlockPos blockPos = context.getBlockPos();
         PlayerEntity playerEntity = context.getPlayer();
 
-        assert playerEntity != null;
+        if (playerEntity == null) return ActionResult.FAIL;
         if (playerEntity.isSneaking()) {
             BlockState blockState = world.getBlockState(blockPos);
             if (context.getSide() == Direction.DOWN) {

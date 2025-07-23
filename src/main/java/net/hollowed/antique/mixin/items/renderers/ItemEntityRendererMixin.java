@@ -42,7 +42,7 @@ public abstract class ItemEntityRendererMixin {
         if (!itemEntityRenderState.itemRenderState.isEmpty()) {
             matrixStack.push();
             Box box = itemEntityRenderState.itemRenderState.getModelBoundingBox();
-            assert box != null;
+            if (box == null) return;
             float f = -((float)box.minY) + 0.0625F;
             float g = MathHelper.sin(itemEntityRenderState.age / 10.0F + itemEntityRenderState.uniqueOffset) * 0.1F + 0.1F;
             matrixStack.translate(0.0F, g + f, 0.0F);

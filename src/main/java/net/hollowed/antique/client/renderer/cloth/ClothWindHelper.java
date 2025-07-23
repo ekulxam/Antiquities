@@ -19,7 +19,7 @@ public class ClothWindHelper {
         WIND_NOISE_HERTZ = 0.00001;
         double frequency = WIND_NOISE_FREQ * flow;
         double multiplier = WIND_NOISE_HERTZ * drag;
-        assert MinecraftClient.getInstance().world != null;
+        if (MinecraftClient.getInstance().world == null) return;
         double time = MinecraftClient.getInstance().world.getTime() * 0.02; // Smooth time-based noise variation
 
         // Perlin Noise Instances for wind dynamics

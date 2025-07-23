@@ -121,7 +121,7 @@ public class MyriadMattockBit extends MyriadToolBitItem{
         World world = context.getWorld();
         BlockPos blockPos = context.getBlockPos();
         PlayerEntity playerEntity = context.getPlayer();
-        assert playerEntity != null;
+        if (playerEntity == null) return ActionResult.FAIL;
 
         if (playerEntity.isSneaking()) {
             Pair<Predicate<ItemUsageContext>, Consumer<ItemUsageContext>> pair = TILLING_ACTIONS.get(
