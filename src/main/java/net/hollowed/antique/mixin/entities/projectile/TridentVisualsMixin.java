@@ -6,6 +6,7 @@ import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.TridentEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.hit.HitResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 
@@ -20,7 +21,8 @@ public abstract class TridentVisualsMixin extends PersistentProjectileEntity {
     protected void onCollision(HitResult hitResult) {
         super.onCollision(hitResult);
         if (this.getWorld() instanceof ServerWorld serverWorld) {
-            serverWorld.spawnParticles(CAParticles.RING, this.getX(), this.getY(), this.getZ(), 1, 0.0, 0.0, 0.0, 0);
+            Vec3d pos = this.getPos().add(this.getRotationVector().multiply(1, 1, -1));
+            serverWorld.spawnParticles(CAParticles.RING, pos.getX(), pos.getY(), pos.getZ(), 1, 0.0, 0.0, 0.0, 0);
         }
     }
 }

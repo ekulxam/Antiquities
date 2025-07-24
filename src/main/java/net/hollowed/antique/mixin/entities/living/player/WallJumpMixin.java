@@ -105,7 +105,6 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
                     if (!this.jumping && !this.isSneaking()) vec3d = new Vec3d(vec3d.x, 0, vec3d.z);
                 }
 
-
                 cir.setReturnValue(vec3d);
             }
         }

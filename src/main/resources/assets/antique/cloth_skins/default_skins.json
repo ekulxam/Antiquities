@@ -104,7 +104,8 @@
     },
     {
       "texture": "antique:textures/item/boko_cloth.png",
-      "color": "f4f2ff"
+      "color": "5b95dc",
+      "width": 0.166
     },
     {
       "texture": "antique:textures/item/doctorish_cloth.png",
@@ -241,6 +242,15 @@
       "color": "06d7ae",
       "length": 2.1,
       "bodies": 12
+    },
+    {
+      "texture": "antique:textures/item/shiv_cloth.png",
+      "color": "262323",
+      "light": 255
+    },
+    {
+      "texture": "antique:textures/item/four_cloth.png",
+      "color": "9fee5f"
     }
   ]
 }

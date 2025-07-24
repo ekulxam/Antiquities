@@ -1,4 +1,4 @@
-package net.hollowed.antique.mixin.entities.boat_ghast;
+package net.hollowed.antique.mixin.entities.living.boat_ghast;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
 import net.minecraft.entity.Entity;

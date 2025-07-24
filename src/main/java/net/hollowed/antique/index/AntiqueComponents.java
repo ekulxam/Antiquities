@@ -1,5 +1,6 @@
 package net.hollowed.antique.index;
 
+import com.mojang.serialization.Codec;
 import net.hollowed.antique.Antiquities;
 import net.minecraft.component.ComponentType;
 import net.minecraft.item.ItemStack;
@@ -22,6 +23,13 @@ public interface AntiqueComponents {
             Identifier.of(Antiquities.MOD_ID, "myriad_stack"),
             ComponentType.<ItemStack>builder()
                     .codec(ItemStack.CODEC.fieldOf("myriad_stack").codec())
+                    .build()
+    );
+    ComponentType<Integer> COUNTER = Registry.register(
+            Registries.DATA_COMPONENT_TYPE,
+            Identifier.of(Antiquities.MOD_ID, "counter"),
+            ComponentType.<Integer>builder()
+                    .codec(Codec.INT.fieldOf("counter").codec())
                     .build()
     );
 

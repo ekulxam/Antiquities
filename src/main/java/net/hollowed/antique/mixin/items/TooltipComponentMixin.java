@@ -15,7 +15,7 @@ public interface TooltipComponentMixin {
     @Inject(method = "of(Lnet/minecraft/item/tooltip/TooltipData;)Lnet/minecraft/client/gui/tooltip/TooltipComponent;", at = @At("HEAD"), cancellable = true)
     private static void of(TooltipData tooltipData, CallbackInfoReturnable<TooltipComponent> cir) {
         if (tooltipData instanceof SatchelTooltipData satchelTooltipData) {
-            cir.setReturnValue(new SatchelTooltipComponent(satchelTooltipData.contents()));
+            cir.setReturnValue(new SatchelTooltipComponent(satchelTooltipData.contents(), satchelTooltipData.stack()));
         }
     }
 }

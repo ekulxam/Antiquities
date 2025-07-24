@@ -1,4 +1,4 @@
-package net.hollowed.antique.mixin.entities.boat_ghast;
+package net.hollowed.antique.mixin.entities.living.boat_ghast;
 
 import net.hollowed.antique.util.interfaces.duck.BoatControllable;
 import net.minecraft.entity.EntityType;

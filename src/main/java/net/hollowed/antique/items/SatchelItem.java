@@ -2,17 +2,22 @@ package net.hollowed.antique.items;
 
 import net.hollowed.antique.index.AntiqueComponents;
 import net.hollowed.antique.items.tooltips.SatchelTooltipData;
+import net.hollowed.combatamenities.util.items.ModComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.TooltipDisplayComponent;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.screen.slot.Slot;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.math.ColorHelper;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +26,8 @@ import java.util.Optional;
 
 public class SatchelItem extends Item {
     public static final int MAX_STACKS = 8;
-    private int index = 0;
-    private int internalIndex = 0;
+    public static int index = 0;
+    public static List<ItemStack> lastContents = null;
 
     private static final int FULL_ITEM_BAR_COLOR = ColorHelper.fromFloats(1.0F, 1.0F, 0.33F, 0.33F);
     private static final int ITEM_BAR_COLOR = ColorHelper.fromFloats(1.0F, 0.44F, 0.53F, 1.0F);
@@ -53,7 +58,17 @@ public class SatchelItem extends Item {
         TooltipDisplayComponent tooltipDisplayComponent = stack.getOrDefault(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent.DEFAULT);
         return !tooltipDisplayComponent.shouldDisplay(AntiqueComponents.SATCHEL_STACK)
                 ? Optional.empty()
-                : Optional.ofNullable(stack.get(AntiqueComponents.SATCHEL_STACK)).map(SatchelTooltipData::new);
+                : Optional.ofNullable(stack.get(AntiqueComponents.SATCHEL_STACK)).map(items -> new SatchelTooltipData(items, stack));
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, ServerWorld world, Entity entity, @Nullable EquipmentSlot slot) {
+        if (stack.getOrDefault(AntiqueComponents.COUNTER, 2) < 1) {
+            stack.set(AntiqueComponents.COUNTER, stack.getOrDefault(AntiqueComponents.COUNTER, 1) + 1);
+        } else {
+            setInternalIndex(stack, -1);
+        }
+        super.inventoryTick(stack, world, entity, slot);
     }
 
     @Override
@@ -69,7 +84,6 @@ public class SatchelItem extends Item {
                     storedStacks.set(0, ItemStack.EMPTY);
                     player.playSound(SoundEvents.ITEM_BUNDLE_REMOVE_ONE, 0.8F, 1.0F);
                     setStoredStacks(stack, storedStacks); // Re-set without empty stacks
-                    this.setInternalIndex(0);
                     return true;
                 }
             }
@@ -81,7 +95,6 @@ public class SatchelItem extends Item {
             // Check if the item being added is invalid
             if (isInvalidItem(otherStack)) {
                 player.playSound(SoundEvents.ITEM_BUNDLE_INSERT_FAIL, 0.8F, 1.0F);
-                this.setInternalIndex(0);
                 return true;
             }
 
@@ -100,11 +113,9 @@ public class SatchelItem extends Item {
 
                     // Clear the cursor stack after adding an item to the satchel
                     slot.setStack(ItemStack.EMPTY);
-                    this.setInternalIndex(0);
                     return true;
                 } else if (i == 7) {
                     player.playSound(SoundEvents.ITEM_BUNDLE_INSERT_FAIL, 0.8F, 1.0F);
-                    this.setInternalIndex(0);
                     return true;
                 }
             }
@@ -118,13 +129,14 @@ public class SatchelItem extends Item {
         if (clickType == ClickType.RIGHT) {
             if (otherStack.isEmpty()) {
 
+                int index = !hasSelectedStack(stack) ? 0 : getInternalIndex(stack);
+
                 // Remove the internal selected stack :3
-                if (!storedStacks.isEmpty() && !storedStacks.get(this.internalIndex).isEmpty()) {
-                    cursorStackReference.set(storedStacks.get(this.internalIndex).copy());
-                    storedStacks.set(this.internalIndex, ItemStack.EMPTY);
+                if (!storedStacks.isEmpty() && !storedStacks.get(index).isEmpty()) {
+                    cursorStackReference.set(storedStacks.get(index).copy());
+                    storedStacks.set(index, ItemStack.EMPTY);
                     player.playSound(SoundEvents.ITEM_BUNDLE_REMOVE_ONE, 1.0F, 1.0F);
                     setStoredStacks(stack, storedStacks); // Re-set without empty stacks
-                    this.setInternalIndex(0);
                     return true;
                 }
             }
@@ -136,15 +148,13 @@ public class SatchelItem extends Item {
             // Check if the item being added is invalid
             if (isInvalidItem(otherStack)) {
                 player.playSound(SoundEvents.ITEM_BUNDLE_INSERT_FAIL, 1.0F, 1.0F);
-                this.setInternalIndex(0);
                 return true;
             }
 
             // Add the stack to the first empty slot in the satchel
             for (int i = 0; i < MAX_STACKS; i++) {
-                // Ensure the list is properly sized
                 if (i >= storedStacks.size()) {
-                    storedStacks.add(ItemStack.EMPTY); // Ensure there are enough slots in the list
+                    storedStacks.add(ItemStack.EMPTY);
                 }
 
                 if (storedStacks.get(i).isEmpty()) {
@@ -155,11 +165,9 @@ public class SatchelItem extends Item {
 
                     // Clear the cursor stack after adding an item to the satchel
                     cursorStackReference.set(ItemStack.EMPTY);
-                    this.setInternalIndex(0);
                     return true;
                 } else if (i == 7) {
                     player.playSound(SoundEvents.ITEM_BUNDLE_INSERT_FAIL, 1.0F, 1.0F);
-                    this.setInternalIndex(0);
                     return true;
                 }
             }
@@ -167,8 +175,12 @@ public class SatchelItem extends Item {
         return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
     }
 
+    public static boolean hasSelectedStack(ItemStack stack) {
+        return stack.getOrDefault(ModComponents.INTEGER_PROPERTY, -1) != -1;
+    }
+
     public boolean isInvalidItem(ItemStack stack) {
-        // Check if the item is a bundle, satchel, or shulker box
+        // Check if the item is a satchel, or shulker box
         Item item = stack.getItem();
         return item instanceof SatchelItem || item.getTranslationKey().contains("shulker_box");
     }
@@ -180,8 +192,8 @@ public class SatchelItem extends Item {
 
     public ItemStack getSelectedStack(ItemStack stack) {
         if (!Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).isEmpty()
-                && this.index < Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).size()) {
-            return Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).get(this.index);
+                && index < Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).size()) {
+            return Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).get(index);
         }
         return ItemStack.EMPTY;
     }
@@ -189,9 +201,9 @@ public class SatchelItem extends Item {
     public void setSlot(ItemStack satchel, ItemStack otherStack) {
         List<ItemStack> storedStacks = new ArrayList<>(getStoredStacks(satchel));
         if (!Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).isEmpty()
-                && this.index < Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).size()) {
-            storedStacks.set(this.index, otherStack);
-        } else if (Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).size() < 8 && this.index >= Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).size()) {
+                && index < Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).size()) {
+            storedStacks.set(index, otherStack);
+        } else if (Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).size() < 8 && index >= Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).size()) {
             storedStacks.add(otherStack);
         }
         setStoredStacks(satchel, storedStacks);
@@ -202,19 +214,18 @@ public class SatchelItem extends Item {
     }
 
     public void setIndex(int index) {
-        this.index = index;
+        SatchelItem.index = index;
     }
 
-    public void setInternalIndex(int internalIndex) {
-        this.internalIndex = internalIndex;
+    public static void setInternalIndex(ItemStack stack, int internalIndex) {
+        stack.set(ModComponents.INTEGER_PROPERTY, internalIndex);
     }
 
-    public int getInternalIndex() {
-        return internalIndex;
+    public static int getInternalIndex(ItemStack stack) {
+        return stack.getOrDefault(ModComponents.INTEGER_PROPERTY, -1);
     }
 
     public static void setStoredStacks(ItemStack satchel, List<ItemStack> stacks) {
-        // Remove empty stacks before setting the component
         List<ItemStack> filteredStacks = new ArrayList<>();
         for (ItemStack stack : stacks) {
             if (!stack.isEmpty()) {
@@ -222,7 +233,6 @@ public class SatchelItem extends Item {
             }
         }
 
-        // Reset the component with the filtered stacks
         satchel.set(AntiqueComponents.SATCHEL_STACK, filteredStacks);
     }
 }

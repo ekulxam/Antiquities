@@ -168,7 +168,8 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	protected void onCollision(HitResult hitResult) {
 		super.onCollision(hitResult);
 		if (this.getWorld() instanceof ServerWorld serverWorld) {
-			serverWorld.spawnParticles(CAParticles.RING, this.getX(), this.getY(), this.getZ(), 1, 0.0, 0.0, 0.0, 0);
+			Vec3d pos = this.getPos().add(this.getRotationVector().multiply(1, 1, -1));
+			serverWorld.spawnParticles(CAParticles.RING, pos.getX(), pos.getY(), pos.getZ(), 1, 0.0, 0.0, 0.0, 0);
 		}
 	}
 

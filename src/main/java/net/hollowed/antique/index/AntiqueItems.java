@@ -3,6 +3,7 @@ package net.hollowed.antique.index;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.*;
+import net.hollowed.combatamenities.util.items.ModComponents;
 import net.minecraft.block.Block;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
@@ -28,12 +29,16 @@ public interface AntiqueItems {
     Item NETHERITE_GREATSWORD = register("netherite_greatsword", settings -> new GreatswordItem(AntiqueToolMaterial.NETHERITE, 4.0F, -2.7F, 0.6F, 0.5F, settings.maxCount(1)));
     Item RAW_MYRIAD = register("raw_myriad", Item::new);
     Item MYRIAD_INGOT = register("myriad_ingot", Item::new);
+    Item SILK = register("silk", Item::new);
+    Item MIRAGE_SILK = register("mirage_silk", Item::new);
     Item NETHERITE_PAULDRONS = register("netherite_pauldrons", settings -> new NetheritePauldronsItem(AntiqueArmorMaterials.ADVENTURE, EquipmentType.CHESTPLATE, settings.maxCount(1)
             .fireproof()
     ));
     Item SATCHEL = register("satchel", settings -> new SatchelItem(settings.maxCount(1)
             .armor(AntiqueArmorMaterials.ADVENTURE_BASIC, EquipmentType.LEGGINGS)
+            .component(ModComponents.INTEGER_PROPERTY, -1)
             .component(AntiqueComponents.SATCHEL_STACK, List.of())
+            .component(AntiqueComponents.COUNTER, 2)
             .fireproof()
     ));
     Item FUR_BOOTS = register("fur_boots", settings -> new FurBootsItem(AntiqueArmorMaterials.ADVENTURE, EquipmentType.BOOTS, settings.maxCount(1)

@@ -1,4 +1,4 @@
-package net.hollowed.antique.mixin.entities.boat_ghast;
+package net.hollowed.antique.mixin.entities.living.boat_ghast;
 
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;

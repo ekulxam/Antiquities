@@ -256,6 +256,8 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(AntiqueBlocks.COATED_EXPOSED_MYRIAD_BLOCK);
 			itemGroup.add(AntiqueBlocks.COATED_WEATHERED_MYRIAD_BLOCK);
 			itemGroup.add(AntiqueBlocks.COATED_TARNISHED_MYRIAD_BLOCK);
+			itemGroup.add(AntiqueItems.SILK);
+			itemGroup.add(AntiqueItems.MIRAGE_SILK);
 			itemGroup.add(AntiqueItems.NETHERITE_PAULDRONS);
 			itemGroup.add(AntiqueItems.SATCHEL);
 			itemGroup.add(AntiqueItems.FUR_BOOTS);

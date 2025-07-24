@@ -3,6 +3,8 @@ package net.hollowed.antique.items.components;
 import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.items.SatchelItem;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
@@ -16,7 +18,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
-@SuppressWarnings("all")
 @Environment(EnvType.CLIENT)
 public class SatchelTooltipComponent implements TooltipComponent {
 	private static final Identifier BUNDLE_PROGRESS_BAR_BORDER_TEXTURE = Identifier.ofVanilla("container/bundle/bundle_progressbar_border");
@@ -27,11 +28,13 @@ public class SatchelTooltipComponent implements TooltipComponent {
 	private static final Identifier BUNDLE_SLOT_BACKGROUND_TEXTURE = Identifier.ofVanilla("container/bundle/slot_background");
 	private static final Text BUNDLE_FULL = Text.translatable("item.minecraft.bundle.full");
 	private static final Text BUNDLE_EMPTY = Text.translatable("item.minecraft.bundle.empty");
-	private static final Text BUNDLE_EMPTY_DESCRIPTION = Text.translatable("item.minecraft.bundle.empty.description");
+	private static final Text BUNDLE_EMPTY_DESCRIPTION = Text.translatable("item.antique.satchel.empty.description");
 	private final List<ItemStack> satchelContents;
+	private final ItemStack stack;
 
-	public SatchelTooltipComponent(List<ItemStack> bundleContents) {
+	public SatchelTooltipComponent(List<ItemStack> bundleContents, ItemStack stack) {
 		this.satchelContents = bundleContents;
+		this.stack = stack;
 	}
 
 	@Override
@@ -71,63 +74,56 @@ public class SatchelTooltipComponent implements TooltipComponent {
 
 	@Override
 	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext context) {
+		x -= 22;
+		if (this.satchelContents != SatchelItem.lastContents) {
+			SatchelItem.lastContents = this.satchelContents;
+			SatchelItem.setInternalIndex(this.stack, -1);
+		}
+		this.stack.set(AntiqueComponents.COUNTER, 0);
 		if (this.satchelContents.isEmpty()) {
-			this.drawEmptyTooltip(textRenderer, x, y, width, height, context);
+			this.drawEmptyTooltip(textRenderer, x, y, width, context);
 		} else {
-			this.drawNonEmptyTooltip(textRenderer, x, y, width, height, context);
+			this.drawNonEmptyTooltip(textRenderer, x, y, width, context);
 		}
 	}
 
-	private void drawEmptyTooltip(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext context) {
+	private void drawEmptyTooltip(TextRenderer textRenderer, int x, int y, int width, DrawContext context) {
 		drawEmptyDescription(x + this.getXMargin(width), y, textRenderer, context);
 		this.drawProgressBar(x + this.getXMargin(width), y + getDescriptionHeight(textRenderer) + 4, textRenderer, context);
 	}
 
-	private void drawNonEmptyTooltip(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext context) {
-		boolean bl = this.satchelContents.size() > 12;
-		List<ItemStack> list = this.firstStacksInContents(8);
-		int i = x + this.getXMargin(width) + 96;
-		int j = y + this.getRows() * 24;
-		int k = 1;
+	private void drawNonEmptyTooltip(TextRenderer textRenderer, int x, int y, int width, DrawContext context) {
+		List<ItemStack> list = this.firstStacksInContents();
+		int i = x + this.getXMargin(width);
+		int k = 0;
 
-		for (int l = 1; l <= this.getRows(); l++) {
-			for (int m = 1; m <= 4; m++) {
-				int n = i - m * 24;
-				int o = j - l * 24;
-				if (shouldDrawExtraItemsCount(bl, m, l)) {
-					drawExtraItemsCount(n, o, this.numContentItemsAfter(list), textRenderer, context);
-				} else if (shouldDrawItem(list, k)) {
+		for (int l = 0; l < this.getRows(); l++) {
+			for (int m = 0; m < 4; m++) {
+				int n = i + m * 24;
+				int o = y + l * 24;
+				if (shouldDrawItem(list, k)) {
 					this.drawItem(k, n, o, list, k, textRenderer, context);
 					k++;
 				}
 			}
 		}
 
-		this.drawSelectedItemTooltip(textRenderer, context, x, y, width);
+		this.drawSelectedItemTooltip(textRenderer, context, x + 22, y, width);
 		this.drawProgressBar(x + this.getXMargin(width), y + this.getRowsHeight() + 4, textRenderer, context);
 	}
 
-	private List<ItemStack> firstStacksInContents(int numberOfStacksShown) {
-		int i = Math.min(this.satchelContents.size(), numberOfStacksShown);
+	private List<ItemStack> firstStacksInContents() {
+		int i = Math.min(this.satchelContents.size(), 8);
 		return this.satchelContents.stream().toList().subList(0, i);
 	}
 
-	private static boolean shouldDrawExtraItemsCount(boolean hasMoreItems, int column, int row) {
-		return hasMoreItems && column * row == 1;
-	}
-
 	private static boolean shouldDrawItem(List<ItemStack> items, int itemIndex) {
-		return items.size() >= itemIndex;
-	}
-
-	private int numContentItemsAfter(List<ItemStack> items) {
-		return this.satchelContents.stream().skip(items.size()).mapToInt(ItemStack::getCount).sum();
+		return items.size() > itemIndex;
 	}
 
 	private void drawItem(int index, int x, int y, List<ItemStack> stacks, int seed, TextRenderer textRenderer, DrawContext drawContext) {
-		int i = stacks.size() - index;
-		boolean bl = i == 1;
-		ItemStack itemStack = (ItemStack)stacks.get(i);
+		boolean bl = index == this.selectedIndex();
+		ItemStack itemStack = stacks.get(index);
 		if (bl) {
 			drawContext.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BUNDLE_SLOT_HIGHLIGHT_BACK_TEXTURE, x, y, 24, 24);
 		} else {
@@ -141,13 +137,9 @@ public class SatchelTooltipComponent implements TooltipComponent {
 		}
 	}
 
-	private static void drawExtraItemsCount(int x, int y, int numExtra, TextRenderer textRenderer, DrawContext drawContext) {
-		drawContext.drawCenteredTextWithShadow(textRenderer, "+" + numExtra, x + 12, y + 10, Colors.WHITE);
-	}
-
 	private void drawSelectedItemTooltip(TextRenderer textRenderer, DrawContext drawContext, int x, int y, int width) {
-		if (!this.satchelContents.isEmpty()) {
-			ItemStack itemStack = this.satchelContents.getFirst();
+		if (!this.satchelContents.isEmpty() && this.selectedIndex() < this.satchelContents.size() && this.selectedIndex() != -1) {
+			ItemStack itemStack = this.satchelContents.get(this.selectedIndex());
 			Text text = itemStack.getFormattedName();
 			int i = textRenderer.getWidth(text.asOrderedText());
 			int j = x + width / 2 - 12;
@@ -176,12 +168,15 @@ public class SatchelTooltipComponent implements TooltipComponent {
 	}
 
 	private int getProgressBarFill() {
-		return MathHelper.clamp(this.satchelContents.size(), 0, 94);
+		return MathHelper.clamp((int) (this.satchelContents.size() * 11.75), 0, 94);
 	}
 
 	private Identifier getProgressBarFillTexture() {
-		return BUNDLE_PROGRESS_BAR_FILL_TEXTURE;
-		//return this.satchelContents.getOccupancy().compareTo(Fraction.ONE) >= 0 ? BUNDLE_PROGRESS_BAR_FULL_TEXTURE : BUNDLE_PROGRESS_BAR_FILL_TEXTURE;
+		return this.satchelContents.size() == 8 ? BUNDLE_PROGRESS_BAR_FULL_TEXTURE : BUNDLE_PROGRESS_BAR_FILL_TEXTURE;
+	}
+
+	private int selectedIndex() {
+		return SatchelItem.getInternalIndex(this.stack);
 	}
 
 	@Nullable
@@ -189,8 +184,7 @@ public class SatchelTooltipComponent implements TooltipComponent {
 		if (this.satchelContents.isEmpty()) {
 			return BUNDLE_EMPTY;
 		} else {
-			return BUNDLE_FULL;
-			//return this.satchelContents.getOccupancy().compareTo(Fraction.ONE) >= 0 ? BUNDLE_FULL : null;
+			return this.satchelContents.size() == 8 ? BUNDLE_FULL : null;
 		}
 	}
 }

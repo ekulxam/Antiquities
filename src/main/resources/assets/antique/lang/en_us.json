@@ -12,6 +12,8 @@
 
   "item.antique.raw_myriad": "Raw Myriad",
   "item.antique.myriad_ingot": "Myriad Ingot",
+  "item.antique.silk": "Silk",
+  "item.antique.mirage_silk": "Mirage Silk",
   "block.antique.raw_myriad_block": "Block of Raw Myriad",
   "block.antique.myriad_block": "Block of Myriad",
   "block.antique.exposed_myriad_block": "Exposed Block of Myriad",
@@ -84,5 +86,6 @@
   "death.attack.wall_slam.item": "%s was slammed through a hard surface by %s using %s",
   "container.antique.dyeing": "Dyeing",
   "stat.antique.interact_with_dye_table": "Interactions with Dye Table",
-  "container.antique.hex": "Hex"
+  "container.antique.hex": "Hex",
+  "item.antique.satchel.empty.description": "Can hold 8 separate stacks"
 }
