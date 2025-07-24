@@ -82,7 +82,7 @@ public class PedestalBlockEntity extends BlockEntity implements ComponentHolder,
     @Override
     public void markDirty() {
         super.markDirty();
-        assert world != null;
+        if (world == null) return;
         if (!world.isClient && world instanceof ServerWorld serverWorld) {
             serverWorld.getChunkManager().markForUpdate(pos);
         }

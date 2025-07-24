@@ -33,7 +33,7 @@ public class DyeingScreen extends HandledScreen<DyeingScreenHandler> implements 
 		super.init();
 		int i = (this.width - this.backgroundWidth) / 2;
 		int j = (this.height - this.backgroundHeight) / 2;
-		assert this.client != null;
+		if (this.client == null) return;
 		this.colorField = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, i + 63, j + 65, 58, 9, Text.translatable("container.antique.hex"));
 		this.colorField.setFocusUnlocked(false);
 		this.colorField.setEditableColor(0xFFFFF4BC);
@@ -51,8 +51,7 @@ public class DyeingScreen extends HandledScreen<DyeingScreenHandler> implements 
 		Slot slot = this.handler.getSlot(0);
 		if (slot.hasStack()) {
             if (this.handler.setHexCode(color)) {
-                assert this.client != null;
-                assert this.client.player != null;
+                if (this.client == null || this.client.player == null) return;
 				ClientPlayNetworking.send(new DyePacketPayload(color));
 			}
 		}
@@ -90,8 +89,7 @@ public class DyeingScreen extends HandledScreen<DyeingScreenHandler> implements 
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
 		if (keyCode == GLFW.GLFW_KEY_ESCAPE) {
-            assert this.client != null;
-            assert this.client.player != null;
+			if (this.client == null || this.client.player == null) return false;
             this.client.player.closeHandledScreen();
 		}
 		return this.colorField.keyPressed(keyCode, scanCode, modifiers) || this.colorField.isActive() || super.keyPressed(keyCode, scanCode, modifiers);

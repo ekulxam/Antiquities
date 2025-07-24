@@ -170,7 +170,6 @@ public interface AntiqueItems {
                     }
                 }
                 if (toRemove != -1) list.remove(toRemove);
-                assert Formatting.GRAY.getColorValue() != null;
                 Text line = Text.translatable("item.antique.myriad_tool.no_tool").withColor(Formatting.GRAY.getColorValue());
 
                 if (!itemStack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isEmpty()) {

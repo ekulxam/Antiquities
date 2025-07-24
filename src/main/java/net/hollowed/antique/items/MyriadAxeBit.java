@@ -104,7 +104,7 @@ public class MyriadAxeBit extends MyriadToolBitItem{
     private static boolean shouldCancelStripAttempt(ItemUsageContext context) {
         PlayerEntity playerEntity = context.getPlayer();
         if (!context.getHand().equals(Hand.MAIN_HAND)) return false;
-        assert playerEntity != null;
+        if (playerEntity == null) return false;
         return !playerEntity.isSneaking();
     }
 

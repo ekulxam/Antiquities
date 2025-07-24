@@ -29,7 +29,7 @@ public class MouseMixin {
         if (AntiqueKeyBindings.showSatchel.isPressed()) {
             if (client.player == null) return;
             ItemStack satchel = client.player.getEquippedStack(EquipmentSlot.LEGS);
-            assert satchel != null;
+            if (satchel == null) return;
             if (satchel.getItem() instanceof SatchelItem satchelItem && satchel.get(AntiqueComponents.SATCHEL_STACK) != null && !Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).isEmpty() && !client.player.isSneaking()) {
                 satchelItem.setIndex(Scroller.scrollCycling(i, satchelItem.getIndex(), 8));
                 ci.cancel();

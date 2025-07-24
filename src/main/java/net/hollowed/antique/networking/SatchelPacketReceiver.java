@@ -22,7 +22,7 @@ public class SatchelPacketReceiver {
 
             ItemStack satchelInventory = player.getEquippedStack(EquipmentSlot.LEGS);
 
-            assert satchelInventory != null;
+            if (satchelInventory == null) return;
             if (satchelInventory.getItem() instanceof SatchelItem satchelItem) {
                 PlayerInventory playerInventory = player.getInventory();
 

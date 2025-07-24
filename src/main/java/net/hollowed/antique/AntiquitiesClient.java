@@ -153,7 +153,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
         WorldRenderEvents.AFTER_TRANSLUCENT.register(context -> {
             MinecraftClient client = MinecraftClient.getInstance();
-            assert client.player != null;
+            if (client.player == null) return;
             Vec3d pos = client.player.getPos();
             Box box = new Box(pos.x - 1, pos.y - 1, pos.z - 1, pos.x + 1, pos.y + 1, pos.z + 1);
             box = box.expand(60);
