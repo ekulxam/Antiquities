@@ -29,6 +29,7 @@ public interface AntiqueItems {
     Item BAG_OF_TRICKS = register("bag_of_tricks", settings -> new Item(settings.rarity(Rarity.RARE)));
     Item SMOKE_BOMB = register("smoke_bomb", SmokeBombItem::new);
     Item NETHERITE_PAULDRONS = register("netherite_pauldrons", settings -> new NetheritePauldronsItem(AntiqueArmorMaterials.ADVENTURE, EquipmentType.CHESTPLATE, settings.maxCount(1)
+            .rarity(Rarity.UNCOMMON)
             .fireproof()
     ));
     Item SATCHEL = register("satchel", settings -> new SatchelItem(settings.maxCount(1)
@@ -36,9 +37,11 @@ public interface AntiqueItems {
             .component(ModComponents.INTEGER_PROPERTY, -1)
             .component(AntiqueComponents.SATCHEL_STACK, List.of())
             .component(AntiqueComponents.COUNTER, 2)
+            .rarity(Rarity.UNCOMMON)
             .fireproof()
     ));
     Item FUR_BOOTS = register("fur_boots", settings -> new FurBootsItem(AntiqueArmorMaterials.ADVENTURE, EquipmentType.BOOTS, settings.maxCount(1)
+            .rarity(Rarity.UNCOMMON)
             .fireproof()
     ));
     Item SCEPTER = register("scepter", settings -> new VelocityTransferMaceItem(settings.maxCount(1)
