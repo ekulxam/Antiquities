@@ -25,6 +25,7 @@ import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
+import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.PotionContentsComponent;
@@ -91,7 +92,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
         EntityRendererRegistry.register(AntiqueEntities.ILLUSIONER, IllusionerEntityRenderer::new);
         EntityRendererRegistry.register(AntiqueEntities.ILLUSIONER_CLONE, IllusionerCloneEntityRenderer::new);
-        EntityRendererRegistry.register(AntiqueEntities.SMOKE_BOMB, SmokeBombRenderer::new);
+        EntityRendererRegistry.register(AntiqueEntities.SMOKE_BOMB, FlyingItemEntityRenderer::new);
         EntityRendererRegistry.register(AntiqueEntities.CAKE_ENTITY, CakeRenderer::new);
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
@@ -382,7 +383,7 @@ public class AntiquitiesClient implements ClientModInitializer {
                             entity,
                             context.tickCounter().getTickProgress(false),
                             trail,
-                            300,
+                            75,
                             0.1f,
                             0.001f,
                             200,

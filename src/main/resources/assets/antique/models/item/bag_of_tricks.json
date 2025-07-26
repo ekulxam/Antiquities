@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "antique:item/diamond_greatsword_item"
+    "layer0": "antique:item/bag_of_tricks"
   }
 }

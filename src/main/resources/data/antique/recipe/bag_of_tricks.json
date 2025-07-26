@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "pattern": [
+    "SM",
+    "MO"
+  ],
+  "key": {
+    "O": "minecraft:ominous_bottle",
+    "M": "antique:mirage_silk",
+    "S": "minecraft:string"
+  },
+  "result": {
+    "id": "antique:bag_of_tricks",
+    "count": 1
+  }
+}

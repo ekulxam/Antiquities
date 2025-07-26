@@ -388,6 +388,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
                     SmokeBombEntity smokeBomb = new SmokeBombEntity(AntiqueEntities.SMOKE_BOMB, IllusionerEntity.this.getWorld());
                     smokeBomb.setPosition(IllusionerEntity.this.getPos().add((Math.random() - 0.5) * 2, 3, (Math.random() - 0.5) * 2));
                     smokeBomb.setVelocity((Math.random() - 0.5) * 0.8, 0.25, (Math.random() - 0.5) * 0.8);
+                    smokeBomb.setFirework(true);
                     IllusionerEntity.this.getWorld().spawnEntity(smokeBomb);
                     IllusionerEntity.this.getWorld().playSound(null, IllusionerEntity.this.getX(), IllusionerEntity.this.getY(), IllusionerEntity.this.getZ(), SoundEvents.ENTITY_WITCH_THROW, SoundCategory.BLOCKS, 1F, 1F);
                 });

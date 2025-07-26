@@ -76,6 +76,7 @@ public class Antiquities implements ModInitializer {
 		AntiqueKeyBindings.initialize();
 		AntiqueSounds.initialize();
 		AntiqueEffects.initialize();
+		AntiqueDispenserBehaviors.initialize();
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new MyriadStaffTransformResourceReloadListener());
 
 		/*
@@ -115,7 +116,8 @@ public class Antiquities implements ModInitializer {
 			Item Group
 		 */
 
-		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_GROUP_KEY, ANTIQUITIES_GROUP);
+		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_ITEMS_GROUP_KEY, ANTIQUITIES_ITEMS_GROUP);
+		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_BLOCKS_GROUP_KEY, ANTIQUITIES_BLOCKS_GROUP);
 		addItems();
 
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(itemGroup -> {
@@ -129,6 +131,15 @@ public class Antiquities implements ModInitializer {
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
 				Predicate.isEqual(AntiqueItems.REVERENCE),
 				(builder, item) -> builder.add(DataComponentTypes.ITEM_NAME, Text.translatable(item.getTranslationKey()).withColor(0xff5a00))
+
+		));
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+				Predicate.isEqual(AntiqueItems.MIRAGE_SILK),
+				(builder, item) -> builder.add(DataComponentTypes.ITEM_NAME, Text.translatable(item.getTranslationKey()).withColor(0x915f8c))
+		));
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
+				Predicate.isEqual(AntiqueItems.BAG_OF_TRICKS),
+				(builder, item) -> builder.add(DataComponentTypes.ITEM_NAME, Text.translatable(item.getTranslationKey()).withColor(0x915f8c))
 		));
 
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify(
@@ -156,15 +167,42 @@ public class Antiquities implements ModInitializer {
 		Config.trailRenderers = false;
 	}
 
-	public static final RegistryKey<ItemGroup> ANTIQUITIES_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, "antiquities_group"));
-	public static final ItemGroup ANTIQUITIES_GROUP = FabricItemGroup.builder()
+	public static final RegistryKey<ItemGroup> ANTIQUITIES_ITEMS_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, "antiquities_items_group"));
+	public static final ItemGroup ANTIQUITIES_ITEMS_GROUP = FabricItemGroup.builder()
 			.icon(() -> new ItemStack(AntiqueItems.FUR_BOOTS))
-			.displayName(Text.translatable("itemGroup.antique.antiquities").withColor(0x7d4e33))
+			.displayName(Text.translatable("itemGroup.antique.antiquities_items").withColor(0xFFAA2F54))
+			.build();
+
+	public static final RegistryKey<ItemGroup> ANTIQUITIES_BLOCKS_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, "antiquities_blocks_group"));
+	public static final ItemGroup ANTIQUITIES_BLOCKS_GROUP = FabricItemGroup.builder()
+			.icon(() -> new ItemStack(AntiqueBlocks.HOLLOW_CORE))
+			.displayName(Text.translatable("itemGroup.antique.antiquities_blocks").withColor(0xFFAA2F54))
 			.build();
 
 	private void addItems() {
-		// Register items to the custom item group.
-		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_GROUP_KEY).register(itemGroup -> {
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.OPERATOR).register(itemGroup -> itemGroup.add(AntiqueItems.IRREVERENT));
+
+		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_BLOCKS_GROUP_KEY).register(itemGroup -> {
+			itemGroup.add(AntiqueBlocks.MYRIAD_ORE);
+			itemGroup.add(AntiqueBlocks.DEEPSLATE_MYRIAD_ORE);
+			itemGroup.add(AntiqueBlocks.MYRIAD_CLUSTER);
+			itemGroup.add(AntiqueBlocks.DEEPSLATE_MYRIAD_CLUSTER);
+			itemGroup.add(AntiqueBlocks.RAW_MYRIAD_BLOCK);
+			itemGroup.add(AntiqueBlocks.MYRIAD_BLOCK);
+			itemGroup.add(AntiqueBlocks.EXPOSED_MYRIAD_BLOCK);
+			itemGroup.add(AntiqueBlocks.WEATHERED_MYRIAD_BLOCK);
+			itemGroup.add(AntiqueBlocks.TARNISHED_MYRIAD_BLOCK);
+			itemGroup.add(AntiqueBlocks.COATED_MYRIAD_BLOCK);
+			itemGroup.add(AntiqueBlocks.COATED_EXPOSED_MYRIAD_BLOCK);
+			itemGroup.add(AntiqueBlocks.COATED_WEATHERED_MYRIAD_BLOCK);
+			itemGroup.add(AntiqueBlocks.COATED_TARNISHED_MYRIAD_BLOCK);
+			itemGroup.add(AntiqueBlocks.HOLLOW_CORE);
+			itemGroup.add(AntiqueBlocks.PEDESTAL);
+			itemGroup.add(AntiqueBlocks.DYE_TABLE);
+			itemGroup.add(AntiqueBlocks.IVY);
+		});
+
+		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_ITEMS_GROUP_KEY).register(itemGroup -> {
 			itemGroup.add(AntiqueItems.MYRIAD_TOOL);
 
 			ItemStack myriadMattock = AntiqueItems.MYRIAD_TOOL.getDefaultStack();
@@ -236,43 +274,21 @@ public class Antiquities implements ModInitializer {
 			myriadCleaver.set(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY, 1);
 			itemGroup.add(myriadCleaver);
 
-
 			itemGroup.add(AntiqueItems.MYRIAD_PICK_HEAD);
 			itemGroup.add(AntiqueItems.MYRIAD_AXE_HEAD);
 			itemGroup.add(AntiqueItems.MYRIAD_SHOVEL_HEAD);
 			itemGroup.add(AntiqueItems.MYRIAD_CLEAVER_BLADE);
-			itemGroup.add(AntiqueBlocks.MYRIAD_ORE);
-			itemGroup.add(AntiqueBlocks.DEEPSLATE_MYRIAD_ORE);
-			itemGroup.add(AntiqueBlocks.MYRIAD_CLUSTER);
-			itemGroup.add(AntiqueBlocks.DEEPSLATE_MYRIAD_CLUSTER);
 			itemGroup.add(AntiqueItems.RAW_MYRIAD);
-			itemGroup.add(AntiqueBlocks.RAW_MYRIAD_BLOCK);
 			itemGroup.add(AntiqueItems.MYRIAD_INGOT);
-			itemGroup.add(AntiqueBlocks.MYRIAD_BLOCK);
-			itemGroup.add(AntiqueBlocks.EXPOSED_MYRIAD_BLOCK);
-			itemGroup.add(AntiqueBlocks.WEATHERED_MYRIAD_BLOCK);
-			itemGroup.add(AntiqueBlocks.TARNISHED_MYRIAD_BLOCK);
-			itemGroup.add(AntiqueBlocks.COATED_MYRIAD_BLOCK);
-			itemGroup.add(AntiqueBlocks.COATED_EXPOSED_MYRIAD_BLOCK);
-			itemGroup.add(AntiqueBlocks.COATED_WEATHERED_MYRIAD_BLOCK);
-			itemGroup.add(AntiqueBlocks.COATED_TARNISHED_MYRIAD_BLOCK);
 			itemGroup.add(AntiqueItems.SILK);
 			itemGroup.add(AntiqueItems.MIRAGE_SILK);
+			itemGroup.add(AntiqueItems.BAG_OF_TRICKS);
+			itemGroup.add(AntiqueItems.SMOKE_BOMB);
 			itemGroup.add(AntiqueItems.NETHERITE_PAULDRONS);
 			itemGroup.add(AntiqueItems.SATCHEL);
 			itemGroup.add(AntiqueItems.FUR_BOOTS);
-			itemGroup.add(AntiqueBlocks.HOLLOW_CORE);
 			itemGroup.add(AntiqueItems.SCEPTER);
-			itemGroup.add(AntiqueBlocks.PEDESTAL);
 			itemGroup.add(AntiqueItems.WARHORN);
-			itemGroup.add(AntiqueBlocks.IVY);
-			itemGroup.add(AntiqueItems.IRON_GREATSWORD);
-			itemGroup.add(AntiqueItems.GOLDEN_GREATSWORD);
-			itemGroup.add(AntiqueItems.DIAMOND_GREATSWORD);
-			itemGroup.add(AntiqueItems.NETHERITE_GREATSWORD);
-			itemGroup.add(AntiqueBlocks.DYE_TABLE);
-
-			itemGroup.add(AntiqueItems.IRREVERENT);
 		});
 	}
 

@@ -12,7 +12,6 @@ import net.minecraft.item.*;
 import net.minecraft.item.equipment.EquipmentType;
 import net.minecraft.registry.*;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.Unit;
 
@@ -23,14 +22,12 @@ public interface AntiqueItems {
 
     RegistryEntryLookup<Block> registryEntryLookup = Registries.createEntryLookup(Registries.BLOCK);
 
-    Item IRON_GREATSWORD = register("iron_greatsword", settings -> new GreatswordItem(AntiqueToolMaterial.IRON, 4.0F, -2.7F, 0.3F, 0.5F, settings.maxCount(1)));
-    Item GOLDEN_GREATSWORD = register("golden_greatsword", settings -> new GreatswordItem(AntiqueToolMaterial.GOLD, 4.0F, -2.7F, 0.2F, 0.5F, settings.maxCount(1)));
-    Item DIAMOND_GREATSWORD = register("diamond_greatsword", settings -> new GreatswordItem(AntiqueToolMaterial.DIAMOND, 4.0F, -2.7F, 0.4F, 0.5F, settings.maxCount(1)));
-    Item NETHERITE_GREATSWORD = register("netherite_greatsword", settings -> new GreatswordItem(AntiqueToolMaterial.NETHERITE, 4.0F, -2.7F, 0.6F, 0.5F, settings.maxCount(1)));
     Item RAW_MYRIAD = register("raw_myriad", Item::new);
     Item MYRIAD_INGOT = register("myriad_ingot", Item::new);
     Item SILK = register("silk", Item::new);
-    Item MIRAGE_SILK = register("mirage_silk", Item::new);
+    Item MIRAGE_SILK = register("mirage_silk", settings -> new Item(settings.rarity(Rarity.RARE)));
+    Item BAG_OF_TRICKS = register("bag_of_tricks", settings -> new Item(settings.rarity(Rarity.RARE)));
+    Item SMOKE_BOMB = register("smoke_bomb", SmokeBombItem::new);
     Item NETHERITE_PAULDRONS = register("netherite_pauldrons", settings -> new NetheritePauldronsItem(AntiqueArmorMaterials.ADVENTURE, EquipmentType.CHESTPLATE, settings.maxCount(1)
             .fireproof()
     ));
@@ -170,13 +167,13 @@ public interface AntiqueItems {
                     }
                 }
                 if (toRemove != -1) list.remove(toRemove);
-                Text line = Text.translatable("item.antique.myriad_tool.no_tool").withColor(Formatting.GRAY.getColorValue());
+                Text line = Text.translatable("item.antique.myriad_tool.no_tool").withColor(11184810);
 
                 if (!itemStack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isEmpty()) {
                     String string = itemStack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).getItem().getTranslationKey();
                     string = string.substring(20);
                     string = "item.antique.myriad_tool." + string.substring(0, string.indexOf("_"));
-                    line = Text.translatable(string).withColor(Formatting.GRAY.getColorValue());
+                    line = Text.translatable(string).withColor(11184810);
                 }
 
                 // Add to tooltip

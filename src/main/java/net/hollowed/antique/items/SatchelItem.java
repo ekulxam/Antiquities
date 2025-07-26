@@ -7,15 +7,18 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemUsage;
 import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ClickType;
+import net.minecraft.util.Hand;
 import net.minecraft.util.math.ColorHelper;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,6 +62,20 @@ public class SatchelItem extends Item {
         return !tooltipDisplayComponent.shouldDisplay(AntiqueComponents.SATCHEL_STACK)
                 ? Optional.empty()
                 : Optional.ofNullable(stack.get(AntiqueComponents.SATCHEL_STACK)).map(items -> new SatchelTooltipData(items, stack));
+    }
+
+    @Override
+    public void onItemEntityDestroyed(ItemEntity entity) {
+        List<ItemStack> contents = entity.getStack().get(AntiqueComponents.SATCHEL_STACK);
+        if (contents != null) {
+            entity.getStack().set(AntiqueComponents.SATCHEL_STACK, List.of());
+            ItemUsage.spawnItemContents(entity, contents);
+        }
+    }
+
+    @Override
+    public boolean allowComponentsUpdateAnimation(PlayerEntity player, Hand hand, ItemStack oldStack, ItemStack newStack) {
+        return false;
     }
 
     @Override

@@ -1,6 +1,0 @@
-{
-  "parent": "antique:item/greatsword",
-  "textures": {
-    "layer0": "antique:item/netherite_greatsword"
-  }
-}

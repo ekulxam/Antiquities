@@ -23,7 +23,6 @@ public interface AntiqueEntities {
     EntityType<IllusionerEntity> ILLUSIONER = register(
             "illusioner",
             EntityType.Builder.create(IllusionerEntity::new, SpawnGroup.MONSTER)
-                    .dropsNothing()
                     .dimensions(0.6F, 1.95F)
                     .maxTrackingRange(8)
     );
