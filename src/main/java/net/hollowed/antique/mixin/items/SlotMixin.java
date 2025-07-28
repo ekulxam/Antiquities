@@ -1,6 +1,7 @@
 package net.hollowed.antique.mixin.items;
 
 import net.hollowed.antique.index.AntiqueItems;
+import net.hollowed.antique.items.BagOfTricksItem;
 import net.hollowed.antique.items.SatchelItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.screen.slot.Slot;
@@ -16,6 +17,9 @@ public abstract class SlotMixin {
     public void setStack(ItemStack stack, CallbackInfo ci) {
         if (stack.isOf(AntiqueItems.SATCHEL)) {
             SatchelItem.setInternalIndex(stack, -1);
+        }
+        if (stack.isOf(AntiqueItems.BAG_OF_TRICKS)) {
+            BagOfTricksItem.setInternalIndex(stack, -1);
         }
     }
 }

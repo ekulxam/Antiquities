@@ -49,7 +49,7 @@ public class ClothBody {
     public Vector3d getPos() { return new Vector3d(pos); }
 
     public void slideOutOfBlocks(ClientWorld world) {
-        double padding = 0.0015;
+        double padding = 0.00075;
 
         Vec3d startPos = new Vec3d(pos.x, pos.y, pos.z);
         BlockPos blockPos = BlockPos.ofFloored(startPos);

@@ -1,6 +1,47 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "antique:item/bag_of_tricks"
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:condition",
+            "on_false": {
+              "type": "minecraft:model",
+              "model": "antique:item/bag_of_tricks"
+            },
+            "on_true": {
+              "type": "minecraft:composite",
+              "models": [
+                {
+                  "type": "minecraft:model",
+                  "model": "antique:item/bag_of_tricks_open_back"
+                },
+                {
+                  "type": "antique:bag/selected_item"
+                },
+                {
+                  "type": "minecraft:model",
+                  "model": "antique:item/bag_of_tricks_open_front"
+                }
+              ]
+            },
+            "property": "antique:bag/has_selected_item"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "antique:item/bag_of_tricks"
+          },
+          "property": "minecraft:carried"
+        },
+        "when": "gui"
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "antique:item/bag_of_tricks"
+    },
+    "property": "minecraft:display_context"
   }
 }

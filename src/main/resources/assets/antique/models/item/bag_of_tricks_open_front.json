@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/template_bundle_open_front",
+  "textures": {
+    "layer0": "antique:item/bag_of_tricks_open_front"
+  }
+}

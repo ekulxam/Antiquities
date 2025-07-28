@@ -2,6 +2,7 @@ package net.hollowed.antique.mixin.items.properties;
 
 import com.mojang.serialization.MapCodec;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.util.properties.BagOfTricksHasSelectedItemProperty;
 import net.hollowed.antique.util.properties.SatchelHasSelectedItemProperty;
 import net.minecraft.client.render.item.property.bool.BooleanProperties;
 import net.minecraft.client.render.item.property.bool.BooleanProperty;
@@ -21,5 +22,6 @@ public class BooleanPropertyMixin {
     @Inject(method = "bootstrap", at = @At("HEAD"))
     private static void bootstrap(CallbackInfo ci) {
         ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "satchel/has_selected_item"), SatchelHasSelectedItemProperty.CODEC);
+        ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "bag/has_selected_item"), BagOfTricksHasSelectedItemProperty.CODEC);
     }
 }

@@ -60,7 +60,7 @@ public class ClothManager {
                 BlockPos blockPos = BlockPos.ofFloored(startPos);
                 BlockState state = world.getBlockState(blockPos);
                 Vector3d vel = new Vector3d(body.pos).sub(body.posCache);
-                double maxVel = 0.05; // or tune this
+                double maxVel = 0.05;
                 if (vel.length() > maxVel) {
                     vel.normalize().mul(maxVel);
                 }

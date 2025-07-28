@@ -1,6 +1,8 @@
 package net.hollowed.antique.mixin.items;
 
+import net.hollowed.antique.items.components.BagOfTricksTooltipComponent;
 import net.hollowed.antique.items.components.SatchelTooltipComponent;
+import net.hollowed.antique.items.tooltips.BagOfTricksTooltipData;
 import net.hollowed.antique.items.tooltips.SatchelTooltipData;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.item.tooltip.TooltipData;
@@ -16,6 +18,9 @@ public interface TooltipComponentMixin {
     private static void of(TooltipData tooltipData, CallbackInfoReturnable<TooltipComponent> cir) {
         if (tooltipData instanceof SatchelTooltipData satchelTooltipData) {
             cir.setReturnValue(new SatchelTooltipComponent(satchelTooltipData.contents(), satchelTooltipData.stack()));
+        }
+        if (tooltipData instanceof BagOfTricksTooltipData bagOfTricksTooltipData) {
+            cir.setReturnValue(new BagOfTricksTooltipComponent(bagOfTricksTooltipData.contents(), bagOfTricksTooltipData.stack()));
         }
     }
 }

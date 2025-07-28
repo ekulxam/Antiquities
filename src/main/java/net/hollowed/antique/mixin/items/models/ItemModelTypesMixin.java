@@ -2,6 +2,7 @@ package net.hollowed.antique.mixin.items.models;
 
 import com.mojang.serialization.MapCodec;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.util.models.BagOfTricksSelectedItemModel;
 import net.hollowed.antique.util.models.SatchelSelectedItemModel;
 import net.minecraft.client.render.item.model.ItemModel;
 import net.minecraft.client.render.item.model.ItemModelTypes;
@@ -22,5 +23,6 @@ public class ItemModelTypesMixin {
     @Inject(method = "bootstrap", at = @At("HEAD"))
     private static void bootstrap(CallbackInfo ci) {
         ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "satchel/selected_item"), SatchelSelectedItemModel.Unbaked.CODEC);
+        ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "bag/selected_item"), BagOfTricksSelectedItemModel.Unbaked.CODEC);
     }
 }

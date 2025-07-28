@@ -2,6 +2,7 @@ package net.hollowed.antique.mixin.screens;
 
 import net.hollowed.antique.index.AntiqueComponents;
 import net.hollowed.antique.index.AntiqueItems;
+import net.hollowed.antique.items.BagOfTricksItem;
 import net.hollowed.antique.items.SatchelItem;
 import net.hollowed.antique.mixin.accessors.GetSlotAtAccessor;
 import net.minecraft.client.MinecraftClient;
@@ -29,6 +30,8 @@ public abstract class HandledScreenMixin {
     private final Scroller scroller = new Scroller();
     @Unique
     private ItemStack lastSatchel = null;
+    @Unique
+    private ItemStack lastBag = null;
 
     @Inject(method = "mouseScrolled", at = @At("HEAD"), cancellable = true)
     public void onMouseScrolled(double mouseX, double mouseY, double horizontalAmount, double verticalAmount, CallbackInfoReturnable<Boolean> cir) {
@@ -50,6 +53,10 @@ public abstract class HandledScreenMixin {
                 performScrollAction(hoveredSlot.getStack(), i);
                 cir.setReturnValue(true);
             }
+            if (hoveredSlot != null && !hoveredSlot.getStack().isEmpty() && hoveredSlot.getStack().getItem() instanceof BagOfTricksItem) {
+                performBagScrollAction(hoveredSlot.getStack(), i);
+                cir.setReturnValue(true);
+            }
         }
     }
 
@@ -57,12 +64,27 @@ public abstract class HandledScreenMixin {
     private void drawMouseoverTooltip(DrawContext context, int x, int y, CallbackInfo ci) {
         if (this.focusedSlot == null && lastSatchel != null || lastSatchel != null && !this.focusedSlot.hasStack() || lastSatchel != null && this.focusedSlot.getStack() != lastSatchel) SatchelItem.setInternalIndex(lastSatchel, -1);
         if (this.focusedSlot != null && this.focusedSlot.hasStack() && this.focusedSlot.getStack().isOf(AntiqueItems.SATCHEL)) lastSatchel = this.focusedSlot.getStack();
+
+        if (this.focusedSlot == null && lastBag != null || lastBag != null && !this.focusedSlot.hasStack() || lastBag != null && this.focusedSlot.getStack() != lastBag) BagOfTricksItem.setInternalIndex(lastBag, -1);
+        if (this.focusedSlot != null && this.focusedSlot.hasStack() && this.focusedSlot.getStack().isOf(AntiqueItems.BAG_OF_TRICKS)) lastBag = this.focusedSlot.getStack();
+    }
+
+    @Inject(method = "close", at = @At("HEAD"))
+    private void close(CallbackInfo ci) {
+        if (lastSatchel != null) SatchelItem.setInternalIndex(lastSatchel, -1);
+        if (lastBag != null) BagOfTricksItem.setInternalIndex(lastBag, -1);
     }
 
     @Unique
     private void performScrollAction(ItemStack stack, int i) {
         if (stack.getItem() instanceof SatchelItem && !Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).isEmpty()) {
             SatchelItem.setInternalIndex(stack, Scroller.scrollCycling(i, SatchelItem.getInternalIndex(stack), Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).size()));
+        }
+    }
+    @Unique
+    private void performBagScrollAction(ItemStack stack, int i) {
+        if (stack.getItem() instanceof BagOfTricksItem && !Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).isEmpty()) {
+            BagOfTricksItem.setInternalIndex(stack, Scroller.scrollCycling(i, BagOfTricksItem.getInternalIndex(stack), Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).size()));
         }
     }
 }

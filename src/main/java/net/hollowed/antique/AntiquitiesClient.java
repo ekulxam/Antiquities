@@ -147,7 +147,6 @@ public class AntiquitiesClient implements ClientModInitializer {
             }
         });
 
-
         /*
             This entire section is ARR
          */

@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    "antique:silk",
+    "minecraft:iron_ingot",
+    "minecraft:gunpowder",
+    "minecraft:sugar"
+  ],
+  "result": {
+    "id": "antique:smoke_bomb",
+    "count": 2
+  }
+}
