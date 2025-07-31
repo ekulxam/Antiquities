@@ -75,7 +75,6 @@ public class BagOfTricksTooltipComponent implements TooltipComponent {
 
 	@Override
 	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext context) {
-		x -= 6;
 		if (this.satchelContents != BagOfTricksItem.lastContents) {
 			BagOfTricksItem.lastContents = this.satchelContents;
 			BagOfTricksItem.setInternalIndex(this.stack, -1);
@@ -109,7 +108,7 @@ public class BagOfTricksTooltipComponent implements TooltipComponent {
 			}
 		}
 
-		this.drawSelectedItemTooltip(textRenderer, context, x + 6, y, width);
+		this.drawSelectedItemTooltip(textRenderer, context, x, y, width);
 		this.drawProgressBar(x + this.getXMargin(width), y + this.getRowsHeight() + 4, textRenderer, context);
 	}
 
