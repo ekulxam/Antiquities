@@ -1,7 +1,7 @@
 package net.hollowed.antique.entities.models;
 
 import net.hollowed.antique.entities.animations.PaleWardenAnimations;
-import net.hollowed.antique.entities.custom.PaleWardenEntity;
+import net.hollowed.antique.entities.PaleWardenEntity;
 import net.hollowed.antique.entities.renderer.PaleWardenRenderState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;

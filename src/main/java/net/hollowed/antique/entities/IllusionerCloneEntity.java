@@ -3,7 +3,7 @@
 // (powered by FernFlower decompiler)
 //
 
-package net.hollowed.antique.entities.custom;
+package net.hollowed.antique.entities;
 
 import net.hollowed.antique.util.interfaces.duck.SetSpellTicks;
 import net.hollowed.antique.util.delay.TickDelayScheduler;

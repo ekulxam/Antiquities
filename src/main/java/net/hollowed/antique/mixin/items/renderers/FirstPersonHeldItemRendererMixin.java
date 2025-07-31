@@ -1,9 +1,9 @@
 package net.hollowed.antique.mixin.items.renderers;
 
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueComponents;
 import net.hollowed.antique.index.AntiqueItems;
-import net.hollowed.antique.util.interfaces.duck.SpearClothAccess;
 import net.hollowed.antique.util.resources.MyriadStaffTransformData;
 import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
@@ -55,40 +55,38 @@ public abstract class FirstPersonHeldItemRendererMixin {
         ClothManager manager;
         Vec3d itemWorldPos;
 
-        if (entity instanceof SpearClothAccess clothAccess) {
-            if (entity instanceof PlayerEntity player) {
-                if (stack.isOf(AntiqueItems.MYRIAD_TOOL) || stack.isOf(AntiqueItems.MYRIAD_STAFF)) {
-                    if (renderMode != ItemDisplayContext.NONE) {
-                        matrices.translate(0, -0.1, 0.1);
-                    }
-                    if (stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_AXE_HEAD) && entity.isUsingItem()) {
-                        matrices.translate(renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? -0.5 : 0.5, -0.1, 0);
-                    }
-                    if (stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_SHOVEL_HEAD) && entity.isUsingItem()) {
-                        matrices.translate(renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? 0.1 : -0.1, 0, -0.2);
-                    }
-                    if (renderMode == ItemDisplayContext.NONE && (
-                            stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_CLEAVER_BLADE)
-                            || stack.isOf(AntiqueItems.MYRIAD_STAFF))) {
-                        matrices.translate(-0.15, -0.15, 0);
-                    }
-                    if (renderMode.isFirstPerson() && stack.isOf(AntiqueItems.MYRIAD_STAFF)) {
-                        matrices.translate(-0.1, -0.1, 0);
-                    }
-                    itemWorldPos = ClothManager.matrixToVec(matrices);
-                    manager = player.getMainHandStack().equals(stack) ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
-                    switch (renderMode) {
-                        case ItemDisplayContext.NONE -> manager = clothAccess.antique$getBackCloth();
-                        case ItemDisplayContext.GUI -> manager = null;
-                    }
-                    if (player.getInventory().getStack(42).equals(stack)) {
-                        manager = clothAccess.antique$getBeltCloth();
-                    }
-                    if (manager != null && stack.get(DataComponentTypes.DYED_COLOR) != null) {
-                        Object name = stack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
-                        if (!(stack.isOf(AntiqueItems.MYRIAD_STAFF) && (name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
-                            manager.renderCloth(itemWorldPos, matrices, vertexConsumer, light, new Color(Objects.requireNonNull(stack.get(DataComponentTypes.DYED_COLOR)).rgb()), false, ClothManager.TATTERED_CLOTH_STRIP, 1.4, 0.1);
-                        }
+        if (entity instanceof PlayerEntity player) {
+            if (stack.isOf(AntiqueItems.MYRIAD_TOOL) || stack.isOf(AntiqueItems.MYRIAD_STAFF)) {
+                if (renderMode != ItemDisplayContext.NONE) {
+                    matrices.translate(0, -0.1, 0.1);
+                }
+                if (stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_AXE_HEAD) && entity.isUsingItem()) {
+                    matrices.translate(renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? -0.5 : 0.5, -0.1, 0);
+                }
+                if (stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_SHOVEL_HEAD) && entity.isUsingItem()) {
+                    matrices.translate(renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? 0.1 : -0.1, 0, -0.2);
+                }
+                if (renderMode == ItemDisplayContext.NONE && (
+                        stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_CLEAVER_BLADE)
+                        || stack.isOf(AntiqueItems.MYRIAD_STAFF))) {
+                    matrices.translate(-0.15, -0.15, 0);
+                }
+                if (renderMode.isFirstPerson() && stack.isOf(AntiqueItems.MYRIAD_STAFF)) {
+                    matrices.translate(-0.1, -0.1, 0);
+                }
+                itemWorldPos = ClothManager.matrixToVec(matrices);
+                manager = player.getMainHandStack().equals(stack) ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_right_arm")) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_left_arm"));
+                switch (renderMode) {
+                    case ItemDisplayContext.NONE -> manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_back"));
+                    case ItemDisplayContext.GUI -> manager = null;
+                }
+                if (player.getInventory().getStack(42).equals(stack)) {
+                    manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_belt"));
+                }
+                if (manager != null && stack.get(DataComponentTypes.DYED_COLOR) != null) {
+                    Object name = stack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
+                    if (!(stack.isOf(AntiqueItems.MYRIAD_STAFF) && (name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
+                        manager.renderCloth(itemWorldPos, matrices, vertexConsumer, light, new Color(Objects.requireNonNull(stack.get(DataComponentTypes.DYED_COLOR)).rgb()), false, ClothManager.TATTERED_CLOTH_STRIP, 1.4, 0.1);
                     }
                 }
             }

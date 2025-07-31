@@ -1,7 +1,7 @@
 package net.hollowed.antique.mixin.entities.living;
 
 import net.hollowed.antique.index.AntiqueEntities;
-import net.hollowed.antique.entities.custom.IllusionerEntity;
+import net.hollowed.antique.entities.IllusionerEntity;
 import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.item.Items;
 import net.minecraft.server.world.ServerWorld;

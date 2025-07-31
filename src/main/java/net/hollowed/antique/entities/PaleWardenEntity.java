@@ -1,4 +1,4 @@
-package net.hollowed.antique.entities.custom;
+package net.hollowed.antique.entities;
 
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hollowed.antique.index.AntiqueItems;

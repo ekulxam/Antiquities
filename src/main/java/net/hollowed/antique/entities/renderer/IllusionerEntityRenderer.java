@@ -9,7 +9,7 @@ import java.util.Arrays;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.entities.custom.IllusionerEntity;
+import net.hollowed.antique.entities.IllusionerEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;

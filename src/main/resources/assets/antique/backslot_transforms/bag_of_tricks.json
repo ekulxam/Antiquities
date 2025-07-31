@@ -1,0 +1,16 @@
+{
+  "item": "antique:bag_of_tricks",
+  "scale": [0.65, 0.65, 0.65],
+  "rotation": [0.0, 180.0, 180.0],
+  "translation": [0.0, -0.2, -0.2],
+  "mode": "FIXED",
+  "sway": 0.25,
+  "tertiary": {
+    "model": "antique:bag_of_tricks_strap",
+    "scale": [1.0, 1.0, 1.0],
+    "rotation": [0.0, 0.0, 0.0],
+    "translation": [0.0, 0.0, 0.0],
+    "mode": "NONE",
+    "sway": 0.5
+  }
+}

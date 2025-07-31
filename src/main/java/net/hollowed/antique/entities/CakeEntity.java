@@ -1,4 +1,4 @@
-package net.hollowed.antique.entities.custom;
+package net.hollowed.antique.entities;
 
 import net.hollowed.antique.index.AntiqueSounds;
 import net.hollowed.antique.index.AntiqueParticles;

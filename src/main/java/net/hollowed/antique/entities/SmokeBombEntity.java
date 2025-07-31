@@ -1,4 +1,4 @@
-package net.hollowed.antique.entities.custom;
+package net.hollowed.antique.entities;
 
 import com.mojang.serialization.Codec;
 import net.hollowed.antique.index.AntiqueItems;

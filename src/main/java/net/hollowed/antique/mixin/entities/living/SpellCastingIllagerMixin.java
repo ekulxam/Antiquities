@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin.entities.living;
 
-import net.hollowed.antique.entities.custom.IllusionerEntity;
+import net.hollowed.antique.entities.IllusionerEntity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.mob.IllagerEntity;
 import net.minecraft.entity.mob.SpellcastingIllagerEntity;

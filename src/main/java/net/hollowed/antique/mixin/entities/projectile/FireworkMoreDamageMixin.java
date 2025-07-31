@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin.entities.projectile;
 
-import net.hollowed.antique.entities.custom.IllusionerEntity;
+import net.hollowed.antique.entities.IllusionerEntity;
 import net.minecraft.component.type.FireworkExplosionComponent;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.FlyingItemEntity;

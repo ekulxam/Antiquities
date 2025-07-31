@@ -3,7 +3,7 @@ package net.hollowed.antique.items;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.entities.custom.MyriadShovelEntity;
+import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.hollowed.antique.index.AntiqueItems;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.Block;

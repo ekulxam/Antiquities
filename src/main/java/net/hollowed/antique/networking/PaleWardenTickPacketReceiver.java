@@ -1,7 +1,7 @@
 package net.hollowed.antique.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.hollowed.antique.entities.custom.PaleWardenEntity;
+import net.hollowed.antique.entities.PaleWardenEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 

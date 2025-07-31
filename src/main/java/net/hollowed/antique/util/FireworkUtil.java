@@ -21,7 +21,7 @@ public class FireworkUtil {
                 : IntArrayList.of();
 
         FireworkExplosionComponent explosion = new FireworkExplosionComponent(
-                FireworkExplosionComponent.Type.LARGE_BALL,
+                FireworkExplosionComponent.Type.SMALL_BALL,
                 colors,
                 fadeColors,
                 random.nextBoolean(), // hasTrail

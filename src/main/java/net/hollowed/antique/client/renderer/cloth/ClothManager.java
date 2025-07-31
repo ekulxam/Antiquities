@@ -1,6 +1,7 @@
 package net.hollowed.antique.client.renderer.cloth;
 
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.minecraft.block.BlockState;
@@ -9,6 +10,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import org.joml.Matrix4f;
@@ -154,6 +156,16 @@ public class ClothManager {
 
     public int rgbToDecimal(int red, int green, int blue) {
         return (red << 16) | (green << 8) | blue;
+    }
+
+    public static ClothManager getOrCreate(Entity entity, Identifier id) {
+        if (entity instanceof ClothAccess clothAccess) {
+            if (clothAccess.antique$getManagers().get(id) == null) {
+                clothAccess.antique$getManagers().put(id, new ClothManager(new Vector3d(entity.getX(), entity.getY(), entity.getZ()), 8));
+            }
+            return clothAccess.antique$getManagers().get(id);
+        }
+        return null;
     }
 
     public void renderCloth(Vec3d position, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Color color, boolean ignoreFreeze, RenderLayer layer, double length, double width) {

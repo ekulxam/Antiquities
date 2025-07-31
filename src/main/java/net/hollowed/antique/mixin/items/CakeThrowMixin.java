@@ -1,7 +1,7 @@
 package net.hollowed.antique.mixin.items;
 
 import net.hollowed.antique.index.AntiqueEntities;
-import net.hollowed.antique.entities.custom.CakeEntity;
+import net.hollowed.antique.entities.CakeEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

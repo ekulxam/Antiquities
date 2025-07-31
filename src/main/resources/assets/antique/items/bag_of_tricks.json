@@ -19,7 +19,7 @@
                   "model": "antique:item/bag_of_tricks_open_back"
                 },
                 {
-                  "type": "antique:bag/selected_item"
+                  "type": "antique:bag/first_stack"
                 },
                 {
                   "type": "minecraft:model",
@@ -27,15 +27,72 @@
                 }
               ]
             },
-            "property": "antique:bag/has_selected_item"
+            "property": "antique:satchel/has_first_stack"
           },
           "on_true": {
-            "type": "minecraft:model",
-            "model": "antique:item/bag_of_tricks"
+            "type": "minecraft:condition",
+            "on_false": {
+              "type": "minecraft:condition",
+              "on_false": {
+                "type": "minecraft:model",
+                "model": "antique:item/bag_of_tricks"
+              },
+              "on_true": {
+                "type": "minecraft:composite",
+                "models": [
+                  {
+                    "type": "minecraft:model",
+                    "model": "antique:item/bag_of_tricks_open_back"
+                  },
+                  {
+                    "type": "antique:bag/selected_item"
+                  },
+                  {
+                    "type": "minecraft:model",
+                    "model": "antique:item/bag_of_tricks_open_front"
+                  }
+                ]
+              },
+              "property": "antique:bag/has_selected_item"
+            },
+            "on_true": {
+              "type": "minecraft:model",
+              "model": "antique:item/bag_of_tricks"
+            },
+            "property": "minecraft:carried"
           },
-          "property": "minecraft:carried"
+          "property": "antique:screen_open"
         },
         "when": "gui"
+      },
+      {
+        "model": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "antique:item/bag_of_tricks_hand"
+          },
+          "on_true": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "antique:item/bag_of_tricks_hand_open"
+              },
+              {
+                "type": "antique:bag/first_stack"
+              }
+            ]
+          },
+          "property": "antique:satchel/has_first_stack"
+        },
+        "when": [
+          "firstperson_righthand",
+          "firstperson_lefthand",
+          "thirdperson_righthand",
+          "thirdperson_lefthand",
+          "fixed"
+        ]
       }
     ],
     "fallback": {

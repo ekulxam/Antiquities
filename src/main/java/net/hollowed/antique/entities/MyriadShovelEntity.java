@@ -1,7 +1,6 @@
-package net.hollowed.antique.entities.custom;
+package net.hollowed.antique.entities;
 
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.combatamenities.index.CAParticles;
@@ -32,7 +31,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3d;
 
 import java.util.Objects;
 
@@ -45,12 +43,10 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	public ItemStack shovelStack;
 
 	public boolean canPickup;
-	public final ClothManager manager;
 
 	public MyriadShovelEntity(EntityType<MyriadShovelEntity> entityType, World world) {
 		super(entityType, world);
 		this.shovelStack = Antiquities.getMyriadShovelStack();
-		this.manager = new ClothManager(new Vector3d(), 8);
 		this.dataTracker.set(COLOR, Objects.requireNonNull(this.shovelStack.get(DataComponentTypes.DYED_COLOR)).rgb());
 	}
 
@@ -59,7 +55,6 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		this.dataTracker.set(LOYALTY, this.getLoyalty(stack));
 		this.dataTracker.set(ENCHANTED, stack.hasGlint());
 		this.shovelStack = stack;
-		this.manager = new ClothManager(new Vector3d(), 8);
 		this.dataTracker.set(COLOR, Objects.requireNonNull(this.shovelStack.get(DataComponentTypes.DYED_COLOR)).rgb());
 	}
 

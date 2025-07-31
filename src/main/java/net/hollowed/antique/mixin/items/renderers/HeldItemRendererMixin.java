@@ -1,10 +1,10 @@
 package net.hollowed.antique.mixin.items.renderers;
 
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueComponents;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.util.interfaces.duck.ArmedRenderStateAccess;
-import net.hollowed.antique.util.interfaces.duck.SpearClothAccess;
 import net.hollowed.antique.util.resources.MyriadStaffTransformData;
 import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
@@ -81,14 +81,12 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             ClothManager manager;
             Vec3d itemWorldPos = ClothManager.matrixToVec(matrices);
 
-            if (entity instanceof SpearClothAccess clothAccess) {
-                if (entity instanceof LivingEntity living) {
-                    Object name = living.getStackInArm(arm).getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
-                    if (living.getStackInArm(arm).isOf(AntiqueItems.MYRIAD_TOOL) || (living.getStackInArm(arm).isOf(AntiqueItems.MYRIAD_STAFF) && !(name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
-                        manager = arm == Arm.RIGHT ? clothAccess.antique$getRightArmCloth() : clothAccess.antique$getLeftArmCloth();
-                        if (manager != null && living.getStackInArm(arm).get(DataComponentTypes.DYED_COLOR) != null) {
-                            manager.renderCloth(itemWorldPos, matrices, vertexConsumers, light, new Color(Objects.requireNonNull(living.getStackInArm(arm).get(DataComponentTypes.DYED_COLOR)).rgb()), false, ClothManager.TATTERED_CLOTH_STRIP, 1.4, 0.1);
-                        }
+            if (entity instanceof LivingEntity living) {
+                Object name = living.getStackInArm(arm).getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
+                if (living.getStackInArm(arm).isOf(AntiqueItems.MYRIAD_TOOL) || (living.getStackInArm(arm).isOf(AntiqueItems.MYRIAD_STAFF) && !(name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
+                    manager = arm == Arm.RIGHT ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_right_arm")) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_left_arm"));
+                    if (manager != null && living.getStackInArm(arm).get(DataComponentTypes.DYED_COLOR) != null) {
+                        manager.renderCloth(itemWorldPos, matrices, vertexConsumers, light, new Color(Objects.requireNonNull(living.getStackInArm(arm).get(DataComponentTypes.DYED_COLOR)).rgb()), false, ClothManager.TATTERED_CLOTH_STRIP, 1.4, 0.1);
                     }
                 }
             }

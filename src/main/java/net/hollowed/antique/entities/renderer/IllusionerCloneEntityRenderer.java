@@ -8,7 +8,7 @@ package net.hollowed.antique.entities.renderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.entities.custom.IllusionerCloneEntity;
+import net.hollowed.antique.entities.IllusionerCloneEntity;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.IllagerEntityRenderer;

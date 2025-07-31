@@ -1,6 +1,6 @@
 package net.hollowed.antique.items;
 
-import net.hollowed.antique.entities.custom.SmokeBombEntity;
+import net.hollowed.antique.entities.SmokeBombEntity;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;

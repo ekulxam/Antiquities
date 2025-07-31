@@ -1,6 +1,6 @@
 package net.hollowed.antique.entities.parts;
 
-import net.hollowed.antique.entities.custom.MyriadShovelEntity;
+import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.Ownable;

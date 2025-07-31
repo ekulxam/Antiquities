@@ -2,7 +2,7 @@ package net.hollowed.antique.index;
 
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.entities.custom.*;
+import net.hollowed.antique.entities.*;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;

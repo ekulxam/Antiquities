@@ -8,18 +8,22 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
 import net.minecraft.inventory.StackReference;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsage;
+import net.minecraft.item.*;
 import net.minecraft.item.tooltip.TooltipData;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.ClickType;
 import net.minecraft.util.Hand;
 import net.minecraft.util.math.ColorHelper;
+import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -169,6 +173,37 @@ public class BagOfTricksItem extends Item {
             }
         }
         return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
+    }
+
+    @Override
+    public ActionResult use(World world, PlayerEntity user, Hand hand) {
+        ItemStack stack = user.getStackInHand(hand);
+        List<ItemStack> stacks = stack.getOrDefault(AntiqueComponents.SATCHEL_STACK, List.of());
+        if (stacks.isEmpty() || stacks.getFirst().isEmpty()) return ActionResult.PASS;
+
+        if (stacks.getFirst().getItem() instanceof ProjectileItem projectileItem) {
+            ProjectileEntity entity = projectileItem.createEntity(world, user.getEyePos(), stacks.getFirst(), Direction.DOWN);
+            entity.setOwner(user);
+            entity.setPosition(user.getX(), user.getEyeY() - 0.10000000149011612, user.getZ());
+
+            float f = -MathHelper.sin(user.getYaw() * 0.017453292F) * MathHelper.cos(user.getPitch() * 0.017453292F);
+            float g = -MathHelper.sin(user.getPitch() * 0.017453292F);
+            float h = MathHelper.cos(user.getYaw() * 0.017453292F) * MathHelper.cos(user.getPitch() * 0.017453292F);
+            Vec3d throwDir = new Vec3d(f, g, h).normalize();
+            Vec3d playerVel = user.getVelocity().normalize();
+            double dot = throwDir.dotProduct(playerVel); // Value between -1 and 1
+            float strength = 1.0F;
+            if (dot > 0.1) {
+                strength += (float) (dot * 2.0);
+            }
+            entity.setVelocity(f, g, h, strength, 1.0F);
+            world.spawnEntity(entity);
+
+            stacks.getFirst().decrementUnlessCreative(1, user);
+            BagOfTricksItem.setStoredStacks(stack, stacks);
+            return ActionResult.SUCCESS;
+        }
+        return super.use(world, user, hand);
     }
 
     public static boolean hasSelectedStack(ItemStack stack) {

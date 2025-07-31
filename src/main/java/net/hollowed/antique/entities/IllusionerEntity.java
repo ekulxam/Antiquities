@@ -3,7 +3,7 @@
 // (powered by FernFlower decompiler)
 //
 
-package net.hollowed.antique.entities.custom;
+package net.hollowed.antique.entities;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.hollowed.antique.index.AntiqueEntities;

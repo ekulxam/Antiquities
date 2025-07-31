@@ -4,7 +4,7 @@ import net.hollowed.antique.index.AntiqueSounds;
 import net.hollowed.antique.index.AntiqueComponents;
 import net.hollowed.antique.index.AntiqueEffects;
 import net.hollowed.antique.index.AntiqueEntities;
-import net.hollowed.antique.entities.custom.CakeEntity;
+import net.hollowed.antique.entities.CakeEntity;
 import net.hollowed.antique.util.LeftClickHandler;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.minecraft.block.BlockState;
