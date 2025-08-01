@@ -45,7 +45,7 @@ public class BagOfTricksTooltipComponent implements TooltipComponent {
 
 	@Override
 	public int getWidth(TextRenderer textRenderer) {
-		return 96;
+		return 128;
 	}
 
 	@Override
@@ -75,6 +75,7 @@ public class BagOfTricksTooltipComponent implements TooltipComponent {
 
 	@Override
 	public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext context) {
+		x -= 16;
 		if (this.satchelContents != BagOfTricksItem.lastContents) {
 			BagOfTricksItem.lastContents = this.satchelContents;
 			BagOfTricksItem.setInternalIndex(this.stack, -1);
@@ -152,23 +153,23 @@ public class BagOfTricksTooltipComponent implements TooltipComponent {
 
 	private void drawProgressBar(int x, int y, TextRenderer textRenderer, DrawContext drawContext) {
 		drawContext.drawGuiTexture(RenderPipelines.GUI_TEXTURED, this.getProgressBarFillTexture(), x + 1, y, this.getProgressBarFill(), 13);
-		drawContext.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BUNDLE_PROGRESS_BAR_BORDER_TEXTURE, x, y, 96, 13);
+		drawContext.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BUNDLE_PROGRESS_BAR_BORDER_TEXTURE, x, y, 128, 13);
 		Text text = this.getProgressBarLabel();
 		if (text != null) {
-			drawContext.drawCenteredTextWithShadow(textRenderer, text, x + 48, y + 3, Colors.WHITE);
+			drawContext.drawCenteredTextWithShadow(textRenderer, text, x + 64, y + 3, Colors.WHITE);
 		}
 	}
 
 	private static void drawEmptyDescription(int x, int y, TextRenderer textRenderer, DrawContext drawContext) {
-		drawContext.drawWrappedTextWithShadow(textRenderer, BUNDLE_EMPTY_DESCRIPTION, x, y, 96, -5592406);
+		drawContext.drawWrappedTextWithShadow(textRenderer, BUNDLE_EMPTY_DESCRIPTION, x, y, 128, -5592406);
 	}
 
 	private static int getDescriptionHeight(TextRenderer textRenderer) {
-		return textRenderer.wrapLines(BUNDLE_EMPTY_DESCRIPTION, 96).size() * 9;
+		return textRenderer.wrapLines(BUNDLE_EMPTY_DESCRIPTION, 128).size() * 9;
 	}
 
 	private int getProgressBarFill() {
-		return MathHelper.clamp((int) (this.satchelContents.size() * 11.75), 0, 94);
+		return MathHelper.clamp(this.satchelContents.size() * 16, 0, 126);
 	}
 
 	private Identifier getProgressBarFillTexture() {
