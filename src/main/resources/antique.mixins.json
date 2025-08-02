@@ -3,6 +3,7 @@
   "package": "net.hollowed.antique.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "accessors.CanRemoveSaddleAccessor",
     "accessors.MinecartItemAccessor",
     "accessors.MobEntitySoundAccessor",
     "accessors.SpellTicksAccessor",
@@ -15,6 +16,7 @@
     "entities.living.EntityBounceMixin",
     "entities.living.EntityFreezer",
     "entities.living.EntityLootMixin",
+    "entities.living.EntityShearMixin",
     "entities.living.FurBootsFreezeImmunityMixin",
     "entities.living.FurBootsMagmaMixin",
     "entities.living.LivingEntityFreezer",

@@ -1,8 +1,10 @@
 package net.hollowed.antique.entities.parts;
 
 import net.hollowed.antique.entities.MyriadShovelEntity;
+import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.Ownable;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
@@ -16,6 +18,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -63,6 +66,14 @@ public class MyriadShovelPart extends Entity implements Ownable {
 		if (this.getWorld() instanceof ServerWorld world) {
 			world.getChunkManager().unloadEntity(this);
 			world.getChunkManager().loadEntity(this);
+
+			List<Entity> list = world.getOtherEntities(this, this.getBoundingBox().shrink(0.1, 0.1, 0.1), entity -> !(entity instanceof MyriadShovelPart));
+			for (Entity entity : list) {
+				if (entity instanceof LivingEntity) {
+					entity.setVelocity(Vec3d.ZERO);
+					entity.velocityModified = true;
+				}
+			}
 		}
 
 		if (this.getOwner() instanceof MyriadShovelEntity shovel && shovel.canPickup) {
@@ -111,11 +122,13 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 	@Override
 	public final boolean damage(ServerWorld world, DamageSource source, float amount) {
-		if (this.owner != null && this.owner instanceof MyriadShovelEntity entity) {
-			entity.canPickup = true;
-			entity.getDataTracker().set(MyriadShovelEntity.LOYALTY, (byte) 3);
-			entity.returnTimer = 1;
-		}
+		TickDelayScheduler.schedule(1, () -> {
+			if (this.owner != null && this.owner instanceof MyriadShovelEntity entity) {
+				entity.canPickup = true;
+				entity.getDataTracker().set(MyriadShovelEntity.LOYALTY, (byte) 3);
+				entity.returnTimer = 1;
+			}
+		});
 		return false;
 	}
 

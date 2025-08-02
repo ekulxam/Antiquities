@@ -1,6 +1,7 @@
 package net.hollowed.antique.blocks.entities.renderer;
 
 import net.hollowed.antique.blocks.entities.PedestalBlockEntity;
+import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.VelocityTransferMaceItem;
 import net.hollowed.antique.mixin.accessors.EntityRenderDispatcherAccessor;
 import net.minecraft.client.MinecraftClient;
@@ -16,10 +17,8 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.item.*;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
@@ -50,12 +49,6 @@ public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity
         }
     }
 
-    private static final TagKey<Item> PICKAXE_TAG = TagKey.of(Registries.ITEM.getKey(), Identifier.ofVanilla("pickaxes"));
-    private static final TagKey<Item> AXE_TAG = TagKey.of(Registries.ITEM.getKey(), Identifier.ofVanilla("axes"));
-    private static final TagKey<Item> SHOVEL_TAG = TagKey.of(Registries.ITEM.getKey(), Identifier.ofVanilla("shovels"));
-    private static final TagKey<Item> HOE_TAG = TagKey.of(Registries.ITEM.getKey(), Identifier.ofVanilla("hoes"));
-    private static final TagKey<Item> SWORD_TAG = TagKey.of(Registries.ITEM.getKey(), Identifier.ofVanilla("swords"));
-
     private void renderItem(ItemStack itemStack, Vec3d offset, float yRot, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, World world) {
         matrices.push();
         ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
@@ -63,13 +56,14 @@ public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yRot));
         matrices.scale(0.65f, 0.65f, 0.65f);
 
+        if (itemStack.isOf(AntiqueItems.BAG_OF_TRICKS)) matrices.scale(0.75F, 0.75F, 0.75F);
         if (itemStack.getItem() instanceof MaceItem || itemStack.getItem() instanceof VelocityTransferMaceItem
-            || itemStack.isIn(SWORD_TAG) || itemStack.isIn(PICKAXE_TAG) || itemStack.isIn(AXE_TAG) || itemStack.isIn(SHOVEL_TAG) || itemStack.isIn(HOE_TAG)) {
+            || itemStack.isIn(ItemTags.SWORDS) || itemStack.isIn(ItemTags.PICKAXES) || itemStack.isIn(ItemTags.AXES) || itemStack.isIn(ItemTags.SHOVELS) || itemStack.isIn(ItemTags.HOES)) {
             matrices.translate(0, 0.1f, 0);
-            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(45));
+            matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(45));
         }
 
-        itemRenderer.renderItem(itemStack, ItemDisplayContext.GUI, light, overlay, matrices, vertexConsumers, world, (int) world.getTime());
+        itemRenderer.renderItem(itemStack, ItemDisplayContext.FIXED, light, overlay, matrices, vertexConsumers, world, (int) world.getTime());
         matrices.pop();
     }
 

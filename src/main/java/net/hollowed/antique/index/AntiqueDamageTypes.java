@@ -11,6 +11,7 @@ import net.minecraft.world.World;
 
 public class AntiqueDamageTypes {
     public static final RegistryKey<DamageType> WALL_SLAM = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, Identifier.of(Antiquities.MOD_ID, "wall_slam"));
+    public static final RegistryKey<DamageType> IMPALE = RegistryKey.of(RegistryKeys.DAMAGE_TYPE, Identifier.of(Antiquities.MOD_ID, "impale"));
 
     public AntiqueDamageTypes() {
     }

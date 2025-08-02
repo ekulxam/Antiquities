@@ -83,6 +83,8 @@
 
   "death.attack.wall_slam": "%s was slammed through a hard surface by %s",
   "death.attack.wall_slam.item": "%s was slammed through a hard surface by %s using %s",
+  "death.attack.impale": "%s was skewered by %s",
+  "death.attack.impale.item": "%s was skewered by %s using %s",
   "container.antique.dyeing": "Dyeing",
   "stat.antique.interact_with_dye_table": "Interactions with Dye Table",
   "container.antique.hex": "Hex",
