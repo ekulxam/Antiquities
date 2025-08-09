@@ -10,6 +10,7 @@ import net.minecraft.entity.data.TrackedData;
 import net.minecraft.entity.data.TrackedDataHandlerRegistry;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -78,7 +79,7 @@ public abstract class ClimbableShovelMixin extends LivingEntity {
                     .stream()
                     .anyMatch(entity -> entity instanceof MyriadShovelPart);
 
-            if (isCollidingWithSpecificEntity && this.horizontalCollision) {
+            if (isCollidingWithSpecificEntity && this.horizontalCollision && !this.movementMultiplier.equals(new Vec3d(0.05, 0.01, 0.05))) {
                 this.setClimbingWall(true);
             } else {
                 this.setClimbingWall(ItemHoldingUtil.isHoldingItem(this, Identifier.of(Antiquities.MOD_ID, "walljumper")) && (this.horizontalCollision || this.coyoteTicks > 0) && !this.isOnGround() && !isCollidingWithSpecificEntity && this.lastGroundTime == 0 && this.getVelocity().y <= 0);

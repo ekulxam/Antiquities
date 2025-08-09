@@ -159,6 +159,24 @@ public abstract class BackSlotRendererMixin extends HeldItemFeatureRenderer<Play
                     }
 
                     matrixStack.pop();
+
+                    matrixStack.push();
+                    if (playerEntity.getEquippedStack(EquipmentSlot.CHEST) != ItemStack.EMPTY) {
+                        matrixStack.translate(0.0F, 0.0F, 0.05F);
+                    }
+                }
+            }
+        }
+    }
+
+    @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/client/render/entity/state/PlayerEntityRenderState;FF)V", at = @At("TAIL"))
+    public void renderTail(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, PlayerEntityRenderState armedEntityRenderState, float limbSwing, float limbSwingAmount, CallbackInfo ci) {
+        if (armedEntityRenderState instanceof PlayerEntityRenderStateAccess access) {
+            PlayerEntity playerEntity = access.combat_Amenities$getPlayerEntity();
+            if (playerEntity != null) {
+                ItemStack backSlotStack = playerEntity.getInventory().getStack(41);
+                if (!backSlotStack.isEmpty()) {
+                    matrixStack.pop();
                 }
             }
         }

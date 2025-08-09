@@ -102,7 +102,11 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
                 this.move(MovementType.SELF, this.getVelocity());
                 Vec3d vec3d = this.getVelocity();
                 if (this.isClimbing() && ItemHoldingUtil.isHoldingItem(player, Identifier.of(Antiquities.MOD_ID, "walljumper"))) {
-                    if (!this.jumping && !this.isSneaking()) vec3d = new Vec3d(vec3d.x, 0, vec3d.z);
+                    if (!this.jumping && !this.isSneaking()) {
+                        vec3d = new Vec3d(vec3d.x, 0, vec3d.z);
+                    } else if (!this.jumping) {
+                        vec3d = new Vec3d(vec3d.x * 0.4, vec3d.y, vec3d.z * 0.4);
+                    }
                 }
 
                 cir.setReturnValue(vec3d);
@@ -183,10 +187,12 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
                 boolean collidingNorth = MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), box.offset(0, 0, -offset), entity);
                 boolean collidingSouth = MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), box.offset(0, 0, offset), entity);
 
-                boolean ledgeWest = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), box.offset(-offset, 2.1, 0), entity);
-                boolean ledgeEast = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), box.offset(offset, 2.1, 0), entity);
-                boolean ledgeNorth = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), box.offset(0, 2.1, -offset), entity);
-                boolean ledgeSouth = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), box.offset(0, 2.1, offset), entity);
+                Box ledgeBox = box.withMaxY(box.maxY - 0.5);
+
+                boolean ledgeWest = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), ledgeBox.offset(-offset, 1.75, 0), entity);
+                boolean ledgeEast = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), ledgeBox.offset(offset, 1.75, 0), entity);
+                boolean ledgeNorth = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), ledgeBox.offset(0, 1.75, -offset), entity);
+                boolean ledgeSouth = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), ledgeBox.offset(0, 1.75, offset), entity);
 
                 float correctedYaw = player.getYaw();
 

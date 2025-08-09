@@ -151,6 +151,7 @@ public interface AntiqueItems {
         return Registry.register(Registries.ITEM, key, item);
     }
 
+
     static void initialize() {
         Antiquities.LOGGER.info("Antiquities Items Initialized");
 

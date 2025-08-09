@@ -1,6 +1,7 @@
 package net.hollowed.antique.mixin.entities.features;
 
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.client.armor.renderers.VanillaArmorFeatureRenderer;
 import net.hollowed.antique.index.AntiqueEntityLayers;
 import net.hollowed.antique.client.armor.models.AdventureArmor;
 import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
@@ -56,6 +57,7 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
         this.slim = slim;
         this.armorModel = new AdventureArmor<>(ctx.getEntityModels().getModelPart(AntiqueEntityLayers.ADVENTURE_ARMOR));
         this.addFeature(new AdventureArmorFeatureRenderer<>(this, ctx.getEntityModels(), slim));
+        this.addFeature(new VanillaArmorFeatureRenderer<>(this, 0, ctx.getEntityModels()));
     }
 
     @Inject(method = "getArmPose(Lnet/minecraft/client/network/AbstractClientPlayerEntity;Lnet/minecraft/util/Arm;)Lnet/minecraft/client/render/entity/model/BipedEntityModel$ArmPose;", at = @At("HEAD"), cancellable = true)

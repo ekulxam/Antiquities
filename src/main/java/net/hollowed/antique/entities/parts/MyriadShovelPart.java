@@ -2,10 +2,8 @@ package net.hollowed.antique.entities.parts;
 
 import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.Ownable;
+import net.minecraft.block.Blocks;
+import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.predicate.entity.EntityPredicates;
@@ -66,13 +64,12 @@ public class MyriadShovelPart extends Entity implements Ownable {
 		if (this.getWorld() instanceof ServerWorld world) {
 			world.getChunkManager().unloadEntity(this);
 			world.getChunkManager().loadEntity(this);
+		}
 
-			List<Entity> list = world.getOtherEntities(this, this.getBoundingBox().shrink(0.1, 0.1, 0.1), entity -> !(entity instanceof MyriadShovelPart));
-			for (Entity entity : list) {
-				if (entity instanceof LivingEntity) {
-					entity.setVelocity(Vec3d.ZERO);
-					entity.velocityModified = true;
-				}
+		List<Entity> list = this.getWorld().getOtherEntities(this, this.getBoundingBox().shrink(0.1, 0.1, 0.1), entity -> !(entity instanceof MyriadShovelPart));
+		for (Entity entity : list) {
+			if (entity instanceof LivingEntity) {
+				entity.slowMovement(Blocks.AIR.getDefaultState(), new Vec3d(0.05, 0.01, 0.05));
 			}
 		}
 
@@ -92,7 +89,9 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 	@Override
 	public boolean isCollidable(@Nullable Entity entity) {
-        return true;
+		if (entity == null) return false;
+		List<Entity> list = this.getWorld().getOtherEntities(this, this.getBoundingBox(), entity1 -> !(entity1 instanceof MyriadShovelPart));
+		return entity.getY() >= this.getBoundingBox().maxY - 0.5 || !entity.getPose().equals(EntityPose.SWIMMING) && !list.contains(entity);
 	}
 
 	@Override

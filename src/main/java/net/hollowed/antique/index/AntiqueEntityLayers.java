@@ -12,6 +12,7 @@ public class AntiqueEntityLayers extends EntityModelLayers {
     private static final Set<EntityModelLayer> LAYERS = Sets.newHashSet();
 
     public static final EntityModelLayer ADVENTURE_ARMOR = registerMain("adventure_armor");
+    public static final EntityModelLayer VANILLA_ARMOR = registerMain("vanilla_armor");
     public static final EntityModelLayer ARMOR_STAND_ADVENTURE_ARMOR = registerMain("armor_stand_adventure_armor");
 
     private static EntityModelLayer registerMain(String id) {

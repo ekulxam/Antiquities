@@ -60,6 +60,7 @@
   "client": [
     "accessors.EntityRenderDispatcherAccessor",
     "accessors.GetSlotAtAccessor",
+    "entities.features.ArmorRendererMixin",
     "entities.features.ArmorStandFeatureAdder",
     "entities.features.BackSlotRendererMixin",
     "entities.features.CapeMixin",

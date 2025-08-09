@@ -1,6 +1,7 @@
 package net.hollowed.antique.mixin.entities.features;
 
 import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
+import net.hollowed.antique.client.armor.renderers.VanillaArmorFeatureRenderer;
 import net.hollowed.antique.util.interfaces.duck.IsHuskGetter;
 import net.minecraft.client.render.entity.BipedEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -25,6 +26,7 @@ public abstract class ZombieFeatureAdder<T extends ZombieEntity, S extends Zombi
     @Inject(method = "<init>", at = @At("TAIL"))
     public void init(EntityRendererFactory.Context ctx, M mainModel, M babyMainModel, M armorInnerModel, M armorOuterModel, M babyArmorInnerModel, M babyArmorOuterModel, CallbackInfo ci) {
         this.addFeature(new AdventureArmorFeatureRenderer<>(this, ctx.getEntityModels(), false));
+        this.addFeature(new VanillaArmorFeatureRenderer<>(this, 0, ctx.getEntityModels()));
     }
 
     @Inject(method = "updateRenderState(Lnet/minecraft/entity/mob/ZombieEntity;Lnet/minecraft/client/render/entity/state/ZombieEntityRenderState;F)V", at = @At("HEAD"))

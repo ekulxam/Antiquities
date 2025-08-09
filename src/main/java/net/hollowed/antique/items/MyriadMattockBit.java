@@ -69,6 +69,28 @@ public class MyriadMattockBit extends MyriadToolBitItem{
     }
 
     @Override
+    public boolean canMine(ItemStack stack, BlockState state, World world, BlockPos pos, LivingEntity miner) {
+        if (state.getBlock() instanceof CropBlock cropBlock && !(state.getBlock() instanceof BeetrootsBlock)) {
+            if (state.get(CropBlock.AGE) != cropBlock.getMaxAge() && !miner.isSneaking()) {
+                return false;
+            }
+        } else if (state.getBlock() instanceof BeetrootsBlock cropBlock) {
+            if (state.get(BeetrootsBlock.AGE) != cropBlock.getMaxAge() && !miner.isSneaking()) {
+                return false;
+            }
+        } else if (state.getBlock() instanceof NetherWartBlock) {
+            if (state.get(NetherWartBlock.AGE) != NetherWartBlock.MAX_AGE && !miner.isSneaking()) {
+                return false;
+            }
+        } else if (state.getBlock() instanceof CocoaBlock) {
+            if (state.get(CocoaBlock.AGE) != CocoaBlock.MAX_AGE && !miner.isSneaking()) {
+                return false;
+            }
+        }
+        return super.canMine(stack, state, world, pos, miner);
+    }
+
+    @Override
     public boolean postMine(ItemStack stack, World world, BlockState state, BlockPos pos, LivingEntity miner) {
         if (state.getBlock() instanceof CropBlock cropBlock && !(state.getBlock() instanceof BeetrootsBlock)) {
             if (state.get(CropBlock.AGE) == cropBlock.getMaxAge() && !miner.isSneaking()) {

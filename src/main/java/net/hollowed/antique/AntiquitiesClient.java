@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.hollowed.antique.client.armor.models.VanillaArmorModel;
 import net.hollowed.antique.index.*;
 import net.hollowed.antique.blocks.screens.DyeingScreen;
 import net.hollowed.antique.blocks.entities.renderer.PedestalRenderer;
@@ -81,6 +82,7 @@ public class AntiquitiesClient implements ClientModInitializer {
             Entity Renderers
          */
 
+        EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.VANILLA_ARMOR, VanillaArmorModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ARMOR_STAND_ADVENTURE_ARMOR, ArmorStandAdventureArmor::getTexturedModelData);
 

@@ -173,7 +173,7 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 
 				EnchantmentHelper.onTargetDamaged(serverWorld, entity, damageSource, this.getWeaponStack(), item -> this.kill(serverWorld));
 				if (entity instanceof LivingEntity) {
-					entity.setVelocity(this.getVelocity().multiply(0.25));
+					entity.setVelocity(this.getVelocity().multiply(0.6, 0.45, 0.6));
 					entity.velocityModified = true;
 				}
 			}
