@@ -15,6 +15,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Rarity;
 import net.minecraft.util.Unit;
 
+import java.awt.*;
 import java.util.List;
 import java.util.function.Function;
 
@@ -185,8 +186,11 @@ public interface AntiqueItems {
                     line = Text.translatable(string).withColor(11184810);
                 }
 
-                // Add to tooltip
-                list.add(1, line);
+                Color color = new Color(itemStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd43b69)).rgb());
+                Text cloth = Text.translatable("cloth.antique." + itemStack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth")).withColor(color.brighter().getRGB());
+                list.add(1, cloth);
+
+                list.add(2, line);
             }
             if (itemStack.isOf(MYRIAD_STAFF)) {
                 int toRemove = -1;
