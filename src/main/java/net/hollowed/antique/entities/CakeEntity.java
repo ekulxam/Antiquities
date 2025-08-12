@@ -69,6 +69,10 @@ public class CakeEntity extends PersistentProjectileEntity {
         }
     }
 
+    public ItemStack getPickBlockStack() {
+        return Items.CAKE.getDefaultStack();
+    }
+
     public boolean noRotate() {
         return this.dataTracker.get(FROZEN);
     }

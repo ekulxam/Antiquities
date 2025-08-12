@@ -1,16 +1,4 @@
 {
-  "type": "minecraft:crafting_shaped",
-  "pattern": [
-    " //",
-    " /S",
-    "/ S"
-  ],
-  "key": {
-    "/": "antique:raw_myriad",
-    "S": "antique:silk"
-  },
-  "result": {
-    "id": "antique:myriad_tool",
-    "count": 1
-  }
+  "type": "antique:crafting_special_myriad_tool",
+  "category": "equipment"
 }

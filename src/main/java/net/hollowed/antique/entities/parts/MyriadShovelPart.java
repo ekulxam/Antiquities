@@ -1,11 +1,13 @@
 package net.hollowed.antique.entities.parts;
 
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.*;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.data.DataTracker;
+import net.minecraft.item.ItemStack;
 import net.minecraft.predicate.entity.EntityPredicates;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.storage.ReadView;
@@ -35,6 +37,11 @@ public class MyriadShovelPart extends Entity implements Ownable {
 	@Nullable
 	protected Entity getEntity(UUID uuid) {
 		return this.getWorld() instanceof ServerWorld serverWorld ? serverWorld.getEntity(uuid) : null;
+	}
+
+	public ItemStack getPickBlockStack() {
+		if (this.getOwner() == null) return Antiquities.getMyriadShovelStack();
+		return this.getOwner() instanceof MyriadShovelEntity shovel ? shovel.getItemStack() : Antiquities.getMyriadShovelStack();
 	}
 
 	public void setOrderId(int id) {

@@ -16,6 +16,7 @@ import net.hollowed.antique.index.*;
 import net.hollowed.antique.networking.*;
 import net.hollowed.antique.index.AntiqueStats;
 import net.hollowed.antique.index.AntiqueLootTableModifiers;
+import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.hollowed.antique.util.resources.ClothSkinListener;
@@ -74,7 +75,9 @@ public class Antiquities implements ModInitializer {
 		AntiqueSounds.initialize();
 		AntiqueEffects.initialize();
 		AntiqueDispenserBehaviors.initialize();
+		AntiqueRecipeSerializer.init();
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new MyriadStaffTransformResourceReloadListener());
+		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new ClothSkinListener());
 
 		/*
 			Packets
@@ -110,18 +113,6 @@ public class Antiquities implements ModInitializer {
 		});
 
 		/*
-			Item Group
-		 */
-
-		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_ITEMS_GROUP_KEY, ANTIQUITIES_ITEMS_GROUP);
-		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_BLOCKS_GROUP_KEY, ANTIQUITIES_BLOCKS_GROUP);
-		addItems();
-
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(itemGroup -> {
-			itemGroup.addAfter(Items.HUSK_SPAWN_EGG, AntiqueItems.ILLUSIONER_SPAWN_EGG);
-		});
-
-		/*
 			Component Modification
 		 */
 
@@ -152,8 +143,6 @@ public class Antiquities implements ModInitializer {
 			Resource Pack
 		 */
 
-		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new ClothSkinListener());
-
 		FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent((container) ->
 				ResourceManagerHelper.registerBuiltinResourcePack(Identifier.of(MOD_ID, "antique"), container, Text.translatable("resourcePack.hmi.name"), ResourcePackActivationType.NORMAL));
 
@@ -162,6 +151,19 @@ public class Antiquities implements ModInitializer {
 		 */
 
 		Config.trailRenderers = false;
+
+		/*
+			Item Group
+		 */
+
+		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_ITEMS_GROUP_KEY, ANTIQUITIES_ITEMS_GROUP);
+		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_BLOCKS_GROUP_KEY, ANTIQUITIES_BLOCKS_GROUP);
+		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_CLOTHS_GROUP_KEY, ANTIQUITIES_CLOTHS_GROUP);
+		addItems();
+
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(itemGroup -> {
+			itemGroup.addAfter(Items.HUSK_SPAWN_EGG, AntiqueItems.ILLUSIONER_SPAWN_EGG);
+		});
 	}
 
 	public static final RegistryKey<ItemGroup> ANTIQUITIES_ITEMS_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, "antiquities_items_group"));
@@ -174,6 +176,12 @@ public class Antiquities implements ModInitializer {
 	public static final ItemGroup ANTIQUITIES_BLOCKS_GROUP = FabricItemGroup.builder()
 			.icon(() -> new ItemStack(AntiqueBlocks.HOLLOW_CORE))
 			.displayName(Text.translatable("itemGroup.antique.antiquities_blocks").withColor(0xFFAA2F54))
+			.build();
+
+	public static final RegistryKey<ItemGroup> ANTIQUITIES_CLOTHS_GROUP_KEY = RegistryKey.of(Registries.ITEM_GROUP.getKey(), Identifier.of(MOD_ID, "antiquities_cloths_group"));
+	public static final ItemGroup ANTIQUITIES_CLOTHS_GROUP = FabricItemGroup.builder()
+			.icon(() -> new ItemStack(AntiqueItems.CLOTH))
+			.displayName(Text.translatable("itemGroup.antique.antiquities_cloths").withColor(0xFFAA2F54))
 			.build();
 
 	private void addItems() {
@@ -277,7 +285,6 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(AntiqueItems.MYRIAD_CLEAVER_BLADE);
 			itemGroup.add(AntiqueItems.RAW_MYRIAD);
 			itemGroup.add(AntiqueItems.MYRIAD_INGOT);
-			itemGroup.add(AntiqueItems.SILK);
 			itemGroup.add(AntiqueItems.MIRAGE_SILK);
 			itemGroup.add(AntiqueItems.BAG_OF_TRICKS);
 			itemGroup.add(AntiqueItems.SMOKE_BOMB);
@@ -287,11 +294,21 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(AntiqueItems.SCEPTER);
 			itemGroup.add(AntiqueItems.WARHORN);
 		});
+
+		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(itemGroup -> {
+				for (ClothSkinData.ClothSubData data : ClothSkinListener.getTransforms()) {
+					ItemStack stack = AntiqueItems.CLOTH.getDefaultStack();
+					stack.set(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique." + data.model()));
+					stack.set(DataComponentTypes.ITEM_MODEL, id(data.model()));
+					itemGroup.add(stack);
+				}
+		});
 	}
 
 	public static ItemStack getMyriadShovelStack() {
 		ItemStack myriadShovel = AntiqueItems.MYRIAD_TOOL.getDefaultStack();
 		myriadShovel.set(AntiqueComponents.MYRIAD_STACK, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultStack());
+		myriadShovel.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_shovel"));
 		myriadShovel.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
 				.add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 8.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
 				.add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.9, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)

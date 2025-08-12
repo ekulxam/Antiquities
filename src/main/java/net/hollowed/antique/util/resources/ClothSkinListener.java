@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public class ClothSkinListener implements SimpleSynchronousResourceReloadListener {
-    private static final Map<Integer, ClothSkinData.ClothSubData> transforms = new HashMap<>();
+    private static final Map<String, ClothSkinData.ClothSubData> transforms = new LinkedHashMap<>();
 
     @Override
     public Identifier getFabricId() {
@@ -31,16 +31,7 @@ public class ClothSkinListener implements SimpleSynchronousResourceReloadListene
 
                     result.resultOrPartial(Antiquities.LOGGER::error).ifPresent(data -> {
                         for (ClothSkinData.ClothSubData entry : data.list()) {
-                            int intValue = 0;
-                            try {
-                                if (!entry.hex().isBlank()) {
-                                    intValue = Integer.parseInt(entry.hex(), 16);
-                                }
-                            } catch (NumberFormatException e) {
-                                System.err.println("Invalid hexadecimal string format: " + e.getMessage());
-                            }
-
-                            transforms.put(intValue, entry);
+                            transforms.putIfAbsent(entry.model(), entry);
                         }
                     });
                 } catch (Exception e) {
@@ -50,7 +41,11 @@ public class ClothSkinListener implements SimpleSynchronousResourceReloadListene
         });
     }
 
-    public static ClothSkinData.ClothSubData getTransform(int hex) {
-        return transforms.getOrDefault(hex, new ClothSkinData.ClothSubData("", "", 0, 0, 0, 0));
+    public static Collection<ClothSkinData.ClothSubData> getTransforms() {
+        return transforms.values();
+    }
+
+    public static ClothSkinData.ClothSubData getTransform(String id) {
+        return transforms.getOrDefault(id, new ClothSkinData.ClothSubData("cloth", "d13a68", 1.4F, 0.1F, 8, 0, true));
     }
 }

@@ -5,6 +5,8 @@ import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueComponents;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.util.interfaces.duck.ArmedRenderStateAccess;
+import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.hollowed.antique.util.resources.MyriadStaffTransformData;
 import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
@@ -21,6 +23,7 @@ import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemDisplayContext;
@@ -38,7 +41,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
-import java.util.Objects;
 
 @Mixin(HeldItemFeatureRenderer.class)
 public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M extends EntityModel<S> & ModelWithArms> extends FeatureRenderer<S, M> {
@@ -82,11 +84,25 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             Vec3d itemWorldPos = ClothManager.matrixToVec(matrices);
 
             if (entity instanceof LivingEntity living) {
-                Object name = living.getStackInArm(arm).getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
-                if (living.getStackInArm(arm).isOf(AntiqueItems.MYRIAD_TOOL) || (living.getStackInArm(arm).isOf(AntiqueItems.MYRIAD_STAFF) && !(name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
+                ItemStack stack = living.getStackInArm(arm);
+
+                ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth"));
+                Object name = stack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
+                if (stack.isOf(AntiqueItems.MYRIAD_TOOL) || (stack.isOf(AntiqueItems.MYRIAD_STAFF) && !(name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
                     manager = arm == Arm.RIGHT ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_right_arm")) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_left_arm"));
-                    if (manager != null && living.getStackInArm(arm).get(DataComponentTypes.DYED_COLOR) != null) {
-                        manager.renderCloth(itemWorldPos, matrices, vertexConsumers, light, new Color(Objects.requireNonNull(living.getStackInArm(arm).get(DataComponentTypes.DYED_COLOR)).rgb()), false, ClothManager.TATTERED_CLOTH_STRIP, 1.4, 0.1);
+                    if (manager != null && stack.get(DataComponentTypes.DYED_COLOR) != null) {
+                        manager.renderCloth(
+                                itemWorldPos,
+                                matrices,
+                                vertexConsumers,
+                                data.light() != 0 ? data.light() : light,
+                                data.overlay() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
+                                false,
+                                ClothManager.getRenderLayer(data.model()),
+                                data.length() != 0 ? data.length() : 1.4,
+                                data.width() != 0 ? data.width() : 0.1,
+                                data.bodyAmount() != 0 ? data.bodyAmount() : 8
+                        );
                     }
                 }
             }

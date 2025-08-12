@@ -32,6 +32,13 @@ public interface AntiqueComponents {
                     .codec(Codec.INT.fieldOf("counter").codec())
                     .build()
     );
+    ComponentType<String> CLOTH_TYPE = Registry.register(
+            Registries.DATA_COMPONENT_TYPE,
+            Identifier.of(Antiquities.MOD_ID, "cloth_type"),
+            ComponentType.<String>builder()
+                    .codec(Codec.STRING.fieldOf("cloth_type").codec())
+                    .build()
+    );
 
     static void initialize() {}
 }

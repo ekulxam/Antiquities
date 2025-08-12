@@ -24,7 +24,7 @@ public interface AntiqueItems {
 
     Item RAW_MYRIAD = register("raw_myriad", Item::new);
     Item MYRIAD_INGOT = register("myriad_ingot", Item::new);
-    Item SILK = register("silk", Item::new);
+    Item CLOTH = register("cloth", Item::new);
     Item MIRAGE_SILK = register("mirage_silk", settings -> new Item(settings.rarity(Rarity.RARE)));
     Item BAG_OF_TRICKS = register("bag_of_tricks", settings -> new BagOfTricksItem(settings.maxCount(1)
             .component(ModComponents.INTEGER_PROPERTY, -1)

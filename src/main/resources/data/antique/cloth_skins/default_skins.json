@@ -1,0 +1,277 @@
+{
+  "skins": [
+    {
+      "model": "cloth",
+      "overlay": true
+    },
+    {
+      "model": "tattered_cloth",
+      "overlay": true
+    },
+    {
+      "model": "long_cloth",
+      "length": 2.8,
+      "bodies": 16,
+      "overlay": true
+    },
+    {
+      "model": "forked_cloth",
+      "width": 0.166,
+      "length": 2.1,
+      "bodies": 12,
+      "overlay": true
+    },
+    {
+      "model": "lesbian_cloth",
+      "color": "d62900"
+    },
+    {
+      "model": "pride_cloth",
+      "color": "e60000"
+    },
+    {
+      "model": "trans_cloth",
+      "color": "5bcefa"
+    },
+    {
+      "model": "gay_cloth",
+      "color": "018e70"
+    },
+    {
+      "model": "bi_cloth",
+      "color": "d70070"
+    },
+    {
+      "model": "pan_cloth",
+      "color": "ff1b8d"
+    },
+    {
+      "model": "aroace_cloth",
+      "color": "e38d00"
+    },
+    {
+      "model": "non_binary_cloth",
+      "color": "fff430"
+    },
+    {
+      "model": "genderfluid_cloth",
+      "color": "ff76a3"
+    },
+    {
+      "model": "intersex_cloth",
+      "color": "ffd900"
+    },
+    {
+      "model": "doctorish_cloth",
+      "color": "2d2e37"
+    },
+    {
+      "model": "green_cloth",
+      "color": "1e804e"
+    },
+    {
+      "model": "tarnish_cloth",
+      "color": "d3a668"
+    },
+    {
+      "model": "red_royal_cloth",
+      "color": "b3273a",
+      "length": 2.8,
+      "bodies": 16
+    },
+    {
+      "model": "orange_royal_cloth",
+      "color": "b35c27",
+      "length": 2.8,
+      "bodies": 16
+    },
+    {
+      "model": "green_royal_cloth",
+      "color": "27b345",
+      "length": 2.8,
+      "bodies": 16
+    },
+    {
+      "model": "blue_royal_cloth",
+      "color": "276bb3",
+      "length": 2.8,
+      "bodies": 16
+    },
+    {
+      "model": "purple_royal_cloth",
+      "color": "b327b3",
+      "length": 2.8,
+      "bodies": 16
+    },
+    {
+      "model": "winter_cloth",
+      "color": "414ca2",
+      "length": 2.8,
+      "width": 0.166,
+      "bodies": 16
+    },
+    {
+      "model": "hollowed_cloth",
+      "color": "be113e",
+      "width": 0.166,
+      "length": 2.1,
+      "bodies": 12
+    },
+    {
+      "model": "cord_cloth",
+      "color": "ff94d6"
+    },
+    {
+      "model": "shiny_cloth",
+      "color": "ffbb2f"
+    },
+    {
+      "model": "nitron_cloth",
+      "color": "cf9cf9"
+    },
+    {
+      "model": "toady_cloth",
+      "color": "55cd6e"
+    },
+    {
+      "model": "juko_cloth",
+      "color": "3f435f"
+    },
+    {
+      "model": "lodestar_cloth",
+      "color": "5800ff"
+    },
+    {
+      "model": "boko_cloth",
+      "color": "5b95dc",
+      "width": 0.166
+    },
+    {
+      "model": "four_cloth",
+      "color": "9fee5f"
+    },
+    {
+      "model": "shiv_cloth",
+      "color": "262323",
+      "light": 255
+    },
+    {
+      "model": "bouz_cloth",
+      "color": "786666"
+    },
+    {
+      "model": "sember_cloth",
+      "color": "65526a"
+    },
+    {
+      "model": "typo_cloth",
+      "color": "06d7ae",
+      "length": 2.1,
+      "bodies": 12
+    },
+    {
+      "model": "lizard_cloth",
+      "color": "cb0000",
+      "width": 0.166,
+      "length": 2.1,
+      "bodies": 12,
+      "light": 255
+    },
+    {
+      "model": "echo_cloth",
+      "color": "2c325c",
+      "length": 2.8,
+      "bodies": 16,
+      "light": 255
+    },
+    {
+      "model": "beheaded_cloth",
+      "color": "ad2b70",
+      "light": 255
+    },
+    {
+      "model": "bobby_cloth",
+      "color": "ff5bc1",
+      "light": 255
+    },
+    {
+      "model": "grimm_cloth",
+      "color": "32353f"
+    },
+    {
+      "model": "radiance_cloth",
+      "color": "e6c9c2",
+      "light": 255
+    },
+    {
+      "model": "cult_cloth",
+      "color": "201c1c",
+      "width": 0.166,
+      "length": 2.1,
+      "bodies": 12,
+      "light": 255
+    },
+    {
+      "model": "old_faith_cloth",
+      "color": "2e2b30",
+      "width": 0.166,
+      "length": 2.1,
+      "bodies": 12
+    },
+    {
+      "model": "madeline_cloth",
+      "color": "ac3232"
+    },
+    {
+      "model": "theo_cloth",
+      "color": "dd7127"
+    },
+    {
+      "model": "orange_portal_cloth",
+      "color": "f4a414",
+      "width": 0.166,
+      "light": 255
+    },
+    {
+      "model": "blue_portal_cloth",
+      "color": "138dff",
+      "width": 0.166,
+      "light": 255
+    },
+    {
+      "model": "vone_cloth",
+      "color": "33437b",
+      "light": 255
+    },
+    {
+      "model": "vtwo_cloth",
+      "color": "bf1810",
+      "light": 255
+    },
+    {
+      "model": "demon_eye_cloth",
+      "color": "b10800"
+    },
+    {
+      "model": "tree_cloth",
+      "color": "1d9045"
+    },
+    {
+      "model": "undyne_cloth",
+      "color": "00d6d6",
+      "light": 255
+    },
+    {
+      "model": "truck_cloth",
+      "color": "e50606"
+    },
+    {
+      "model": "susie_cloth",
+      "color": "89176b"
+    },
+    {
+      "model": "kris_cloth",
+      "color": "eb0095"
+    }
+  ]
+}

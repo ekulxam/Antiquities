@@ -1,6 +1,10 @@
 package net.hollowed.antique.blocks.screens;
 
+import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueScreenHandlerType;
+import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.player.PlayerEntity;
@@ -51,6 +55,10 @@ public class DyeingScreenHandler extends ScreenHandler {
 		this.addSlot(new Slot(this.inventory, 0, 62, 37) {
 			@Override
 			public boolean canInsert(ItemStack stack) {
+				if (stack.isOf(AntiqueItems.MYRIAD_TOOL)) {
+					ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth"));
+					return data.overlay();
+				}
 				return stack.isIn(ItemTags.DYEABLE);
 			}
 

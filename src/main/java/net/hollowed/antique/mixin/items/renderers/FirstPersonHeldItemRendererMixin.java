@@ -4,6 +4,8 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.AntiqueComponents;
 import net.hollowed.antique.index.AntiqueItems;
+import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.hollowed.antique.util.resources.MyriadStaffTransformData;
 import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
 import net.minecraft.client.MinecraftClient;
@@ -13,6 +15,7 @@ import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemDisplayContext;
@@ -29,7 +32,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
-import java.util.Objects;
 
 @Mixin(HeldItemRenderer.class)
 public abstract class FirstPersonHeldItemRendererMixin {
@@ -84,9 +86,22 @@ public abstract class FirstPersonHeldItemRendererMixin {
                     manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_belt"));
                 }
                 if (manager != null && stack.get(DataComponentTypes.DYED_COLOR) != null) {
+                    ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth"));
+
                     Object name = stack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
                     if (!(stack.isOf(AntiqueItems.MYRIAD_STAFF) && (name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
-                        manager.renderCloth(itemWorldPos, matrices, vertexConsumer, light, new Color(Objects.requireNonNull(stack.get(DataComponentTypes.DYED_COLOR)).rgb()), false, ClothManager.TATTERED_CLOTH_STRIP, 1.4, 0.1);
+                        manager.renderCloth(
+                                itemWorldPos,
+                                matrices,
+                                vertexConsumer,
+                                data.light() != 0 ? data.light() : light,
+                                data.overlay() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
+                                false,
+                                ClothManager.getRenderLayer(data.model()),
+                                data.length() != 0 ? data.length() : 1.4,
+                                data.width() != 0 ? data.width() : 0.1,
+                                data.bodyAmount() != 0 ? data.bodyAmount() : 8
+                        );
                     }
                 }
             }
