@@ -160,6 +160,7 @@ public class Antiquities implements ModInitializer {
 		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_BLOCKS_GROUP_KEY, ANTIQUITIES_BLOCKS_GROUP);
 		Registry.register(Registries.ITEM_GROUP, ANTIQUITIES_CLOTHS_GROUP_KEY, ANTIQUITIES_CLOTHS_GROUP);
 		addItems();
+		addClothItems();
 
 		ItemGroupEvents.modifyEntriesEvent(ItemGroups.SPAWN_EGGS).register(itemGroup -> {
 			itemGroup.addAfter(Items.HUSK_SPAWN_EGG, AntiqueItems.ILLUSIONER_SPAWN_EGG);
@@ -294,14 +295,17 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(AntiqueItems.SCEPTER);
 			itemGroup.add(AntiqueItems.WARHORN);
 		});
+	}
 
+	public static void addClothItems() {
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(itemGroup -> {
-				for (ClothSkinData.ClothSubData data : ClothSkinListener.getTransforms()) {
-					ItemStack stack = AntiqueItems.CLOTH.getDefaultStack();
-					stack.set(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique." + data.model()));
-					stack.set(DataComponentTypes.ITEM_MODEL, id(data.model()));
+			for (ClothSkinData.ClothSubData data : ClothSkinListener.getTransforms()) {
+				ItemStack stack = AntiqueItems.CLOTH.getDefaultStack();
+				stack.set(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique." + data.model()));
+				if (!itemGroup.getDisplayStacks().contains(stack)) {
 					itemGroup.add(stack);
 				}
+			}
 		});
 	}
 

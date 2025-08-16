@@ -15,6 +15,8 @@ public class AntiqueItemTags {
     public static final TagKey<Item> DIAMOND_ARMOR = of("diamond_armor");
     public static final TagKey<Item> NETHERITE_ARMOR = of("netherite_armor");
 
+    public static final TagKey<Item> LARGE_CLOTH = of("large_cloth");
+
     private AntiqueItemTags() {
 
     }

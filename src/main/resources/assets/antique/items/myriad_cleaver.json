@@ -4,9 +4,21 @@
     "cases": [
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "antique:item/myriad_cleaver_inventory",
+          "type": "antique:myriad_cloth",
+          "base": "antique:item/myriad_cleaver_inventory",
           "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": 13893696
+            },
+            {
+              "type": "minecraft:dye",
+              "default": 13893696
+            },
+            {
+              "type": "minecraft:dye",
+              "default": 13893696
+            },
             {
               "type": "minecraft:dye",
               "default": 13893696
@@ -21,9 +33,21 @@
       },
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "antique:item/myriad_cleaver",
+          "type": "antique:myriad_cloth",
+          "base": "antique:item/myriad_cleaver",
           "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": 13893696
+            },
+            {
+              "type": "minecraft:dye",
+              "default": 13893696
+            },
+            {
+              "type": "minecraft:dye",
+              "default": 13893696
+            },
             {
               "type": "minecraft:dye",
               "default": 13893696

@@ -79,6 +79,7 @@ public interface AntiqueItems {
     Item MYRIAD_TOOL = register("myriad_tool", settings -> new MyriadToolItem(settings.maxCount(1)
             .attributeModifiers(MyriadToolItem.createAttributeModifiers(4, 1.8, 0.25))
             .component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd43b69))
+            .component(AntiqueComponents.CLOTH_TYPE, "cloth")
             .component(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY)
             .component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE)
             .enchantable(10)
@@ -186,11 +187,11 @@ public interface AntiqueItems {
                     line = Text.translatable(string).withColor(11184810);
                 }
 
-                Color color = new Color(itemStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd43b69)).rgb());
-                Text cloth = Text.translatable("cloth.antique." + itemStack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth")).withColor(color.brighter().getRGB());
-                list.add(1, cloth);
+                list.add(1, line);
 
-                list.add(2, line);
+                Color color = new Color(itemStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd43b69)).rgb());
+                Text cloth = Text.literal(" - ").append(Text.translatable("item.antique." + itemStack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth"))).withColor(color.brighter().getRGB());
+                list.add(2, cloth);
             }
             if (itemStack.isOf(MYRIAD_STAFF)) {
                 int toRemove = -1;

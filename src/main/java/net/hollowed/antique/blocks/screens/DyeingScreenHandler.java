@@ -57,7 +57,7 @@ public class DyeingScreenHandler extends ScreenHandler {
 			public boolean canInsert(ItemStack stack) {
 				if (stack.isOf(AntiqueItems.MYRIAD_TOOL)) {
 					ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth"));
-					return data.overlay();
+					return data.dyeable();
 				}
 				return stack.isIn(ItemTags.DYEABLE);
 			}

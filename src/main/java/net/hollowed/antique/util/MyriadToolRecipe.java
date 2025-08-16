@@ -1,6 +1,5 @@
 package net.hollowed.antique.util;
 
-import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueComponents;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
@@ -15,6 +14,8 @@ import net.minecraft.recipe.SpecialCraftingRecipe;
 import net.minecraft.recipe.book.CraftingRecipeCategory;
 import net.minecraft.recipe.input.CraftingRecipeInput;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.world.World;
 
 public class MyriadToolRecipe extends SpecialCraftingRecipe {
@@ -25,25 +26,28 @@ public class MyriadToolRecipe extends SpecialCraftingRecipe {
 	}
 
 	public boolean matches(CraftingRecipeInput craftingRecipeInput, World world) {
-		if (craftingRecipeInput.getStackCount() < 5) {
-			return false;
-		} else {
-			if (craftingRecipeInput.getStackInSlot(1).isOf(AntiqueItems.RAW_MYRIAD)) {
-				if (craftingRecipeInput.getStackInSlot(2).isOf(AntiqueItems.RAW_MYRIAD) && craftingRecipeInput.getStackInSlot(5).isOf(AntiqueItems.RAW_MYRIAD) && craftingRecipeInput.getStackInSlot(6).isOf(AntiqueItems.RAW_MYRIAD)
-						|| craftingRecipeInput.getStackInSlot(0).isOf(AntiqueItems.RAW_MYRIAD) && craftingRecipeInput.getStackInSlot(3).isOf(AntiqueItems.RAW_MYRIAD) && craftingRecipeInput.getStackInSlot(8).isOf(AntiqueItems.RAW_MYRIAD)) {
+        if (craftingRecipeInput.getStackCount() >= 5) {
+            if (craftingRecipeInput.getStackInSlot(1).isOf(AntiqueItems.RAW_MYRIAD)) {
+                if (craftingRecipeInput.size() >= 6 && craftingRecipeInput.getStackInSlot(2).isOf(AntiqueItems.RAW_MYRIAD) && craftingRecipeInput.getStackInSlot(5).isOf(AntiqueItems.RAW_MYRIAD) && craftingRecipeInput.getStackInSlot(6).isOf(AntiqueItems.RAW_MYRIAD)
+                        || craftingRecipeInput.size() >= 8 && craftingRecipeInput.getStackInSlot(0).isOf(AntiqueItems.RAW_MYRIAD) && craftingRecipeInput.getStackInSlot(3).isOf(AntiqueItems.RAW_MYRIAD) && craftingRecipeInput.getStackInSlot(8).isOf(AntiqueItems.RAW_MYRIAD)) {
                     return CLOTH.test(craftingRecipeInput.getStackInSlot(4));
-				}
-			}
-			return false;
-		}
-	}
+                }
+            }
+        }
+        return false;
+    }
 
 	public ItemStack craft(CraftingRecipeInput craftingRecipeInput, RegistryWrapper.WrapperLookup wrapperLookup) {
 		ItemStack itemStack = new ItemStack(AntiqueItems.MYRIAD_TOOL);
 
 		ItemStack itemStack2 = craftingRecipeInput.getStackInSlot(4);
 		if (!itemStack2.isEmpty() && CLOTH.test(itemStack2)) {
-			String model = itemStack2.getOrDefault(DataComponentTypes.ITEM_MODEL, Antiquities.id("cloth")).getPath();
+			String model = "item.antique.cloth";
+			Text text = itemStack2.getOrDefault(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique.cloth"));
+			if (text.getContent() instanceof TranslatableTextContent translatable) {
+				model = translatable.getKey();
+			}
+			model = model.substring(model.lastIndexOf(".") + 1);
 			itemStack.set(AntiqueComponents.CLOTH_TYPE, model);
 
 			ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(model);

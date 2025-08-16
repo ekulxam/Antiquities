@@ -1,6 +1,5 @@
 {
   "model": {
-    "type": "minecraft:model",
-    "model": "antique:item/cloth"
+    "type": "antique:cloth"
   }
 }

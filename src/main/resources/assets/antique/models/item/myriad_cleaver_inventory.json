@@ -1,7 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "antique:item/myriad_cleaver_cloth_item",
-    "layer1": "antique:item/myriad_cleaver_inventory"
+    "layer0": "antique:item/myriad_cleaver_inventory"
   }
 }

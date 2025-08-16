@@ -2,16 +2,19 @@
   "skins": [
     {
       "model": "cloth",
+      "dyeable": true,
       "overlay": true
     },
     {
       "model": "tattered_cloth",
+      "dyeable": true,
       "overlay": true
     },
     {
       "model": "long_cloth",
       "length": 2.8,
       "bodies": 16,
+      "dyeable": true,
       "overlay": true
     },
     {
@@ -19,6 +22,7 @@
       "width": 0.166,
       "length": 2.1,
       "bodies": 12,
+      "dyeable": true,
       "overlay": true
     },
     {
@@ -168,6 +172,13 @@
       "color": "06d7ae",
       "length": 2.1,
       "bodies": 12
+    },
+    {
+      "model": "yak_cloth",
+      "color": "2f3136",
+      "length": 2.8,
+      "width": 0.166,
+      "bodies": 16
     },
     {
       "model": "lizard_cloth",

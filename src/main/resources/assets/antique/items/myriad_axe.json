@@ -4,9 +4,13 @@
     "cases": [
       {
         "model": {
-          "type": "minecraft:model",
-          "model": "antique:item/myriad_axe_inventory",
+          "type": "antique:myriad_cloth",
+          "base": "antique:item/myriad_axe_inventory",
           "tints": [
+            {
+              "type": "minecraft:dye",
+              "default": 13893696
+            },
             {
               "type": "minecraft:dye",
               "default": 13893696
@@ -23,9 +27,13 @@
         "model": {
           "type": "minecraft:condition",
           "on_false": {
-            "type": "minecraft:model",
-            "model": "antique:item/myriad_axe",
+            "type": "antique:myriad_cloth",
+            "base": "antique:item/myriad_axe",
             "tints": [
+              {
+                "type": "minecraft:dye",
+                "default": 13893696
+              },
               {
                 "type": "minecraft:dye",
                 "default": 13893696
@@ -33,9 +41,13 @@
             ]
           },
           "on_true": {
-            "type": "minecraft:model",
-            "model": "antique:item/myriad_axe_blocking",
+            "type": "antique:myriad_cloth",
+            "base": "antique:item/myriad_axe_blocking",
             "tints": [
+              {
+                "type": "minecraft:dye",
+                "default": 13893696
+              },
               {
                 "type": "minecraft:dye",
                 "default": 13893696

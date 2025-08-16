@@ -1,5 +1,6 @@
 package net.hollowed.antique.util.resources;
 
+import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -23,10 +24,11 @@ public class ClothSkinListener implements SimpleSynchronousResourceReloadListene
 
     @Override
     public void reload(ResourceManager manager) {
+        Antiquities.addClothItems();
         manager.findResources("cloth_skins", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
             if (manager.getResource(id).isPresent()) {
                 try (InputStream stream = manager.getResource(id).get().getInputStream()) {
-                    var json = JsonHelper.deserialize(new InputStreamReader(stream, StandardCharsets.UTF_8));
+                    JsonObject json = JsonHelper.deserialize(new InputStreamReader(stream, StandardCharsets.UTF_8));
                     DataResult<ClothSkinData> result = ClothSkinData.CODEC.parse(JsonOps.INSTANCE, json);
 
                     result.resultOrPartial(Antiquities.LOGGER::error).ifPresent(data -> {
@@ -46,6 +48,6 @@ public class ClothSkinListener implements SimpleSynchronousResourceReloadListene
     }
 
     public static ClothSkinData.ClothSubData getTransform(String id) {
-        return transforms.getOrDefault(id, new ClothSkinData.ClothSubData("cloth", "d13a68", 1.4F, 0.1F, 8, 0, true));
+        return transforms.getOrDefault(id, new ClothSkinData.ClothSubData("cloth", "d13a68", 1.4F, 0.1F, 8, 0, true, true));
     }
 }
