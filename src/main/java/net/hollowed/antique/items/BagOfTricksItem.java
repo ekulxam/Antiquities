@@ -1,7 +1,7 @@
 package net.hollowed.antique.items;
 
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.tooltips.BagOfTricksTooltipData;
 import net.hollowed.combatamenities.util.items.ModComponents;
 import net.minecraft.component.DataComponentTypes;
@@ -61,16 +61,16 @@ public class BagOfTricksItem extends Item {
     @Override
     public Optional<TooltipData> getTooltipData(ItemStack stack) {
         TooltipDisplayComponent tooltipDisplayComponent = stack.getOrDefault(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent.DEFAULT);
-        return !tooltipDisplayComponent.shouldDisplay(AntiqueComponents.SATCHEL_STACK)
+        return !tooltipDisplayComponent.shouldDisplay(AntiqueDataComponentTypes.SATCHEL_STACK)
                 ? Optional.empty()
-                : Optional.ofNullable(stack.get(AntiqueComponents.SATCHEL_STACK)).map(items -> new BagOfTricksTooltipData(items, stack));
+                : Optional.ofNullable(stack.get(AntiqueDataComponentTypes.SATCHEL_STACK)).map(items -> new BagOfTricksTooltipData(items, stack));
     }
 
     @Override
     public void onItemEntityDestroyed(ItemEntity entity) {
-        List<ItemStack> contents = entity.getStack().get(AntiqueComponents.SATCHEL_STACK);
+        List<ItemStack> contents = entity.getStack().get(AntiqueDataComponentTypes.SATCHEL_STACK);
         if (contents != null) {
-            entity.getStack().set(AntiqueComponents.SATCHEL_STACK, List.of());
+            entity.getStack().set(AntiqueDataComponentTypes.SATCHEL_STACK, List.of());
             ItemUsage.spawnItemContents(entity, contents);
         }
     }
@@ -178,7 +178,7 @@ public class BagOfTricksItem extends Item {
     @Override
     public ActionResult use(World world, PlayerEntity user, Hand hand) {
         ItemStack stack = user.getStackInHand(hand);
-        List<ItemStack> stacks = stack.getOrDefault(AntiqueComponents.SATCHEL_STACK, List.of());
+        List<ItemStack> stacks = stack.getOrDefault(AntiqueDataComponentTypes.SATCHEL_STACK, List.of());
         if (stacks.isEmpty() || stacks.getFirst().isEmpty()) return ActionResult.PASS;
 
         if (stacks.getFirst().getItem() instanceof ProjectileItem projectileItem) {
@@ -215,7 +215,7 @@ public class BagOfTricksItem extends Item {
     }
 
     public static List<ItemStack> getStoredStacks(ItemStack satchel) {
-        List<ItemStack> storedStacks = satchel.get(AntiqueComponents.SATCHEL_STACK);
+        List<ItemStack> storedStacks = satchel.get(AntiqueDataComponentTypes.SATCHEL_STACK);
         return storedStacks != null ? storedStacks : new ArrayList<>();
     }
 
@@ -243,6 +243,6 @@ public class BagOfTricksItem extends Item {
             }
         }
 
-        satchel.set(AntiqueComponents.SATCHEL_STACK, filteredStacks);
+        satchel.set(AntiqueDataComponentTypes.SATCHEL_STACK, filteredStacks);
     }
 }

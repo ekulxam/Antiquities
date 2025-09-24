@@ -1,0 +1,8 @@
+{
+  "type": "antique:crafting_special_cloth_pattern",
+  "category": "equipment",
+  "ingredients": [
+    "antique:myriad_tool",
+    "antique:cloth_pattern"
+  ]
+}

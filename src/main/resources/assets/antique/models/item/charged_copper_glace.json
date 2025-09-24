@@ -1,0 +1,6 @@
+{
+  "parent": "antique:item/glace",
+  "textures": {
+    "layer0": "antique:item/charged_copper_glace"
+  }
+}

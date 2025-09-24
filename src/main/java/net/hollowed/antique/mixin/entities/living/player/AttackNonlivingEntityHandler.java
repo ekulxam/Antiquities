@@ -5,7 +5,7 @@ import net.hollowed.antique.enchantments.EnchantmentListener;
 import net.hollowed.antique.index.AntiqueEffects;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.NetheritePauldronsItem;
-import net.hollowed.antique.items.VelocityTransferMaceItem;
+import net.hollowed.antique.items.ScepterItem;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.hollowed.combatamenities.index.CAParticles;
 import net.minecraft.entity.*;
@@ -55,7 +55,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
             float attackPower = player.getAttackCooldownProgress(0.0f);
             ItemStack stack = player.getStackInHand(Hand.MAIN_HAND);
 
-            if (stack.getItem() instanceof VelocityTransferMaceItem) {
+            if (stack.getItem() instanceof ScepterItem) {
                 player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.3F);
 
@@ -63,7 +63,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                     serverWorld.spawnParticles(CAParticles.RING, target.getX(), target.getBodyY(0.6), target.getZ(), 1, 0.1, 0.2, 0.1, 0);
                 }
 
-                Vec3d effectiveVelocity = VelocityTransferMaceItem.playerVelocity;
+                Vec3d effectiveVelocity = ScepterItem.playerVelocity;
 
                 if (player.getVelocity().length() > 0.1) {
                     int delay = player.getVelocity().length() > 0.6 ? (int) (player.getVelocity().length() * 5F) : 0;

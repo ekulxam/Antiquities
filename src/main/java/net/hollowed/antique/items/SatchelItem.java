@@ -1,6 +1,6 @@
 package net.hollowed.antique.items;
 
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.tooltips.SatchelTooltipData;
 import net.hollowed.combatamenities.util.items.ModComponents;
 import net.minecraft.component.DataComponentTypes;
@@ -59,16 +59,16 @@ public class SatchelItem extends Item {
     @Override
     public Optional<TooltipData> getTooltipData(ItemStack stack) {
         TooltipDisplayComponent tooltipDisplayComponent = stack.getOrDefault(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplayComponent.DEFAULT);
-        return !tooltipDisplayComponent.shouldDisplay(AntiqueComponents.SATCHEL_STACK)
+        return !tooltipDisplayComponent.shouldDisplay(AntiqueDataComponentTypes.SATCHEL_STACK)
                 ? Optional.empty()
-                : Optional.ofNullable(stack.get(AntiqueComponents.SATCHEL_STACK)).map(items -> new SatchelTooltipData(items, stack));
+                : Optional.ofNullable(stack.get(AntiqueDataComponentTypes.SATCHEL_STACK)).map(items -> new SatchelTooltipData(items, stack));
     }
 
     @Override
     public void onItemEntityDestroyed(ItemEntity entity) {
-        List<ItemStack> contents = entity.getStack().get(AntiqueComponents.SATCHEL_STACK);
+        List<ItemStack> contents = entity.getStack().get(AntiqueDataComponentTypes.SATCHEL_STACK);
         if (contents != null) {
-            entity.getStack().set(AntiqueComponents.SATCHEL_STACK, List.of());
+            entity.getStack().set(AntiqueDataComponentTypes.SATCHEL_STACK, List.of());
             ItemUsage.spawnItemContents(entity, contents);
         }
     }
@@ -80,8 +80,8 @@ public class SatchelItem extends Item {
 
     @Override
     public void inventoryTick(ItemStack stack, ServerWorld world, Entity entity, @Nullable EquipmentSlot slot) {
-        if (stack.getOrDefault(AntiqueComponents.COUNTER, 2) < 1) {
-            stack.set(AntiqueComponents.COUNTER, stack.getOrDefault(AntiqueComponents.COUNTER, 1) + 1);
+        if (stack.getOrDefault(AntiqueDataComponentTypes.COUNTER, 2) < 1) {
+            stack.set(AntiqueDataComponentTypes.COUNTER, stack.getOrDefault(AntiqueDataComponentTypes.COUNTER, 1) + 1);
         } else {
             setInternalIndex(stack, -1);
         }
@@ -194,24 +194,24 @@ public class SatchelItem extends Item {
     }
 
     public static List<ItemStack> getStoredStacks(ItemStack satchel) {
-        List<ItemStack> storedStacks = satchel.get(AntiqueComponents.SATCHEL_STACK);
+        List<ItemStack> storedStacks = satchel.get(AntiqueDataComponentTypes.SATCHEL_STACK);
         return storedStacks != null ? storedStacks : new ArrayList<>();
     }
 
     public ItemStack getSelectedStack(ItemStack stack) {
-        if (!Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).isEmpty()
-                && index < Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).size()) {
-            return Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).get(index);
+        if (!Objects.requireNonNull(stack.get(AntiqueDataComponentTypes.SATCHEL_STACK)).isEmpty()
+                && index < Objects.requireNonNull(stack.get(AntiqueDataComponentTypes.SATCHEL_STACK)).size()) {
+            return Objects.requireNonNull(stack.get(AntiqueDataComponentTypes.SATCHEL_STACK)).get(index);
         }
         return ItemStack.EMPTY;
     }
 
     public void setSlot(ItemStack satchel, ItemStack otherStack) {
         List<ItemStack> storedStacks = new ArrayList<>(getStoredStacks(satchel));
-        if (!Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).isEmpty()
-                && index < Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).size()) {
+        if (!Objects.requireNonNull(satchel.get(AntiqueDataComponentTypes.SATCHEL_STACK)).isEmpty()
+                && index < Objects.requireNonNull(satchel.get(AntiqueDataComponentTypes.SATCHEL_STACK)).size()) {
             storedStacks.set(index, otherStack);
-        } else if (Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).size() < 8 && index >= Objects.requireNonNull(satchel.get(AntiqueComponents.SATCHEL_STACK)).size()) {
+        } else if (Objects.requireNonNull(satchel.get(AntiqueDataComponentTypes.SATCHEL_STACK)).size() < 8 && index >= Objects.requireNonNull(satchel.get(AntiqueDataComponentTypes.SATCHEL_STACK)).size()) {
             storedStacks.add(otherStack);
         }
         setStoredStacks(satchel, storedStacks);
@@ -241,6 +241,6 @@ public class SatchelItem extends Item {
             }
         }
 
-        satchel.set(AntiqueComponents.SATCHEL_STACK, filteredStacks);
+        satchel.set(AntiqueDataComponentTypes.SATCHEL_STACK, filteredStacks);
     }
 }

@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin.screens;
 
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.BagOfTricksItem;
 import net.hollowed.antique.items.SatchelItem;
@@ -77,14 +77,14 @@ public abstract class HandledScreenMixin {
 
     @Unique
     private void performScrollAction(ItemStack stack, int i) {
-        if (stack.getItem() instanceof SatchelItem && !Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).isEmpty()) {
-            SatchelItem.setInternalIndex(stack, Scroller.scrollCycling(i, SatchelItem.getInternalIndex(stack), Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).size()));
+        if (stack.getItem() instanceof SatchelItem && !Objects.requireNonNull(stack.get(AntiqueDataComponentTypes.SATCHEL_STACK)).isEmpty()) {
+            SatchelItem.setInternalIndex(stack, Scroller.scrollCycling(i, SatchelItem.getInternalIndex(stack), Objects.requireNonNull(stack.get(AntiqueDataComponentTypes.SATCHEL_STACK)).size()));
         }
     }
     @Unique
     private void performBagScrollAction(ItemStack stack, int i) {
-        if (stack.getItem() instanceof BagOfTricksItem && !Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).isEmpty()) {
-            BagOfTricksItem.setInternalIndex(stack, Scroller.scrollCycling(i, BagOfTricksItem.getInternalIndex(stack), Objects.requireNonNull(stack.get(AntiqueComponents.SATCHEL_STACK)).size()));
+        if (stack.getItem() instanceof BagOfTricksItem && !Objects.requireNonNull(stack.get(AntiqueDataComponentTypes.SATCHEL_STACK)).isEmpty()) {
+            BagOfTricksItem.setInternalIndex(stack, Scroller.scrollCycling(i, BagOfTricksItem.getInternalIndex(stack), Objects.requireNonNull(stack.get(AntiqueDataComponentTypes.SATCHEL_STACK)).size()));
         }
     }
 }

@@ -11,6 +11,7 @@ import net.hollowed.antique.networking.IllusionerParticlePacketPayload;
 import net.hollowed.antique.util.FireworkUtil;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ChargedProjectilesComponent;
 import net.minecraft.entity.EntityData;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.EquipmentSlot;
@@ -108,7 +109,9 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
     }
 
     public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
-        this.equipStack(EquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
+        ItemStack bow = Items.BOW.getDefaultStack();
+        bow.set(DataComponentTypes.CHARGED_PROJECTILES, ChargedProjectilesComponent.of(Items.FIREWORK_ROCKET.getDefaultStack()));
+        this.equipStack(EquipmentSlot.MAINHAND, bow);
         return super.initialize(world, difficulty, spawnReason, entityData);
     }
 

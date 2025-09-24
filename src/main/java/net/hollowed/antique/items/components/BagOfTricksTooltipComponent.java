@@ -2,7 +2,7 @@ package net.hollowed.antique.items.components;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.BagOfTricksItem;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
@@ -80,7 +80,7 @@ public class BagOfTricksTooltipComponent implements TooltipComponent {
 			BagOfTricksItem.lastContents = this.satchelContents;
 			BagOfTricksItem.setInternalIndex(this.stack, -1);
 		}
-		this.stack.set(AntiqueComponents.COUNTER, 0);
+		this.stack.set(AntiqueDataComponentTypes.COUNTER, 0);
 		if (this.satchelContents.isEmpty()) {
 			this.drawEmptyTooltip(textRenderer, x, y, width, context);
 		} else {

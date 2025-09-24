@@ -8,7 +8,7 @@ import java.util.function.Supplier;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItemTags;
 import net.hollowed.antique.util.resources.ClothSkinListener;
 
@@ -45,7 +45,7 @@ import org.joml.Vector3f;
 public class MyriadClothItemModel implements ItemModel {
 
 	private enum DisplayBucket { GUI_FIXED_GROUND, HAND }
-	private record QuadKey(String variant, boolean large, DisplayBucket bucket) {}
+	private record QuadKey(Identifier variant, boolean large, DisplayBucket bucket) {}
 
 	private static final ArrayList<String> models = new ArrayList<>();
 	private final List<TintSource> tints;
@@ -89,10 +89,10 @@ public class MyriadClothItemModel implements ItemModel {
 			boolean large = path.contains("large");
 			DisplayBucket bucket = path.contains("_hand") ? DisplayBucket.HAND : DisplayBucket.GUI_FIXED_GROUND;
 
-			String variant = extractVariantName(path);
-			variant = variant.intern();
+			String variantPath = extractVariantName(path);
+			Identifier variantId = Identifier.of(id.getNamespace(), variantPath);
 
-			QuadKey key = new QuadKey(variant, large, bucket);
+			QuadKey key = new QuadKey(variantId, large, bucket);
 			temp.computeIfAbsent(key, k -> new ArrayList<>(8)).add(quad);
 		}
 
@@ -137,18 +137,20 @@ public class MyriadClothItemModel implements ItemModel {
 			@Nullable LivingEntity user,
 			int seed
 	) {
-		// Model cache keys
 		state.addModelKey(this);
 		state.addModelKey(displayContext);
 
-		String modelVariant = stack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth");
-		state.addModelKey(modelVariant);
 
-		boolean large = stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY)
+		Identifier modelVariantId = Identifier.tryParse(
+				stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "antique:cloth")
+		);
+		if (modelVariantId == null) return;
+		state.addModelKey(modelVariantId);
+
+		boolean large = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY)
 				.isIn(AntiqueItemTags.LARGE_CLOTH);
 		state.addModelKey(large);
 
-		// Glint once
 		ItemRenderState.Glint glint = null;
 		if (stack.hasGlint()) {
 			glint = shouldUseSpecialGlint(stack) ? ItemRenderState.Glint.SPECIAL : ItemRenderState.Glint.STANDARD;
@@ -156,19 +158,17 @@ public class MyriadClothItemModel implements ItemModel {
 			state.addModelKey(glint);
 		}
 
-		// Resolve selected variant quads with O(1) lookups; fallback to default if empty
 		DisplayBucket bucket = bucketFrom(displayContext);
-		BakedQuad[] selected = quadIndex.get(new QuadKey(modelVariant, large, bucket));
+		BakedQuad[] selected = quadIndex.get(new QuadKey(modelVariantId, large, bucket));
 
 		boolean isFallback = false;
 		if (selected == null || selected.length == 0) {
-			selected = quadIndex.get(new QuadKey("cloth", large, bucket));
+			selected = quadIndex.get(new QuadKey(Identifier.of("antique:cloth"), large, bucket));
 			isFallback = true;
 		}
 
 		RenderLayer layerType = RenderLayers.getItemLayer(stack);
 
-		// Base layer
 		ItemRenderState.LayerRenderState baseLayer = state.newLayer();
 		if (glint != null) baseLayer.setGlint(glint);
 		baseLayer.setVertices(this.vertices);
@@ -176,7 +176,6 @@ public class MyriadClothItemModel implements ItemModel {
 		this.settings.addSettings(baseLayer, displayContext);
 		baseLayer.getQuads().addAll(this.baseQuads);
 
-		// Tint layer
 		ItemRenderState.LayerRenderState tintLayer = state.newLayer();
 		if (glint != null) tintLayer.setGlint(glint);
 		tintLayer.setVertices(this.vertices);
@@ -187,8 +186,7 @@ public class MyriadClothItemModel implements ItemModel {
 			Collections.addAll(tintLayer.getQuads(), selected);
 		}
 
-		// Apply tint if dyeable, no variant quads, or fallback
-		if (ClothSkinListener.getTransform(modelVariant).dyeable()
+		if (ClothSkinListener.getTransform(modelVariantId.toString()).dyeable()
 				|| tintLayer.getQuads().isEmpty()
 				|| isFallback) {
 			int n = this.tints.size();

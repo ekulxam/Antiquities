@@ -2,13 +2,14 @@ package net.hollowed.antique.mixin.items.renderers;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.util.interfaces.duck.ArmedRenderStateAccess;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.hollowed.antique.util.resources.MyriadStaffTransformData;
 import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
+import net.hollowed.combatamenities.util.items.ModComponents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -66,11 +67,11 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             Entity entity = access.antique$getEntity();
 
             if (entity instanceof LivingEntity living && living.getActiveItem().isOf(AntiqueItems.MYRIAD_TOOL)
-                    && living.getStackInArm(arm).getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_SHOVEL_HEAD)) {
+                    && living.getStackInArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_SHOVEL_HEAD)) {
                 matrices.translate(0, -1.2, 0.2);
             }
             if (entity instanceof LivingEntity living && living.getStackInArm(arm).isOf(AntiqueItems.MYRIAD_TOOL)
-                    && living.getStackInArm(arm).getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_AXE_HEAD)) {
+                    && living.getStackInArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_AXE_HEAD)) {
                 matrices.translate(0, -0.3, 0);
                 if (living.isUsingItem()) {
                     matrices.translate(arm == Arm.RIGHT ? -0.45 : 0.45, -0.5, 0);
@@ -86,7 +87,7 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             if (entity instanceof LivingEntity living) {
                 ItemStack stack = living.getStackInArm(arm);
 
-                ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth"));
+                ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth"));
                 Object name = stack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
                 if (stack.isOf(AntiqueItems.MYRIAD_TOOL) || (stack.isOf(AntiqueItems.MYRIAD_STAFF) && !(name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
                     manager = arm == Arm.RIGHT ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_right_arm")) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_left_arm"));
@@ -96,9 +97,12 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                                 matrices,
                                 vertexConsumers,
                                 data.light() != 0 ? data.light() : light,
-                                data.overlay() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
+                                stack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false),
+                                data.dyeable() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
+                                new Color(stack.getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb()),
                                 false,
-                                ClothManager.getRenderLayer(data.model()),
+                                data.model(),
+                                Identifier.of(stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, "")),
                                 data.length() != 0 ? data.length() : 1.4,
                                 data.width() != 0 ? data.width() : 0.1,
                                 data.bodyAmount() != 0 ? data.bodyAmount() : 8
@@ -111,7 +115,7 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-10));
                 matrices.translate(0, 0.955, 0.035);
                 matrices.scale(0.55F, 0.55F, 0.55F);
-                ItemStack stackToRender = living.getStackInArm(arm).getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY);
+                ItemStack stackToRender = living.getStackInArm(arm).getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY);
 
                 matrices.scale(0.875F, 0.875F, 0.875F);
                 matrices.translate(0.0, -0.035, 0.05);

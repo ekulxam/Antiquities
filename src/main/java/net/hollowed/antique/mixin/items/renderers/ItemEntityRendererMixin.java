@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin.items.renderers;
 
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.util.resources.MyriadStaffTransformData;
 import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
@@ -57,7 +57,7 @@ public abstract class ItemEntityRendererMixin {
                 MinecraftClient client = MinecraftClient.getInstance();
                 ItemRenderer itemRenderer = client.getItemRenderer();
 
-                ItemStack stackToRender = stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY);
+                ItemStack stackToRender = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY);
 
                 matrixStack.scale(0.875F, 0.875F, 0.875F);
                 matrixStack.translate(0.0, -0.035, 0.05);

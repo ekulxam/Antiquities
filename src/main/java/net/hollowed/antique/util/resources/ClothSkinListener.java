@@ -33,7 +33,7 @@ public class ClothSkinListener implements SimpleSynchronousResourceReloadListene
 
                     result.resultOrPartial(Antiquities.LOGGER::error).ifPresent(data -> {
                         for (ClothSkinData.ClothSubData entry : data.list()) {
-                            transforms.putIfAbsent(entry.model(), entry);
+                            transforms.putIfAbsent(entry.model().toString(), entry);
                         }
                     });
                 } catch (Exception e) {
@@ -48,6 +48,6 @@ public class ClothSkinListener implements SimpleSynchronousResourceReloadListene
     }
 
     public static ClothSkinData.ClothSubData getTransform(String id) {
-        return transforms.getOrDefault(id, new ClothSkinData.ClothSubData("cloth", "d13a68", 1.4F, 0.1F, 8, 0, true, true));
+        return transforms.getOrDefault(id, new ClothSkinData.ClothSubData(Antiquities.id("cloth"), "d13a68", 1.4F, 0.1F, 8, 0, true, true));
     }
 }

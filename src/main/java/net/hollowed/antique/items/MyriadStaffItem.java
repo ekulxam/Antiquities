@@ -1,7 +1,7 @@
 package net.hollowed.antique.items;
 
 import net.hollowed.antique.index.AntiqueSounds;
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueEffects;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.CakeEntity;
@@ -126,7 +126,7 @@ public class MyriadStaffItem extends Item {
     }
 
     public static void setStoredStack(ItemStack tool, ItemStack newStack) {
-        tool.set(AntiqueComponents.MYRIAD_STACK, newStack);
+        tool.set(AntiqueDataComponentTypes.MYRIAD_STACK, newStack);
     }
 
     public static boolean isInvalidItem(ItemStack stack) {
@@ -135,7 +135,7 @@ public class MyriadStaffItem extends Item {
     }
 
     public static ItemStack getStoredStack(ItemStack tool) {
-        return tool.get(AntiqueComponents.MYRIAD_STACK);
+        return tool.get(AntiqueDataComponentTypes.MYRIAD_STACK);
     }
 
     @Override
@@ -145,7 +145,7 @@ public class MyriadStaffItem extends Item {
 
     @Override
     public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        if (!user.getStackInHand(hand).getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).equals(ItemStack.EMPTY)) {
+        if (!user.getStackInHand(hand).getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).equals(ItemStack.EMPTY)) {
             user.setCurrentHand(hand);
             return ActionResult.PASS;
         }
@@ -154,7 +154,7 @@ public class MyriadStaffItem extends Item {
 
     @Override
     public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        if (stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(Blocks.GOLD_BLOCK.asItem())) {
+        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isOf(Blocks.GOLD_BLOCK.asItem())) {
             int radius = 14;
 
             for (int x = -radius; x <= radius; x++) {
@@ -189,7 +189,7 @@ public class MyriadStaffItem extends Item {
     public void usageTick(World world, LivingEntity user, ItemStack stack, int remainingUseTicks) {
         super.usageTick(world, user, stack, remainingUseTicks);
         LeftClickHandler.checkRightClickInAir();
-        if (stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(Blocks.CAKE.asItem())) {
+        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isOf(Blocks.CAKE.asItem())) {
             if (!world.isClient) {
                 CakeEntity cake = new CakeEntity(AntiqueEntities.CAKE_ENTITY, world);
                 cake.setPos(user.getX(), user.getY() + 2, user.getZ());
@@ -205,7 +205,7 @@ public class MyriadStaffItem extends Item {
     @Override
     public void postHit(ItemStack stack, LivingEntity target, LivingEntity attacker) {
         super.postHit(stack, target, attacker);
-        if (stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(Blocks.GOLD_BLOCK.asItem())) {
+        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isOf(Blocks.GOLD_BLOCK.asItem())) {
             target.addStatusEffect(new StatusEffectInstance(AntiqueEffects.ANIME_EFFECT, 60, 0, true, true));
             TickDelayScheduler.schedule(1, () -> {
                 TickDelayScheduler.schedule(1, () -> breakSphere(attacker.getWorld(), target.getBlockPos().up(), 2));
@@ -234,14 +234,14 @@ public class MyriadStaffItem extends Item {
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
-        if (context.getStack().getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isEmpty() && Objects.requireNonNull(context.getPlayer()).isSneaking()) {
+        if (context.getStack().getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isEmpty() && Objects.requireNonNull(context.getPlayer()).isSneaking()) {
             PlayerEntity user = context.getPlayer();
             context.getWorld().playSound(null, user.getX(), user.getY(), user.getZ(), AntiqueSounds.STAFF_INSERT, SoundCategory.NEUTRAL, 1.0F, 1.0F);
 
             BlockState block = context.getWorld().getBlockState(context.getBlockPos());
             ItemStack stack = block.getBlock().asItem().getDefaultStack();
             TickDelayScheduler.schedule(8, () -> {
-                context.getStack().set(AntiqueComponents.MYRIAD_STACK, stack);
+                context.getStack().set(AntiqueDataComponentTypes.MYRIAD_STACK, stack);
                 context.getWorld().breakBlock(context.getBlockPos(), false);
             });
             return ActionResult.SUCCESS;

@@ -16,10 +16,11 @@ import net.hollowed.antique.index.*;
 import net.hollowed.antique.networking.*;
 import net.hollowed.antique.index.AntiqueStats;
 import net.hollowed.antique.index.AntiqueLootTableModifiers;
-import net.hollowed.antique.util.resources.ClothSkinData;
-import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
+import net.hollowed.antique.util.properties.*;
+import net.hollowed.antique.util.resources.*;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
-import net.hollowed.antique.util.resources.ClothSkinListener;
+import net.minecraft.client.render.item.property.bool.BooleanProperties;
+import net.minecraft.client.render.item.property.select.SelectProperties;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
@@ -68,7 +69,7 @@ public class Antiquities implements ModInitializer {
 		AntiqueBlockEntities.initialize();
 		AntiqueLootTableModifiers.modifyLootTables();
 		AntiqueEntities.initialize();
-		AntiqueComponents.initialize();
+		AntiqueDataComponentTypes.initialize();
 		AntiqueParticles.initialize();
 		AntiqueItems.initialize();
 		AntiqueKeyBindings.initialize();
@@ -76,8 +77,11 @@ public class Antiquities implements ModInitializer {
 		AntiqueEffects.initialize();
 		AntiqueDispenserBehaviors.initialize();
 		AntiqueRecipeSerializer.init();
+
 		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new MyriadStaffTransformResourceReloadListener());
+		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new PedestalDisplayListener());
 		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new ClothSkinListener());
+		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new ClothOverlayListener());
 
 		/*
 			Packets
@@ -97,6 +101,17 @@ public class Antiquities implements ModInitializer {
 		WallJumpPacketReceiver.registerServerPacket();
 		CrawlPacketReceiver.registerServerPacket();
 		DyePacketReceiver.registerServerPacket();
+
+		/*
+			Model Properties
+		 */
+
+		BooleanProperties.ID_MAPPER.put(id("satchel/has_selected_item"), SatchelHasSelectedItemProperty.CODEC);
+		BooleanProperties.ID_MAPPER.put(id("bag/has_selected_item"), BagOfTricksHasSelectedItemProperty.CODEC);
+		BooleanProperties.ID_MAPPER.put(id("satchel/has_first_stack"), SatchelHasFirstStackItemProperty.CODEC);
+		BooleanProperties.ID_MAPPER.put(id("screen_open"), ScreenOpenItemProperty.CODEC);
+
+		SelectProperties.ID_MAPPER.put(id("projectile_type"), ProjectileTypeProperty.TYPE);
 
 		/*
 			Tick Events
@@ -212,7 +227,7 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(AntiqueItems.MYRIAD_TOOL);
 
 			ItemStack myriadMattock = AntiqueItems.MYRIAD_TOOL.getDefaultStack();
-			myriadMattock.set(AntiqueComponents.MYRIAD_STACK, AntiqueItems.MYRIAD_PICK_HEAD.getDefaultStack());
+			myriadMattock.set(AntiqueDataComponentTypes.MYRIAD_STACK, AntiqueItems.MYRIAD_PICK_HEAD.getDefaultStack());
 			myriadMattock.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_mattock"));
 			myriadMattock.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
 					.add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 5.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
@@ -231,7 +246,7 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(myriadMattock);
 
 			ItemStack myriadAxe = AntiqueItems.MYRIAD_TOOL.getDefaultStack();
-			myriadAxe.set(AntiqueComponents.MYRIAD_STACK, AntiqueItems.MYRIAD_AXE_HEAD.getDefaultStack());
+			myriadAxe.set(AntiqueDataComponentTypes.MYRIAD_STACK, AntiqueItems.MYRIAD_AXE_HEAD.getDefaultStack());
 			myriadAxe.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_axe"));
 			myriadAxe.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
 					.add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 9.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
@@ -251,7 +266,7 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(myriadAxe);
 
 			ItemStack myriadShovel = AntiqueItems.MYRIAD_TOOL.getDefaultStack();
-			myriadShovel.set(AntiqueComponents.MYRIAD_STACK, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultStack());
+			myriadShovel.set(AntiqueDataComponentTypes.MYRIAD_STACK, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultStack());
 			myriadShovel.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_shovel"));
 			myriadShovel.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
 					.add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 8.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
@@ -270,7 +285,7 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(myriadShovel);
 
 			ItemStack myriadCleaver = AntiqueItems.MYRIAD_TOOL.getDefaultStack();
-			myriadCleaver.set(AntiqueComponents.MYRIAD_STACK, AntiqueItems.MYRIAD_CLEAVER_BLADE.getDefaultStack());
+			myriadCleaver.set(AntiqueDataComponentTypes.MYRIAD_STACK, AntiqueItems.MYRIAD_CLEAVER_BLADE.getDefaultStack());
 			myriadCleaver.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_cleaver"));
 			myriadCleaver.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
 					.add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 6.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
@@ -293,6 +308,9 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(AntiqueItems.SATCHEL);
 			itemGroup.add(AntiqueItems.FUR_BOOTS);
 			itemGroup.add(AntiqueItems.SCEPTER);
+			itemGroup.add(AntiqueItems.COPPER_GLACE);
+			itemGroup.add(AntiqueItems.QUARRY_GLACE);
+			itemGroup.add(AntiqueItems.PROSPECTOR);
 			itemGroup.add(AntiqueItems.WARHORN);
 		});
 	}
@@ -301,7 +319,16 @@ public class Antiquities implements ModInitializer {
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_CLOTHS_GROUP_KEY).register(itemGroup -> {
 			for (ClothSkinData.ClothSubData data : ClothSkinListener.getTransforms()) {
 				ItemStack stack = AntiqueItems.CLOTH.getDefaultStack();
-				stack.set(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique." + data.model()));
+				stack.set(DataComponentTypes.ITEM_NAME, Text.translatable("item." + data.model().toString().replace(":", ".")));
+				if (!itemGroup.getDisplayStacks().contains(stack)) {
+					itemGroup.add(stack);
+				}
+			}
+
+			for (Identifier data : ClothOverlayListener.getTransforms()) {
+				ItemStack stack = AntiqueItems.CLOTH_PATTERN.getDefaultStack();
+				stack.set(DataComponentTypes.ITEM_NAME, Text.translatable("item." + data.toString().replace(":", ".") + "_cloth_pattern"));
+				stack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF));
 				if (!itemGroup.getDisplayStacks().contains(stack)) {
 					itemGroup.add(stack);
 				}
@@ -311,7 +338,7 @@ public class Antiquities implements ModInitializer {
 
 	public static ItemStack getMyriadShovelStack() {
 		ItemStack myriadShovel = AntiqueItems.MYRIAD_TOOL.getDefaultStack();
-		myriadShovel.set(AntiqueComponents.MYRIAD_STACK, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultStack());
+		myriadShovel.set(AntiqueDataComponentTypes.MYRIAD_STACK, AntiqueItems.MYRIAD_SHOVEL_HEAD.getDefaultStack());
 		myriadShovel.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_shovel"));
 		myriadShovel.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
 				.add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 8.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)

@@ -44,7 +44,7 @@ public class AntiqueLootTableModifiers {
                     LootPool.Builder enchantedBundlePool = LootPool.builder()
                             .conditionally(RandomChanceLootCondition.builder(0.5f)) // 50% chance to appear
                             .rolls(ConstantLootNumberProvider.create(1))
-                            .with(ItemEntry.builder(Items.BUNDLE) // Only affects vanilla bundles directly
+                            .with(ItemEntry.builder(Items.BUNDLE)
                                     .apply(EnchantRandomlyLootFunction.builder(registries))); // Random enchant
 
                     tableBuilder.pool(enchantedBundlePool.build());

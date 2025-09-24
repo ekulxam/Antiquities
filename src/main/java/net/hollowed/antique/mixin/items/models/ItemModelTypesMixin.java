@@ -26,5 +26,6 @@ public class ItemModelTypesMixin {
         ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "bag/first_stack"), BagOfTricksFirstStackItemModel.Unbaked.CODEC);
         ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "myriad_cloth"), MyriadClothItemModel.Unbaked.CODEC);
         ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "cloth"), ClothItemModel.Unbaked.CODEC);
+        ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "cloth_pattern"), ClothPatternItemModel.Unbaked.CODEC);
     }
 }

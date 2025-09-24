@@ -1,6 +1,6 @@
 package net.hollowed.antique.util;
 
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
 import net.hollowed.antique.util.resources.ClothSkinData;
@@ -47,8 +47,8 @@ public class MyriadToolRecipe extends SpecialCraftingRecipe {
 			if (text.getContent() instanceof TranslatableTextContent translatable) {
 				model = translatable.getKey();
 			}
-			model = model.substring(model.lastIndexOf(".") + 1);
-			itemStack.set(AntiqueComponents.CLOTH_TYPE, model);
+			model = model.substring(model.indexOf(".") + 1).replace(".", ":");
+			itemStack.set(AntiqueDataComponentTypes.CLOTH_TYPE, model);
 
 			ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(model);
 

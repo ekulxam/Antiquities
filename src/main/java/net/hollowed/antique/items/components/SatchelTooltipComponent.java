@@ -3,7 +3,7 @@ package net.hollowed.antique.items.components;
 import java.util.List;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.SatchelItem;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
@@ -79,7 +79,7 @@ public class SatchelTooltipComponent implements TooltipComponent {
 			SatchelItem.lastContents = this.satchelContents;
 			SatchelItem.setInternalIndex(this.stack, -1);
 		}
-		this.stack.set(AntiqueComponents.COUNTER, 0);
+		this.stack.set(AntiqueDataComponentTypes.COUNTER, 0);
 		if (this.satchelContents.isEmpty()) {
 			this.drawEmptyTooltip(textRenderer, x, y, width, context);
 		} else {

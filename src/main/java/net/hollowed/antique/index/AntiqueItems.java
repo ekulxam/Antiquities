@@ -26,11 +26,12 @@ public interface AntiqueItems {
     Item RAW_MYRIAD = register("raw_myriad", Item::new);
     Item MYRIAD_INGOT = register("myriad_ingot", Item::new);
     Item CLOTH = register("cloth", Item::new);
+    Item CLOTH_PATTERN = register("cloth_pattern", settings -> new Item(settings.maxCount(1)));
     Item MIRAGE_SILK = register("mirage_silk", settings -> new Item(settings.rarity(Rarity.RARE)));
     Item BAG_OF_TRICKS = register("bag_of_tricks", settings -> new BagOfTricksItem(settings.maxCount(1)
             .component(ModComponents.INTEGER_PROPERTY, -1)
-            .component(AntiqueComponents.SATCHEL_STACK, List.of())
-            .component(AntiqueComponents.COUNTER, 2)
+            .component(AntiqueDataComponentTypes.SATCHEL_STACK, List.of())
+            .component(AntiqueDataComponentTypes.COUNTER, 2)
             .rarity(Rarity.RARE)
     ));
     Item SMOKE_BOMB = register("smoke_bomb", settings -> new SmokeBombItem(settings.maxCount(16)));
@@ -41,8 +42,8 @@ public interface AntiqueItems {
     Item SATCHEL = register("satchel", settings -> new SatchelItem(settings.maxCount(1)
             .armor(AntiqueArmorMaterials.ADVENTURE_BASIC, EquipmentType.LEGGINGS)
             .component(ModComponents.INTEGER_PROPERTY, -1)
-            .component(AntiqueComponents.SATCHEL_STACK, List.of())
-            .component(AntiqueComponents.COUNTER, 2)
+            .component(AntiqueDataComponentTypes.SATCHEL_STACK, List.of())
+            .component(AntiqueDataComponentTypes.COUNTER, 2)
             .rarity(Rarity.UNCOMMON)
             .fireproof()
     ));
@@ -50,14 +51,32 @@ public interface AntiqueItems {
             .rarity(Rarity.UNCOMMON)
             .fireproof()
     ));
-    Item SCEPTER = register("scepter", settings -> new VelocityTransferMaceItem(settings.maxCount(1)
-            .attributeModifiers(VelocityTransferMaceItem.createAttributeModifiers())
+    Item SCEPTER = register("scepter", settings -> new ScepterItem(settings.maxCount(1)
+            .attributeModifiers(ScepterItem.createAttributeModifiers())
             .enchantable(10)
             .rarity(Rarity.UNCOMMON)
             .maxDamage(500)
     ));
+    Item COPPER_GLACE = register("copper_glace", settings -> new Glace(settings.maxCount(1)
+            .attributeModifiers(Glace.copperAttributes())
+            .enchantable(10)
+            .rarity(Rarity.UNCOMMON)
+            .maxDamage(313)
+    ));
+    Item QUARRY_GLACE = register("quarry_glace", settings -> new Glace(settings.maxCount(1)
+            .attributeModifiers(Glace.copperAttributes())
+            .enchantable(10)
+            .rarity(Rarity.UNCOMMON)
+            .maxDamage(313)
+    ));
+    Item PROSPECTOR = register("prospector", settings -> new Glace(settings.maxCount(1)
+            .attributeModifiers(Glace.copperAttributes())
+            .enchantable(10)
+            .rarity(Rarity.UNCOMMON)
+            .maxDamage(313)
+    ));
     Item PALE_WARDENS_GREATSWORD = register("pale_wardens_greatsword", settings -> new Item(settings.maxCount(1)
-            .attributeModifiers(VelocityTransferMaceItem.createAttributeModifiers())
+            .attributeModifiers(ScepterItem.createAttributeModifiers())
             .sword(ToolMaterial.NETHERITE, 1.0F, -2.4F)
             .enchantable(10)
             .rarity(Rarity.RARE)
@@ -79,8 +98,8 @@ public interface AntiqueItems {
     Item MYRIAD_TOOL = register("myriad_tool", settings -> new MyriadToolItem(settings.maxCount(1)
             .attributeModifiers(MyriadToolItem.createAttributeModifiers(4, 1.8, 0.25))
             .component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd43b69))
-            .component(AntiqueComponents.CLOTH_TYPE, "cloth")
-            .component(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY)
+            .component(AntiqueDataComponentTypes.CLOTH_TYPE, "antique:cloth")
+            .component(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY)
             .component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE)
             .enchantable(10)
             .rarity(Rarity.UNCOMMON)
@@ -89,7 +108,7 @@ public interface AntiqueItems {
     Item MYRIAD_STAFF = register("myriad_staff", settings -> new MyriadStaffItem(settings.maxCount(1)
             .attributeModifiers(MyriadToolItem.createAttributeModifiers(4, 1.8, 0.25))
             .component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd43b69))
-            .component(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY)
+            .component(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY)
             .component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE)
             .enchantable(10)
             .rarity(Rarity.UNCOMMON)
@@ -158,6 +177,13 @@ public interface AntiqueItems {
         Antiquities.LOGGER.info("Antiquities Items Initialized");
 
         ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipType, list) -> {
+            for (int i = 0; i < list.size(); i++) {
+                if (list.get(i).toString().contains("item.color")) {
+                    Color color = new Color(itemStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
+                    list.set(i, list.get(i).copy().withColor(color.brighter().getRGB()));
+                }
+            }
+
             if (itemStack.isOf(AntiqueItems.MYRIAD_TOOL) || itemStack.isOf(MYRIAD_STAFF)) {
                 int toRemove = -1;
                 for (int i = 0; i < list.size(); i++) {
@@ -180,8 +206,8 @@ public interface AntiqueItems {
                 if (toRemove != -1) list.remove(toRemove);
                 Text line = Text.translatable("item.antique.myriad_tool.no_tool").withColor(11184810);
 
-                if (!itemStack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isEmpty()) {
-                    String string = itemStack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).getItem().getTranslationKey();
+                if (!itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isEmpty()) {
+                    String string = itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).getItem().getTranslationKey();
                     string = string.substring(20);
                     string = "item.antique.myriad_tool." + string.substring(0, string.indexOf("_"));
                     line = Text.translatable(string).withColor(11184810);
@@ -190,8 +216,19 @@ public interface AntiqueItems {
                 list.add(1, line);
 
                 Color color = new Color(itemStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd43b69)).rgb());
-                Text cloth = Text.literal(" - ").append(Text.translatable("item.antique." + itemStack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth"))).withColor(color.brighter().getRGB());
+                String clothName = itemStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "antique:cloth").replace(":", ".");
+                Text cloth = Text.literal(" - ").append(Text.translatable("item." + clothName)).withColor(color.brighter().getRGB());
                 list.add(2, cloth);
+
+                Color patternColor = new Color(itemStack.getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
+                String patternName = itemStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, "").replace(":", ".");
+                Text pattern = Text.literal(" - ").append(Text.translatable("item." + patternName + "_cloth_pattern")).withColor(patternColor.brighter().getRGB());
+                if (itemStack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false)) {
+                    pattern = pattern.copy().append(Text.literal(" - ").withColor(0xff4adbb8)).append(Text.translatable("item.antique.glowing").withColor(0xff4adbb8));
+                }
+                if (!patternName.isEmpty()) {
+                    list.add(3, pattern);
+                }
             }
             if (itemStack.isOf(MYRIAD_STAFF)) {
                 int toRemove = -1;
@@ -202,9 +239,23 @@ public interface AntiqueItems {
                 }
                 if (toRemove != -1) list.remove(toRemove);
                 Text text = Text.literal(" - ");
-                text = text.copy().append(itemStack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).getItemName());
+                text = text.copy().append(itemStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).getItemName());
                 text = text.copy().append(" -");
                 list.add(1, text.getString().equals(" - Air -") ? Text.translatable("item.antique.myriad_staff.empty") : text);
+            }
+            if (itemStack.isOf(CLOTH_PATTERN)) {
+                if (itemStack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false)) {
+                    list.add(2, Text.translatable("item.antique.glowing").withColor(0xff4adbb8));
+                }
+            }
+            if (itemStack.isOf(Items.BOW) || itemStack.isOf(Items.CROSSBOW)) {
+                int toRemove = -1;
+                for (int i = 0; i < list.size(); i++) {
+                    if (list.get(i).toString().contains("item.color")) {
+                        toRemove = i;
+                    }
+                }
+                if (toRemove != -1) list.remove(toRemove);
             }
         });
     }

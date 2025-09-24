@@ -2,24 +2,28 @@ package net.hollowed.antique.mixin.items.renderers;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.hollowed.antique.util.resources.MyriadStaffTransformData;
 import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
+import net.hollowed.combatamenities.util.items.ModComponents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
@@ -58,18 +62,25 @@ public abstract class FirstPersonHeldItemRendererMixin {
         Vec3d itemWorldPos;
 
         if (entity instanceof PlayerEntity player) {
+            if (stack.isOf(Items.DIAMOND)) {
+                matrices.translate( -0.1, 0, -0.2);
+                if (player.getWorld() instanceof ClientWorld clientWorld) {
+                    Vec3d testPos = ClothManager.matrixToVec(matrices);
+                    clientWorld.addParticleClient(ParticleTypes.ELECTRIC_SPARK, testPos.x, testPos.y, testPos.z, 0, 0, 0);
+                }
+            }
             if (stack.isOf(AntiqueItems.MYRIAD_TOOL) || stack.isOf(AntiqueItems.MYRIAD_STAFF)) {
                 if (renderMode != ItemDisplayContext.NONE) {
                     matrices.translate(0, -0.1, 0.1);
                 }
-                if (stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_AXE_HEAD) && entity.isUsingItem()) {
+                if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_AXE_HEAD) && entity.isUsingItem()) {
                     matrices.translate(renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? -0.5 : 0.5, -0.1, 0);
                 }
-                if (stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_SHOVEL_HEAD) && entity.isUsingItem()) {
+                if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_SHOVEL_HEAD) && entity.isUsingItem()) {
                     matrices.translate(renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? 0.1 : -0.1, 0, -0.2);
                 }
                 if (renderMode == ItemDisplayContext.NONE && (
-                        stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_CLEAVER_BLADE)
+                        stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isOf(AntiqueItems.MYRIAD_CLEAVER_BLADE)
                         || stack.isOf(AntiqueItems.MYRIAD_STAFF))) {
                     matrices.translate(-0.15, -0.15, 0);
                 }
@@ -86,7 +97,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                     manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_belt"));
                 }
                 if (manager != null && stack.get(DataComponentTypes.DYED_COLOR) != null) {
-                    ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth"));
+                    ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth"));
 
                     Object name = stack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
                     if (!(stack.isOf(AntiqueItems.MYRIAD_STAFF) && (name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
@@ -95,9 +106,12 @@ public abstract class FirstPersonHeldItemRendererMixin {
                                 matrices,
                                 vertexConsumer,
                                 data.light() != 0 ? data.light() : light,
-                                data.overlay() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
+                                stack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false),
+                                data.dyeable() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
+                                new Color(stack.getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb()),
                                 false,
-                                ClothManager.getRenderLayer(data.model()),
+                                data.model(),
+                                Identifier.of(stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, "")),
                                 data.length() != 0 ? data.length() : 1.4,
                                 data.width() != 0 ? data.width() : 0.1,
                                 data.bodyAmount() != 0 ? data.bodyAmount() : 8
@@ -113,7 +127,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                 matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(20));
                 matrices.scale(0.45F, 0.45F, 0.45F);
 
-                ItemStack stackToRender = stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY);
+                ItemStack stackToRender = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY);
 
                 matrices.scale(0.875F, 0.875F, 0.875F);
                 matrices.translate(0.0, -0.035, 0.05);

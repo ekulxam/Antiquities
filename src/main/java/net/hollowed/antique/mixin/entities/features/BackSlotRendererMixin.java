@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin.entities.features;
 
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.util.resources.MyriadStaffTransformData;
 import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
@@ -120,7 +120,7 @@ public abstract class BackSlotRendererMixin extends HeldItemFeatureRenderer<Play
                         MinecraftClient client = MinecraftClient.getInstance();
                         ItemRenderer itemRenderer = client.getItemRenderer();
 
-                        ItemStack stackToRender = backSlotStack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY);
+                        ItemStack stackToRender = backSlotStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY);
 
                         Object name = backSlotStack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
                         if (!(name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff")))) {

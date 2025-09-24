@@ -20,6 +20,7 @@ import net.hollowed.antique.entities.SmokeBombEntity;
 import net.hollowed.antique.entities.models.PaleWardenModel;
 import net.hollowed.antique.entities.renderer.*;
 import net.hollowed.antique.networking.*;
+import net.hollowed.combatamenities.util.delay.ClientTickDelayScheduler;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
@@ -28,6 +29,7 @@ import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.client.texture.TextureManager;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.passive.AllayEntity;
@@ -57,6 +59,12 @@ public class AntiquitiesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+
+        MinecraftClient.getInstance().execute(() -> ClientTickDelayScheduler.schedule(-1, () -> {
+            TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
+            textureManager.registerTexture(Antiquities.id("textures/environment/star.png"));
+        }));
+
 
         AntiqueParticles.initializeClient();
         HandledScreens.register(AntiqueScreenHandlerType.DYE_TABLE, DyeingScreen::new);

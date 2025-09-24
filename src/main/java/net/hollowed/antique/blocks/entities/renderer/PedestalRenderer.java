@@ -1,9 +1,9 @@
 package net.hollowed.antique.blocks.entities.renderer;
 
 import net.hollowed.antique.blocks.entities.PedestalBlockEntity;
-import net.hollowed.antique.index.AntiqueItems;
-import net.hollowed.antique.items.VelocityTransferMaceItem;
 import net.hollowed.antique.mixin.accessors.EntityRenderDispatcherAccessor;
+import net.hollowed.antique.util.resources.PedestalDisplayData;
+import net.hollowed.antique.util.resources.PedestalDisplayListener;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
@@ -17,11 +17,13 @@ import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.item.*;
 import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+
+import java.util.List;
 
 public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity> {
 
@@ -50,18 +52,21 @@ public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity
     }
 
     private void renderItem(ItemStack itemStack, Vec3d offset, float yRot, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, World world) {
+        PedestalDisplayData data = PedestalDisplayListener.getTransform(Registries.ITEM.getId(itemStack.getItem()));
+        List<Float> translations = data.translations();
+        List<Float> rotations = data.rotations();
+        List<Float> scales = data.scale();
+
         matrices.push();
         ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
         matrices.translate(offset.x, offset.y, offset.z);
+        matrices.translate(translations.getFirst(), translations.get(1), translations.get(2));
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yRot));
+        matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(rotations.getFirst()));
+        matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(rotations.get(1)));
+        matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(rotations.get(2)));
         matrices.scale(0.65f, 0.65f, 0.65f);
-
-        if (itemStack.isOf(AntiqueItems.BAG_OF_TRICKS)) matrices.scale(0.75F, 0.75F, 0.75F);
-        if (itemStack.getItem() instanceof MaceItem || itemStack.getItem() instanceof VelocityTransferMaceItem
-            || itemStack.isIn(ItemTags.SWORDS) || itemStack.isIn(ItemTags.PICKAXES) || itemStack.isIn(ItemTags.AXES) || itemStack.isIn(ItemTags.SHOVELS) || itemStack.isIn(ItemTags.HOES)) {
-            matrices.translate(0, 0.1f, 0);
-            matrices.multiply(RotationAxis.NEGATIVE_Z.rotationDegrees(45));
-        }
+        matrices.scale(scales.getFirst(), scales.get(1), scales.get(2));
 
         itemRenderer.renderItem(itemStack, ItemDisplayContext.FIXED, light, overlay, matrices, vertexConsumers, world, (int) world.getTime());
         matrices.pop();

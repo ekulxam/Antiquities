@@ -1,6 +1,6 @@
 package net.hollowed.antique.blocks.screens;
 
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueScreenHandlerType;
 import net.hollowed.antique.util.resources.ClothSkinData;
@@ -56,7 +56,7 @@ public class DyeingScreenHandler extends ScreenHandler {
 			@Override
 			public boolean canInsert(ItemStack stack) {
 				if (stack.isOf(AntiqueItems.MYRIAD_TOOL)) {
-					ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth"));
+					ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth"));
 					return data.dyeable();
 				}
 				return stack.isIn(ItemTags.DYEABLE);

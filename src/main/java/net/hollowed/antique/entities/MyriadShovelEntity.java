@@ -2,12 +2,14 @@ package net.hollowed.antique.entities;
 
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueDamageTypes;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.combatamenities.index.CAParticles;
+import net.hollowed.combatamenities.util.items.ModComponents;
 import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -35,14 +37,15 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Objects;
-
 public class MyriadShovelEntity extends PersistentProjectileEntity {
 	public static final TrackedData<Byte> LOYALTY = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BYTE);
 	public static final TrackedData<Integer> COLOR = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.INTEGER);
+	public static final TrackedData<Integer> OVERLAY_COLOR = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.INTEGER);
 	public static final TrackedData<String> CLOTH = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.STRING);
+	public static final TrackedData<String> PATTERN = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.STRING);
 	public static final TrackedData<Boolean> ENCHANTED = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
 	public static final TrackedData<Byte> PIERCE_LEVEL = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BYTE);
+	public static final TrackedData<Boolean> GLOW = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
     private boolean dealtDamage;
 	public int returnTimer;
 	@Nullable
@@ -54,8 +57,10 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		super(entityType, world);
 		this.setDamage(8);
 		this.setStack(Antiquities.getMyriadShovelStack());
-		this.dataTracker.set(COLOR, Objects.requireNonNull(this.getItemStack().get(DataComponentTypes.DYED_COLOR)).rgb());
-		this.dataTracker.set(CLOTH, this.getItemStack().getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth"));
+		this.dataTracker.set(COLOR, this.getItemStack().getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
+		this.dataTracker.set(OVERLAY_COLOR, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
+		this.dataTracker.set(CLOTH, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth"));
+		this.dataTracker.set(GLOW, this.getItemStack().getOrDefault(ModComponents.BOOLEAN_PROPERTY, false));
 		this.setPierceLevel((byte) 5);
 	}
 
@@ -64,14 +69,25 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		this.setDamage(8);
 		this.dataTracker.set(LOYALTY, this.getLoyalty(stack));
 		this.dataTracker.set(ENCHANTED, stack.hasGlint());
+		this.dataTracker.set(GLOW, stack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false));
 		this.setStack(stack);
-		this.dataTracker.set(COLOR, Objects.requireNonNull(this.getItemStack().get(DataComponentTypes.DYED_COLOR)).rgb());
-		this.dataTracker.set(CLOTH, this.getItemStack().getOrDefault(AntiqueComponents.CLOTH_TYPE, "cloth"));
+		this.dataTracker.set(COLOR, this.getItemStack().getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
+		this.dataTracker.set(OVERLAY_COLOR, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
+		this.dataTracker.set(CLOTH, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth"));
+		this.dataTracker.set(PATTERN, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, ""));
 		this.setPierceLevel((byte) 5);
 	}
 
 	public int getDyeColor() {
 		return this.dataTracker.get(COLOR);
+	}
+
+	public int getOverlayColor() {
+		return this.dataTracker.get(OVERLAY_COLOR);
+	}
+
+	public boolean getGlow() {
+		return this.dataTracker.get(GLOW);
 	}
 
 	public void summonPart() {
@@ -92,14 +108,21 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		return this.dataTracker.get(CLOTH);
 	}
 
+	public String getPattern() {
+		return this.dataTracker.get(PATTERN);
+	}
+
 	@Override
 	protected void initDataTracker(DataTracker.Builder builder) {
 		super.initDataTracker(builder);
 		builder.add(LOYALTY, (byte)0);
 		builder.add(ENCHANTED, false);
+		builder.add(GLOW, false);
 		builder.add(COLOR, 1);
+		builder.add(OVERLAY_COLOR, 1);
 		builder.add(PIERCE_LEVEL, (byte) 0);
 		builder.add(CLOTH, "cloth");
+		builder.add(PATTERN, "");
 	}
 
 	@Override
@@ -173,7 +196,7 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 				this.piercedEntities.add(entity.getId());
 			}
 
-			f = EnchantmentHelper.getDamage(serverWorld, Objects.requireNonNull(this.getWeaponStack()), entity, damageSource, f);
+			f = EnchantmentHelper.getDamage(serverWorld, this.getWeaponStack() != null ? this.getWeaponStack() : ItemStack.EMPTY, entity, damageSource, f);
 			if (entity.damage(serverWorld, damageSource, f)) {
 				if (entity.getType() == EntityType.ENDERMAN) {
 					return;
@@ -252,8 +275,11 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		this.dealtDamage = view.getBoolean("DealtDamage", false);
 		this.dataTracker.set(LOYALTY, this.getLoyalty(this.getItemStack()));
 		this.dataTracker.set(ENCHANTED, view.getBoolean("Glint", false));
+		this.dataTracker.set(GLOW, view.getBoolean("Glow", false));
 		this.dataTracker.set(COLOR, view.getInt("Color", 0));
+		this.dataTracker.set(OVERLAY_COLOR, view.getInt("OverlayColor", 0));
 		this.dataTracker.set(CLOTH, view.getString("Cloth", "cloth"));
+		this.dataTracker.set(PATTERN, view.getString("Pattern", ""));
 		this.setPierceLevel(view.getByte("PierceLevel", (byte) 0));
 	}
 
@@ -262,9 +288,12 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		super.writeCustomData(view);
 		view.putBoolean("DealtDamage", this.dealtDamage);
 		view.putInt("Color", this.getDyeColor());
+		view.putInt("OverlayColor", this.getOverlayColor());
 		view.putBoolean("Glint", this.isEnchanted());
+		view.putBoolean("Glow", this.getGlow());
 		view.putByte("PierceLevel", this.getPierceLevel());
 		view.putString("Cloth", this.getCloth());
+		view.putString("Pattern", this.getPattern());
 	}
 
 	private byte getLoyalty(ItemStack stack) {

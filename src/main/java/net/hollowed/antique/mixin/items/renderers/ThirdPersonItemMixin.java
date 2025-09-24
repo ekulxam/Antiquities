@@ -1,7 +1,7 @@
 package net.hollowed.antique.mixin.items.renderers;
 
 import net.hollowed.antique.enchantments.EnchantmentListener;
-import net.hollowed.antique.items.VelocityTransferMaceItem;
+import net.hollowed.antique.items.ScepterItem;
 import net.hollowed.combatamenities.util.interfaces.PlayerEntityRenderStateAccess;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -38,7 +38,7 @@ public class ThirdPersonItemMixin<S extends PlayerEntityRenderState, M extends E
 
         if (playerEntityRenderState instanceof PlayerEntityRenderStateAccess) {
             Entity entity = ((PlayerEntityRenderStateAccess) playerEntityRenderState).combat_Amenities$getPlayerEntity();
-            if (entity instanceof PlayerEntity player && player.getActiveItem().getItem() instanceof VelocityTransferMaceItem) {
+            if (entity instanceof PlayerEntity player && player.getActiveItem().getItem() instanceof ScepterItem) {
                 int useTime = player.getItemUseTime();
                 float tickDelta = MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(true);
 

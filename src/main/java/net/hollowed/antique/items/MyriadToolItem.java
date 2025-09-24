@@ -1,7 +1,7 @@
 package net.hollowed.antique.items;
 
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
@@ -119,7 +119,7 @@ public class MyriadToolItem extends Item {
     }
 
     public static ItemStack getStoredStack(ItemStack tool) {
-        return tool.get(AntiqueComponents.MYRIAD_STACK);
+        return tool.get(AntiqueDataComponentTypes.MYRIAD_STACK);
     }
 
     public static void setStoredStack(ItemStack tool, ItemStack newStack) {
@@ -135,7 +135,7 @@ public class MyriadToolItem extends Item {
             tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_tool"));
             tool.remove(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY);
         }
-        tool.set(AntiqueComponents.MYRIAD_STACK, newStack);
+        tool.set(AntiqueDataComponentTypes.MYRIAD_STACK, newStack);
     }
 
     /*
@@ -144,7 +144,7 @@ public class MyriadToolItem extends Item {
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
-        if (context.getStack().getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
+        if (context.getStack().getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
             return item.toolUseOnBlock(context);
         }
         return ActionResult.PASS;
@@ -152,7 +152,7 @@ public class MyriadToolItem extends Item {
 
     @Override
     public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        if (stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
+        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
             return item.toolOnStoppedUsing(stack, world, user, remainingUseTicks);
         }
         return super.onStoppedUsing(stack, world, user, remainingUseTicks);
@@ -160,7 +160,7 @@ public class MyriadToolItem extends Item {
 
     @Override
     public UseAction getUseAction(ItemStack stack) {
-        if (stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
+        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
             return item.toolGetUseAction(stack);
         }
         return super.getUseAction(stack);
@@ -168,7 +168,7 @@ public class MyriadToolItem extends Item {
 
     @Override
     public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        if (user.getStackInHand(hand).getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
+        if (user.getStackInHand(hand).getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
             return item.toolUse(world, user, hand);
         }
         return ActionResult.PASS;

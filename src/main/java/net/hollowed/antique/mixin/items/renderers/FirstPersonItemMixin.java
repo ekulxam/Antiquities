@@ -1,7 +1,7 @@
 package net.hollowed.antique.mixin.items.renderers;
 
 import net.hollowed.antique.enchantments.EnchantmentListener;
-import net.hollowed.antique.items.VelocityTransferMaceItem;
+import net.hollowed.antique.items.ScepterItem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
@@ -23,7 +23,7 @@ public class FirstPersonItemMixin {
     @Inject(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemDisplayContext;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
             at = @At("HEAD"))
     private void spin(LivingEntity entity, ItemStack stack, ItemDisplayContext renderMode, MatrixStack matrices, VertexConsumerProvider vertexConsumer, int light, CallbackInfo ci) {
-        if (entity instanceof PlayerEntity player && player.getActiveItem().getItem() instanceof VelocityTransferMaceItem) {
+        if (entity instanceof PlayerEntity player && player.getActiveItem().getItem() instanceof ScepterItem) {
             int useTime = player.getItemUseTime();
             float tickDelta = MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(true);
 

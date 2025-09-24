@@ -1,6 +1,6 @@
 package net.hollowed.antique.mixin.items.renderers;
 
-import net.hollowed.antique.index.AntiqueComponents;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
@@ -41,7 +41,7 @@ public abstract class ItemRendererMixin {
             this.matrices.translate((float) (x + 10), (float) (y + 6));
             this.matrices.scale(5.0F, -5.0F);
 
-            ItemStack stackToRender = stack.getOrDefault(AntiqueComponents.MYRIAD_STACK, ItemStack.EMPTY);
+            ItemStack stackToRender = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY);
 
             KeyedItemRenderState itemRenderState = new KeyedItemRenderState();
             this.client.getItemModelManager().clearAndUpdate(itemRenderState, stack, ItemDisplayContext.GUI, world, entity, seed);
