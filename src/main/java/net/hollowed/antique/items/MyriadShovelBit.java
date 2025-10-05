@@ -148,7 +148,7 @@ public class MyriadShovelBit extends MyriadToolBitItem{
                 world.setBlockState(blockPos, optional.get(), Block.NOTIFY_ALL_AND_REDRAW);
                 world.emitGameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Emitter.of(playerEntity, optional.get()));
                 if (playerEntity != null) {
-                    itemStack.damage(1, playerEntity, LivingEntity.getSlotForHand(context.getHand()));
+                    itemStack.damage(1, playerEntity, context.getHand());
                 }
 
                 return ActionResult.SUCCESS;
@@ -288,10 +288,10 @@ public class MyriadShovelBit extends MyriadToolBitItem{
                 }
 
                 if (blockState3 != null) {
-                    if (!world.isClient) {
+                    if (!world.isClient()) {
                         world.setBlockState(blockPos, blockState3, Block.NOTIFY_ALL_AND_REDRAW);
                         world.emitGameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Emitter.of(playerEntity, blockState3));
-                        context.getStack().damage(1, playerEntity, LivingEntity.getSlotForHand(context.getHand()));
+                        context.getStack().damage(1, playerEntity, context.getHand());
                     }
 
                     return ActionResult.SUCCESS;

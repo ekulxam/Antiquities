@@ -20,8 +20,8 @@ public abstract class TridentVisualsMixin extends PersistentProjectileEntity {
     @Override
     protected void onCollision(HitResult hitResult) {
         super.onCollision(hitResult);
-        if (this.getWorld() instanceof ServerWorld serverWorld) {
-            Vec3d pos = this.getPos().add(this.getRotationVector().multiply(1, 1, -1));
+        if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
+            Vec3d pos = this.getEntityPos().add(this.getRotationVector().multiply(1, 1, -1));
             serverWorld.spawnParticles(CAParticles.RING, pos.getX(), pos.getY(), pos.getZ(), 1, 0.0, 0.0, 0.0, 0);
         }
     }

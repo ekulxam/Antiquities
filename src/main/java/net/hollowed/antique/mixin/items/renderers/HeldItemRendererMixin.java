@@ -13,6 +13,7 @@ import net.hollowed.combatamenities.util.items.ModComponents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.debug.DebugRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
@@ -21,7 +22,6 @@ import net.minecraft.client.render.entity.model.EntityModel;
 import net.minecraft.client.render.entity.model.ModelWithArms;
 import net.minecraft.client.render.entity.state.ArmedEntityRenderState;
 import net.minecraft.client.render.item.ItemRenderState;
-import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
@@ -44,25 +44,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.awt.*;
 
 @Mixin(HeldItemFeatureRenderer.class)
-public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M extends EntityModel<S> & ModelWithArms> extends FeatureRenderer<S, M> {
+public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M extends EntityModel<S> & ModelWithArms<S>> extends FeatureRenderer<S, M> {
 
     public HeldItemRendererMixin(FeatureRendererContext<S, M> context) {
         super(context);
     }
 
     @Inject(method = "renderItem", at = @At("HEAD"))
-    public void renderItem(S entityState, ItemRenderState itemState, Arm arm, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, CallbackInfo ci) {
+    public void renderItem(S entityState, ItemRenderState itemRenderState, Arm arm, MatrixStack matrices, OrderedRenderCommandQueue orderedRenderCommandQueue, int light, CallbackInfo ci) {
         if (entityState instanceof ArmedRenderStateAccess access) {
             matrices.push();
-            this.getContextModel().setArmAngle(arm, matrices);
+            this.getContextModel().setArmAngle(entityState, arm, matrices);
             matrices.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90.0F));
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0F));
             boolean bl = arm == Arm.LEFT;
             matrices.translate((float)(bl ? -1 : 1) / 16.0F, 0.125F, -0.625F);
             matrices.translate(0, 0.6, 0);
-
-            MinecraftClient client = MinecraftClient.getInstance();
-            ItemRenderer itemRenderer = client.getItemRenderer();
 
             Entity entity = access.antique$getEntity();
 
@@ -95,12 +92,12 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                         manager.renderCloth(
                                 itemWorldPos,
                                 matrices,
-                                vertexConsumers,
+                                orderedRenderCommandQueue,
                                 data.light() != 0 ? data.light() : light,
                                 stack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false),
                                 data.dyeable() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
                                 new Color(stack.getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb()),
-                                false,
+                                true,
                                 data.model(),
                                 Identifier.of(stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, "")),
                                 data.length() != 0 ? data.length() : 1.4,
@@ -132,16 +129,9 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                     stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
                 }
 
-                itemRenderer.renderItem(
-                        stackToRender,
-                        ItemDisplayContext.NONE,
-                        light,
-                        OverlayTexture.DEFAULT_UV,
-                        matrices,
-                        vertexConsumers,
-                        client.world,
-                        1
-                );
+                ItemRenderState stackRenderState = new ItemRenderState();
+                MinecraftClient.getInstance().getItemModelManager().update(stackRenderState, stackToRender, ItemDisplayContext.NONE, MinecraftClient.getInstance().world, null, 1);
+                stackRenderState.render(matrices, orderedRenderCommandQueue, light, OverlayTexture.DEFAULT_UV, 0);
 
                 stackToRender.set(DataComponentTypes.ITEM_MODEL, customModel);
             }

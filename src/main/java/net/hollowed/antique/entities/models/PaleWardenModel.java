@@ -12,7 +12,7 @@ import net.minecraft.client.render.entity.model.ModelWithArms;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Arm;
 
-public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implements ModelWithArms {
+public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implements ModelWithArms<PaleWardenRenderState> {
 	public final ModelPart big_guy;
 	public final ModelPart right_leg;
 	public final ModelPart left_leg;
@@ -112,7 +112,7 @@ public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implemen
 	}
 
 	@Override
-	public void setArmAngle(Arm arm, MatrixStack matrices) {
+	public void setArmAngle(PaleWardenRenderState state, Arm arm, MatrixStack matrices) {
 		this.root.applyTransform(matrices);
 		if (arm == Arm.RIGHT) {
 			this.right_arm.applyTransform(matrices);

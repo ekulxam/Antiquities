@@ -23,8 +23,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(HappyGhastEntity.class)
 public abstract class HappyGhastMixin extends AnimalEntity implements BoatControllable {
 
-    @Shadow public abstract boolean method_72227();
-
     @Shadow public abstract @Nullable LivingEntity getControllingPassenger();
 
     @Unique
@@ -41,7 +39,7 @@ public abstract class HappyGhastMixin extends AnimalEntity implements BoatContro
 
     @Inject(method = "getControllingPassenger", at = @At("HEAD"), cancellable = true)
     public void passenger(CallbackInfoReturnable<LivingEntity> cir) {
-        if (this.controller != null && this.controller instanceof PlayerEntity player && !this.method_72227()) {
+        if (this.controller != null && this.controller instanceof PlayerEntity player) {
             cir.setReturnValue(player);
         }
     }
@@ -52,10 +50,10 @@ public abstract class HappyGhastMixin extends AnimalEntity implements BoatContro
             Box box = this.boat.getBoundingBox();
             Box box2 = new Box(box.minX - 1.0, box.maxY, box.minZ - 1.0, box.maxX + 1.0, box.maxY + box.getLengthY() * 1.5, box.maxZ + 1.0);
 
-            for (PlayerEntity playerEntity : this.getWorld().getPlayers()) {
+            for (PlayerEntity playerEntity : this.getEntityWorld().getPlayers()) {
                 if (!playerEntity.isSpectator()) {
                     Entity entity = playerEntity.getRootVehicle();
-                    if (!(entity instanceof HappyGhastEntity) && box2.contains(entity.getPos())) {
+                    if (!(entity instanceof HappyGhastEntity) && box2.contains(entity.getEntityPos())) {
                         if (this.boat instanceof EntityFreezer freezer) {
                             freezer.antiquities$setFrozen(true, 1);
                         }

@@ -46,7 +46,9 @@ public class ClothBody {
         other.pos.sub(correction);
     }
 
-    public Vector3d getPos() { return new Vector3d(pos); }
+    public Vector3d getPos() {
+        return new Vector3d(pos);
+    }
 
     public void slideOutOfBlocks(ClientWorld world) {
         double padding = 0.00075;

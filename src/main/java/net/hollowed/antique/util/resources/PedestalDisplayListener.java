@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
+
 import net.hollowed.antique.Antiquities;
 import net.hollowed.combatamenities.util.delay.ClientTickDelayScheduler;
 import net.minecraft.client.MinecraftClient;
@@ -17,17 +17,14 @@ import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.SynchronousResourceReloader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import org.slf4j.Logger;
 
-public class PedestalDisplayListener implements SimpleSynchronousResourceReloadListener {
+public class PedestalDisplayListener implements SynchronousResourceReloader {
     private static final Map<Identifier, PedestalDisplayData> transforms = new HashMap<>();
     private static PedestalDisplayData defaultTransforms;
-
-    public Identifier getFabricId() {
-        return Antiquities.id("pedestal_transforms");
-    }
 
     public void reload(ResourceManager manager) {
         MinecraftClient.getInstance().execute(() -> this.actuallyLoad(manager));

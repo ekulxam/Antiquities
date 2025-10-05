@@ -18,14 +18,17 @@ import net.minecraft.world.World;
 import java.util.Objects;
 
 public class PaleWardenSpawnEggItem extends SpawnEggItem {
+    private final EntityType<? extends MobEntity> type;
+
     public PaleWardenSpawnEggItem(EntityType<? extends MobEntity> type, Item.Settings settings) {
-        super(type, settings);
+        super(settings);
+        this.type = type;
     }
 
     @Override
     public ActionResult useOnBlock(ItemUsageContext context) {
         World world = context.getWorld();
-        if (world.isClient) {
+        if (world.isClient()) {
             return ActionResult.SUCCESS;
         }
 
@@ -33,10 +36,11 @@ public class PaleWardenSpawnEggItem extends SpawnEggItem {
         BlockPos blockPos = context.getBlockPos();
         Direction direction = context.getSide();
         BlockPos spawnPos = blockPos.offset(direction);
-        EntityType<?> entityType = this.getEntityType(world.getRegistryManager(), itemStack);
+        EntityType<?> entityType = this.getEntityType(itemStack);
 
         // Spawn entity and apply modifications
         if (world instanceof ServerWorld serverWorld) {
+            assert entityType != null;
             Entity entity = entityType.spawnFromItemStack(
                     serverWorld,
                     itemStack,
@@ -67,7 +71,7 @@ public class PaleWardenSpawnEggItem extends SpawnEggItem {
 
     private static float getSnappedYaw(ItemUsageContext context, Entity entity) {
         Vec3d playerPos = Objects.requireNonNull(context.getPlayer()).getEyePos();
-        Vec3d entityPos = entity.getPos();
+        Vec3d entityPos = entity.getEntityPos();
         double dx = playerPos.x - entityPos.x;
         double dz = playerPos.z - entityPos.z;
         double angle = Math.atan2(-dz, -dx) * (180.0 / Math.PI) + 90.0;

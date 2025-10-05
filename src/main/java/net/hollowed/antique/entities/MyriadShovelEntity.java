@@ -92,11 +92,11 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 
 	public void summonPart() {
 		for (int i = 1; i < 9; i++) {
-			MyriadShovelPart entity = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.getWorld());
-			entity.setPosition(this.getPos());
+			MyriadShovelPart entity = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.getEntityWorld());
+			entity.setPosition(this.getEntityPos());
 			entity.setOwner(this);
 			entity.setOrderId(i);
-			this.getWorld().spawnEntity(entity);
+			this.getEntityWorld().spawnEntity(entity);
 		}
 	}
 
@@ -135,19 +135,19 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		int i = this.dataTracker.get(LOYALTY);
 		if (i > 0 && (this.dealtDamage || this.isNoClip()) && entity != null) {
 			if (!this.isOwnerAlive()) {
-				if (this.getWorld() instanceof ServerWorld serverWorld && this.pickupType == PersistentProjectileEntity.PickupPermission.ALLOWED) {
+				if (this.getEntityWorld() instanceof ServerWorld serverWorld && this.pickupType == PersistentProjectileEntity.PickupPermission.ALLOWED) {
 					this.dropStack(serverWorld, this.asItemStack(), 0.1F);
 				}
 
 				this.discard();
 			} else {
-				if (!(entity instanceof PlayerEntity) && this.getPos().distanceTo(entity.getEyePos()) < (double)entity.getWidth() + 1.0) {
+				if (!(entity instanceof PlayerEntity) && this.getEntityPos().distanceTo(entity.getEyePos()) < (double)entity.getWidth() + 1.0) {
 					this.discard();
 					return;
 				}
 
 				this.setNoClip(true);
-				Vec3d vec3d = entity.getEyePos().subtract(this.getPos());
+				Vec3d vec3d = entity.getEyePos().subtract(this.getEntityPos());
 				this.setPos(this.getX(), this.getY() + vec3d.y * 0.015 * (double)i, this.getZ());
 				double d = 0.05 * (double)i;
 				this.setVelocity(this.getVelocity().multiply(0.95).add(vec3d.normalize().multiply(d)));
@@ -170,8 +170,8 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	@Override
 	protected void onCollision(HitResult hitResult) {
 		super.onCollision(hitResult);
-		if (this.getWorld() instanceof ServerWorld serverWorld) {
-			Vec3d pos = this.getPos().add(this.getRotationVector().multiply(1, 1, -1));
+		if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
+			Vec3d pos = this.getEntityPos().add(this.getRotationVector().multiply(1, 1, -1));
 			serverWorld.spawnParticles(CAParticles.RING, pos.getX(), pos.getY(), pos.getZ(), 1, 0.0, 0.0, 0.0, 0);
 		}
 	}
@@ -185,8 +185,8 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		Entity entity = entityHitResult.getEntity();
 		float f = 8.0F;
 		Entity entity2 = this.getOwner();
-		DamageSource damageSource = AntiqueDamageTypes.of(entity.getWorld(), AntiqueDamageTypes.IMPALE, entity2 == null ? this : entity2);
-		if (this.getWorld() instanceof ServerWorld serverWorld) {
+		DamageSource damageSource = AntiqueDamageTypes.of(entity.getEntityWorld(), AntiqueDamageTypes.IMPALE, entity2 == null ? this : entity2);
+		if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
 
 			if (this.getPierceLevel() > 0) {
 				if (this.piercedEntities == null) {
@@ -211,7 +211,7 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		}
 
 		if (this.getPierceLevel() <= 0) {
-			this.deflect(ProjectileDeflection.SIMPLE, entity, this.getOwner(), false);
+			this.deflect(ProjectileDeflection.SIMPLE, entity, null, false);
 			this.setVelocity(this.getVelocity().multiply(0.2, 0.2, 0.02));
 			this.playSound(SoundEvents.ITEM_TRIDENT_HIT, 1.0F, 1.0F);
 		}
@@ -297,7 +297,7 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	}
 
 	private byte getLoyalty(ItemStack stack) {
-		return this.getWorld() instanceof ServerWorld serverWorld
+		return this.getEntityWorld() instanceof ServerWorld serverWorld
 				? (byte)MathHelper.clamp(EnchantmentHelper.getTridentReturnAcceleration(serverWorld, stack, this), 0, 127)
 				: 0;
 	}

@@ -37,11 +37,11 @@ public class CakeEntity extends PersistentProjectileEntity {
     @Override
     public void handleStatus(byte status) {
         if (status == EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES) {
-            this.getWorld().addBlockBreakParticles(this.getBlockPos(), Blocks.CAKE.getDefaultState());
+            this.getEntityWorld().addBlockBreakParticles(this.getBlockPos(), Blocks.CAKE.getDefaultState());
         }
         if (status == EntityStatuses.ADD_DEATH_PARTICLES) {
             BlockPos entityPos = this.getBlockPos();
-            World world = this.getWorld();
+            World world = this.getEntityWorld();
 
             for (Direction direction : Direction.values()) {
                 BlockPos offsetPos = entityPos.offset(direction);
@@ -52,7 +52,7 @@ public class CakeEntity extends PersistentProjectileEntity {
                         case EAST, WEST -> vec = new Vec3d(1, 0, 0);
                     }
 
-                    Vec3d particlePos = this.getPos();
+                    Vec3d particlePos = this.getEntityPos();
 
                     world.addParticleClient(
                             AntiqueParticles.CAKE_SMEAR,
@@ -114,7 +114,7 @@ public class CakeEntity extends PersistentProjectileEntity {
             this.dataTracker.set(YAW, this.getYaw());
         }
         if (this.getVelocity().getY() < 0 && this.getVelocity().horizontalLength() < 0.2 && lastParticleTime <= 0) {
-            this.getWorld().sendEntityStatus(this, EntityStatuses.ADD_DEATH_PARTICLES);
+            this.getEntityWorld().sendEntityStatus(this, EntityStatuses.ADD_DEATH_PARTICLES);
             if (this.getVelocity().getY() < -0.5) {
                 this.lastParticleTime = 2;
             } else if (this.getVelocity().getY() < -0.2) {
@@ -129,9 +129,9 @@ public class CakeEntity extends PersistentProjectileEntity {
 
     @Override
     protected void onEntityHit(EntityHitResult entityHitResult) {
-        if (!this.getWorld().isClient && !(entityHitResult.getEntity() instanceof CakeEntity)) {
+        if (!this.getEntityWorld().isClient() && !(entityHitResult.getEntity() instanceof CakeEntity)) {
             this.playSound(this.getSound(), 1.0F, 1.0F / (this.random.nextFloat() * 0.2F + 0.9F));
-            this.getWorld().sendEntityStatus(this, EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES);
+            this.getEntityWorld().sendEntityStatus(this, EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES);
             this.setVelocity(Vec3d.ZERO);
             this.setNoGravity(true);
             this.dataTracker.set(FROZEN, true);
@@ -145,9 +145,9 @@ public class CakeEntity extends PersistentProjectileEntity {
 
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
-        if (!this.getWorld().isClient) {
+        if (!this.getEntityWorld().isClient()) {
             this.playSound(this.getSound(), 1.0F, 1.0F / (this.random.nextFloat() * 0.2F + 0.9F));
-            this.getWorld().sendEntityStatus(this, EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES);
+            this.getEntityWorld().sendEntityStatus(this, EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES);
             this.setVelocity(0, 0, 0);
             this.setNoGravity(true);
             this.dataTracker.set(FROZEN, true);

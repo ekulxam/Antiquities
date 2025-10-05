@@ -10,7 +10,6 @@ import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.*;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.player.PlayerEntity;
@@ -93,7 +92,7 @@ public class MyriadAxeBit extends MyriadToolBitItem{
                 world.setBlockState(blockPos, optional.get(), Block.NOTIFY_ALL_AND_REDRAW);
                 world.emitGameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Emitter.of(playerEntity, optional.get()));
                 if (playerEntity != null) {
-                    itemStack.damage(1, playerEntity, LivingEntity.getSlotForHand(context.getHand()));
+                    itemStack.damage(1, playerEntity, context.getHand());
                 }
 
                 return ActionResult.SUCCESS;

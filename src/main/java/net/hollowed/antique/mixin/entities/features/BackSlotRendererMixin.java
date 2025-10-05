@@ -13,12 +13,12 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
-import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.EquipmentSlot;
@@ -50,8 +50,8 @@ public abstract class BackSlotRendererMixin extends HeldItemFeatureRenderer<Play
         super(featureRendererContext);
     }
 
-    @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/client/render/entity/state/PlayerEntityRenderState;FF)V", at = @At("HEAD"))
-    public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, PlayerEntityRenderState armedEntityRenderState, float limbSwing, float limbSwingAmount, CallbackInfo ci) {
+    @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;ILnet/minecraft/client/render/entity/state/PlayerEntityRenderState;FF)V", at = @At("HEAD"))
+    public void render(MatrixStack matrixStack, OrderedRenderCommandQueue orderedRenderCommandQueue, int i, PlayerEntityRenderState armedEntityRenderState, float f, float g, CallbackInfo ci) {
         if (armedEntityRenderState instanceof PlayerEntityRenderStateAccess access) {
             PlayerEntity playerEntity = access.combat_Amenities$getPlayerEntity();
             if (playerEntity != null) {
@@ -117,9 +117,6 @@ public abstract class BackSlotRendererMixin extends HeldItemFeatureRenderer<Play
                         matrixStack.translate(0, 1.1, 0);
                         matrixStack.scale(0.55F, 0.55F, 0.55F);
 
-                        MinecraftClient client = MinecraftClient.getInstance();
-                        ItemRenderer itemRenderer = client.getItemRenderer();
-
                         ItemStack stackToRender = backSlotStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY);
 
                         Object name = backSlotStack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
@@ -144,16 +141,9 @@ public abstract class BackSlotRendererMixin extends HeldItemFeatureRenderer<Play
                             stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
                         }
 
-                        itemRenderer.renderItem(
-                                stackToRender,
-                                ItemDisplayContext.NONE,
-                                light,
-                                OverlayTexture.DEFAULT_UV,
-                                matrixStack,
-                                vertexConsumerProvider,
-                                client.world,
-                                1
-                        );
+                        ItemRenderState stackRenderState = new ItemRenderState();
+                        MinecraftClient.getInstance().getItemModelManager().update(stackRenderState, stackToRender, ItemDisplayContext.NONE, MinecraftClient.getInstance().world, null, 1);
+                        stackRenderState.render(matrixStack, orderedRenderCommandQueue, armedEntityRenderState.light, OverlayTexture.DEFAULT_UV, 0);
 
                         stackToRender.set(DataComponentTypes.ITEM_MODEL, customModel);
                     }
@@ -169,8 +159,8 @@ public abstract class BackSlotRendererMixin extends HeldItemFeatureRenderer<Play
         }
     }
 
-    @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/client/render/entity/state/PlayerEntityRenderState;FF)V", at = @At("TAIL"))
-    public void renderTail(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light, PlayerEntityRenderState armedEntityRenderState, float limbSwing, float limbSwingAmount, CallbackInfo ci) {
+    @Inject(method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;ILnet/minecraft/client/render/entity/state/PlayerEntityRenderState;FF)V", at = @At("TAIL"))
+    public void renderTail(MatrixStack matrixStack, OrderedRenderCommandQueue orderedRenderCommandQueue, int i, PlayerEntityRenderState armedEntityRenderState, float f, float g, CallbackInfo ci) {
         if (armedEntityRenderState instanceof PlayerEntityRenderStateAccess access) {
             PlayerEntity playerEntity = access.combat_Amenities$getPlayerEntity();
             if (playerEntity != null) {

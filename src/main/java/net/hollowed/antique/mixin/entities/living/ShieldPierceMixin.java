@@ -35,7 +35,7 @@ public abstract class ShieldPierceMixin {
                 if (stack instanceof ShieldPiercer access) {
                     float percent = access.shieldPierce();
                     this.damage(world, ModDamageTypes.of(world, ModDamageTypes.CLEAVED, attacker), amount * percent);
-                    attacker.getWorld().playSound(null, attacker.getBlockPos(), SoundEvents.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, SoundCategory.PLAYERS);
+                    attacker.getEntityWorld().playSound(null, attacker.getBlockPos(), SoundEvents.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, SoundCategory.PLAYERS);
                     cir.setReturnValue(false);
                 }
             }

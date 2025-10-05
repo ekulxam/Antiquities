@@ -60,7 +60,7 @@ public class PaleWardenEntity extends PathAwareEntity {
     }
 
     public void swapStacks(ItemStack mainhand, ItemStack offhand) {
-        if (this.getWorld() instanceof ServerWorld) {
+        if (this.getEntityWorld() instanceof ServerWorld) {
             // Set the stacks on the server
             this.setStackInHand(Hand.MAIN_HAND, mainhand);
             this.setStackInHand(Hand.OFF_HAND, offhand);
@@ -83,7 +83,7 @@ public class PaleWardenEntity extends PathAwareEntity {
             ClientPlayNetworking.send(new PaleWardenTickPacketPayload(this.getId(), mainhand, offhand));
         }
 
-        if (this.getWorld().isClient) {
+        if (this.getEntityWorld().isClient()) {
             if (this.awakenAnimationTimeout == 80) {
                 this.idleAnimationTimeout = 0;
                 this.idleAnimationState.stop();

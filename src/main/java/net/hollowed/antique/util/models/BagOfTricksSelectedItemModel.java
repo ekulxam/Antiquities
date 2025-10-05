@@ -9,9 +9,9 @@ import net.minecraft.client.item.ItemModelManager;
 import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.render.item.model.ItemModel;
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.HeldItemContext;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -22,13 +22,13 @@ public class BagOfTricksSelectedItemModel implements ItemModel {
 
     public BagOfTricksSelectedItemModel() {}
 
-    public void update(ItemRenderState state, ItemStack stack, ItemModelManager resolver, ItemDisplayContext displayContext, @Nullable ClientWorld world, @Nullable LivingEntity user, int seed) {
+    public void update(ItemRenderState state, ItemStack stack, ItemModelManager resolver, ItemDisplayContext displayContext, @Nullable ClientWorld world, @Nullable HeldItemContext heldItemContext, int seed) {
         state.addModelKey(this);
         List<ItemStack> list = stack.getOrDefault(AntiqueDataComponentTypes.SATCHEL_STACK, List.of(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY));
         if (BagOfTricksItem.getInternalIndex(stack) >= 0 && !list.isEmpty() && BagOfTricksItem.getInternalIndex(stack) < list.size()) {
             ItemStack itemStack = list.get(BagOfTricksItem.getInternalIndex(stack));
             if (!itemStack.isEmpty()) {
-                resolver.update(state, itemStack, displayContext, world, user, seed);
+                resolver.update(state, itemStack, displayContext, world, heldItemContext, seed);
             }
         }
     }

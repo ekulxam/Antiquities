@@ -29,7 +29,7 @@ public abstract class ClimbButFasterMixin extends Entity implements Attackable {
 
     @Inject(method = "applyMovementInput", at = @At("HEAD"), cancellable = true)
     private void applyMovementInput(Vec3d movementInput, float slipperiness, CallbackInfoReturnable<Vec3d> cir) {
-        boolean isCollidingWithSpecificEntity = this.getWorld()
+        boolean isCollidingWithSpecificEntity = this.getEntityWorld()
                 .getOtherEntities(this, this.getBoundingBox().expand(0.1))
                 .stream()
                 .anyMatch(entity -> entity instanceof MyriadShovelPart);

@@ -3,6 +3,9 @@ package net.hollowed.antique.items;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
+import net.hollowed.antique.util.resources.ClothSkinData;
+import net.hollowed.antique.util.resources.ClothSkinListener;
+import net.hollowed.combatamenities.util.items.ModComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
 import net.minecraft.entity.LivingEntity;
@@ -14,6 +17,8 @@ import net.minecraft.item.*;
 import net.minecraft.item.consume.UseAction;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableTextContent;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 
@@ -52,6 +57,16 @@ public class MyriadToolItem extends Item {
                 }
             }
         } else {
+            if (otherStack.isOf(AntiqueItems.CLOTH)) {
+                swapCloth(player, stack, otherStack);
+                return true;
+            }
+
+            if (otherStack.isOf(AntiqueItems.CLOTH_PATTERN)) {
+                addPattern(player, stack, otherStack);
+                return true;
+            }
+
             if (otherStack.isEmpty()) {
                 return false;
             }
@@ -90,6 +105,16 @@ public class MyriadToolItem extends Item {
                 }
             }
         } else {
+            if (otherStack.isOf(AntiqueItems.CLOTH)) {
+                swapCloth(player, stack, otherStack);
+                return true;
+            }
+
+            if (otherStack.isOf(AntiqueItems.CLOTH_PATTERN)) {
+                addPattern(player, stack, otherStack);
+                return true;
+            }
+
             if (cursorStackReference.get().isEmpty()) {
                 return false;
             }
@@ -111,6 +136,62 @@ public class MyriadToolItem extends Item {
             return true;
         }
         return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
+    }
+
+    private void addPattern(PlayerEntity player, ItemStack toolStack, ItemStack patternStack) {
+        if (ClothSkinListener.getTransform(toolStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth")).overlay()) {
+            String pattern = "item.antique.cloth_pattern";
+            Text text = patternStack.getOrDefault(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique.cloth_pattern"));
+            if (text.getContent() instanceof TranslatableTextContent translatable) {
+                pattern = translatable.getKey();
+            }
+            pattern = pattern.substring(pattern.indexOf(".") + 1);
+            pattern = pattern.replace(".", ":");
+            pattern = pattern.substring(0, pattern.indexOf("_"));
+
+            toolStack.set(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, patternStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)));
+            toolStack.set(AntiqueDataComponentTypes.CLOTH_PATTERN, pattern);
+            toolStack.set(ModComponents.BOOLEAN_PROPERTY, patternStack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false));
+
+            player.playSound(SoundEvents.ITEM_DYE_USE, 1.0F, 1.0F);
+        } else {
+            player.playSound(SoundEvents.ITEM_BUNDLE_INSERT_FAIL, 1.0F, 1.0F);
+        }
+    }
+
+    private void swapCloth(PlayerEntity player, ItemStack toolStack, ItemStack clothStack) {
+        String model = "item.antique.cloth";
+        Text text = clothStack.getOrDefault(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique.cloth"));
+        if (text.getContent() instanceof TranslatableTextContent translatable) {
+            model = translatable.getKey();
+        }
+        model = model.substring(model.indexOf(".") + 1).replace(".", ":");
+        String toolModel = toolStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "antique:cloth");
+        ClothSkinData.ClothSubData toolData = ClothSkinListener.getTransform(toolModel);
+        DyedColorComponent clothColor = clothStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xD43B69));
+        if (toolData.dyeable()) {
+            clothStack.set(DataComponentTypes.DYED_COLOR, toolStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xD43B69)));
+        } else {
+            clothStack.remove(DataComponentTypes.DYED_COLOR);
+        }
+        toolModel = "item." + toolModel.replace(":", ".");
+        clothStack.set(DataComponentTypes.ITEM_NAME, Text.translatable(toolModel));
+        toolStack.set(AntiqueDataComponentTypes.CLOTH_TYPE, model);
+
+        ClothSkinData.ClothSubData clothData = ClothSkinListener.getTransform(model);
+        toolStack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN);
+
+        int intValue = 0;
+        try {
+            if (!clothData.hex().isBlank()) {
+                intValue = Integer.parseInt(clothData.hex(), 16);
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid hexadecimal string format: " + e.getMessage());
+        }
+
+        toolStack.set(DataComponentTypes.DYED_COLOR, clothData.dyeable() ? clothColor : new DyedColorComponent(intValue));
+        player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 1.0F, 1.0F);
     }
 
     public static boolean isInvalidItem(ItemStack stack) {

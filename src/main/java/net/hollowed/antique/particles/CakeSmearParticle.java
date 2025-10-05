@@ -4,23 +4,24 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 @Environment(EnvType.CLIENT)
-public class CakeSmearParticle extends SpriteBillboardParticle {
+public class CakeSmearParticle extends BillboardParticle {
 	private final double dirX;
 	private final double dirY;
 	private final double dirZ;
 	private final ClientWorld world;
 
 	CakeSmearParticle(ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, SpriteProvider spriteProvider) {
-		super(world, x, y, z);
+		super(world, x, y, z, spriteProvider.getFirst());
 
 		this.setPos(x, y, z);
 		this.world = world;
@@ -34,7 +35,7 @@ public class CakeSmearParticle extends SpriteBillboardParticle {
 		this.velocityZ = 0;
 
 		this.maxAge = 100;
-		this.setSpriteForAge(spriteProvider);
+		this.updateSprite(spriteProvider);
 		this.gravityStrength = 0;
 		this.scale = 1;
 	}
@@ -63,29 +64,30 @@ public class CakeSmearParticle extends SpriteBillboardParticle {
 			this.spriteProvider = spriteProvider;
 		}
 
-		public Particle createParticle(SimpleParticleType simpleParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-			CakeSmearParticle particle = new CakeSmearParticle(clientWorld, d, e, f, g, h, i, this.spriteProvider);
-			particle.setSprite(this.spriteProvider);
+		@Override
+		public @Nullable Particle createParticle(SimpleParticleType parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, Random random) {
+			CakeSmearParticle particle = new CakeSmearParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider);
+			particle.setSprite(this.spriteProvider.getFirst());
 			return particle;
 		}
 	}
 
 	@Override
-	public void render(VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
+	public void render(BillboardParticleSubmittable submittable, Camera camera, float tickProgress) {
 		Vec3d direction = new Vec3d(this.dirX, this.dirY, this.dirZ);
 		Quaternionf quaternionf = new Quaternionf();
 		if (direction.x == 1) quaternionf.rotateY((float) Math.toRadians(90));
-		this.render(vertexConsumer, camera, quaternionf, tickDelta);
+		this.render(submittable, camera, quaternionf, tickProgress);
 
 		Quaternionf quaternionf1 = new Quaternionf();
 		if (direction.x == 1) quaternionf1.rotateY((float) Math.toRadians(-90));
 		if (direction.z == 1) quaternionf1.rotateY((float) Math.toRadians(180));
-		this.render(vertexConsumer, camera, quaternionf1, tickDelta);
+		this.render(submittable, camera, quaternionf1, tickProgress);
 	}
 
 	@Override
-	public ParticleTextureSheet getType() {
-		return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
+	protected RenderType getRenderType() {
+		return RenderType.PARTICLE_ATLAS_TRANSLUCENT;
 	}
 
 	@Override

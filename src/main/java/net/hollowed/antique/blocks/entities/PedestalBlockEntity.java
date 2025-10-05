@@ -83,7 +83,7 @@ public class PedestalBlockEntity extends BlockEntity implements ComponentHolder,
     public void markDirty() {
         super.markDirty();
         if (world == null) return;
-        if (!world.isClient && world instanceof ServerWorld serverWorld) {
+        if (!world.isClient() && world instanceof ServerWorld serverWorld) {
             serverWorld.getChunkManager().markForUpdate(pos);
         }
     }
@@ -123,8 +123,6 @@ public class PedestalBlockEntity extends BlockEntity implements ComponentHolder,
 
         return stack;
     }
-
-
 
     @Override
     public int[] getAvailableSlots(Direction side) {

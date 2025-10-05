@@ -35,7 +35,7 @@ public class SatchelPacketReceiver {
 
                 if (!satchelItem.isInvalidItem(currentHotbarStack)) {
                     if (currentSatchelStack.isEmpty() && currentHotbarStack.isEmpty()) {
-                        player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT_FAIL, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                        player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT_FAIL, SoundCategory.PLAYERS, 1.0F, 1.0F);
                     }
 
                     // Move the selected satchel stack to the hotbar
@@ -43,10 +43,10 @@ public class SatchelPacketReceiver {
                         if (currentHotbarStack.getItem() instanceof MyriadToolItem && !MyriadToolItem.isInvalidItem(currentSatchelStack) && !currentSatchelStack.isOf(AntiqueItems.MYRIAD_CLAW)) {
                             myriadItem = MyriadToolItem.getStoredStack(currentHotbarStack);
                             MyriadToolItem.setStoredStack(currentHotbarStack, currentSatchelStack);
-                            player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                            player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
                         } else {
                             playerInventory.setStack(currentHotbarSlot, currentSatchelStack);
-                            player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                            player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
                         }
                     } else if (currentHotbarStack.getItem() instanceof MyriadToolItem) {
                         myriadItem = MyriadToolItem.getStoredStack(currentHotbarStack);
@@ -79,12 +79,12 @@ public class SatchelPacketReceiver {
                         } else {
                             satchelItem.setSlot(satchelInventory, currentHotbarStack);
                         }
-                        player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                        player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT, SoundCategory.PLAYERS, 1.0F, 1.0F);
                     } else  {
                         satchelItem.setSlot(satchelInventory, ItemStack.EMPTY);
                     }
                 } else {
-                    player.getWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT_FAIL, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                    player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT_FAIL, SoundCategory.PLAYERS, 1.0F, 1.0F);
                 }
             }
         });

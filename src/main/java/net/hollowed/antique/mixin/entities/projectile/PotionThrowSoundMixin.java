@@ -17,6 +17,6 @@ public class PotionThrowSoundMixin {
 
     @Inject(method = "use", at = @At("RETURN"))
     public void use(World world, PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
-        player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_WITCH_THROW, SoundCategory.PLAYERS, 0.8F, 1.0F);
+        player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(), SoundEvents.ENTITY_WITCH_THROW, SoundCategory.PLAYERS, 0.8F, 1.0F);
     }
 }

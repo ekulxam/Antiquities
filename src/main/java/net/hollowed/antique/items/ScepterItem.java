@@ -80,14 +80,14 @@ public class ScepterItem extends Item {
 
                 player.addVelocity(player.getRotationVec(0).multiply(multiplier).multiply(velocity));
                 player.velocityModified = true;
-                if (user.getWorld() instanceof ServerWorld serverWorld) {
+                if (user.getEntityWorld() instanceof ServerWorld serverWorld) {
                     serverWorld.spawnParticles(ParticleTypes.GUST, user.getX(), user.getY() + 0.25F, user.getZ(), 1, 0.1, 0.0, 0.1, 0);
                 }
 
                 world.playSound(null, user.getX(), user.getY(), user.getZ(), SoundEvents.ITEM_MACE_SMASH_AIR, SoundCategory.NEUTRAL, 1F, 0.9f + (player.getRandom().nextFloat() * .2f));
                 player.incrementStat(Stats.USED.getOrCreateStat(this));
                 user.swingHand(user.getActiveHand());
-                if (!user.getWorld().isClient) {
+                if (!user.getEntityWorld().isClient()) {
                     player.getItemCooldownManager().set(stack, 130);
                     if (EnchantmentListener.hasEnchantment(stack, "antique:kinematic")) {
                         user.addStatusEffect(new StatusEffectInstance(AntiqueEffects.VOLATILE_BOUNCE_EFFECT, (int) Math.clamp((velocity - 0.625) * 40, 10, 10000), 0, true, true));
@@ -98,7 +98,7 @@ public class ScepterItem extends Item {
             } else {
                 // Spawn a hitbox and interact with entities inside it
                 Vec3d forwardVec = user.getRotationVec(1.0F); // Get the direction the player is facing
-                Vec3d hitboxCenter = user.getPos().add(forwardVec.multiply(2.0)); // Position hitbox 2 blocks ahead
+                Vec3d hitboxCenter = user.getEntityPos().add(forwardVec.multiply(2.0)); // Position hitbox 2 blocks ahead
                 Box hitbox = new Box(hitboxCenter.subtract(1, 1, 1), hitboxCenter.add(1, 1, 1)); // 2x2x2 box
 
                 // Get all entities in the hitbox, excluding the player
@@ -108,9 +108,9 @@ public class ScepterItem extends Item {
                     if (entity instanceof LivingEntity target) {
                         // Apply damage
                         float damage = Math.clamp((float) chargeTime * 0.1F, 0.0F, 10.0F);
-                        if (target.getWorld() instanceof ServerWorld serverWorld) {
+                        if (target.getEntityWorld() instanceof ServerWorld serverWorld) {
                             target.damage(serverWorld,
-                                    target.getWorld().getDamageSources().playerAttack(player), damage);
+                                    target.getEntityWorld().getDamageSources().playerAttack(player), damage);
                         }
 
                         // Knockback
@@ -157,7 +157,7 @@ public class ScepterItem extends Item {
             user.getItemCooldownManager().set(user.getStackInHand(hand), 40);
             user.addVelocity(user.getRotationVec(0).multiply(new Vec3d(-1.5, -0.5, -1.5)));
             user.velocityModified = true;
-            if (user.getWorld() instanceof ServerWorld serverWorld) {
+            if (user.getEntityWorld() instanceof ServerWorld serverWorld) {
                 serverWorld.spawnParticles(ParticleTypes.GUST, user.getX(), user.getY() + 0.25F, user.getZ(), 1, 0.1, 0.0, 0.1, 0);
                 user.addStatusEffect(new StatusEffectInstance(AntiqueEffects.VOLATILE_BOUNCE_EFFECT, 30, 0, true, true));
             }
@@ -190,11 +190,11 @@ public class ScepterItem extends Item {
 
             // Track the start position of the tick
             if (startTickPosition == null) {
-                startTickPosition = player.getPos();
+                startTickPosition = player.getEntityPos();
             }
 
             // Calculate velocity at the end of the tick (this will be after position has changed)
-            Vec3d endTickPosition = player.getPos();
+            Vec3d endTickPosition = player.getEntityPos();
 
             // Check if there has been a position change
             if (!startTickPosition.equals(endTickPosition)) {

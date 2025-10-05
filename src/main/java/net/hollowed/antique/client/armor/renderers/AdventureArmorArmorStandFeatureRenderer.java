@@ -6,16 +6,15 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueEntityLayers;
 import net.hollowed.antique.client.armor.models.ArmorStandAdventureArmor;
 import net.hollowed.antique.index.AntiqueItems;
+import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.ArmorStandEntityModel;
 import net.minecraft.client.render.entity.model.LoadedEntityModels;
 import net.minecraft.client.render.entity.state.ArmorStandEntityRenderState;
-import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 
@@ -31,16 +30,15 @@ public class AdventureArmorArmorStandFeatureRenderer extends FeatureRenderer<Arm
     }
 
     @Override
-    public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, ArmorStandEntityRenderState state, float limbAngle, float limbDistance) {
-        this.getContextModel().copyTransforms(this.model);
+    public void render(MatrixStack matrices, OrderedRenderCommandQueue queue, int light, ArmorStandEntityRenderState state, float limbAngle, float limbDistance) {
 
-        this.model.head.copyTransform(this.getContextModel().head);
-        this.model.body.copyTransform(this.getContextModel().body);
-        this.model.rightArm.copyTransform(this.getContextModel().rightArm);
-        this.model.leftArm.copyTransform(this.getContextModel().leftArm);
-        this.model.rightLeg.copyTransform(this.getContextModel().rightLeg);
-        this.model.leftLeg.copyTransform(this.getContextModel().leftLeg);
-        this.model.satchel.copyTransform(this.getContextModel().body);
+        this.model.head.setTransform(this.getContextModel().head.getTransform());
+        this.model.body.setTransform(this.getContextModel().body.getTransform());
+        this.model.rightArm.setTransform(this.getContextModel().rightArm.getTransform());
+        this.model.leftArm.setTransform(this.getContextModel().leftArm.getTransform());
+        this.model.rightLeg.setTransform(this.getContextModel().rightLeg.getTransform());
+        this.model.leftLeg.setTransform(this.getContextModel().leftLeg.getTransform());
+        this.model.satchel.setTransform(this.getContextModel().body.getTransform());
 
         this.model.setVisible(false);
         this.model.leftArmThick.visible = false;
@@ -58,19 +56,30 @@ public class AdventureArmorArmorStandFeatureRenderer extends FeatureRenderer<Arm
             this.model.leftLeg.visible = true;
         }
 
-        VertexConsumer chestConsumers = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
-                state.equippedChestStack.hasGlint());
-        this.model.body.render(matrices, chestConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
-        this.model.rightArm.render(matrices, chestConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
-        this.model.leftArm.render(matrices, chestConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+        queue.submitModel(
+                this.model,
+                state,
+                matrices,
+                RenderLayer.getArmorCutoutNoCull(TEXTURE),
+                light,
+                OverlayTexture.DEFAULT_UV,
+                state.outlineColor,
+                null
+        );
 
-        VertexConsumer satchelConsumers = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
-                state.equippedLegsStack.hasGlint());
-        this.model.satchel.render(matrices, satchelConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+//        queue.submitCustom(matrices, RenderLayer.getArmorCutoutNoCull(TEXTURE), ((matricesEntry, vertexConsumer) -> {
+//            this.model.body.render(matrices, vertexConsumer, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+//            this.model.rightArm.render(matrices, vertexConsumer, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+//            this.model.leftArm.render(matrices, vertexConsumer, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+//        }));
 
-        VertexConsumer bootsConsumers = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
-                state.equippedFeetStack.hasGlint());
-        this.model.rightLeg.render(matrices, bootsConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
-        this.model.leftLeg.render(matrices, bootsConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+//        VertexConsumer satchelConsumers = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
+//                state.equippedLegsStack.hasGlint());
+//        this.model.satchel.render(matrices, satchelConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+//
+//        VertexConsumer bootsConsumers = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
+//                state.equippedFeetStack.hasGlint());
+//        this.model.rightLeg.render(matrices, bootsConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
+//        this.model.leftLeg.render(matrices, bootsConsumers, light, LivingEntityRenderer.getOverlay(state, 0.0F));
     }
 }

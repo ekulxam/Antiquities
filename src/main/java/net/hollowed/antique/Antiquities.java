@@ -1,6 +1,5 @@
 package net.hollowed.antique;
 
-import com.nitron.nitrogen.config.Config;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -10,6 +9,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
+import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.loader.api.FabricLoader;
 import net.hollowed.antique.index.AntiqueBlockEntities;
 import net.hollowed.antique.index.*;
@@ -78,10 +78,10 @@ public class Antiquities implements ModInitializer {
 		AntiqueDispenserBehaviors.initialize();
 		AntiqueRecipeSerializer.init();
 
-		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new MyriadStaffTransformResourceReloadListener());
-		ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(new PedestalDisplayListener());
-		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new ClothSkinListener());
-		ResourceManagerHelper.get(ResourceType.SERVER_DATA).registerReloadListener(new ClothOverlayListener());
+		ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(id("staff_transforms"), new MyriadStaffTransformResourceReloadListener());
+		ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(id("pedestal_transforms"), new PedestalDisplayListener());
+		ResourceLoader.get(ResourceType.SERVER_DATA).registerReloader(id("cloth_skins"), new ClothSkinListener());
+		ResourceLoader.get(ResourceType.SERVER_DATA).registerReloader(id("cloth_overlays"), new ClothOverlayListener());
 
 		/*
 			Packets
@@ -160,12 +160,6 @@ public class Antiquities implements ModInitializer {
 
 		FabricLoader.getInstance().getModContainer(MOD_ID).ifPresent((container) ->
 				ResourceManagerHelper.registerBuiltinResourcePack(Identifier.of(MOD_ID, "antique"), container, Text.translatable("resourcePack.hmi.name"), ResourcePackActivationType.NORMAL));
-
-		/*
-			Shenanigans
-		 */
-
-		Config.trailRenderers = false;
 
 		/*
 			Item Group
@@ -320,6 +314,7 @@ public class Antiquities implements ModInitializer {
 			for (ClothSkinData.ClothSubData data : ClothSkinListener.getTransforms()) {
 				ItemStack stack = AntiqueItems.CLOTH.getDefaultStack();
 				stack.set(DataComponentTypes.ITEM_NAME, Text.translatable("item." + data.model().toString().replace(":", ".")));
+				if (!data.dyeable()) stack.remove(DataComponentTypes.DYED_COLOR);
 				if (!itemGroup.getDisplayStacks().contains(stack)) {
 					itemGroup.add(stack);
 				}

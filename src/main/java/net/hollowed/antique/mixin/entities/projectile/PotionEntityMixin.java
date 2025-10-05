@@ -25,7 +25,7 @@ public abstract class PotionEntityMixin extends ThrownItemEntity {
     public void onCollision(HitResult hitResult, CallbackInfo ci) {
         if (hitResult.getType() == HitResult.Type.ENTITY) {
             Box box = this.getBoundingBox().expand(0.3);
-            List<Entity> list = this.getWorld().getOtherEntities(this, box);
+            List<Entity> list = this.getEntityWorld().getOtherEntities(this, box);
             for (Entity entity : list) {
                 if (entity instanceof PotionEntity) {
                     ci.cancel();

@@ -201,9 +201,9 @@ public abstract class BundleItemMixin extends Item {
      */
     @Unique
     private void spawnXpOrb(PlayerEntity player, int xpAmount) {
-        if (xpAmount > 0 && player.getWorld() instanceof ServerWorld) {
-            ExperienceOrbEntity xpOrb = new ExperienceOrbEntity(player.getWorld(), player.getX(), player.getY(), player.getZ(), xpAmount);
-            player.getWorld().spawnEntity(xpOrb);
+        if (xpAmount > 0 && player.getEntityWorld() instanceof ServerWorld) {
+            ExperienceOrbEntity xpOrb = new ExperienceOrbEntity(player.getEntityWorld(), player.getX(), player.getY(), player.getZ(), xpAmount);
+            player.getEntityWorld().spawnEntity(xpOrb);
         }
     }
 
@@ -226,7 +226,7 @@ public abstract class BundleItemMixin extends Item {
             boolean isMainhand = player.getMainHandStack().getItem() instanceof FlintAndSteelItem ||
                     player.getMainHandStack().getItem() instanceof FireChargeItem;
 
-            if (itemStack.getItem() instanceof BlockItem && ((BlockItem) itemStack.getItem()).getBlock() instanceof TntBlock && player.getWorld() instanceof ServerWorld) {
+            if (itemStack.getItem() instanceof BlockItem && ((BlockItem) itemStack.getItem()).getBlock() instanceof TntBlock && player.getEntityWorld() instanceof ServerWorld) {
                 if (hasFlintAndSteel || player.isCreative()) {
                     itemStack.decrement(1);
                     builder.add(itemStack);
@@ -238,40 +238,40 @@ public abstract class BundleItemMixin extends Item {
                         item.decrement(1);
                     }
 
-                    TntEntity tntEntity = new TntEntity(player.getWorld(), player.getX(), player.getY() + 0.75, player.getZ(), player);
+                    TntEntity tntEntity = new TntEntity(player.getEntityWorld(), player.getX(), player.getY() + 0.75, player.getZ(), player);
                     tntEntity.setFuse(40);
 
                     Vec3d forward = player.getRotationVec(1.5F);
                     tntEntity.setVelocity(forward);
 
-                    player.getWorld().spawnEntity(tntEntity);
-                    playTntThrowSound(player.getWorld(), player);
+                    player.getEntityWorld().spawnEntity(tntEntity);
+                    playTntThrowSound(player.getEntityWorld(), player);
 
                     player.incrementStat(Stats.USED.getOrCreateStat(itemStack.getItem()));
                     stack.set(DataComponentTypes.BUNDLE_CONTENTS, builder.build());
                 }
             } else if (itemStack.getItem() instanceof MinecartItem) {
 
-                if (player.getWorld() instanceof ServerWorld) {
+                if (player.getEntityWorld() instanceof ServerWorld) {
 
                     EntityType<? extends AbstractMinecartEntity> minecartType = ((MinecartItemAccessor) itemStack.getItem()).getType();
 
                     Vec3d forward = player.getRotationVector().normalize();
                     double offsetDistance = 1.5;
-                    Vec3d offsetPos = player.getPos().add(forward.multiply(offsetDistance)).add(0, 1, 0);
+                    Vec3d offsetPos = player.getEntityPos().add(forward.multiply(offsetDistance)).add(0, 1, 0);
 
-                    if (player.getWorld().isSpaceEmpty(minecartType.create(player.getWorld(), SpawnReason.DISPENSER), new Box(offsetPos.x - 0.25, offsetPos.y, offsetPos.z - 0.25, offsetPos.x + 0.25, offsetPos.y + 0.5, offsetPos.z + 0.25))) {
+                    if (player.getEntityWorld().isSpaceEmpty(minecartType.create(player.getEntityWorld(), SpawnReason.DISPENSER), new Box(offsetPos.x - 0.25, offsetPos.y, offsetPos.z - 0.25, offsetPos.x + 0.25, offsetPos.y + 0.5, offsetPos.z + 0.25))) {
 
                         AbstractMinecartEntity abstractMinecartEntity = AbstractMinecartEntity.create(
-                                player.getWorld(),
+                                player.getEntityWorld(),
                                 offsetPos.x, offsetPos.y, offsetPos.z,
                                 minecartType, SpawnReason.DISPENSER, itemStack, player
                         );
 
                         if (abstractMinecartEntity == null) return;
                         abstractMinecartEntity.setVelocity(forward.add(player.getVelocity()));
-                        player.getWorld().spawnEntity(abstractMinecartEntity);
-                        playPotionThrowSound(player.getWorld(), player);
+                        player.getEntityWorld().spawnEntity(abstractMinecartEntity);
+                        playPotionThrowSound(player.getEntityWorld(), player);
 
                         itemStack.decrement(1);
                         builder.add(itemStack);
@@ -328,12 +328,12 @@ public abstract class BundleItemMixin extends Item {
 
     @Unique
     private void handlePotionThrow(PlayerEntity player, ItemStack itemStack) {
-        if (player.getWorld() instanceof ServerWorld) {
-            SplashPotionEntity potionEntity = new SplashPotionEntity(player.getWorld(), player, itemStack);
-            potionEntity.setPosition(player.getPos().add(0, 1.5, 0));
+        if (player.getEntityWorld() instanceof ServerWorld) {
+            SplashPotionEntity potionEntity = new SplashPotionEntity(player.getEntityWorld(), player, itemStack);
+            potionEntity.setPosition(player.getEntityPos().add(0, 1.5, 0));
             potionEntity.setVelocity(player.getRotationVector().add(0, 0.25, 0));
-            player.getWorld().spawnEntity(potionEntity);
-            playPotionThrowSound(player.getWorld(), player);
+            player.getEntityWorld().spawnEntity(potionEntity);
+            playPotionThrowSound(player.getEntityWorld(), player);
         }
         player.incrementStat(Stats.USED.getOrCreateStat(itemStack.getItem()));
     }

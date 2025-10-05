@@ -16,6 +16,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.particle.TintedParticleEffect;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -69,7 +70,7 @@ public class SmokeBombEntity extends ThrownItemEntity {
 
     @Override
     protected void onBlockHit(BlockHitResult blockHitResult) {
-        World world = this.getWorld();
+        World world = this.getEntityWorld();
 
         ItemStack stack = Items.FIREWORK_ROCKET.getDefaultStack();
         stack.set(DataComponentTypes.FIREWORKS, FireworkUtil.randomFireworkBall());
@@ -84,7 +85,7 @@ public class SmokeBombEntity extends ThrownItemEntity {
             }
 
             double raisedY = this.getY() + 1;
-            serverWorld.spawnParticles(ParticleTypes.FLASH, true, true, this.getX(), raisedY, this.getZ(), 1, 0, 0, 0, 0);
+            serverWorld.spawnParticles(TintedParticleEffect.create(ParticleTypes.FLASH, 0xFFFFFFFF), true, true, this.getX(), raisedY, this.getZ(), 1, 0.0, 0.0, 0.0, 0.0);
             serverWorld.spawnParticles(ParticleTypes.LARGE_SMOKE, true, true, this.getX(), raisedY, this.getZ(), 64, 0.5, 0.5, 0.5, 0.1);
             for (int i = 1; i < 4; i++) {
                 int finalI = i;

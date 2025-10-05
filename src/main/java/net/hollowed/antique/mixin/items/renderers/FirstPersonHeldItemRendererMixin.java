@@ -11,9 +11,9 @@ import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadLis
 import net.hollowed.combatamenities.util.items.ModComponents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.item.HeldItemRenderer;
-import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.component.DataComponentTypes;
@@ -40,8 +40,8 @@ import java.awt.*;
 @Mixin(HeldItemRenderer.class)
 public abstract class FirstPersonHeldItemRendererMixin {
 
-    @Inject(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemDisplayContext;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("HEAD"))
-    public void renderItem(LivingEntity entity, ItemStack stack, ItemDisplayContext renderMode, MatrixStack matrices, VertexConsumerProvider vertexConsumer, int light, CallbackInfo ci) {
+    @Inject(method = "renderItem(Lnet/minecraft/entity/LivingEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/item/ItemDisplayContext;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;I)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/item/ItemStack;isEmpty()Z"))
+    public void renderItem(LivingEntity entity, ItemStack stack, ItemDisplayContext renderMode, MatrixStack matrices, OrderedRenderCommandQueue orderedRenderCommandQueue, int light, CallbackInfo ci) {
         matrices.push();
         boolean leftHanded = entity.getMainArm() == Arm.LEFT;
         matrices.translate((float)(leftHanded ? -1 : 1) / 16.0F, 0.125F, -0.625F);
@@ -55,16 +55,13 @@ public abstract class FirstPersonHeldItemRendererMixin {
             matrices.translate(0, -0.5, -0.1);
         }
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        ItemRenderer itemRenderer = client.getItemRenderer();
-
         ClothManager manager;
         Vec3d itemWorldPos;
 
         if (entity instanceof PlayerEntity player) {
             if (stack.isOf(Items.DIAMOND)) {
                 matrices.translate( -0.1, 0, -0.2);
-                if (player.getWorld() instanceof ClientWorld clientWorld) {
+                if (player.getEntityWorld() instanceof ClientWorld clientWorld) {
                     Vec3d testPos = ClothManager.matrixToVec(matrices);
                     clientWorld.addParticleClient(ParticleTypes.ELECTRIC_SPARK, testPos.x, testPos.y, testPos.z, 0, 0, 0);
                 }
@@ -88,7 +85,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                     matrices.translate(-0.1, -0.1, 0);
                 }
                 itemWorldPos = ClothManager.matrixToVec(matrices);
-                manager = player.getMainHandStack().equals(stack) ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_right_arm")) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_left_arm"));
+                manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_right_arm")) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_left_arm"));
                 switch (renderMode) {
                     case ItemDisplayContext.NONE -> manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_back"));
                     case ItemDisplayContext.GUI -> manager = null;
@@ -104,12 +101,12 @@ public abstract class FirstPersonHeldItemRendererMixin {
                         manager.renderCloth(
                                 itemWorldPos,
                                 matrices,
-                                vertexConsumer,
+                                orderedRenderCommandQueue,
                                 data.light() != 0 ? data.light() : light,
                                 stack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false),
                                 data.dyeable() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
                                 new Color(stack.getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb()),
-                                false,
+                                true,
                                 data.model(),
                                 Identifier.of(stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, "")),
                                 data.length() != 0 ? data.length() : 1.4,
@@ -144,16 +141,9 @@ public abstract class FirstPersonHeldItemRendererMixin {
                     stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
                 }
 
-                itemRenderer.renderItem(
-                        stackToRender,
-                        ItemDisplayContext.NONE,
-                        light,
-                        OverlayTexture.DEFAULT_UV,
-                        matrices,
-                        vertexConsumer,
-                        client.world,
-                        1
-                );
+                ItemRenderState stackRenderState = new ItemRenderState();
+                MinecraftClient.getInstance().getItemModelManager().update(stackRenderState, stackToRender, ItemDisplayContext.NONE, MinecraftClient.getInstance().world, null, 1);
+                stackRenderState.render(matrices, orderedRenderCommandQueue, light, OverlayTexture.DEFAULT_UV, 0);
 
                 stackToRender.set(DataComponentTypes.ITEM_MODEL, customModel);
             }

@@ -48,7 +48,7 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
     @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
     public void blockWithMyriadAxe(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity self = (LivingEntity) (Object) this;
-        Vec3d attackDirection = source.getPosition() != null ? source.getPosition().subtract(self.getPos()).normalize() : Vec3d.ZERO;
+        Vec3d attackDirection = source.getPosition() != null ? source.getPosition().subtract(self.getEntityPos()).normalize() : Vec3d.ZERO;
         if (attackDirection.equals(Vec3d.ZERO)) {
             attackDirection = new Vec3d(0, -1, 0);
         }
@@ -61,10 +61,10 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
 
             float reducedDamage = amount * 0.5F;
             if (self instanceof PlayerEntity player) {
-                player.getWorld().playSound(null, self.getBlockPos(), SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.2F);
-                player.getWorld().playSound(null, self.getBlockPos(), SoundEvents.ITEM_SHIELD_BLOCK.value(), SoundCategory.PLAYERS, 0.25F, 1.2F);
+                player.getEntityWorld().playSound(null, self.getBlockPos(), SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.2F);
+                player.getEntityWorld().playSound(null, self.getBlockPos(), SoundEvents.ITEM_SHIELD_BLOCK.value(), SoundCategory.PLAYERS, 0.25F, 1.2F);
                 if (source.getSource() instanceof LivingEntity attacker) {
-                    Vec3d knockbackDirection = attacker.getPos().subtract(player.getPos()).normalize();
+                    Vec3d knockbackDirection = attacker.getEntityPos().subtract(player.getEntityPos()).normalize();
                     attacker.takeKnockback(0.25, -knockbackDirection.x, -knockbackDirection.z);
                     attacker.velocityModified = true;
                     attacker.velocityDirty = true;
@@ -87,8 +87,8 @@ public abstract class MyriadAxeBlockMixin extends Entity implements Attackable {
             cir.setReturnValue(false);
         } else {
             if (source.isIn(DamageTypeTags.IS_PROJECTILE) && this.getAxeBlockingItem() != null && (angle > 0.0F)) {
-                self.getWorld().playSound(null, self.getBlockPos(), SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.2F);
-                self.getWorld().playSound(null, self.getBlockPos(), SoundEvents.ITEM_SHIELD_BLOCK.value(), SoundCategory.PLAYERS, 0.25F, 1.2F);
+                self.getEntityWorld().playSound(null, self.getBlockPos(), SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.2F);
+                self.getEntityWorld().playSound(null, self.getBlockPos(), SoundEvents.ITEM_SHIELD_BLOCK.value(), SoundCategory.PLAYERS, 0.25F, 1.2F);
                 if (source.getSource() != null) {
                     world.spawnParticles(CAParticles.RING, source.getSource().getX(), source.getSource().getY(), source.getSource().getZ(), 1, 0.0, 0.0, 0.0, 0);
                 }

@@ -10,10 +10,11 @@ import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.render.item.ItemRenderState;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
@@ -32,7 +33,8 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<MyriadShovelEntit
 		super(context);
 	}
 
-	public void render(MyriadShovelRenderState myriadShovelRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int light) {
+	@Override
+	public void render(MyriadShovelRenderState myriadShovelRenderState, MatrixStack matrixStack, OrderedRenderCommandQueue queue, CameraRenderState cameraState) {
 		matrixStack.push();
 
 		float multiplier = 1.25F;
@@ -54,8 +56,9 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<MyriadShovelEntit
 			shovel.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(myriadShovelRenderState.color));
 			shovel.set(AntiqueDataComponentTypes.CLOTH_TYPE, myriadShovelRenderState.cloth);
 
-			ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
-			itemRenderer.renderItem(shovel, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, light, OverlayTexture.DEFAULT_UV, matrixStack, vertexConsumerProvider, MinecraftClient.getInstance().world, 0);
+			ItemRenderState stackRenderState = new ItemRenderState();
+			MinecraftClient.getInstance().getItemModelManager().update(stackRenderState, shovel, ItemDisplayContext.FIRST_PERSON_RIGHT_HAND, MinecraftClient.getInstance().world, null, 1);
+			stackRenderState.render(matrixStack, queue, myriadShovelRenderState.light, OverlayTexture.DEFAULT_UV, 0);
 
 			ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(shovel.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth"));
 
@@ -66,12 +69,12 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<MyriadShovelEntit
 				manager.renderCloth(
 						itemWorldPos,
 						matrixStack,
-						vertexConsumerProvider,
-						data.light() != 0 ? data.light() : light,
+						queue,
+						data.light() != 0 ? data.light() : myriadShovelRenderState.light,
 						myriadShovelRenderState.glow,
 						data.dyeable() ? new Color(myriadShovelRenderState.color) : Color.WHITE,
 						new Color(myriadShovelRenderState.overlayColor),
-						false,
+						true,
 						data.model(),
 						Identifier.of(myriadShovelRenderState.pattern),
 						data.length() != 0 ? data.length() : 1.4,

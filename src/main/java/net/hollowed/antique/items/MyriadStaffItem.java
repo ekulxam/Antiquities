@@ -190,7 +190,7 @@ public class MyriadStaffItem extends Item {
         super.usageTick(world, user, stack, remainingUseTicks);
         LeftClickHandler.checkRightClickInAir();
         if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isOf(Blocks.CAKE.asItem())) {
-            if (!world.isClient) {
+            if (!world.isClient()) {
                 CakeEntity cake = new CakeEntity(AntiqueEntities.CAKE_ENTITY, world);
                 cake.setPos(user.getX(), user.getY() + 2, user.getZ());
                 cake.setVelocity(user.getRotationVector().multiply(0.75));
@@ -208,7 +208,7 @@ public class MyriadStaffItem extends Item {
         if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).isOf(Blocks.GOLD_BLOCK.asItem())) {
             target.addStatusEffect(new StatusEffectInstance(AntiqueEffects.ANIME_EFFECT, 60, 0, true, true));
             TickDelayScheduler.schedule(1, () -> {
-                TickDelayScheduler.schedule(1, () -> breakSphere(attacker.getWorld(), target.getBlockPos().up(), 2));
+                TickDelayScheduler.schedule(1, () -> breakSphere(attacker.getEntityWorld(), target.getBlockPos().up(), 2));
                 target.setVelocity(attacker.getRotationVec(0).multiply(10, 5, 10));
                 target.velocityModified = true;
             });

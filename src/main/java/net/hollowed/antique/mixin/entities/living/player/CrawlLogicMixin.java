@@ -92,7 +92,7 @@ public abstract class CrawlLogicMixin extends LivingEntity implements Crawl {
         if (this.dataTracker.get(SLIDE_TIMER) > 0 && this.dataTracker.get(SLIDE_TIMER) < 4 && this.dataTracker.get(CRAWLING)) {
             this.dataTracker.set(CRAWLING, false);
             this.addVelocity(this.getRotationVec(0).getHorizontal().normalize().multiply(0.25).add(0, 0.2, 0));
-            this.getWorld().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GOAT_LONG_JUMP, SoundCategory.PLAYERS, 1.0F, 1.0F);
+            this.getEntityWorld().playSound(null, this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_GOAT_LONG_JUMP, SoundCategory.PLAYERS, 1.0F, 1.0F);
             this.velocityModified = true;
             this.dataTracker.set(SLIDE_TIMER, 0);
         }

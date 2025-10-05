@@ -14,18 +14,18 @@ import org.spongepowered.asm.mixin.Unique;
 public class WallJumpPacketReceiver {
     public static void registerServerPacket() {
         ServerPlayNetworking.registerGlobalReceiver(WallJumpPacketPayload.ID, (payload, context) -> context.server().execute(() -> {
-            Entity entity = context.player().getWorld().getEntityById(payload.entityId());
+            Entity entity = context.player().getEntityWorld().getEntityById(payload.entityId());
 
             if (entity != null) {
-                entity.getWorld().playSound(null, entity.getBlockPos(), SoundEvents.ENTITY_GOAT_LONG_JUMP, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                entity.getEntityWorld().playSound(null, entity.getBlockPos(), SoundEvents.ENTITY_GOAT_LONG_JUMP, SoundCategory.PLAYERS, 1.0F, 1.0F);
                 Vec3d pushVector = new Vec3d(0, 0, 0);
                 Box box = entity.getBoundingBox();
                 double offset = 1;
 
-                boolean collidingWest = collidesWithSolidBlock(entity.getWorld(), box.offset(-offset, 0, 0), entity);
-                boolean collidingEast = collidesWithSolidBlock(entity.getWorld(), box.offset(offset, 0, 0), entity);
-                boolean collidingNorth = collidesWithSolidBlock(entity.getWorld(), box.offset(0, 0, -offset), entity);
-                boolean collidingSouth = collidesWithSolidBlock(entity.getWorld(), box.offset(0, 0, offset), entity);
+                boolean collidingWest = collidesWithSolidBlock(entity.getEntityWorld(), box.offset(-offset, 0, 0), entity);
+                boolean collidingEast = collidesWithSolidBlock(entity.getEntityWorld(), box.offset(offset, 0, 0), entity);
+                boolean collidingNorth = collidesWithSolidBlock(entity.getEntityWorld(), box.offset(0, 0, -offset), entity);
+                boolean collidingSouth = collidesWithSolidBlock(entity.getEntityWorld(), box.offset(0, 0, offset), entity);
 
                 double x = entity.getX();
                 double z = entity.getZ();
@@ -55,7 +55,7 @@ public class WallJumpPacketReceiver {
                 }
 
                 if (entity instanceof ServerPlayerEntity serverPlayer) {
-                    for (ServerPlayerEntity playerEntity : serverPlayer.getWorld().getPlayers().stream().toList()) {
+                    for (ServerPlayerEntity playerEntity : serverPlayer.getEntityWorld().getPlayers().stream().toList()) {
                         ServerPlayNetworking.send(playerEntity, new WallJumpParticlePacketPayload((float) x, (float) entity.getY(), (float) z, (float) particleX, (float) particleZ, pushVector));
                     }
                 }

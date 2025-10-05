@@ -45,7 +45,7 @@ public abstract class EntityBounceMixin implements FastAir {
 
     @Shadow public abstract Box getBoundingBox();
 
-    @Shadow public abstract World getWorld();
+    @Shadow public abstract World getEntityWorld();
 
     @Shadow public abstract float getStepHeight();
 
@@ -159,8 +159,8 @@ public abstract class EntityBounceMixin implements FastAir {
 
     @Unique
     private void spawnParticleRing(Entity entity, Vec3d velocity) {
-        World world = entity.getWorld();
-        Vec3d entityPos = entity.getPos();
+        World world = entity.getEntityWorld();
+        Vec3d entityPos = entity.getEntityPos();
         Vec3d normalizedVelocity = velocity.normalize();
 
         int particleCount = 32; // Number of particles in the ring
@@ -194,8 +194,8 @@ public abstract class EntityBounceMixin implements FastAir {
     @Unique
     private Vec3d adjustMovementForCollisions(Vec3d movement) {
         Box box = this.getBoundingBox();
-        List<VoxelShape> list = this.getWorld().getEntityCollisions((Entity) (Object) this, box.stretch(movement));
-        Vec3d vec3d = movement.lengthSquared() == 0.0 ? movement : adjustMovementForCollisions((Entity) (Object) this, movement, box, this.getWorld(), list);
+        List<VoxelShape> list = this.getEntityWorld().getEntityCollisions((Entity) (Object) this, box.stretch(movement));
+        Vec3d vec3d = movement.lengthSquared() == 0.0 ? movement : adjustMovementForCollisions((Entity) (Object) this, movement, box, this.getEntityWorld(), list);
         boolean bl = movement.x != vec3d.x;
         boolean bl2 = movement.y != vec3d.y;
         boolean bl3 = movement.z != vec3d.z;

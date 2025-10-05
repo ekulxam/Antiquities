@@ -25,7 +25,7 @@ public class CakeThrowMixin {
         if (player.getStackInHand(hand).isOf(Items.CAKE)) {
             ItemStack stack = player.getStackInHand(hand);
             player.swingHand(hand, true);
-            if (!world.isClient) {
+            if (!world.isClient()) {
                 CakeEntity cake = new CakeEntity(AntiqueEntities.CAKE_ENTITY, world);
                 cake.setPos(player.getX(), player.getY() + 1.5, player.getZ());
                 cake.setVelocity(player.getRotationVector().multiply(0.75));

@@ -66,7 +66,7 @@ public abstract class ClimbableShovelMixin extends LivingEntity {
 
     @Inject(method = "tick", at = @At("HEAD"))
     public void tick(CallbackInfo ci) {
-        if (!this.getWorld().isClient) {
+        if (!this.getEntityWorld().isClient()) {
             if (this.horizontalCollision && ItemHoldingUtil.isHoldingItem(this, Identifier.of(Antiquities.MOD_ID, "walljumper"))) {
                 this.coyoteTicks = 5;
             }
@@ -74,7 +74,7 @@ public abstract class ClimbableShovelMixin extends LivingEntity {
                 this.lastGroundTime = 5;
             }
 
-            boolean isCollidingWithSpecificEntity = this.getWorld()
+            boolean isCollidingWithSpecificEntity = this.getEntityWorld()
                     .getOtherEntities(this, this.getBoundingBox().expand(0.01))
                     .stream()
                     .anyMatch(entity -> entity instanceof MyriadShovelPart);

@@ -11,13 +11,15 @@ import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.entities.IllusionerEntity;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.OverlayTexture;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.IllagerEntityRenderer;
 import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.render.entity.model.IllagerEntityModel;
-import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.render.item.ItemRenderState;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemDisplayContext;
@@ -37,9 +39,9 @@ public class IllusionerEntityRenderer extends IllagerEntityRenderer<IllusionerEn
     public IllusionerEntityRenderer(EntityRendererFactory.Context context) {
         super(context, new IllagerEntityModel<>(context.getPart(EntityModelLayers.ILLUSIONER)), 0.5F);
         this.addFeature(new HeldItemFeatureRenderer<>(this) {
-            public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, IllusionerEntityRenderState illusionerEntityRenderState, float f, float g) {
+            public void render(MatrixStack matrixStack, OrderedRenderCommandQueue orderedRenderCommandQueue, int i, IllusionerEntityRenderState illusionerEntityRenderState, float f, float g) {
                 if (illusionerEntityRenderState.spellcasting || illusionerEntityRenderState.attacking) {
-                    super.render(matrixStack, vertexConsumerProvider, i, illusionerEntityRenderState, f, g);
+                    super.render(matrixStack, orderedRenderCommandQueue, i, illusionerEntityRenderState, f, g);
                 }
 
             }
@@ -65,27 +67,30 @@ public class IllusionerEntityRenderer extends IllagerEntityRenderer<IllusionerEn
         illusionerEntityRenderState.spellcasting = illusionerEntity.isSpellcasting();
     }
 
-    public void render(IllusionerEntityRenderState illusionerEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+    @Override
+    public void render(IllusionerEntityRenderState illusionerEntityRenderState, MatrixStack matrixStack, OrderedRenderCommandQueue queue, CameraRenderState cameraRenderState) {
         if (illusionerEntityRenderState.invisible) {
             matrixStack.push();
             matrixStack.translate(0, 1.4, 0);
             matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(-(illusionerEntityRenderState.relativeHeadYaw + illusionerEntityRenderState.bodyYaw)));
             matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(illusionerEntityRenderState.pitch));
-            ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
             ItemStack stack = Items.APPLE.getDefaultStack();
             stack.set(DataComponentTypes.ITEM_MODEL, Identifier.of(Antiquities.MOD_ID, "illusioner_idol"));
-            itemRenderer.renderItem(stack, ItemDisplayContext.NONE, i, 0, matrixStack, vertexConsumerProvider, MinecraftClient.getInstance().world, 0);
+            ItemRenderState stackRenderState = new ItemRenderState();
+            MinecraftClient.getInstance().getItemModelManager().update(stackRenderState, stack, ItemDisplayContext.NONE, MinecraftClient.getInstance().world, null, 1);
+            stackRenderState.render(matrixStack, queue, illusionerEntityRenderState.light, OverlayTexture.DEFAULT_UV, 0);
+
             matrixStack.pop();
             Vec3d[] vec3ds = illusionerEntityRenderState.mirrorCopyOffsets;
 
             for(int j = 0; j < vec3ds.length; ++j) {
                 matrixStack.push();
                 matrixStack.translate(vec3ds[j].x + (double)MathHelper.cos((float)j + illusionerEntityRenderState.age * 0.5F) * 0.025, vec3ds[j].y + (double)MathHelper.cos((float)j + illusionerEntityRenderState.age * 0.75F) * 0.0125, vec3ds[j].z + (double)MathHelper.cos((float)j + illusionerEntityRenderState.age * 0.7F) * 0.025);
-                super.render(illusionerEntityRenderState, matrixStack, vertexConsumerProvider, i);
+                super.render(illusionerEntityRenderState, matrixStack, queue, cameraRenderState);
                 matrixStack.pop();
             }
         } else {
-            super.render(illusionerEntityRenderState, matrixStack, vertexConsumerProvider, i);
+            super.render(illusionerEntityRenderState, matrixStack, queue, cameraRenderState);
         }
     }
 

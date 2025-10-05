@@ -4,7 +4,7 @@ import net.hollowed.antique.enchantments.EnchantmentListener;
 import net.hollowed.antique.items.ScepterItem;
 import net.hollowed.combatamenities.util.interfaces.PlayerEntityRenderStateAccess;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
 import net.minecraft.client.render.entity.feature.PlayerHeldItemFeatureRenderer;
@@ -26,15 +26,15 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(PlayerHeldItemFeatureRenderer.class)
-public class ThirdPersonItemMixin<S extends PlayerEntityRenderState, M extends EntityModel<S> & ModelWithArms & ModelWithHead> extends HeldItemFeatureRenderer<S, M> {
+public class ThirdPersonItemMixin<S extends PlayerEntityRenderState, M extends EntityModel<S> & ModelWithArms<S> & ModelWithHead> extends HeldItemFeatureRenderer<S, M> {
 
     public ThirdPersonItemMixin(FeatureRendererContext<S, M> featureRendererContext) {
         super(featureRendererContext);
     }
 
-    @Inject(method = "renderItem(Lnet/minecraft/client/render/entity/state/PlayerEntityRenderState;Lnet/minecraft/client/render/item/ItemRenderState;Lnet/minecraft/util/Arm;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+    @Inject(method = "renderItem(Lnet/minecraft/client/render/entity/state/PlayerEntityRenderState;Lnet/minecraft/client/render/item/ItemRenderState;Lnet/minecraft/util/Arm;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;I)V",
             at = @At("HEAD"), cancellable = true)
-    private void spin(PlayerEntityRenderState playerEntityRenderState, ItemRenderState itemRenderState, Arm arm, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+    private void spin(S playerEntityRenderState, ItemRenderState itemRenderState, Arm arm, MatrixStack matrixStack, OrderedRenderCommandQueue orderedRenderCommandQueue, int i, CallbackInfo ci) {
 
         if (playerEntityRenderState instanceof PlayerEntityRenderStateAccess) {
             Entity entity = ((PlayerEntityRenderStateAccess) playerEntityRenderState).combat_Amenities$getPlayerEntity();
@@ -55,12 +55,12 @@ public class ThirdPersonItemMixin<S extends PlayerEntityRenderState, M extends E
                     matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(totalRotation));
 
                     matrixStack.translate(-0.2, -0.6, 0.3);
-                    this.getContextModel().setArmAngle(arm, matrixStack);
+                    this.getContextModel().setArmAngle(playerEntityRenderState, arm, matrixStack);
                     matrixStack.multiply(RotationAxis.POSITIVE_X.rotationDegrees(-90.0F));
                     matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(180.0F));
                     boolean bl = arm == Arm.LEFT;
                     matrixStack.translate((float)(bl ? -1 : 1) / 16.0F, 0.125F, -0.625F);
-                    itemRenderState.render(matrixStack, vertexConsumerProvider, i, 0);
+                    itemRenderState.render(matrixStack, orderedRenderCommandQueue, i, 0, playerEntityRenderState.outlineColor);
                     ci.cancel();
                     matrixStack.pop();
                 }

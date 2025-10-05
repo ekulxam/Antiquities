@@ -38,8 +38,6 @@ public abstract class EntityLootMixin extends Entity {
         super(type, world);
     }
 
-    @Shadow protected abstract boolean shouldDropLoot();
-
     @Shadow protected abstract void dropLoot(ServerWorld world, DamageSource damageSource, boolean causedByPlayer);
 
     @Shadow protected abstract void dropEquipment(ServerWorld world, DamageSource source, boolean causedByPlayer);
@@ -48,6 +46,8 @@ public abstract class EntityLootMixin extends Entity {
 
     @Shadow @Nullable public abstract ItemEntity dropItem(ItemStack stack, boolean dropAtSelf, boolean retainOwnership);
 
+    @Shadow protected abstract boolean shouldDropLoot(ServerWorld world);
+
     @Inject(method = "drop", at = @At("HEAD"))
     public void drop(ServerWorld world, DamageSource damageSource, CallbackInfo ci) {
         if (damageSource.getAttacker() != null && damageSource.getAttacker().getWeaponStack() != null
@@ -55,7 +55,7 @@ public abstract class EntityLootMixin extends Entity {
         ) {
             if (!this.getType().isIn(FORCE_LOOT)) {
                 boolean bl = this.playerHitTimer > 0;
-                if (this.shouldDropLoot() && world.getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
+                if (this.shouldDropLoot(world) && world.getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
                     this.dropLoot(world, damageSource, bl);
                     this.dropEquipment(world, damageSource, bl);
                 }
@@ -70,7 +70,7 @@ public abstract class EntityLootMixin extends Entity {
             if (type.equals(EntityType.PIGLIN) && Math.random() > 0.8) this.dropItem(world, Items.PIGLIN_HEAD);
             if ((LivingEntity) (Object) this instanceof PlayerEntity player) {
                 ItemStack stack = Items.PLAYER_HEAD.getDefaultStack();
-                stack.set(DataComponentTypes.PROFILE, new ProfileComponent(player.getGameProfile()));
+                stack.set(DataComponentTypes.PROFILE, ProfileComponent.ofDynamic(player.getUuid()));
                 this.dropItem(stack, true, false);
             }
         }

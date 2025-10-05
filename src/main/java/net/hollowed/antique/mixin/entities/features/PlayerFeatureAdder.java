@@ -14,6 +14,7 @@ import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
 import net.minecraft.client.render.entity.PlayerEntityRenderer;
@@ -23,10 +24,12 @@ import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
+import net.minecraft.entity.PlayerLikeEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.Arm;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
 import org.spongepowered.asm.mixin.Mixin;
@@ -60,17 +63,16 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
         this.addFeature(new VanillaArmorFeatureRenderer<>(this, 0, ctx.getEntityModels()));
     }
 
-    @Inject(method = "getArmPose(Lnet/minecraft/client/network/AbstractClientPlayerEntity;Lnet/minecraft/util/Arm;)Lnet/minecraft/client/render/entity/model/BipedEntityModel$ArmPose;", at = @At("HEAD"), cancellable = true)
-    private static void getArmPose(AbstractClientPlayerEntity player, Arm arm, CallbackInfoReturnable<BipedEntityModel.ArmPose> cir) {
-        ItemStack itemStack = player.getStackInArm(arm);
-        if (itemStack.streamTags().toList().contains(TagKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "two_handed")))) {
+    @Inject(method = "getArmPose(Lnet/minecraft/entity/PlayerLikeEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;)Lnet/minecraft/client/render/entity/model/BipedEntityModel$ArmPose;", at = @At("HEAD"), cancellable = true)
+    private static void getArmPose(PlayerLikeEntity player, ItemStack stack, Hand hand, CallbackInfoReturnable<BipedEntityModel.ArmPose> cir) {
+        if (stack.streamTags().toList().contains(TagKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "two_handed")))) {
             if (!player.isUsingItem() && !player.handSwinging && !player.isSneaking()) {
                 cir.setReturnValue(BipedEntityModel.ArmPose.CROSSBOW_CHARGE);
             } else if (player.isSneaking() || player.handSwinging) {
                 cir.setReturnValue(BipedEntityModel.ArmPose.CROSSBOW_HOLD);
             }
         }
-        if (itemStack.getItem() instanceof MyriadToolItem) {
+        if (stack.getItem() instanceof MyriadToolItem) {
             if (player.isSneaking() && !player.isUsingItem()) {
                 cir.setReturnValue(BipedEntityModel.ArmPose.BLOCK);
             } else if (!player.isUsingItem()) {
@@ -81,41 +83,41 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
 
 
     @Inject(method = "renderLeftArm", at = @At("TAIL"))
-    public void renderArmoredLeftArm(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
+    public void renderArmoredLeftArm(MatrixStack matrices, OrderedRenderCommandQueue queue, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return;
         if (player.getEquippedStack(EquipmentSlot.CHEST).getItem() == AntiqueItems.NETHERITE_PAULDRONS) {
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-5));
             matrices.translate(0.075, 0, 0);
             if (slim) {
-                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
-                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
-                armorModel.leftArm.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
+//                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
+//                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
+//                armorModel.leftArm.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
             } else {
                 matrices.translate(-0.075, 0, 0);
-                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(THICK_TEXTURE),
-                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
-                armorModel.leftArmThick.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
+//                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(THICK_TEXTURE),
+//                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
+//                armorModel.leftArmThick.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
             }
         }
     }
 
     @Inject(method = "renderRightArm", at = @At("TAIL"))
-    public void renderArmoredRightArm(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
+    public void renderArmoredRightArm(MatrixStack matrices, OrderedRenderCommandQueue queue, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
         if (player == null) return;
         if (player.getEquippedStack(EquipmentSlot.CHEST).getItem() == AntiqueItems.NETHERITE_PAULDRONS) {
             matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(5));
             matrices.translate(-0.075, 0, 0);
             if (slim) {
-                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
-                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
-                armorModel.rightArm.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
+//                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
+//                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
+//                armorModel.rightArm.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
             } else {
                 matrices.translate(0.05, 0, 0);
-                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(THICK_TEXTURE),
-                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
-                armorModel.rightArmThick.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
+//                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(THICK_TEXTURE),
+//                        player.getEquippedStack(EquipmentSlot.CHEST).hasGlint());
+//                armorModel.rightArmThick.render(matrices, vertexConsumer, light, OverlayTexture.DEFAULT_UV);
             }
         }
     }

@@ -25,8 +25,13 @@ public interface AntiqueItems {
 
     Item RAW_MYRIAD = register("raw_myriad", Item::new);
     Item MYRIAD_INGOT = register("myriad_ingot", Item::new);
-    Item CLOTH = register("cloth", Item::new);
-    Item CLOTH_PATTERN = register("cloth_pattern", settings -> new Item(settings.maxCount(1)));
+    Item CLOTH = register("cloth", settings -> new Item(settings
+            .component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xD43B69))
+            .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
+    ));
+    Item CLOTH_PATTERN = register("cloth_pattern", settings -> new ClothPatternItem(settings.maxCount(1)
+            .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
+    ));
     Item MIRAGE_SILK = register("mirage_silk", settings -> new Item(settings.rarity(Rarity.RARE)));
     Item BAG_OF_TRICKS = register("bag_of_tricks", settings -> new BagOfTricksItem(settings.maxCount(1)
             .component(ModComponents.INTEGER_PROPERTY, -1)
@@ -100,6 +105,7 @@ public interface AntiqueItems {
             .component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd43b69))
             .component(AntiqueDataComponentTypes.CLOTH_TYPE, "antique:cloth")
             .component(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY)
+            .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
             .component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE)
             .enchantable(10)
             .rarity(Rarity.UNCOMMON)
@@ -164,7 +170,9 @@ public interface AntiqueItems {
     ));
     @SuppressWarnings("unused")
     Item PALE_WARDEN_STATUE = register("pale_warden_statue", settings -> new PaleWardenSpawnEggItem(AntiqueEntities.PALE_WARDEN, settings.maxCount(64)));
-    Item ILLUSIONER_SPAWN_EGG = register("illusioner_spawn_egg", settings -> new SpawnEggItem(AntiqueEntities.ILLUSIONER, settings.maxCount(64)));
+    Item ILLUSIONER_SPAWN_EGG = register("illusioner_spawn_egg", settings -> new SpawnEggItem(settings.maxCount(64)
+            .spawnEgg(AntiqueEntities.ILLUSIONER)
+    ));
 
     static Item register(String id, Function<Item.Settings, Item> factory) {
         RegistryKey<Item> key = RegistryKey.of(RegistryKeys.ITEM, Antiquities.id(id));

@@ -42,10 +42,10 @@ public abstract class AnimeEffectMixin extends Entity {
     @Inject(method = "tick", at = @At("TAIL"))
     public void tick(CallbackInfo ci) {
         LivingEntity user = (LivingEntity) (Object) this;
-        World world = user.getWorld();
+        World world = user.getEntityWorld();
 
         this.setNoGravity(user.hasStatusEffect(AntiqueEffects.ANIME_EFFECT));
-        if (user.hasStatusEffect(AntiqueEffects.ANIME_EFFECT) && !world.isClient) {
+        if (user.hasStatusEffect(AntiqueEffects.ANIME_EFFECT) && !world.isClient()) {
             int radius = (int) (user.getBoundingBox().getLengthX() + 2) / 2 + Objects.requireNonNull(user.getStatusEffect(AntiqueEffects.ANIME_EFFECT)).getAmplifier();
 
             // First sphere: around the entity
@@ -54,8 +54,8 @@ public abstract class AnimeEffectMixin extends Entity {
             breakSphere(world, center.up(), radius);
 
             // Interpolate multiple points between lastPos and currentPos
-            Vec3d from = this.lastX != 0 || this.lastY != 0 || this.lastZ != 0 ? new Vec3d(lastX, lastY, lastZ) : user.getPos();
-            Vec3d to = user.getPos();
+            Vec3d from = this.lastX != 0 || this.lastY != 0 || this.lastZ != 0 ? new Vec3d(lastX, lastY, lastZ) : user.getEntityPos();
+            Vec3d to = user.getEntityPos();
             int steps = (int) (from.distanceTo(to) * 4); // 4 steps per block for decent resolution
 
             for (int i = 0; i <= steps; i++) {

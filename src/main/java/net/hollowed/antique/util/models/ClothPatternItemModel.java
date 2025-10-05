@@ -13,7 +13,6 @@ import net.minecraft.client.render.item.model.ItemModel;
 import net.minecraft.client.render.model.*;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -21,6 +20,7 @@ import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableTextContent;
+import net.minecraft.util.HeldItemContext;
 import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
@@ -47,7 +47,7 @@ public class ClothPatternItemModel implements ItemModel {
 		boolean bl = false;
 
 		for (BakedQuad bakedQuad : quads) {
-			if (bakedQuad.sprite().isAnimated()) {
+			if (bakedQuad.sprite().getContents().isAnimated()) {
 				bl = true;
 				break;
 			}
@@ -95,13 +95,13 @@ public class ClothPatternItemModel implements ItemModel {
 
 	@Override
 	public void update(
-		ItemRenderState state,
-		ItemStack stack,
-		ItemModelManager resolver,
-		ItemDisplayContext displayContext,
-		@Nullable ClientWorld world,
-		@Nullable LivingEntity user,
-		int seed
+			ItemRenderState state,
+			ItemStack stack,
+			ItemModelManager resolver,
+			ItemDisplayContext displayContext,
+			@Nullable ClientWorld world,
+			@Nullable HeldItemContext heldItemContext,
+			int seed
 	) {
 		state.addModelKey(this);
 		ItemRenderState.LayerRenderState layerRenderState = state.newLayer();

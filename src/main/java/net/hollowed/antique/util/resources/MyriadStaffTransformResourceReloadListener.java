@@ -2,7 +2,6 @@ package net.hollowed.antique.util.resources;
 
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.hollowed.combatamenities.CombatAmenities;
 import net.hollowed.combatamenities.util.delay.ClientTickDelayScheduler;
 import net.minecraft.client.MinecraftClient;
@@ -10,6 +9,7 @@ import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.SynchronousResourceReloader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
@@ -20,14 +20,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class MyriadStaffTransformResourceReloadListener implements SimpleSynchronousResourceReloadListener {
+public class MyriadStaffTransformResourceReloadListener implements SynchronousResourceReloader {
     private static final Map<Identifier, MyriadStaffTransformData> transforms = new HashMap<>();
     private static MyriadStaffTransformData defaultTransforms;
-
-    @Override
-    public Identifier getFabricId() {
-        return Identifier.of(CombatAmenities.MOD_ID, "staff_transforms");
-    }
 
     @Override
     public void reload(ResourceManager manager) {

@@ -6,24 +6,26 @@ import net.minecraft.client.particle.*;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.SimpleParticleType;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.random.Random;
+import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public class GlowParticle extends SpriteBillboardParticle {
+public class GlowParticle extends BillboardParticle {
 	private final SpriteProvider spriteProvider;
 
 	GlowParticle(ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, SpriteProvider spriteProvider) {
-		super(world, x, y, z, velocityX, velocityY, velocityZ);
+		super(world, x, y, z, velocityX, velocityY, velocityZ, spriteProvider.getFirst());
 		this.velocityMultiplier = 0.96F;
 		this.ascending = true;
 		this.spriteProvider = spriteProvider;
 		this.scale *= 0.75F;
 		this.collidesWithWorld = false;
-		this.setSpriteForAge(spriteProvider);
+		this.updateSprite(spriteProvider);
 	}
 
 	@Override
-	public ParticleTextureSheet getType() {
-		return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
+	public RenderType getRenderType() {
+		return RenderType.PARTICLE_ATLAS_TRANSLUCENT;
 	}
 
 	@Override
@@ -44,7 +46,7 @@ public class GlowParticle extends SpriteBillboardParticle {
 	@Override
 	public void tick() {
 		super.tick();
-		this.setSpriteForAge(this.spriteProvider);
+		this.updateSprite(this.spriteProvider);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -55,16 +57,17 @@ public class GlowParticle extends SpriteBillboardParticle {
 			this.spriteProvider = spriteProvider;
 		}
 
-		public Particle createParticle(SimpleParticleType simpleParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-			GlowParticle glowParticle = new GlowParticle(clientWorld, d, e, f, 0.0, 0.0, 0.0, this.spriteProvider);
-			if (clientWorld.random.nextBoolean()) {
+		@Override
+		public @Nullable Particle createParticle(SimpleParticleType parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, Random random) {
+			GlowParticle glowParticle = new GlowParticle(world, x, y, z, 0.0, 0.0, 0.0, this.spriteProvider);
+			if (world.random.nextBoolean()) {
 				glowParticle.setColor(229 / 255.0F, 158 /255.0F, 88 / 255.0F);
 			} else {
 				glowParticle.setColor(210 / 255.0F, 126 / 255.0F, 86 / 255.0F);
 			}
 
-			glowParticle.setVelocity(g * 0.01, h * 0.01, i * 0.01);
-			glowParticle.setMaxAge(clientWorld.random.nextInt(30) + 10);
+			glowParticle.setVelocity(velocityX * 0.01, velocityY * 0.01, velocityZ * 0.01);
+			glowParticle.setMaxAge(world.random.nextInt(30) + 10);
 			return glowParticle;
 		}
 	}

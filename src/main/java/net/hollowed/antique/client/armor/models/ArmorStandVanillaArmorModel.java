@@ -16,4 +16,9 @@ public class ArmorStandVanillaArmorModel extends BipedEntityModel<ArmorStandEnti
         this.leftBoot = root.getChild("left_boot");
         this.leggingsBody = root.getChild("leggings_body");
 	}
+
+    @Override
+    public void setAngles(ArmorStandEntityRenderState bipedEntityRenderState) {
+
+    }
 }

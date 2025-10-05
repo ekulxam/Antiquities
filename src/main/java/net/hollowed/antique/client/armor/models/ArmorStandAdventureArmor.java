@@ -1,7 +1,9 @@
 package net.hollowed.antique.client.armor.models;
 
 import net.minecraft.client.model.*;
+import net.minecraft.client.render.entity.model.ArmorStandEntityModel;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
+import net.minecraft.client.render.entity.model.EntityModelPartNames;
 import net.minecraft.client.render.entity.state.ArmorStandEntityRenderState;
 
 public class ArmorStandAdventureArmor extends BipedEntityModel<ArmorStandEntityRenderState> {
@@ -9,9 +11,11 @@ public class ArmorStandAdventureArmor extends BipedEntityModel<ArmorStandEntityR
 	public final ModelPart satchel;
 	public final ModelPart leftArmThick;
 	public final ModelPart rightArmThick;
+	private final ModelPart root;
 
 	public ArmorStandAdventureArmor(ModelPart root) {
 		super(root);
+		this.root = root;
 		this.satchel = root.getChild("satchel");
 		this.leftArmThick = root.getChild("leftArmThick");
 		this.rightArmThick = root.getChild("rightArmThick");
@@ -27,7 +31,7 @@ public class ArmorStandAdventureArmor extends BipedEntityModel<ArmorStandEntityR
 	}
 
 	public static TexturedModelData getTexturedModelData() {
-		ModelData modelData = BipedEntityModel.getModelData(Dilation.NONE, 0.0F);
+		ModelData modelData = ArmorStandEntityModel.getModelData(Dilation.NONE, 0.0F);
 		ModelPartData modelPartData = modelData.getRoot();
 		modelPartData.addChild("satchel", ModelPartBuilder.create().uv(0, 0).cuboid(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, new Dilation(0.32F))
 				.uv(54, 22).cuboid(4.0F, 11.0F, -2.0F, 2.0F, 5.0F, 4.0F, new Dilation(0.15F)), ModelTransform.origin(5.0F, 13.0F, 0.0F));
@@ -59,5 +63,10 @@ public class ArmorStandAdventureArmor extends BipedEntityModel<ArmorStandEntityR
 				.uv(41, 66).cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.47F))
 				.uv(14, 79).cuboid(-2.0F, 10.0F, -4.0F, 4.0F, 2.0F, 2.0F, new Dilation(0.26F)), ModelTransform.origin(-2.0F, 12.0F, 0.0F));
 		return TexturedModelData.of(modelData, 128, 128);
+	}
+
+	@Override
+	public void setAngles(ArmorStandEntityRenderState bipedEntityRenderState) {
+
 	}
 }

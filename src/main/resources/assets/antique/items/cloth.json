@@ -1,5 +1,11 @@
 {
   "model": {
-    "type": "antique:cloth"
+    "type": "antique:cloth",
+    "tints": [
+      {
+        "type": "minecraft:dye",
+        "default": 13893696
+      }
+    ]
   }
 }

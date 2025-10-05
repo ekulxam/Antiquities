@@ -6,7 +6,6 @@ import net.hollowed.antique.util.MathUtils;
 import net.minecraft.block.MapColor;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.WorldRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.SimpleParticleType;
@@ -14,6 +13,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.random.Random;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 @Environment(EnvType.CLIENT)
@@ -38,7 +39,7 @@ public class FacingRingParticle extends AnimatedParticle {
 		this.velocityZ = 0;
 
 		this.maxAge = 7;
-		this.setSpriteForAge(spriteProvider);
+		this.updateSprite(spriteProvider);
 		this.gravityStrength = 0;
 		this.scale = 1;
 	}
@@ -57,13 +58,14 @@ public class FacingRingParticle extends AnimatedParticle {
 			this.spriteProvider = spriteProvider;
 		}
 
-		public Particle createParticle(SimpleParticleType simpleParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-			return new FacingRingParticle(clientWorld, d, e, f, g, h, i, this.spriteProvider);
+		@Override
+		public @Nullable Particle createParticle(SimpleParticleType parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, Random random) {
+			return new FacingRingParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider);
 		}
 	}
 
 	@Override
-	public void render(VertexConsumer vertexConsumer, Camera camera, float tickDelta) {
+	public void render(BillboardParticleSubmittable submittable, Camera camera, float tickProgress) {
 		Vec3d direction = new Vec3d(this.dirX, this.dirY, this.dirZ).normalize();
 		BlockPos blockPos = BlockPos.ofFloored(new Vec3d(this.x, this.y, this.z).subtract(direction.x, 0.2, direction.z));
 		int color = world.getBlockState(blockPos).getMapColor(world, blockPos).color;
@@ -74,13 +76,13 @@ public class FacingRingParticle extends AnimatedParticle {
 
 		Quaternionf quaternionf = MathUtils.vec3ToQuaternion(direction).rotateX((float) Math.toRadians(-90.0F));
 
-		if (this.angle != 0.0F) {
-			quaternionf.rotateZ(MathHelper.lerp(tickDelta, this.lastAngle, this.angle));
+		if (this.zRotation != 0.0F) {
+			quaternionf.rotateZ(MathHelper.lerp(tickProgress, this.lastZRotation, this.zRotation));
 		}
 
-		this.render(vertexConsumer, camera, quaternionf, tickDelta);
+		this.render(submittable, camera, quaternionf, tickProgress);
 		Quaternionf quaternionf1 = MathUtils.vec3ToQuaternion(new Vec3d(-direction.x, -direction.y, -direction.z)).rotateX((float) Math.toRadians(-90.0F));
-		this.render(vertexConsumer, camera, quaternionf1, tickDelta);
+		this.render(submittable, camera, quaternionf1, tickProgress);
 	}
 
 	@Override

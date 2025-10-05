@@ -24,7 +24,7 @@ public class DyeTableBlock extends Block {
 
     @Override
     protected ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
-        if (!world.isClient) {
+        if (!world.isClient()) {
             player.openHandledScreen(state.createScreenHandlerFactory(world, pos));
             player.incrementStat(AntiqueStats.INTERACT_WITH_DYE_TABLE);
         }

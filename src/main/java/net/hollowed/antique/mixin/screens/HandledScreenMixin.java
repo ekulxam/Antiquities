@@ -69,6 +69,13 @@ public abstract class HandledScreenMixin {
         if (this.focusedSlot != null && this.focusedSlot.hasStack() && this.focusedSlot.getStack().isOf(AntiqueItems.BAG_OF_TRICKS)) lastBag = this.focusedSlot.getStack();
     }
 
+    @Inject(method = "isItemTooltipSticky", at = @At("HEAD"), cancellable = true)
+    private void stickyTooltips(ItemStack item, CallbackInfoReturnable<Boolean> cir) {
+        if (item.getOrDefault(AntiqueDataComponentTypes.STICKY_TOOLTIP, false)) {
+            cir.setReturnValue(true);
+        }
+    }
+
     @Inject(method = "close", at = @At("HEAD"))
     private void close(CallbackInfo ci) {
         if (lastSatchel != null) SatchelItem.setInternalIndex(lastSatchel, -1);

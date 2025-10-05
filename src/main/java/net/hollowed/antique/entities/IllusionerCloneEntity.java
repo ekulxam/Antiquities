@@ -127,9 +127,9 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
     @Override
     public void onDeath(DamageSource damageSource) {
         for (int j = 0; j < 24; ++j) {
-            this.getWorld().addParticleClient(ParticleTypes.CLOUD, this.getX() + Math.random() - 0.5, this.getRandomBodyY(), this.getZ() + Math.random() - 0.5, 0.0, 0.1, 0.0);
+            this.getEntityWorld().addParticleClient(ParticleTypes.CLOUD, this.getX() + Math.random() - 0.5, this.getRandomBodyY(), this.getZ() + Math.random() - 0.5, 0.0, 0.1, 0.0);
         }
-        this.getWorld().playSoundClient(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE, this.getSoundCategory(), 1.0F, 1.0F, false);
+        this.getEntityWorld().playSoundClient(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE, this.getSoundCategory(), 1.0F, 1.0F, false);
         TickDelayScheduler.schedule(1, this::discard);
         super.onDeath(damageSource);
     }
@@ -162,7 +162,7 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
 
     @Nullable
     protected LivingEntity getEntity(UUID uuid) {
-        World var3 = this.getWorld();
+        World var3 = this.getEntityWorld();
         if (var3 instanceof ServerWorld serverWorld && serverWorld.getEntity(uuid) instanceof LivingEntity) {
             return (LivingEntity) serverWorld.getEntity(uuid);
         } else {
@@ -174,7 +174,7 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
     public void tick() {
         super.tick();
         if (this.getOwner() == null || !this.getOwner().isAlive()) {
-            if (this.getWorld() instanceof ServerWorld world) {
+            if (this.getEntityWorld() instanceof ServerWorld world) {
                 this.kill(world);
             }
         }
@@ -188,13 +188,13 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
         double e = target.getBodyY(0.3333333333333333) - persistentProjectileEntity.getY();
         double f = target.getZ() - this.getZ();
         double g = Math.sqrt(d * d + f * f);
-        World var15 = this.getWorld();
+        World var15 = this.getEntityWorld();
         if (var15 instanceof ServerWorld serverWorld) {
             ProjectileEntity.spawnWithVelocity(persistentProjectileEntity, serverWorld, itemStack2, d, e + g * 0.20000000298023224, f, 1.6F, (float)(14 - serverWorld.getDifficulty().getId() * 4));
         }
 
         this.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
-        if (this.getWorld() instanceof ServerWorld serverWorld) {
+        if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
             this.kill(serverWorld);
         }
     }
@@ -226,20 +226,20 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
     private static boolean teleportTo(double x, double y, double z, LivingEntity entity) {
         BlockPos.Mutable mutable = new BlockPos.Mutable(x, y, z);
 
-        while(mutable.getY() > entity.getWorld().getBottomY() && !entity.getWorld().getBlockState(mutable).blocksMovement()) {
+        while(mutable.getY() > entity.getEntityWorld().getBottomY() && !entity.getEntityWorld().getBlockState(mutable).blocksMovement()) {
             mutable.move(Direction.DOWN);
         }
 
-        BlockState blockState = entity.getWorld().getBlockState(mutable);
+        BlockState blockState = entity.getEntityWorld().getBlockState(mutable);
         boolean bl = blockState.blocksMovement();
         boolean bl2 = blockState.getFluidState().isIn(FluidTags.WATER);
         if (bl && !bl2) {
-            Vec3d vec3d = entity.getPos();
+            Vec3d vec3d = entity.getEntityPos();
             boolean bl3 = entity.teleport(x, y, z, true);
             if (bl3) {
-                entity.getWorld().emitGameEvent(GameEvent.TELEPORT, vec3d, GameEvent.Emitter.of(entity));
+                entity.getEntityWorld().emitGameEvent(GameEvent.TELEPORT, vec3d, GameEvent.Emitter.of(entity));
                 if (!entity.isSilent()) {
-                    entity.getWorld().playSound(null, entity.lastX, entity.lastY, entity.lastZ, SoundEvents.ENTITY_ENDERMAN_TELEPORT, entity.getSoundCategory(), 1.0F, 1.0F);
+                    entity.getEntityWorld().playSound(null, entity.lastX, entity.lastY, entity.lastZ, SoundEvents.ENTITY_ENDERMAN_TELEPORT, entity.getSoundCategory(), 1.0F, 1.0F);
                     entity.playSound(SoundEvents.ENTITY_ENDERMAN_TELEPORT, 1.0F, 1.0F);
                 }
             }

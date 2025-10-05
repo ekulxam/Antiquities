@@ -43,8 +43,8 @@ public abstract class FireworkMoreDamageMixin extends ProjectileEntity implement
 
         if (f > 0.0F) {
 
-            Vec3d vec3d = this.getPos();
-            List<LivingEntity> list2 = this.getWorld().getNonSpectatingEntities(LivingEntity.class, this.getBoundingBox().expand(1.0));
+            Vec3d vec3d = this.getEntityPos();
+            List<LivingEntity> list2 = this.getEntityWorld().getNonSpectatingEntities(LivingEntity.class, this.getBoundingBox().expand(1.0));
             Iterator<LivingEntity> var8 = list2.iterator();
 
             while(true) {
@@ -63,7 +63,7 @@ public abstract class FireworkMoreDamageMixin extends ProjectileEntity implement
 
                 for(int i = 0; i < 2; ++i) {
                     Vec3d vec3d2 = new Vec3d(livingEntity.getX(), livingEntity.getBodyY(0.5 * (double)i), livingEntity.getZ());
-                    HitResult hitResult = this.getWorld().raycast(new RaycastContext(vec3d, vec3d2, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
+                    HitResult hitResult = this.getEntityWorld().raycast(new RaycastContext(vec3d, vec3d2, RaycastContext.ShapeType.COLLIDER, RaycastContext.FluidHandling.NONE, this));
                     if (hitResult.getType() == HitResult.Type.MISS) {
                         bl = true;
                         break;

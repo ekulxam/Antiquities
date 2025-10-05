@@ -3,9 +3,9 @@ package net.hollowed.antique.util.resources;
 import com.google.gson.JsonObject;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.JsonOps;
-import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.hollowed.antique.Antiquities;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.resource.SynchronousResourceReloader;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 
@@ -14,13 +14,8 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
-public class ClothOverlayListener implements SimpleSynchronousResourceReloadListener {
+public class ClothOverlayListener implements SynchronousResourceReloader {
     private static final ArrayList<Identifier> transforms = new ArrayList<>();
-
-    @Override
-    public Identifier getFabricId() {
-        return Identifier.of(Antiquities.MOD_ID, "cloth_overlays");
-    }
 
     @Override
     public void reload(ResourceManager manager) {

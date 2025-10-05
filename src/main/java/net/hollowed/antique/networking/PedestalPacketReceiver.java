@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 public class PedestalPacketReceiver {
     public static void registerClientPacket() {
         ClientPlayNetworking.registerGlobalReceiver(PedestalPacketPayload.ID, (payload, context) -> context.client().execute(() -> {
-                World world = context.player().getWorld();
+                World world = context.player().getEntityWorld();
                 BlockPos pos = payload.blockPos();
                 ItemStack stack = payload.stack();
 

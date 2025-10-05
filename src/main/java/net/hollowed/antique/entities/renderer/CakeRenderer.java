@@ -5,11 +5,12 @@ import net.fabricmc.api.Environment;
 import net.hollowed.antique.entities.CakeEntity;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.state.ProjectileEntityRenderState;
-import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.render.item.ItemRenderState;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemDisplayContext;
@@ -35,16 +36,17 @@ public class CakeRenderer<T extends Entity> extends EntityRenderer<T, Projectile
         return this.lit ? 15 : super.getBlockLight(entity, pos);
     }
 
-    public void render(ProjectileEntityRenderState flyingItemEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+    @Override
+    public void render(ProjectileEntityRenderState renderState, MatrixStack matrixStack, OrderedRenderCommandQueue queue, CameraRenderState cameraState) {
         matrixStack.push();
-        MinecraftClient client = MinecraftClient.getInstance();
-        ItemRenderer itemRenderer = client.getItemRenderer();
 
-        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(flyingItemEntityRenderState.yaw - 90.0F));
-        matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(flyingItemEntityRenderState.pitch));
+        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(renderState.yaw - 90.0F));
+        matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(renderState.pitch));
         matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-90));
 
-        itemRenderer.renderItem(Items.CAKE.getDefaultStack(), ItemDisplayContext.NONE, i, OverlayTexture.DEFAULT_UV, matrixStack, vertexConsumerProvider, client.world, 1);
+        ItemRenderState stackRenderState = new ItemRenderState();
+        MinecraftClient.getInstance().getItemModelManager().update(stackRenderState, Items.CAKE.getDefaultStack(), ItemDisplayContext.NONE, MinecraftClient.getInstance().world, null, 1);
+        stackRenderState.render(matrixStack, queue, renderState.light, OverlayTexture.DEFAULT_UV, 0);
         matrixStack.pop();
     }
 

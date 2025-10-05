@@ -39,10 +39,10 @@ public abstract class CameraMixin {
             Box box = player.getBoundingBox();
             double offset = 0.1;
 
-            boolean collidingWest = collidesWithSolidBlock(player.getWorld(), box.offset(-offset, 0, 0), player);
-            boolean collidingEast = collidesWithSolidBlock(player.getWorld(), box.offset(offset, 0, 0), player);
-            boolean collidingNorth = collidesWithSolidBlock(player.getWorld(), box.offset(0, 0, -offset), player);
-            boolean collidingSouth = collidesWithSolidBlock(player.getWorld(), box.offset(0, 0, offset), player);
+            boolean collidingWest = collidesWithSolidBlock(player.getEntityWorld(), box.offset(-offset, 0, 0), player);
+            boolean collidingEast = collidesWithSolidBlock(player.getEntityWorld(), box.offset(offset, 0, 0), player);
+            boolean collidingNorth = collidesWithSolidBlock(player.getEntityWorld(), box.offset(0, 0, -offset), player);
+            boolean collidingSouth = collidesWithSolidBlock(player.getEntityWorld(), box.offset(0, 0, offset), player);
 
             float correctedYaw = this.yaw;
 

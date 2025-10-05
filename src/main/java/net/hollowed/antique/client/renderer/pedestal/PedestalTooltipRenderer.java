@@ -44,7 +44,7 @@ public class PedestalTooltipRenderer {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client == null) return;
 
-        // Ensure the player is looking at a block
+        // Check if player is looking at block
         HitResult hitResult = client.crosshairTarget;
         if (hitResult == null || hitResult.getType() != HitResult.Type.BLOCK) return;
 

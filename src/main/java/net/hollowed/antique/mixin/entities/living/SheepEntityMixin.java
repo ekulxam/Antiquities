@@ -34,7 +34,7 @@ public abstract class SheepEntityMixin extends AnimalEntity implements Shearable
     public void interact(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
         ItemStack itemStack = player.getStackInHand(hand);
         if (itemStack.getItem() instanceof MyriadMattockBit) {
-            if (this.getWorld() instanceof ServerWorld serverWorld && this.isShearable()) {
+            if (this.getEntityWorld() instanceof ServerWorld serverWorld && this.isShearable()) {
                 this.sheared(serverWorld, SoundCategory.PLAYERS, itemStack);
                 this.emitGameEvent(GameEvent.SHEAR, player);
             }

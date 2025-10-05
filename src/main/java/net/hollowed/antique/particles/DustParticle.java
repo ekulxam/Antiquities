@@ -5,11 +5,14 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.particle.*;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.particle.SimpleParticleType;
+import net.minecraft.util.math.random.Random;
+import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public class DustParticle extends SpriteBillboardParticle {
-	DustParticle(ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, boolean signal) {
-		super(world, x, y, z);
+public class DustParticle extends BillboardParticle {
+
+	DustParticle(ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, boolean signal, SpriteProvider provider) {
+		super(world, x, y, z, provider.getFirst());
 		this.scale(2.0F);
 		this.setBoundingBoxSpacing(0.15F, 0.15F);
 		if (signal) {
@@ -43,8 +46,8 @@ public class DustParticle extends SpriteBillboardParticle {
 	}
 
 	@Override
-	public ParticleTextureSheet getType() {
-		return ParticleTextureSheet.PARTICLE_SHEET_TRANSLUCENT;
+	public RenderType getRenderType() {
+		return RenderType.PARTICLE_ATLAS_TRANSLUCENT;
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -55,10 +58,11 @@ public class DustParticle extends SpriteBillboardParticle {
 			this.spriteProvider = spriteProvider;
 		}
 
-		public Particle createParticle(SimpleParticleType simpleParticleType, ClientWorld clientWorld, double d, double e, double f, double g, double h, double i) {
-			DustParticle campfireSmokeParticle = new DustParticle(clientWorld, d, e, f, g, h, i, false);
+		@Override
+		public @Nullable Particle createParticle(SimpleParticleType parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, Random random) {
+			DustParticle campfireSmokeParticle = new DustParticle(world, x, y, z, velocityX, velocityY, velocityZ, false, this.spriteProvider);
 			campfireSmokeParticle.setAlpha(0.9F);
-			campfireSmokeParticle.setSprite(this.spriteProvider);
+			campfireSmokeParticle.setSprite(this.spriteProvider.getFirst());
 			return campfireSmokeParticle;
 		}
 	}

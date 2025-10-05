@@ -19,8 +19,6 @@ import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SpawnEggItem;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -61,7 +59,7 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        if (!world.isClient) {
+        if (!world.isClient()) {
             return type == AntiqueBlockEntities.PEDESTAL_BLOCK_ENTITY
                     ? (world1, pos, state1, blockEntity) ->
                     PedestalBlockEntity.tick(world1, (PedestalBlockEntity) blockEntity)
@@ -152,7 +150,7 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
 
         BlockEntity blockEntity = world.getBlockEntity(pos);
 
-        if (!world.isClient) {
+        if (!world.isClient()) {
             if (blockEntity instanceof PedestalBlockEntity pedestalBlockEntity) {
                 ServerWorld serverWorld = (ServerWorld) world;
                 for (ServerPlayerEntity serverPlayerEntity : serverWorld.getPlayers()) {
@@ -239,11 +237,8 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
                 itemChanged = true;
 
                 if (newItem.getItem() instanceof SpawnEggItem spawnEggItem) {
-                    DynamicRegistryManager registryAccess = world.getRegistryManager();
-                    RegistryWrapper.WrapperLookup wrapperLookup = RegistryWrapper.WrapperLookup.of(registryAccess.stream().distinct());
-
-                    EntityType<?> entityType = spawnEggItem.getEntityType(wrapperLookup, newItem);
-                    if (entityType != null && !world.isClient) {
+                    EntityType<?> entityType = spawnEggItem.getEntityType(newItem);
+                    if (entityType != null && !world.isClient()) {
                         Entity entity1 = entityType.create(world, SpawnReason.MOB_SUMMONED);
                         if (entity1 instanceof MobEntity mobEntity) {
                             SoundEvent ambientSound = ((MobEntitySoundAccessor) mobEntity).invokeGetAmbientSound();
@@ -255,7 +250,7 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
                 }
             }
 
-            if (itemChanged && !world.isClient) {
+            if (itemChanged && !world.isClient()) {
                 pedestalEntity.markDirty();
                 world.playSound(null, pos, SoundEvents.BLOCK_SUSPICIOUS_SAND_PLACE, SoundCategory.BLOCKS, 0.75F, 1.0F);
                 world.playSound(null, pos, SoundEvents.BLOCK_LODESTONE_PLACE, SoundCategory.BLOCKS, 0.75F, 1.0F);
@@ -292,7 +287,7 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
     }
 
     @Override
-    public int getComparatorOutput(BlockState state, World world, BlockPos pos) {
+    protected int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof PedestalBlockEntity) {
             ItemStack stack = ((PedestalBlockEntity) blockEntity).getStack(0);

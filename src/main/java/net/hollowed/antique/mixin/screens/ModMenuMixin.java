@@ -8,6 +8,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
+import net.minecraft.client.gui.widget.AlwaysSelectedEntryListWidget;
 import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -20,31 +21,29 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ModListEntry.class)
-public abstract class ModMenuMixin {
+public abstract class ModMenuMixin extends AlwaysSelectedEntryListWidget.Entry<ModListEntry> {
 
     @Shadow @Final public Mod mod;
 
     @Shadow @Final protected MinecraftClient client;
+
+    @Shadow public abstract int getXOffset();
+
+    @Shadow public abstract int getYOffset();
 
     @Inject(
             method = "render",
             at = @At("TAIL")
     )
     private void modifyModNameColor(
-            DrawContext drawContext,
-            int index,
-            int y,
-            int x,
-            int rowWidth,
-            int rowHeight,
-            int mouseX,
-            int mouseY,
-            boolean hovered,
-            float delta,
-            CallbackInfo ci
+            DrawContext drawContext, int mouseX, int mouseY, boolean hovered, float delta, CallbackInfo ci
     ) {
         String modId = this.mod.getId();
         int iconSize = ModMenuConfig.COMPACT_LIST.getValue() ? 19 : 32;
+
+        int x = this.getX() + this.getXOffset();
+        int y = this.getContentY() + this.getYOffset();
+        int rowWidth = this.getContentWidth();
 
         // Custom color logic
         int nameColor = 0xFFAA2F54;

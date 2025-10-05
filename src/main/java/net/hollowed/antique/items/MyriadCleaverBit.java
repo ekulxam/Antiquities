@@ -7,11 +7,17 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.component.type.ToolComponent;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.consume.UseAction;
 import net.minecraft.registry.tag.BlockTags;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.world.World;
 
 import java.util.List;
 
@@ -19,6 +25,22 @@ public class MyriadCleaverBit extends MyriadToolBitItem{
 
     public MyriadCleaverBit(Settings settings) {
         super(settings);
+    }
+
+    @Override
+    public UseAction toolGetUseAction(ItemStack stack) {
+        return UseAction.SPEAR;
+    }
+
+    @Override
+    public boolean toolOnStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+        return true;
+    }
+
+    @Override
+    public ActionResult toolUse(World world, PlayerEntity user, Hand hand) {
+        user.setCurrentHand(hand);
+        return ActionResult.CONSUME;
     }
 
     @Override

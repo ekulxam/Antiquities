@@ -42,8 +42,8 @@ import net.minecraft.entity.projectile.FireworkRocketEntity;
 import net.minecraft.entity.raid.RaiderEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.particle.EntityEffectParticleEffect;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.particle.TintedParticleEffect;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -118,20 +118,20 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
     @Override
     public void tick() {
         super.tick();
-        if (this.getWorld().isClient && this.isSpellcasting()) {
+        if (this.getEntityWorld().isClient() && this.isSpellcasting()) {
             float i = this.bodyYaw * 0.017453292F + MathHelper.cos((float)this.age * 0.6662F) * 0.25F;
             float j = MathHelper.cos(i);
             float k = MathHelper.sin(i);
             double d = 0.6 * (double)this.getScale();
             double e = 1.8 * (double)this.getScale();
-            this.getWorld().addParticleClient(EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, this.dataTracker.get(SPELL_COLOR).x, this.dataTracker.get(SPELL_COLOR).y, this.dataTracker.get(SPELL_COLOR).z), this.getX() + (double)j * d, this.getY() + e, this.getZ() + (double)k * d, 0.0, 0.0, 0.0);
-            this.getWorld().addParticleClient(EntityEffectParticleEffect.create(ParticleTypes.ENTITY_EFFECT, this.dataTracker.get(SPELL_COLOR).x, this.dataTracker.get(SPELL_COLOR).y, this.dataTracker.get(SPELL_COLOR).z), this.getX() - (double)j * d, this.getY() + e, this.getZ() - (double)k * d, 0.0, 0.0, 0.0);
+            this.getEntityWorld().addParticleClient(TintedParticleEffect.create(ParticleTypes.ENTITY_EFFECT, this.dataTracker.get(SPELL_COLOR).x, this.dataTracker.get(SPELL_COLOR).y, this.dataTracker.get(SPELL_COLOR).z), this.getX() + (double)j * d, this.getY() + e, this.getZ() + (double)k * d, 0.0, 0.0, 0.0);
+            this.getEntityWorld().addParticleClient(TintedParticleEffect.create(ParticleTypes.ENTITY_EFFECT, this.dataTracker.get(SPELL_COLOR).x, this.dataTracker.get(SPELL_COLOR).y, this.dataTracker.get(SPELL_COLOR).z), this.getX() - (double)j * d, this.getY() + e, this.getZ() - (double)k * d, 0.0, 0.0, 0.0);
         }
     }
 
     @Override
     protected void applyDamage(ServerWorld world, DamageSource source, float amount) {
-        IllusionerCloneEntity clone = new IllusionerCloneEntity(AntiqueEntities.ILLUSIONER_CLONE, this.getWorld());
+        IllusionerCloneEntity clone = new IllusionerCloneEntity(AntiqueEntities.ILLUSIONER_CLONE, this.getEntityWorld());
         clone.equipStack(EquipmentSlot.MAINHAND, Items.BOW.getDefaultStack());
         clone.setPosition(this.getX(), this.getY(), this.getZ());
         clone.setOwner(this);
@@ -139,7 +139,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
         clone.setBodyYaw(this.getBodyYaw());
         clone.setHeadYaw(this.getHeadYaw());
         if (IllusionerCloneEntity.teleportRandomly(this)) {
-            this.getWorld().spawnEntity(clone);
+            this.getEntityWorld().spawnEntity(clone);
         }
         super.applyDamage(world, source, amount);
     }
@@ -148,13 +148,13 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
         super.tickMovement();
 
         if (this.getVelocity().y < -0.2) {
-            this.getWorld().addParticleClient(ParticleTypes.POOF, this.getParticleX(0.5), this.getY(), this.getBodyZ(0.5), 0.0, 0.0, 0.0);
+            this.getEntityWorld().addParticleClient(ParticleTypes.POOF, this.getParticleX(0.5), this.getY(), this.getBodyZ(0.5), 0.0, 0.0, 0.0);
         }
         if (this.isInvisible()) {
-            this.getWorld().addParticleClient(ParticleTypes.LARGE_SMOKE, this.getParticleX(0.1), this.getY() + 1.5, this.getBodyZ(0.1), 0.0, 0.0, 0.0);
+            this.getEntityWorld().addParticleClient(ParticleTypes.LARGE_SMOKE, this.getParticleX(0.1), this.getY() + 1.5, this.getBodyZ(0.1), 0.0, 0.0, 0.0);
         }
 
-        if (this.getWorld().isClient && this.isInvisible()) {
+        if (this.getEntityWorld().isClient() && this.isInvisible()) {
             --this.mirrorSpellTimer;
             if (this.mirrorSpellTimer < 0) {
                 this.mirrorSpellTimer = 0;
@@ -179,10 +179,10 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
                 }
 
                 for(j = 0; j < 16; ++j) {
-                    this.getWorld().addParticleClient(ParticleTypes.CLOUD, this.getParticleX(0.5), this.getRandomBodyY(), this.getBodyZ(0.5), 0.0, 0.0, 0.0);
+                    this.getEntityWorld().addParticleClient(ParticleTypes.CLOUD, this.getParticleX(0.5), this.getRandomBodyY(), this.getBodyZ(0.5), 0.0, 0.0, 0.0);
                 }
 
-                this.getWorld().playSoundClient(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE, this.getSoundCategory(), 1.0F, 1.0F, false);
+                this.getEntityWorld().playSoundClient(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE, this.getSoundCategory(), 1.0F, 1.0F, false);
             }
         }
 
@@ -234,12 +234,12 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
     }
 
     public void shootAt(LivingEntity target, float pullProgress) {
-        World world = this.getWorld();
+        World world = this.getEntityWorld();
         ItemStack stack = Items.FIREWORK_ROCKET.getDefaultStack();
         stack.set(DataComponentTypes.FIREWORKS, FireworkUtil.randomFirework());
         if (world instanceof ServerWorld serverWorld) {
             FireworkRocketEntity projectile = new FireworkRocketEntity(world, stack, this.getX(), this.getY() + 1, this.getZ(), true);
-            Vec3d direction = this.getPos().subtract(target.getPos());
+            Vec3d direction = this.getEntityPos().subtract(target.getEntityPos());
             projectile.setVelocity(direction.normalize().multiply(-1.75));
             projectile.setOwner(this);
             projectile.velocityModified = true;
@@ -282,7 +282,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
             IllusionerEntity.this.addStatusEffect(new StatusEffectInstance(StatusEffects.INVISIBILITY, 300), IllusionerEntity.this);
 
             int count = 0;
-            switch (IllusionerEntity.this.getWorld().getLocalDifficulty(IllusionerEntity.this.getBlockPos()).getGlobalDifficulty()) {
+            switch (IllusionerEntity.this.getEntityWorld().getLocalDifficulty(IllusionerEntity.this.getBlockPos()).getGlobalDifficulty()) {
                 case Difficulty.EASY -> count = 2;
                 case Difficulty.NORMAL -> count = 4;
                 case Difficulty.HARD -> count = 6;
@@ -301,8 +301,8 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
 
                     for (int yOffset = -15; yOffset <= 15; yOffset++) {
                         int testY = (int) (originY + yOffset);
-                        if (!IllusionerEntity.this.getWorld().isOutOfHeightLimit(testY)) {
-                            if (IllusionerEntity.this.getWorld().getBlockState(new BlockPos((int)x, testY, (int)z)).isAir()) {
+                        if (!IllusionerEntity.this.getEntityWorld().isOutOfHeightLimit(testY)) {
+                            if (IllusionerEntity.this.getEntityWorld().getBlockState(new BlockPos((int)x, testY, (int)z)).isAir()) {
                                 double distance = Math.abs(originY - testY);
                                 if (distance < bestDistance) {
                                     bestY = testY;
@@ -313,14 +313,14 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
                     }
 
                     if (bestY != -1) {
-                        IllusionerCloneEntity clone = new IllusionerCloneEntity(AntiqueEntities.ILLUSIONER_CLONE, IllusionerEntity.this.getWorld());
+                        IllusionerCloneEntity clone = new IllusionerCloneEntity(AntiqueEntities.ILLUSIONER_CLONE, IllusionerEntity.this.getEntityWorld());
                         clone.equipStack(EquipmentSlot.MAINHAND, Items.BOW.getDefaultStack());
                         clone.setPosition(x, bestY, z);
                         clone.setOwner(IllusionerEntity.this);
                         clone.setTarget(IllusionerEntity.this.getTarget());
-                        IllusionerEntity.this.getWorld().spawnEntity(clone);
+                        IllusionerEntity.this.getEntityWorld().spawnEntity(clone);
 
-                        ServerWorld serverWorld = (ServerWorld) clone.getWorld();
+                        ServerWorld serverWorld = (ServerWorld) clone.getEntityWorld();
                         for (ServerPlayerEntity player : serverWorld.getPlayers()) {
                             ServerPlayNetworking.send(player, new IllusionerParticlePacketPayload(
                                     x, bestY + 1 + ((Math.random() - 0.5) * 2), z
@@ -364,7 +364,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
             } else if (IllusionerEntity.this.getTarget().getId() == this.targetId) {
                 return false;
             } else {
-                return IllusionerEntity.this.getWorld().getLocalDifficulty(IllusionerEntity.this.getBlockPos()).isHarderThan((float)Difficulty.NORMAL.ordinal());
+                return IllusionerEntity.this.getEntityWorld().getLocalDifficulty(IllusionerEntity.this.getBlockPos()).isHarderThan((float)Difficulty.NORMAL.ordinal());
             }
         }
 
@@ -388,12 +388,12 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
         protected void castSpell() {
             for (int i = 0; i < 3; i++) {
                 TickDelayScheduler.schedule(random.nextBetween(0, 10), () -> {
-                    SmokeBombEntity smokeBomb = new SmokeBombEntity(AntiqueEntities.SMOKE_BOMB, IllusionerEntity.this.getWorld());
-                    smokeBomb.setPosition(IllusionerEntity.this.getPos().add((Math.random() - 0.5) * 2, 3, (Math.random() - 0.5) * 2));
+                    SmokeBombEntity smokeBomb = new SmokeBombEntity(AntiqueEntities.SMOKE_BOMB, IllusionerEntity.this.getEntityWorld());
+                    smokeBomb.setPosition(IllusionerEntity.this.getEntityPos().add((Math.random() - 0.5) * 2, 3, (Math.random() - 0.5) * 2));
                     smokeBomb.setVelocity((Math.random() - 0.5) * 0.8, 0.25, (Math.random() - 0.5) * 0.8);
                     smokeBomb.setFirework(true);
-                    IllusionerEntity.this.getWorld().spawnEntity(smokeBomb);
-                    IllusionerEntity.this.getWorld().playSound(null, IllusionerEntity.this.getX(), IllusionerEntity.this.getY(), IllusionerEntity.this.getZ(), SoundEvents.ENTITY_WITCH_THROW, SoundCategory.BLOCKS, 1F, 1F);
+                    IllusionerEntity.this.getEntityWorld().spawnEntity(smokeBomb);
+                    IllusionerEntity.this.getEntityWorld().playSound(null, IllusionerEntity.this.getX(), IllusionerEntity.this.getY(), IllusionerEntity.this.getZ(), SoundEvents.ENTITY_WITCH_THROW, SoundCategory.BLOCKS, 1F, 1F);
                 });
             }
         }

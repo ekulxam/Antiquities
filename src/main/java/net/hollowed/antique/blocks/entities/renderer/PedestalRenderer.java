@@ -1,64 +1,65 @@
 package net.hollowed.antique.blocks.entities.renderer;
 
 import net.hollowed.antique.blocks.entities.PedestalBlockEntity;
-import net.hollowed.antique.mixin.accessors.EntityRenderDispatcherAccessor;
 import net.hollowed.antique.util.resources.PedestalDisplayData;
 import net.hollowed.antique.util.resources.PedestalDisplayListener;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
-import net.minecraft.client.render.entity.EntityRenderDispatcher;
-import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.render.command.ModelCommandRenderer;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
+import net.minecraft.client.render.entity.EntityRenderManager;
+import net.minecraft.client.render.entity.state.EndCrystalEntityRenderState;
+import net.minecraft.client.render.entity.state.EntityRenderState;
+import net.minecraft.client.render.item.ItemRenderState;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.decoration.EndCrystalEntity;
 import net.minecraft.item.*;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.RotationAxis;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity> {
+public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity, PedestalRenderState> {
 
     private static final Vec3d ITEM_POS = new Vec3d(0.5, 1.5, 0.5);
 
     public PedestalRenderer() {}
 
     @Override
-    public void render(PedestalBlockEntity pedestalBlockEntity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, Vec3d cameraPos) {
-        ItemStack heldItem = pedestalBlockEntity.getStack(0);
-        if (!heldItem.isEmpty() && pedestalBlockEntity.getWorld() != null) {
-            long worldTime = pedestalBlockEntity.getWorld().getTime();
-            double preciseTime = (worldTime) % 360;
+    public void render(PedestalRenderState state, MatrixStack matrices, OrderedRenderCommandQueue queue, CameraRenderState cameraState) {
+        ItemStack heldItem = state.storedStack;
+        if (!heldItem.isEmpty()) {
+            float tickDelta = MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(false);
+            double preciseTime = (state.worldTime) % 360;
             float rotation = (float) ((preciseTime + tickDelta) * 3.0);
 
             float bob = (float) Math.sin((Math.toRadians(rotation))) * 0.0875f;
 
             if (heldItem.getItem() instanceof EndCrystalItem) {
-                renderEndCrystalEntity(ITEM_POS.add(0, 0, 0), tickDelta, matrices, vertexConsumers, light, pedestalBlockEntity.getWorld());
+                renderEndCrystalEntity(cameraState, queue, matrices, state.world);
             } else if (heldItem.getItem() instanceof SpawnEggItem spawnEggItem) {
-                renderEntityFromSpawnEgg(spawnEggItem, ITEM_POS.add(0, bob, 0), matrices, vertexConsumers, light, pedestalBlockEntity.getWorld(), rotation, heldItem);
+                renderEntityFromSpawnEgg(spawnEggItem, heldItem, ITEM_POS.add(0, bob, 0), cameraState, queue, matrices, state.world, rotation);
             } else {
-                renderItem(heldItem, ITEM_POS.add(0, bob, 0), rotation, matrices, vertexConsumers, light, overlay, pedestalBlockEntity.getWorld());
+                renderItem(heldItem, ITEM_POS.add(0, bob, 0), rotation, matrices, queue, state.lightmapCoordinates);
             }
         }
     }
 
-    private void renderItem(ItemStack itemStack, Vec3d offset, float yRot, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, World world) {
+    private void renderItem(ItemStack itemStack, Vec3d offset, float yRot, MatrixStack matrices, OrderedRenderCommandQueue queue, int light) {
         PedestalDisplayData data = PedestalDisplayListener.getTransform(Registries.ITEM.getId(itemStack.getItem()));
         List<Float> translations = data.translations();
         List<Float> rotations = data.rotations();
         List<Float> scales = data.scale();
 
         matrices.push();
-        ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
         matrices.translate(offset.x, offset.y, offset.z);
         matrices.translate(translations.getFirst(), translations.get(1), translations.get(2));
         matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yRot));
@@ -68,68 +69,64 @@ public class PedestalRenderer implements BlockEntityRenderer<PedestalBlockEntity
         matrices.scale(0.65f, 0.65f, 0.65f);
         matrices.scale(scales.getFirst(), scales.get(1), scales.get(2));
 
-        itemRenderer.renderItem(itemStack, ItemDisplayContext.FIXED, light, overlay, matrices, vertexConsumers, world, (int) world.getTime());
+        ItemRenderState stackRenderState = new ItemRenderState();
+        MinecraftClient.getInstance().getItemModelManager().update(stackRenderState, itemStack, ItemDisplayContext.FIXED, MinecraftClient.getInstance().world, null, 1);
+        stackRenderState.render(matrices, queue, light, OverlayTexture.DEFAULT_UV, 0);
+
         matrices.pop();
     }
 
-    private void renderEndCrystalEntity(Vec3d offset, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, World world) {
+    private void renderEndCrystalEntity(CameraRenderState cameraState, OrderedRenderCommandQueue queue, MatrixStack matrices, World world) {
         matrices.push();
-        if (world.isClient) {
-            EndCrystalEntity endCrystal = new EndCrystalEntity(EntityType.END_CRYSTAL, world);
-            endCrystal.setShowBottom(false);
-            endCrystal.setPosition(offset.x, offset.y, offset.z);
+        if (world.isClient()) {
+            EndCrystalEntityRenderState entityState = new EndCrystalEntityRenderState();
+            entityState.baseVisible = false;
+            entityState.positionOffset = PedestalRenderer.ITEM_POS;
             float scale = 0.75F;
             matrices.scale(scale, scale, scale);
             matrices.translate(0.5 * (1 - scale), 0.5 * (1 - scale), 0.5 * (1 - scale));
             long normalizedTime = world.getTime() % 24000;
-            endCrystal.endCrystalAge = (int) normalizedTime;
-            EntityRenderDispatcher dispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
-            ((EntityRenderDispatcherAccessor) dispatcher).invokeRender(
-                    endCrystal,
-                    offset.x,
-                    offset.y,
-                    offset.z,
-                    tickDelta,
-                    matrices,
-                    vertexConsumers,
-                    light,
-                    dispatcher.getRenderer(endCrystal)
-            );
+            entityState.age = ((int) normalizedTime);
+            EntityRenderManager dispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
+            dispatcher.render(entityState, cameraState, 0, 0, 0, matrices, queue);
         }
         matrices.pop();
     }
 
-    private void renderEntityFromSpawnEgg(SpawnEggItem spawnEggItem, Vec3d offset, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, World world, float yRot, ItemStack stack) {
+    private void renderEntityFromSpawnEgg(SpawnEggItem spawnEggItem, ItemStack stack, Vec3d offset, CameraRenderState cameraState, OrderedRenderCommandQueue queue, MatrixStack matrices, World world, float yRot) {
         matrices.push();
-        DynamicRegistryManager registryAccess = world.getRegistryManager();
-        RegistryWrapper.WrapperLookup wrapperLookup = RegistryWrapper.WrapperLookup.of(registryAccess.stream().distinct());
-        EntityType<?> entityType = spawnEggItem.getEntityType(wrapperLookup, spawnEggItem.getDefaultStack());
+        EntityType<?> entityType = spawnEggItem.getEntityType(stack);
+        if (entityType == null) return;
         Entity entity = entityType.create(world, SpawnReason.MOB_SUMMONED);
         if (entity != null) {
+            EntityRenderState entityState = new EntityRenderState();
+
             matrices.translate(offset.x, offset.y, offset.z);
             matrices.translate(0, entity.getHeight() / 2.0, 0);
             matrices.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(yRot));
             if (stack.get(DataComponentTypes.CUSTOM_NAME) != null) {
-                entity.setCustomName(stack.get(DataComponentTypes.CUSTOM_NAME));
+                entityState.displayName = stack.get(DataComponentTypes.CUSTOM_NAME);
             }
             matrices.translate(0, -entity.getHeight() / 2.0, 0);
-            entity.setPos(offset.x, offset.y, offset.z);
+            entityState.positionOffset = offset;
             long normalizedTime = world.getTime() % 24000;
-            entity.age = (int) normalizedTime;
-            entity.setId(-1);
-            EntityRenderDispatcher dispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
-            ((EntityRenderDispatcherAccessor) dispatcher).invokeRender(
-                    entity,
-                    0.0,
-                    0.0,
-                    0.0,
-                    0,
-                    matrices,
-                    vertexConsumers,
-                    light,
-                    dispatcher.getRenderer(entity)
-            );
+            entityState.age = (int) normalizedTime;
+
+            EntityRenderManager dispatcher = MinecraftClient.getInstance().getEntityRenderDispatcher();
+            dispatcher.render(entityState, cameraState, 0, 0, 0, matrices, queue);
         }
         matrices.pop();
+    }
+
+    @Override
+    public PedestalRenderState createRenderState() {
+        return new PedestalRenderState();
+    }
+
+    @Override
+    public void updateRenderState(PedestalBlockEntity blockEntity, PedestalRenderState state, float tickProgress, Vec3d cameraPos, @Nullable ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlay) {
+        BlockEntityRenderer.super.updateRenderState(blockEntity, state, tickProgress, cameraPos, crumblingOverlay);
+        state.storedStack = blockEntity.getStack(0);
+        state.worldTime = blockEntity.getWorld() != null ? blockEntity.getWorld().getTime() : 1L;
     }
 }

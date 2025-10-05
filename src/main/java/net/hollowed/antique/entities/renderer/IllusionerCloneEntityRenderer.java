@@ -9,13 +9,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.entities.IllusionerCloneEntity;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.IllagerEntityRenderer;
 import net.minecraft.client.render.entity.feature.HeldItemFeatureRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.render.entity.model.IllagerEntityModel;
 import net.minecraft.client.render.entity.state.IllusionerEntityRenderState;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
@@ -27,9 +28,9 @@ public class IllusionerCloneEntityRenderer extends IllagerEntityRenderer<Illusio
     public IllusionerCloneEntityRenderer(EntityRendererFactory.Context context) {
         super(context, new IllagerEntityModel<>(context.getPart(EntityModelLayers.ILLUSIONER)), 0.5F);
         this.addFeature(new HeldItemFeatureRenderer<>(this) {
-            public void render(MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, IllusionerEntityRenderState illusionerEntityRenderState, float f, float g) {
+            public void render(MatrixStack matrixStack, OrderedRenderCommandQueue orderedRenderCommandQueue, int i, IllusionerEntityRenderState illusionerEntityRenderState, float f, float g) {
                 if (illusionerEntityRenderState.spellcasting || illusionerEntityRenderState.attacking) {
-                    super.render(matrixStack, vertexConsumerProvider, i, illusionerEntityRenderState, f, g);
+                    super.render(matrixStack, orderedRenderCommandQueue, i, illusionerEntityRenderState, f, g);
                 }
 
             }
@@ -45,12 +46,14 @@ public class IllusionerCloneEntityRenderer extends IllagerEntityRenderer<Illusio
         return new IllusionerEntityRenderState();
     }
 
+    @Override
     public void updateRenderState(IllusionerCloneEntity illusionerEntity, IllusionerEntityRenderState illusionerEntityRenderState, float f) {
         super.updateRenderState(illusionerEntity, illusionerEntityRenderState, f);
     }
 
-    public void render(IllusionerEntityRenderState illusionerEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
-        super.render(illusionerEntityRenderState, matrixStack, vertexConsumerProvider, i);
+    @Override
+    public void render(IllusionerEntityRenderState livingEntityRenderState, MatrixStack matrixStack, OrderedRenderCommandQueue orderedRenderCommandQueue, CameraRenderState cameraRenderState) {
+        super.render(livingEntityRenderState, matrixStack, orderedRenderCommandQueue, cameraRenderState);
     }
 
     protected boolean isVisible(IllusionerEntityRenderState illusionerEntityRenderState) {

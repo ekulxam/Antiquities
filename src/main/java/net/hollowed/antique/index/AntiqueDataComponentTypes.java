@@ -54,6 +54,13 @@ public interface AntiqueDataComponentTypes {
                     .codec(DyedColorComponent.CODEC)
                     .build()
     );
+    ComponentType<Boolean> STICKY_TOOLTIP = Registry.register(
+            Registries.DATA_COMPONENT_TYPE,
+            Identifier.of(Antiquities.MOD_ID, "sticky_tooltip"),
+            ComponentType.<Boolean>builder()
+                    .codec(Codec.BOOL.fieldOf("sticky_tooltip").codec())
+                    .build()
+    );
 
     static void initialize() {}
 }

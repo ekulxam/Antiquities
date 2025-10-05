@@ -7,10 +7,13 @@ import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadLis
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.ItemFrameEntityRenderer;
 import net.minecraft.client.render.entity.state.EntityRenderState;
 import net.minecraft.client.render.entity.state.ItemFrameEntityRenderState;
+import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.render.item.ItemRenderer;
+import net.minecraft.client.render.state.CameraRenderState;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.decoration.ItemFrameEntity;
@@ -41,8 +44,8 @@ public abstract class ItemFrameEntityRendererMixin {
         stack = itemFrameEntity.getHeldItemStack();
     }
 
-    @Inject(method = "render(Lnet/minecraft/client/render/entity/state/ItemFrameEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V", at = @At("TAIL"))
-    public void render(ItemFrameEntityRenderState itemFrameEntityRenderState, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, CallbackInfo ci) {
+    @Inject(method = "render(Lnet/minecraft/client/render/entity/state/ItemFrameEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;Lnet/minecraft/client/render/state/CameraRenderState;)V", at = @At("TAIL"))
+    public void render(ItemFrameEntityRenderState itemFrameEntityRenderState, MatrixStack matrixStack, OrderedRenderCommandQueue orderedRenderCommandQueue, CameraRenderState cameraRenderState, CallbackInfo ci) {
         matrixStack.push();
         Direction direction = itemFrameEntityRenderState.facing;
         Vec3d vec3d = this.getPositionOffset(itemFrameEntityRenderState);
@@ -70,9 +73,6 @@ public abstract class ItemFrameEntityRendererMixin {
         matrixStack.scale(0.15F, 0.15F, 0.15F);
 
         if (stack.isOf(AntiqueItems.MYRIAD_STAFF)) {
-            MinecraftClient client = MinecraftClient.getInstance();
-            ItemRenderer itemRenderer = client.getItemRenderer();
-
             ItemStack stackToRender = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY);
 
             matrixStack.scale(0.875F, 0.875F, 0.875F);
@@ -90,16 +90,9 @@ public abstract class ItemFrameEntityRendererMixin {
                 stackToRender.set(DataComponentTypes.ITEM_MODEL, data.model());
             }
 
-            itemRenderer.renderItem(
-                    stackToRender,
-                    ItemDisplayContext.NONE,
-                    i,
-                    OverlayTexture.DEFAULT_UV,
-                    matrixStack,
-                    vertexConsumerProvider,
-                    client.world,
-                    1
-            );
+            ItemRenderState stackRenderState = new ItemRenderState();
+            MinecraftClient.getInstance().getItemModelManager().update(stackRenderState, stackToRender, ItemDisplayContext.NONE, MinecraftClient.getInstance().world, null, 1);
+            stackRenderState.render(matrixStack, orderedRenderCommandQueue, itemFrameEntityRenderState.light, OverlayTexture.DEFAULT_UV, 0);
 
             stackToRender.set(DataComponentTypes.ITEM_MODEL, customModel);
         }

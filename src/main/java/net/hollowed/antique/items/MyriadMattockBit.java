@@ -120,13 +120,13 @@ public class MyriadMattockBit extends MyriadToolBitItem{
     public ActionResult toolUse(World world, PlayerEntity user, Hand hand) {
         double d = -MathHelper.sin(user.getYaw() * (float) (Math.PI / 180.0));
         double e = MathHelper.cos(user.getYaw() * (float) (Math.PI / 180.0));
-        if (user.getWorld() instanceof ServerWorld serverWorld) {
+        if (user.getEntityWorld() instanceof ServerWorld serverWorld) {
             serverWorld.spawnParticles(ParticleTypes.SWEEP_ATTACK, user.getX() + d, user.getBodyY(0.5), user.getZ() + e, 0, d, 0.0, e, 0.0);
         }
         user.playSound(SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, 1, 1);
         user.swingHand(hand, true);
         user.getItemCooldownManager().set(user.getStackInHand(hand), 10);
-        Vec3d forward = user.getPos().add(user.getRotationVector().multiply(2));
+        Vec3d forward = user.getEntityPos().add(user.getRotationVector().multiply(2));
         Box box = new Box(
                 forward.x - 1.5, forward.y - 1.5, forward.z - 1.5,
                 forward.x + 1.5, forward.y + 1.5, forward.z + 1.5
@@ -156,9 +156,9 @@ public class MyriadMattockBit extends MyriadToolBitItem{
                 Consumer<ItemUsageContext> consumer = pair.getSecond();
                 if (predicate.test(context)) {
                     world.playSound(playerEntity, blockPos, SoundEvents.ITEM_HOE_TILL, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                    if (!world.isClient) {
+                    if (!world.isClient()) {
                         consumer.accept(context);
-                        context.getStack().damage(1, playerEntity, LivingEntity.getSlotForHand(context.getHand()));
+                        context.getStack().damage(1, playerEntity, context.getHand());
                     }
 
                     return ActionResult.SUCCESS;

@@ -1,11 +1,12 @@
 package net.hollowed.antique.mixin.entities.states;
 
 import net.hollowed.antique.util.interfaces.duck.IsWitherGetter;
+import net.minecraft.client.render.entity.state.SkeletonEntityRenderState;
 import net.minecraft.client.render.entity.state.ZombieEntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-@Mixin(ZombieEntityRenderState.class)
+@Mixin(SkeletonEntityRenderState.class)
 public class SkeletonRenderStateWitherAdder implements IsWitherGetter {
     @Unique
     private boolean isWither = false;

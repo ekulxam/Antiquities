@@ -30,12 +30,12 @@ import net.minecraft.client.render.model.ModelTextures;
 import net.minecraft.client.render.model.ResolvableModel;
 
 import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.registry.tag.ItemTags;
 import net.minecraft.resource.ResourceManager;
+import net.minecraft.util.HeldItemContext;
 import net.minecraft.util.Identifier;
 
 import org.jetbrains.annotations.Nullable;
@@ -71,7 +71,7 @@ public class MyriadClothItemModel implements ItemModel {
 		this.vertices = Suppliers.memoize(() -> bakeQuads(all));
 		boolean anyAnimated = false;
 		for (BakedQuad q : all) {
-			if (q.sprite().isAnimated()) {
+			if (q.sprite().getContents().isAnimated()) {
 				anyAnimated = true;
 				break;
 			}
@@ -134,7 +134,7 @@ public class MyriadClothItemModel implements ItemModel {
 			ItemModelManager resolver,
 			ItemDisplayContext displayContext,
 			@Nullable ClientWorld world,
-			@Nullable LivingEntity user,
+			@Nullable HeldItemContext heldItemContext,
 			int seed
 	) {
 		state.addModelKey(this);
@@ -192,7 +192,7 @@ public class MyriadClothItemModel implements ItemModel {
 			int n = this.tints.size();
 			int[] t = tintLayer.initTints(n);
 			for (int i = 0; i < n; i++) {
-				int c = this.tints.get(i).getTint(stack, world, user);
+				int c = this.tints.get(i).getTint(stack, world, heldItemContext == null ? null : heldItemContext.getEntity());
 				t[i] = c;
 				state.addModelKey(c);
 			}

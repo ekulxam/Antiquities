@@ -14,17 +14,17 @@ public class MovementUtilsClass {
         Box box = entity.getBoundingBox();
         double offset = 0.35;
 
-        boolean collidingWest = MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), box.offset(-offset, 0, 0), entity);
-        boolean collidingEast = MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), box.offset(offset, 0, 0), entity);
-        boolean collidingNorth = MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), box.offset(0, 0, -offset), entity);
-        boolean collidingSouth = MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), box.offset(0, 0, offset), entity);
+        boolean collidingWest = MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), box.offset(-offset, 0, 0), entity);
+        boolean collidingEast = MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), box.offset(offset, 0, 0), entity);
+        boolean collidingNorth = MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), box.offset(0, 0, -offset), entity);
+        boolean collidingSouth = MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), box.offset(0, 0, offset), entity);
 
         Box ledgeBox = box.withMaxY(box.maxY - 0.5);
 
-        boolean ledgeWest = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), ledgeBox.offset(-offset, 1.75, 0), entity);
-        boolean ledgeEast = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), ledgeBox.offset(offset, 1.75, 0), entity);
-        boolean ledgeNorth = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), ledgeBox.offset(0, 1.75, -offset), entity);
-        boolean ledgeSouth = !MovementUtilsClass.collidesWithSolidBlock(entity.getWorld(), ledgeBox.offset(0, 1.75, offset), entity);
+        boolean ledgeWest = !MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), ledgeBox.offset(-offset, 1.75, 0), entity);
+        boolean ledgeEast = !MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), ledgeBox.offset(offset, 1.75, 0), entity);
+        boolean ledgeNorth = !MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), ledgeBox.offset(0, 1.75, -offset), entity);
+        boolean ledgeSouth = !MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), ledgeBox.offset(0, 1.75, offset), entity);
 
         if (entity.isClimbing()) {
             entity.onLanding();

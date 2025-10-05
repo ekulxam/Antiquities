@@ -6,16 +6,16 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.armor.models.VanillaArmorModel;
 import net.hollowed.antique.index.AntiqueEntityLayers;
 import net.hollowed.antique.index.AntiqueItemTags;
+import net.hollowed.antique.util.interfaces.duck.IsHuskGetter;
+import net.hollowed.antique.util.interfaces.duck.IsWitherGetter;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.LoadedEntityModels;
 import net.minecraft.client.render.entity.state.BipedEntityRenderState;
-import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
 import net.minecraft.registry.tag.TagKey;
@@ -50,17 +50,17 @@ public class VanillaArmorFeatureRenderer<S extends BipedEntityRenderState, M ext
     }
 
     @Override
-    public void render(MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, S state, float limbAngle, float limbDistance) {
-        VertexConsumer helmetConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(texture), state.equippedHeadStack.hasGlint());
-        VertexConsumer chestplateConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(texture), state.equippedChestStack.hasGlint());
-        VertexConsumer leggingsConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(texture), state.equippedLegsStack.hasGlint());
-        VertexConsumer bootsConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(texture), state.equippedFeetStack.hasGlint());
+    public void render(MatrixStack matrices, OrderedRenderCommandQueue queue, int light, S state, float limbAngle, float limbDistance) {
 
-        this.getContextModel().copyTransforms(this.model);
-
-        this.model.leggingsBody.copyTransform(this.getContextModel().body);
-        this.model.rightBoot.copyTransform(this.getContextModel().rightLeg);
-        this.model.leftBoot.copyTransform(this.getContextModel().leftLeg);
+        this.model.head.setTransform(this.getContextModel().head.getTransform());
+        this.model.body.setTransform(this.getContextModel().body.getTransform());
+        this.model.rightArm.setTransform(this.getContextModel().rightArm.getTransform());
+        this.model.leftArm.setTransform(this.getContextModel().leftArm.getTransform());
+        this.model.rightLeg.setTransform(this.getContextModel().rightLeg.getTransform());
+        this.model.leftLeg.setTransform(this.getContextModel().leftLeg.getTransform());
+        this.model.leggingsBody.setTransform(this.getContextModel().body.getTransform());
+        this.model.rightBoot.setTransform(this.getContextModel().rightLeg.getTransform());
+        this.model.leftBoot.setTransform(this.getContextModel().leftLeg.getTransform());
 
         this.model.setVisible(false);
 
@@ -89,17 +89,51 @@ public class VanillaArmorFeatureRenderer<S extends BipedEntityRenderState, M ext
             this.model.leftBoot.visible = true;
         }
 
-        this.model.head.render(matrices, helmetConsumer, light, OverlayTexture.DEFAULT_UV);
+        if (state instanceof IsWitherGetter access && access.antiquities$getWither()) {
+            this.model.rightArm.setTransform(this.getContextModel().rightArm.getTransform().moveOrigin(-0.375F, -4.625F, 0));
+            this.model.leftArm.setTransform(this.getContextModel().leftArm.getTransform().moveOrigin(0.375F, -4.625F, 0));
+            this.model.body.setTransform(this.getContextModel().body.getTransform().moveOrigin(0, -4.625F, 0).scaled(1.1F));
+            this.model.leggingsBody.setTransform(this.getContextModel().body.getTransform().moveOrigin(0, -4.625F, 0).scaled(1.1F));
+            this.model.head.setTransform(this.getContextModel().head.getTransform().moveOrigin(0, -5.625F, 0));
+            this.model.rightLeg.setTransform(this.getContextModel().rightLeg.getTransform().moveOrigin(0, -4.375F, 0).scaled(1.1F));
+            this.model.leftLeg.setTransform(this.getContextModel().leftLeg.getTransform().moveOrigin(0, -4.375F, 0).scaled(1.1F));
+            this.model.rightBoot.setTransform(this.getContextModel().rightLeg.getTransform().moveOrigin(0, -1.625F, 0).scaled(1.1F));
+            this.model.leftBoot.setTransform(this.getContextModel().leftLeg.getTransform().moveOrigin(0, -1.625F, 0).scaled(1.1F));
+        }
 
-        this.model.body.render(matrices, chestplateConsumer, light, OverlayTexture.DEFAULT_UV);
-        this.model.rightArm.render(matrices, chestplateConsumer, light, OverlayTexture.DEFAULT_UV);
-        this.model.leftArm.render(matrices, chestplateConsumer, light, OverlayTexture.DEFAULT_UV);
+        if (state instanceof IsHuskGetter access && access.antiquities$getHusk()) {
+            this.model.rightArm.setTransform(this.getContextModel().rightArm.getTransform().moveOrigin(-0.375F, -1.375F, 0));
+            this.model.leftArm.setTransform(this.getContextModel().leftArm.getTransform().moveOrigin(0.375F, -1.375F, 0));
+            this.model.body.setTransform(this.getContextModel().body.getTransform().moveOrigin(0, -1.375F, 0));
+            this.model.head.setTransform(this.getContextModel().head.getTransform().moveOrigin(0, -2.375F, 0).scaled(1.01F));
+            this.model.rightLeg.setTransform(this.getContextModel().rightLeg.getTransform().moveOrigin(0, -2.375F, 0).scaled(1.1F));
+            this.model.leftLeg.setTransform(this.getContextModel().leftLeg.getTransform().moveOrigin(0, -2.375F, 0).scaled(1.1F));
+            this.model.rightBoot.setTransform(this.getContextModel().rightLeg.getTransform().moveOrigin(0, -1.625F, 0).scaled(1.1F));
+            this.model.leftBoot.setTransform(this.getContextModel().leftLeg.getTransform().moveOrigin(0, -1.625F, 0).scaled(1.1F));
+        }
 
-        this.model.leggingsBody.render(matrices, leggingsConsumer, light, OverlayTexture.DEFAULT_UV);
-        this.model.rightLeg.render(matrices, leggingsConsumer, light, OverlayTexture.DEFAULT_UV);
-        this.model.leftLeg.render(matrices, leggingsConsumer, light, OverlayTexture.DEFAULT_UV);
+        queue.getBatchingQueue(1).submitModel(
+                this.model,
+                state,
+                matrices,
+                RenderLayer.getArmorCutoutNoCull(texture),
+                light,
+                OverlayTexture.DEFAULT_UV,
+                state.outlineColor,
+                null
+        );
 
-        this.model.rightBoot.render(matrices, bootsConsumer, light, OverlayTexture.DEFAULT_UV);
-        this.model.leftBoot.render(matrices, bootsConsumer, light, OverlayTexture.DEFAULT_UV);
+//        this.model.head.render(matrices, helmetConsumer, light, OverlayTexture.DEFAULT_UV);
+//
+//        this.model.body.render(matrices, chestplateConsumer, light, OverlayTexture.DEFAULT_UV);
+//        this.model.rightArm.render(matrices, chestplateConsumer, light, OverlayTexture.DEFAULT_UV);
+//        this.model.leftArm.render(matrices, chestplateConsumer, light, OverlayTexture.DEFAULT_UV);
+//
+//        this.model.leggingsBody.render(matrices, leggingsConsumer, light, OverlayTexture.DEFAULT_UV);
+//        this.model.rightLeg.render(matrices, leggingsConsumer, light, OverlayTexture.DEFAULT_UV);
+//        this.model.leftLeg.render(matrices, leggingsConsumer, light, OverlayTexture.DEFAULT_UV);
+//
+//        this.model.rightBoot.render(matrices, bootsConsumer, light, OverlayTexture.DEFAULT_UV);
+//        this.model.leftBoot.render(matrices, bootsConsumer, light, OverlayTexture.DEFAULT_UV);
     }
 }

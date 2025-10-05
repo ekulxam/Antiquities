@@ -5,6 +5,6 @@ import net.hollowed.antique.entities.ai.IllusionerCloneParticles;
 
 public class IllusionerParticlePacketReceiver {
     public static void registerServerPacket() {
-        ClientPlayNetworking.registerGlobalReceiver(IllusionerParticlePacketPayload.ID, (payload, context) -> context.client().execute(() -> IllusionerCloneParticles.particles(context.player().getWorld(), payload.x(), payload.y(), payload.z())));
+        ClientPlayNetworking.registerGlobalReceiver(IllusionerParticlePacketPayload.ID, (payload, context) -> context.client().execute(() -> IllusionerCloneParticles.particles(context.player().getEntityWorld(), payload.x(), payload.y(), payload.z())));
     }
 }

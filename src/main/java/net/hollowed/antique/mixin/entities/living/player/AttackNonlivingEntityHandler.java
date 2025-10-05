@@ -56,10 +56,10 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
             ItemStack stack = player.getStackInHand(Hand.MAIN_HAND);
 
             if (stack.getItem() instanceof ScepterItem) {
-                player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+                player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                         SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.3F);
 
-                if (this.getWorld() instanceof ServerWorld serverWorld) {
+                if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
                     serverWorld.spawnParticles(CAParticles.RING, target.getX(), target.getBodyY(0.6), target.getZ(), 1, 0.1, 0.2, 0.1, 0);
                 }
 
@@ -77,15 +77,15 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                     TickDelayScheduler.schedule(delay, () -> {
                         if (attackPower > 0.9f) {
                             float pitch = 1.1f + (player.getRandom().nextFloat() * .2f);
-                            if (this.getWorld() instanceof ServerWorld serverWorld) {
+                            if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
                                 serverWorld.spawnParticles(ParticleTypes.GUST_EMITTER_SMALL, target.getX(), target.getBodyY(0.5), target.getZ(), 1, 0.1, 0.0, 0.1, 0);
                             }
 
                             if (!target.isOnGround()) {
-                                player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+                                player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                                         SoundEvents.ITEM_MACE_SMASH_AIR, SoundCategory.PLAYERS, 1.0F, 1.3F);
                             } else {
-                                player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+                                player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                                         SoundEvents.ITEM_MACE_SMASH_GROUND, SoundCategory.PLAYERS, 1.0F, pitch);
                             }
                         }
@@ -94,8 +94,8 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                         if (effectiveVelocity.length() > 0.1) {
 
                             float damage = Math.min((float) (effectiveVelocity.length() * 7.5 + 6), 30);
-                            if (player.getWorld() instanceof ServerWorld serverWorld) {
-                                target.damage(serverWorld, player.getWorld().getDamageSources().flyIntoWall(), damage);
+                            if (player.getEntityWorld() instanceof ServerWorld serverWorld) {
+                                target.damage(serverWorld, player.getEntityWorld().getDamageSources().flyIntoWall(), damage);
                             }
 
                             Vec3d targetVelocity = effectiveVelocity.multiply(4, 2.5, 4);
@@ -108,12 +108,12 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
                             target.velocityModified = true;
 
                             double radius = 5.0;
-                            List<Entity> nearbyEntities = player.getWorld().getOtherEntities(
+                            List<Entity> nearbyEntities = player.getEntityWorld().getOtherEntities(
                                     target, target.getBoundingBox().expand(radius));
 
                             for (Entity nearby : nearbyEntities) {
                                 if (nearby instanceof LivingEntity && nearby != target && nearby != player) {
-                                    double distance = target.getPos().distanceTo(nearby.getPos());
+                                    double distance = target.getEntityPos().distanceTo(nearby.getEntityPos());
                                     if (distance <= radius) {
                                         double scalingFactor = 2.5 - (distance / radius);
                                         Vec3d reducedVelocity = effectiveVelocity.multiply(scalingFactor);
@@ -161,7 +161,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
         if (this.getActiveItem().isOf(AntiqueItems.SCEPTER)) {
             float time = this.getItemUseTime() * 0.04F;
             if (time == 2.0F) {
-                this.getWorld().playSoundClient(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.NEUTRAL, 1, 1);
+                this.getEntityWorld().playSoundClient(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, SoundCategory.NEUTRAL, 1, 1);
             }
         }
     }
@@ -173,13 +173,13 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
         ItemStack stack = player.getEquippedStack(EquipmentSlot.CHEST);
         if (stack.getItem() instanceof NetheritePauldronsItem && target instanceof ProjectileEntity entity) {
 
-            if (this.getWorld() instanceof ServerWorld serverWorld) {
+            if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
                 serverWorld.spawnParticles(ParticleTypes.GUST, target.getX(), target.getBodyY(0.5), target.getZ(), 1, 0.1, 0.0, 0.1, 0);
             }
 
-            player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 1.0F, 1.3F);
-            player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.ENTITY_WIND_CHARGE_WIND_BURST, SoundCategory.PLAYERS, 1.0F, 0.7F);
             Vec3d velocity = player.getRotationVec(0).normalize();
             if (Objects.equals(entity.getOwner(), player)) {
@@ -197,7 +197,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
         PlayerEntity player = (PlayerEntity) (Object) this;
         if (player.getStackInHand(Hand.MAIN_HAND).isOf(AntiqueItems.MYRIAD_STAFF)) {
             float attackPower = player.getAttackCooldownProgress(0.0f);
-            player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                     attackPower > 0.9f ? AntiqueSounds.STAFF_HIT : SoundEvents.BLOCK_HEAVY_CORE_PLACE, SoundCategory.PLAYERS, 2.0F, attackPower > 0.9f ? (float) (1.0 + (Math.random() * 0.2) - 0.1) : 1.3F);
         }
     }
@@ -213,7 +213,7 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
 
         PlayerEntity player = (PlayerEntity) (Object) this;
         if (player.getStackInHand(Hand.MAIN_HAND).isOf(AntiqueItems.MYRIAD_STAFF)) {
-            player.getWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
+            player.getEntityWorld().playSound(player, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.ENTITY_PLAYER_ATTACK_SWEEP, SoundCategory.PLAYERS, 1.0F, 0.6F);
         }
     }

@@ -63,7 +63,6 @@
     "defaultRequire": 1
   },
   "client": [
-    "accessors.EntityRenderDispatcherAccessor",
     "accessors.GetSlotAtAccessor",
     "entities.features.ArmorRendererMixin",
     "entities.features.ArmorStandFeatureAdder",

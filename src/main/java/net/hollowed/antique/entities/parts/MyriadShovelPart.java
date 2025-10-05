@@ -36,7 +36,7 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 	@Nullable
 	protected Entity getEntity(UUID uuid) {
-		return this.getWorld() instanceof ServerWorld serverWorld ? serverWorld.getEntity(uuid) : null;
+		return this.getEntityWorld() instanceof ServerWorld serverWorld ? serverWorld.getEntity(uuid) : null;
 	}
 
 	public ItemStack getPickBlockStack() {
@@ -54,7 +54,7 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 	@Override
 	public void tick() {
-		if (this.getOwner() == null && this.getWorld() instanceof ServerWorld) {
+		if (this.getOwner() == null && this.getEntityWorld() instanceof ServerWorld) {
 			this.discard();
 			return;
 		}
@@ -68,12 +68,12 @@ public class MyriadShovelPart extends Entity implements Ownable {
 		}
 
 		super.tick();
-		if (this.getWorld() instanceof ServerWorld world) {
+		if (this.getEntityWorld() instanceof ServerWorld world) {
 			world.getChunkManager().unloadEntity(this);
 			world.getChunkManager().loadEntity(this);
 		}
 
-		List<Entity> list = this.getWorld().getOtherEntities(this, this.getBoundingBox().shrink(0.1, 0.1, 0.1), entity -> !(entity instanceof MyriadShovelPart));
+		List<Entity> list = this.getEntityWorld().getOtherEntities(this, this.getBoundingBox().shrink(0.1, 0.1, 0.1), entity -> !(entity instanceof MyriadShovelPart));
 		for (Entity entity : list) {
 			if (entity instanceof LivingEntity) {
 				entity.slowMovement(Blocks.AIR.getDefaultState(), new Vec3d(0.05, 0.01, 0.05));
@@ -87,17 +87,17 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 		if (this.getOwner() != null) {
 			float multiplier = 0.25F;
-			this.setPosition(Objects.requireNonNull(this.getOwner()).getPos().x, this.getOwner().getPos().y - 0.25, this.getOwner().getPos().z);
+			this.setPosition(Objects.requireNonNull(this.getOwner()).getEntityPos().x, this.getOwner().getEntityPos().y - 0.25, this.getOwner().getEntityPos().z);
 			multiplier += (this.getOrderId() / 3.5F) - 0.2F;
 			Vec3d look = this.getOwner().getRotationVec(0);
-			this.setPosition(this.getPos().add(look.multiply(multiplier, multiplier, -multiplier)));
+			this.setPosition(this.getEntityPos().add(look.multiply(multiplier, multiplier, -multiplier)));
 		}
 	}
 
 	@Override
 	public boolean isCollidable(@Nullable Entity entity) {
 		if (entity == null) return false;
-		List<Entity> list = this.getWorld().getOtherEntities(this, this.getBoundingBox(), entity1 -> !(entity1 instanceof MyriadShovelPart));
+		List<Entity> list = this.getEntityWorld().getOtherEntities(this, this.getBoundingBox(), entity1 -> !(entity1 instanceof MyriadShovelPart));
 		return entity.getY() >= this.getBoundingBox().maxY - 0.5 || !entity.getPose().equals(EntityPose.SWIMMING) && !list.contains(entity);
 	}
 
