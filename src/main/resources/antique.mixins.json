@@ -86,7 +86,6 @@
     "items.BundleTooltipShowsAll",
     "items.PreventItemActionsMixin",
     "items.TooltipComponentMixin",
-    "items.models.ItemModelTypesMixin",
     "items.renderers.FirstPersonHeldItemRendererMixin",
     "items.renderers.FirstPersonItemMixin",
     "items.renderers.HeldItemRendererMixin",

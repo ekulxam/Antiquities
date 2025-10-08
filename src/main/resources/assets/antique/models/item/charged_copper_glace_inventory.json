@@ -1,6 +1,8 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "antique:item/charged_copper_glace_item"
+    "layer0": "antique:item/charged_copper_glace_item",
+    "layer1": "antique:item/charged_copper_glace_item_partial_e",
+    "layer2": "antique:item/charged_copper_glace_item_e"
   }
 }

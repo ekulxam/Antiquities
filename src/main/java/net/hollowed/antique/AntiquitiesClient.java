@@ -16,6 +16,7 @@ import net.hollowed.antique.client.armor.models.ArmorStandAdventureArmor;
 import net.hollowed.antique.entities.models.PaleWardenModel;
 import net.hollowed.antique.entities.renderer.*;
 import net.hollowed.antique.networking.*;
+import net.hollowed.antique.util.models.*;
 import net.hollowed.combatamenities.util.delay.ClientTickDelayScheduler;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
@@ -25,6 +26,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.EntityRendererFactories;
 import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.client.render.item.model.ItemModelTypes;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.projectile.thrown.SnowballEntity;
 import net.minecraft.particle.ParticleTypes;
@@ -44,6 +46,14 @@ public class AntiquitiesClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+
+        ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "satchel/selected_item"), SatchelSelectedItemModel.Unbaked.CODEC);
+        ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "bag/selected_item"), BagOfTricksSelectedItemModel.Unbaked.CODEC);
+        ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "bag/first_stack"), BagOfTricksFirstStackItemModel.Unbaked.CODEC);
+        ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "myriad_cloth"), MyriadClothItemModel.Unbaked.CODEC);
+        ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "cloth"), ClothItemModel.Unbaked.CODEC);
+        ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "cloth_pattern"), ClothPatternItemModel.Unbaked.CODEC);
+        ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "model_glow"), GlowBasicItemModel.Unbaked.CODEC);
 
         MinecraftClient.getInstance().execute(() -> ClientTickDelayScheduler.schedule(-1, () -> {
             TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
