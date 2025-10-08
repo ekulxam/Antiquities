@@ -4,16 +4,11 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.client.armor.renderers.VanillaArmorFeatureRenderer;
 import net.hollowed.antique.index.AntiqueEntityLayers;
 import net.hollowed.antique.client.armor.models.AdventureArmor;
-import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.MyriadToolItem;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.AbstractClientPlayerEntity;
 import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.VertexConsumer;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.LivingEntityRenderer;
@@ -21,14 +16,12 @@ import net.minecraft.client.render.entity.PlayerEntityRenderer;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
-import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.PlayerLikeEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Arm;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
@@ -59,7 +52,6 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
     private void addCustomFeature(EntityRendererFactory.Context ctx, boolean slim, CallbackInfo ci) {
         this.slim = slim;
         this.armorModel = new AdventureArmor<>(ctx.getEntityModels().getModelPart(AntiqueEntityLayers.ADVENTURE_ARMOR));
-        this.addFeature(new AdventureArmorFeatureRenderer<>(this, ctx.getEntityModels(), slim));
         this.addFeature(new VanillaArmorFeatureRenderer<>(this, 0, ctx.getEntityModels()));
     }
 

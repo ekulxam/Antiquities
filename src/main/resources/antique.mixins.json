@@ -64,6 +64,7 @@
   },
   "client": [
     "accessors.GetSlotAtAccessor",
+    "accessors.TexturedModelDataDataAccessor",
     "entities.features.ArmorRendererMixin",
     "entities.features.ArmorStandFeatureAdder",
     "entities.features.BackSlotRendererMixin",

@@ -1,6 +1,5 @@
 package net.hollowed.antique.mixin.entities.features;
 
-import net.hollowed.antique.client.armor.renderers.AdventureArmorArmorStandFeatureRenderer;
 import net.hollowed.antique.client.armor.renderers.VanillaArmorArmorStandFeatureRenderer;
 import net.minecraft.client.render.entity.ArmorStandEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
@@ -22,7 +21,6 @@ public abstract class ArmorStandFeatureAdder extends LivingEntityRenderer<ArmorS
 
     @Inject(method = "<init>", at = @At("TAIL"))
     private void addCustomFeature(EntityRendererFactory.Context context, CallbackInfo ci) {
-        this.addFeature(new AdventureArmorArmorStandFeatureRenderer(this, context.getEntityModels()));
         this.addFeature(new VanillaArmorArmorStandFeatureRenderer(this, 0, context.getEntityModels()));
     }
 }

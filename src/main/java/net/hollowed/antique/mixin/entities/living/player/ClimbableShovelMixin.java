@@ -68,7 +68,7 @@ public abstract class ClimbableShovelMixin extends LivingEntity {
     public void tick(CallbackInfo ci) {
         if (!this.getEntityWorld().isClient()) {
             if (this.horizontalCollision && ItemHoldingUtil.isHoldingItem(this, Identifier.of(Antiquities.MOD_ID, "walljumper"))) {
-                this.coyoteTicks = 5;
+                this.coyoteTicks = 3;
             }
             if (this.isOnGround()) {
                 this.lastGroundTime = 5;

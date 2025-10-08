@@ -1,11 +1,7 @@
 package net.hollowed.antique.mixin.entities.features;
 
-import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
-import net.hollowed.antique.client.armor.renderers.VanillaArmorFeatureRenderer;
 import net.hollowed.antique.util.interfaces.duck.IsWitherGetter;
 import net.minecraft.client.render.entity.*;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.client.render.entity.model.EquipmentModelData;
 import net.minecraft.client.render.entity.model.SkeletonEntityModel;
 import net.minecraft.client.render.entity.state.SkeletonEntityRenderState;
 import net.minecraft.entity.mob.AbstractSkeletonEntity;
@@ -21,12 +17,6 @@ public abstract class SkeletonFeatureAdder<T extends AbstractSkeletonEntity, S e
 
     public SkeletonFeatureAdder(EntityRendererFactory.Context context, SkeletonEntityModel<S> model, float shadowRadius) {
         super(context, model, shadowRadius);
-    }
-
-    @Inject(method = "<init>(Lnet/minecraft/client/render/entity/EntityRendererFactory$Context;Lnet/minecraft/client/render/entity/model/EntityModelLayer;Lnet/minecraft/client/render/entity/model/EquipmentModelData;)V", at = @At("TAIL"))
-    public void init(EntityRendererFactory.Context ctx, EntityModelLayer layer, EquipmentModelData<SkeletonEntityModel<S>> equipmentModelData, CallbackInfo ci) {
-        this.addFeature(new AdventureArmorFeatureRenderer<>(this, ctx.getEntityModels(), true));
-        this.addFeature(new VanillaArmorFeatureRenderer<>(this, 0, ctx.getEntityModels()));
     }
 
     @Inject(method = "updateRenderState(Lnet/minecraft/entity/mob/AbstractSkeletonEntity;Lnet/minecraft/client/render/entity/state/SkeletonEntityRenderState;F)V", at = @At("HEAD"))

@@ -3,9 +3,11 @@ package net.hollowed.antique;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
+import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer;
 import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.hollowed.antique.client.armor.models.VanillaArmorModel;
+import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
 import net.hollowed.antique.index.*;
 import net.hollowed.antique.blocks.screens.DyeingScreen;
 import net.hollowed.antique.blocks.entities.renderer.PedestalRenderer;
@@ -74,8 +76,9 @@ public class AntiquitiesClient implements ClientModInitializer {
          */
 
         EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.VANILLA_ARMOR, VanillaArmorModel::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ARMOR_STAND_ADVENTURE_ARMOR, ArmorStandAdventureArmor::getTexturedModelData);
+        EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::getTexturedModelData);
+        ArmorRenderer.register(new AdventureArmorFeatureRenderer(), AntiqueItems.NETHERITE_PAULDRONS, AntiqueItems.SATCHEL, AntiqueItems.FUR_BOOTS);
 
         EntityRendererFactories.register(AntiqueEntities.PALE_WARDEN, PaleWardenRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(PALE_WARDEN_LAYER, PaleWardenModel::getTexturedModelData);

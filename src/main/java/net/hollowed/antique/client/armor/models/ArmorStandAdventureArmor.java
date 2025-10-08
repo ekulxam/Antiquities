@@ -1,72 +1,59 @@
 package net.hollowed.antique.client.armor.models;
 
+import net.hollowed.antique.index.AntiqueItems;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.entity.model.ArmorStandEntityModel;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.EntityModelPartNames;
 import net.minecraft.client.render.entity.state.ArmorStandEntityRenderState;
 
-public class ArmorStandAdventureArmor extends BipedEntityModel<ArmorStandEntityRenderState> {
-
+public class ArmorStandAdventureArmor extends ArmorStandEntityModel {
 	public final ModelPart satchel;
-	public final ModelPart leftArmThick;
-	public final ModelPart rightArmThick;
-	private final ModelPart root;
+	public final ModelPart rightArmArmorThick;
+	public final ModelPart leftArmArmorThick;
+	public final ModelPart rightArmArmor;
+	public final ModelPart leftArmArmor;
+	public final ModelPart realBody;
+	public final ModelPart rightBoot;
+	public final ModelPart leftBoot;
+	private final ModelPart rightBodyStick;
+	private final ModelPart leftBodyStick;
+	private final ModelPart shoulderStick;
+	private final ModelPart basePlate;
 
 	public ArmorStandAdventureArmor(ModelPart root) {
 		super(root);
-		this.root = root;
-		this.satchel = root.getChild("satchel");
-		this.leftArmThick = root.getChild("leftArmThick");
-		this.rightArmThick = root.getChild("rightArmThick");
+		this.realBody = root.getChild(EntityModelPartNames.BODY).getChild("realBody");
+		this.satchel = root.getChild(EntityModelPartNames.BODY).getChild("satchel");
+		this.rightArmArmor = root.getChild(EntityModelPartNames.RIGHT_ARM).getChild("rightArmArmor");
+		this.rightArmArmorThick = root.getChild(EntityModelPartNames.RIGHT_ARM).getChild("rightArmArmorThick");
+		this.leftArmArmor = root.getChild(EntityModelPartNames.LEFT_ARM).getChild("leftArmArmor");
+		this.leftArmArmorThick = root.getChild(EntityModelPartNames.LEFT_ARM).getChild("leftArmArmorThick");
+		this.rightBoot = root.getChild(EntityModelPartNames.RIGHT_LEG).getChild("rightBoot");
+		this.leftBoot = root.getChild(EntityModelPartNames.LEFT_LEG).getChild("leftBoot");
 
-		// Disable visibility of default biped parts
-		this.head.visible = false;
-		this.hat.visible = false;
-		this.body.visible = true;
-		this.rightArm.visible = true;
-		this.leftArm.visible = true;
-		this.rightLeg.visible = true;
-		this.leftLeg.visible = true;
+		this.rightBodyStick = root.getChild("right_body_stick");
+		this.leftBodyStick = root.getChild("left_body_stick");
+		this.shoulderStick = root.getChild("shoulder_stick");
+		this.basePlate = root.getChild("base_plate");
 	}
 
 	public static TexturedModelData getTexturedModelData() {
-		ModelData modelData = ArmorStandEntityModel.getModelData(Dilation.NONE, 0.0F);
-		ModelPartData modelPartData = modelData.getRoot();
-		modelPartData.addChild("satchel", ModelPartBuilder.create().uv(0, 0).cuboid(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, new Dilation(0.32F))
-				.uv(54, 22).cuboid(4.0F, 11.0F, -2.0F, 2.0F, 5.0F, 4.0F, new Dilation(0.15F)), ModelTransform.origin(5.0F, 13.0F, 0.0F));
-
-		modelPartData.addChild("body", ModelPartBuilder.create().uv(0, 16).cuboid(-4.0F, 0.0F, -2.0F, 8.0F, 12.0F, 4.0F, new Dilation(0.27F))
-				.uv(24, 0).cuboid(2.0F, -2.0F, -3.0F, 3.0F, 3.0F, 8.0F, new Dilation(0.0F))
-				.uv(24, 11).cuboid(-5.0F, -2.0F, -3.0F, 3.0F, 3.0F, 8.0F, new Dilation(0.0F))
-				.uv(46, 16).cuboid(-2.0F, -2.0F, 2.0F, 4.0F, 3.0F, 3.0F, new Dilation(0.0F)), ModelTransform.origin(0.0F, 0.0F, 0.0F));
-
-		modelPartData.addChild("rightArmThick", ModelPartBuilder.create().uv(14, 54).cuboid(-2.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.8F))
-				.uv(26, 96).cuboid(-2.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.99F))
-				.uv(48, 38).cuboid(-2.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.46F)), ModelTransform.origin(-5.0F, 2.0F, 0.0F));
-
-		modelPartData.addChild("leftArmThick", ModelPartBuilder.create().uv(46, 0).cuboid(-2.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.26F))
-				.uv(0, 83).cuboid(-2.0F, -2.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.46F)), ModelTransform.origin(5.0F, 2.0F, 0.0F));
-
-		modelPartData.addChild("right_arm", ModelPartBuilder.create().uv(14, 54).cuboid(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, new Dilation(0.8F))
-				.uv(0, 84).cuboid(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, new Dilation(0.99F))
-				.uv(48, 38).cuboid(-2.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, new Dilation(0.46F)), ModelTransform.origin(-4.0F, 2.0F, 0.0F));
-
-		modelPartData.addChild("left_arm", ModelPartBuilder.create().uv(46, 0).cuboid(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, new Dilation(0.26F))
-				.uv(0, 48).cuboid(-1.0F, -2.0F, -2.0F, 3.0F, 12.0F, 4.0F, new Dilation(0.46F)), ModelTransform.origin(4.0F, 2.0F, 0.0F));
-
-		modelPartData.addChild("left_leg", ModelPartBuilder.create().uv(32, 38).mirrored().cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.27F)).mirrored(false)
-				.uv(41, 66).mirrored().cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.47F)).mirrored(false)
-				.uv(14, 79).mirrored().cuboid(-2.0F, 10.0F, -4.0F, 4.0F, 2.0F, 2.0F, new Dilation(0.26F)).mirrored(false), ModelTransform.origin(2.0F, 12.0F, 0.0F));
-
-		modelPartData.addChild("right_leg", ModelPartBuilder.create().uv(32, 38).cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.27F))
-				.uv(41, 66).cuboid(-2.0F, 0.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.47F))
-				.uv(14, 79).cuboid(-2.0F, 10.0F, -4.0F, 4.0F, 2.0F, 2.0F, new Dilation(0.26F)), ModelTransform.origin(-2.0F, 12.0F, 0.0F));
-		return TexturedModelData.of(modelData, 128, 128);
+		return AdventureArmor.getTexturedModelData();
 	}
 
 	@Override
-	public void setAngles(ArmorStandEntityRenderState bipedEntityRenderState) {
+	public void setAngles(ArmorStandEntityRenderState state) {
+		super.setAngles(state);
 
+		rightBodyStick.visible = false;
+		leftBodyStick.visible = false;
+		shoulderStick.visible = false;
+		basePlate.visible = false;
+
+		rightArmArmorThick.visible = leftArmArmorThick.visible = false;
+
+		realBody.visible = rightArm.visible = leftArm.visible = state.equippedChestStack.isOf(AntiqueItems.NETHERITE_PAULDRONS);
+		satchel.visible = state.equippedLegsStack.isOf(AntiqueItems.SATCHEL);
+		rightBoot.visible = leftBoot.visible = state.equippedFeetStack.isOf(AntiqueItems.FUR_BOOTS);
 	}
 }

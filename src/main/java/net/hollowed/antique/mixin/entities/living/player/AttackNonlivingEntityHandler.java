@@ -4,7 +4,6 @@ import net.hollowed.antique.index.AntiqueSounds;
 import net.hollowed.antique.enchantments.EnchantmentListener;
 import net.hollowed.antique.index.AntiqueEffects;
 import net.hollowed.antique.index.AntiqueItems;
-import net.hollowed.antique.items.NetheritePauldronsItem;
 import net.hollowed.antique.items.ScepterItem;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
 import net.hollowed.combatamenities.index.CAParticles;
@@ -42,6 +41,9 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
 
     @Unique
     private boolean ranScepterAttack = false;
+
+    @Unique
+    private int parryCooldown = 0;
 
     protected AttackNonlivingEntityHandler(EntityType<? extends LivingEntity> entityType, World world) {
         super(entityType, world);
@@ -158,6 +160,9 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
 
     @Inject(method = "tick", at = @At("HEAD"))
     public void tick(CallbackInfo ci) {
+        if (this.parryCooldown > 0) {
+            this.parryCooldown--;
+        }
         if (this.getActiveItem().isOf(AntiqueItems.SCEPTER)) {
             float time = this.getItemUseTime() * 0.04F;
             if (time == 2.0F) {
@@ -168,11 +173,10 @@ public abstract class AttackNonlivingEntityHandler extends LivingEntity {
 
     @Inject(at = @At("HEAD"), method = "attack")
     private void attackWithPauldrons(Entity target, CallbackInfo ci) {
-
         PlayerEntity player = (PlayerEntity) (Object) this;
         ItemStack stack = player.getEquippedStack(EquipmentSlot.CHEST);
-        if (stack.getItem() instanceof NetheritePauldronsItem && target instanceof ProjectileEntity entity) {
-
+        if (stack.isOf(AntiqueItems.NETHERITE_PAULDRONS) && target instanceof ProjectileEntity entity && this.parryCooldown <= 0) {
+            this.parryCooldown = 5;
             if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
                 serverWorld.spawnParticles(ParticleTypes.GUST, target.getX(), target.getBodyY(0.5), target.getZ(), 1, 0.1, 0.0, 0.1, 0);
             }

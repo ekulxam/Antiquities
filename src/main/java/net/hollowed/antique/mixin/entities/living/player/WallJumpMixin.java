@@ -69,6 +69,9 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
     private boolean ran = false;
 
     @Unique
+    private boolean canWallJump = true;
+
+    @Unique
     private Vec3d playerVelocity = new Vec3d(0, 0, 0);
 
     @Unique
@@ -171,7 +174,10 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
         }
 
         if (entity instanceof PlayerEntity player) {
-            if (ItemHoldingUtil.isHoldingItem(player, Identifier.of(Antiquities.MOD_ID, "walljumper")) && jumping && (this.isClimbing() || this.coyoteWallJumpTicks > 0) && this.jumpingCooldown1 == 0) {
+            if ((player.horizontalCollision || player.isOnGround()) && this.jumpingCooldown1 <= 2) this.canWallJump = true;
+
+            if (ItemHoldingUtil.isHoldingItem(player, Identifier.of(Antiquities.MOD_ID, "walljumper")) && jumping && (this.isClimbing() || this.coyoteWallJumpTicks > 0) && this.jumpingCooldown1 == 0 && this.canWallJump) {
+                this.canWallJump = false;
 
                 if (player instanceof ClientPlayerEntity) {
                     ClientPlayNetworking.send(new WallJumpPacketPayload(entity.getId()));
@@ -237,8 +243,9 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
                     }
                 }
 
+                pushVector = pushVector.multiply(1, Math.abs(1.0 / Math.max(2.5 * entity.getVelocity().y, 1.0)), 1);
                 this.setVelocity(entity.getVelocity().add(pushVector));
-                this.jumpingCooldown1 = 10;
+                this.jumpingCooldown1 = 7;
                 entity.velocityDirty = true;
                 if (entity instanceof FastAir access) {
                     access.antique$setFast(true);
@@ -246,14 +253,14 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
             }
         }
         if (entity.isOnGround()) {
-            this.jumpingCooldown1 = 10;
+            this.jumpingCooldown1 = 7;
             if (entity instanceof FastAir access) {
                 access.antique$setFast(false);
             }
         }
         if (this.jumpingCooldown1 > 0) {
             this.jumpingCooldown1--;
-            if (this.jumpingCooldown1 == 5) {
+            if (this.jumpingCooldown1 == 2) {
                 if (entity instanceof FastAir access) {
                     access.antique$setFast(false);
                 }
