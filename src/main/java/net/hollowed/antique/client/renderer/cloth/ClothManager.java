@@ -1,5 +1,6 @@
 package net.hollowed.antique.client.renderer.cloth;
 
+import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -23,11 +24,11 @@ import java.util.Objects;
 public class ClothManager {
 
     public static RenderLayer getClothRenderLayer(Identifier cloth) {
-        return RenderLayer.getEntityTranslucent(Identifier.of(cloth.getNamespace() + ":textures/cloth/" + cloth.getPath() + ".png"));
+        return AntiquitiesClient.getClothTranslucent(Identifier.of(cloth.getNamespace() + ":textures/cloth/" + cloth.getPath() + ".png"));
     }
 
     public static RenderLayer getOverlayRenderLayer(String cloth, Identifier overlay) {
-        return RenderLayer.getEntityTranslucent(Identifier.of(overlay.getNamespace() + ":textures/overlay/" + overlay.getPath() + cloth + ".png"));
+        return AntiquitiesClient.getClothTranslucent(Identifier.of(overlay.getNamespace() + ":textures/overlay/" + overlay.getPath() + cloth + ".png"));
     }
 
     public Vector3d pos = new Vector3d();

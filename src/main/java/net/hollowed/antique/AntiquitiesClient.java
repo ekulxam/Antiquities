@@ -1,5 +1,8 @@
 package net.hollowed.antique;
 
+import com.mojang.blaze3d.pipeline.BlendFunction;
+import com.mojang.blaze3d.pipeline.RenderPipeline;
+import com.mojang.blaze3d.platform.DepthTestFunction;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -20,8 +23,11 @@ import net.hollowed.antique.util.models.*;
 import net.hollowed.combatamenities.util.delay.ClientTickDelayScheduler;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.BlockRenderLayer;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderPhase;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.client.render.entity.EntityRendererFactories;
 import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
@@ -31,8 +37,11 @@ import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.projectile.thrown.SnowballEntity;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+
+import java.util.function.BiFunction;
 
 public class AntiquitiesClient implements ClientModInitializer {
 
@@ -41,6 +50,42 @@ public class AntiquitiesClient implements ClientModInitializer {
     private static long lastUseTime = 0;  // Time of last use in milliseconds
     private static final long COOLDOWN_TIME = 250;  // Cooldown time in milliseconds (500 ms = 0.5 seconds)
     private static boolean wasCrawling = false; // Store previous key state
+
+    public static final RenderPipeline CLOTH = RenderPipelines.register(
+            RenderPipeline.builder(RenderPipelines.ENTITY_SNIPPET)
+                    .withLocation("pipeline/antiquities_cloth")
+                    .withShaderDefine("ALPHA_CUTOUT", 0.1F)
+                    .withShaderDefine("PER_FACE_LIGHTING")
+                    .withSampler("Sampler1")
+                    .withBlend(BlendFunction.TRANSLUCENT)
+                    .withCull(false)
+                    .withDepthTestFunction(DepthTestFunction.NO_DEPTH_TEST)
+                    .build()
+    );
+
+    private static final BiFunction<Identifier, Boolean, RenderLayer> CLOTH_TRANSLUCENT = Util.memoize((texture, affectsOutline) -> {
+        RenderLayer.MultiPhaseParameters multiPhaseParameters =
+                RenderLayer.MultiPhaseParameters.builder()
+                        .texture(new RenderPhase.Texture(texture, false))
+                        .lightmap(RenderPhase.ENABLE_LIGHTMAP)
+                        .overlay(RenderPhase.ENABLE_OVERLAY_COLOR)
+                        .build(affectsOutline);
+        return RenderLayer.of(
+                "antiquities_cloth",
+                1536,
+                true,
+                true,
+                CLOTH,
+                multiPhaseParameters);
+    });
+
+    public static RenderLayer getClothTranslucent(Identifier texture, boolean affectsOutline) {
+        return CLOTH_TRANSLUCENT.apply(texture, affectsOutline);
+    }
+
+    public static RenderLayer getClothTranslucent(Identifier texture) {
+        return getClothTranslucent(texture, true);
+    }
 
     public static final EntityModelLayer PALE_WARDEN_LAYER = new EntityModelLayer(Identifier.of(Antiquities.MOD_ID, "pale_warden"), "main");
 
