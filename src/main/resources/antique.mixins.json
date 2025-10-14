@@ -93,6 +93,7 @@
     "items.renderers.ItemFrameEntityRendererMixin",
     "items.renderers.ItemRendererMixin",
     "items.renderers.ThirdPersonItemMixin",
+    "items.renderers.WorldRendererMixin",
     "screens.HandledScreenMixin",
     "screens.HUDOverylayMixin",
     "screens.ModMenuEntryMixin",

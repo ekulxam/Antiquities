@@ -1,5 +1,6 @@
 package net.hollowed.antique.client.renderer.cloth;
 
+import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
