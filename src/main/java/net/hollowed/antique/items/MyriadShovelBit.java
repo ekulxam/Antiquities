@@ -258,7 +258,7 @@ public class MyriadShovelBit extends MyriadToolBitItem{
                 }
             }
         }
-        return super.toolOnStoppedUsing(stack, world, user, remainingUseTicks);
+        return false;
     }
 
     @Override

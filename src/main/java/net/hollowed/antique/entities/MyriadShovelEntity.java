@@ -7,7 +7,7 @@ import net.hollowed.antique.index.AntiqueDamageTypes;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.hollowed.combatamenities.index.CAParticles;
-import net.hollowed.combatamenities.util.items.ModComponents;
+import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.enchantment.EnchantmentHelper;
@@ -60,7 +60,7 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		this.dataTracker.set(COLOR, this.getItemStack().getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
 		this.dataTracker.set(OVERLAY_COLOR, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
 		this.dataTracker.set(CLOTH, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth"));
-		this.dataTracker.set(GLOW, this.getItemStack().getOrDefault(ModComponents.BOOLEAN_PROPERTY, false));
+		this.dataTracker.set(GLOW, this.getItemStack().getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 		this.setPierceLevel((byte) 5);
 	}
 
@@ -69,7 +69,7 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		this.setDamage(8);
 		this.dataTracker.set(LOYALTY, this.getLoyalty(stack));
 		this.dataTracker.set(ENCHANTED, stack.hasGlint());
-		this.dataTracker.set(GLOW, stack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false));
+		this.dataTracker.set(GLOW, stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 		this.setStack(stack);
 		this.dataTracker.set(COLOR, this.getItemStack().getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
 		this.dataTracker.set(OVERLAY_COLOR, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());

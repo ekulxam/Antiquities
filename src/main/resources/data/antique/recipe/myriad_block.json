@@ -1,5 +1,6 @@
 {
   "type": "minecraft:crafting_shapeless",
+  "category": "building",
   "ingredients": [
     "antique:myriad_ingot",
     "antique:myriad_ingot",

@@ -1,15 +1,10 @@
 package net.hollowed.antique.client.armor.models;
 
 import net.hollowed.antique.index.AntiqueItems;
-import net.hollowed.antique.mixin.accessors.TexturedModelDataDataAccessor;
-import net.hollowed.antique.util.interfaces.duck.IsHuskGetter;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.entity.model.*;
 import net.minecraft.client.render.entity.state.*;
 import net.minecraft.entity.player.PlayerSkinType;
-import net.minecraft.util.math.EulerAngle;
-import net.minecraft.util.math.MathHelper;
-import org.joml.Vector3f;
 
 public class AdventureArmor<S extends BipedEntityRenderState> extends BipedEntityModel<S> {
 	public final ModelPart satchel;
@@ -21,11 +16,6 @@ public class AdventureArmor<S extends BipedEntityRenderState> extends BipedEntit
 	public final ModelPart rightBoot;
 	public final ModelPart leftBoot;
 
-	public final ModelPart rightBodyStick;
-	public final ModelPart leftBodyStick;
-	public final ModelPart shoulderStick;
-	public final ModelPart basePlate;
-
 	public AdventureArmor(ModelPart root) {
 		super(root);
 		this.realBody = root.getChild(EntityModelPartNames.BODY).getChild("realBody");
@@ -36,15 +26,10 @@ public class AdventureArmor<S extends BipedEntityRenderState> extends BipedEntit
 		this.leftArmArmorThick = root.getChild(EntityModelPartNames.LEFT_ARM).getChild("leftArmArmorThick");
 		this.rightBoot = root.getChild(EntityModelPartNames.RIGHT_LEG).getChild("rightBoot");
 		this.leftBoot = root.getChild(EntityModelPartNames.LEFT_LEG).getChild("leftBoot");
-
-		this.rightBodyStick = root.getChild("right_body_stick");
-		this.leftBodyStick = root.getChild("left_body_stick");
-		this.shoulderStick = root.getChild("shoulder_stick");
-		this.basePlate = root.getChild("base_plate");
 	}
 
 	public static TexturedModelData getTexturedModelData() {
-		ModelData modelData = ((TexturedModelDataDataAccessor) ArmorStandEntityModel.getTexturedModelData()).getData();
+		ModelData modelData = new ModelData();
 		ModelPartData modelPartData = modelData.getRoot();
 
 		ModelPartData head = modelPartData.addChild(EntityModelPartNames.HEAD, ModelPartBuilder.create(), ModelTransform.NONE);
@@ -90,47 +75,6 @@ public class AdventureArmor<S extends BipedEntityRenderState> extends BipedEntit
 
 	@Override
 	public void setAngles(S state) {
-		super.setAngles(state);
-
-		if (state instanceof ZombieEntityRenderState zombieEntityRenderState) {
-			if (state instanceof IsHuskGetter access && access.antiquities$getHusk()) {
-				this.root.moveOrigin(new Vector3f(0, -1.5F, 0));
-				this.root.scale(new Vector3f(0.05F, 0.05F, 0.05F));
-			}
-			float f = zombieEntityRenderState.handSwingProgress;
-			ArmPosing.zombieArms(this.leftArm, this.rightArm, zombieEntityRenderState.attacking, f, zombieEntityRenderState.age);
-		}
-
-		if (state instanceof SkeletonEntityRenderState skeletonEntityRenderState) {
-			if (skeletonEntityRenderState.attacking && !skeletonEntityRenderState.holdingBow) {
-				float f = skeletonEntityRenderState.handSwingProgress;
-				float g = MathHelper.sin(f * (float) Math.PI);
-				float h = MathHelper.sin((1.0F - (1.0F - f) * (1.0F - f)) * (float) Math.PI);
-				this.rightArm.roll = 0.0F;
-				this.leftArm.roll = 0.0F;
-				this.rightArm.yaw = -(0.1F - g * 0.6F);
-				this.leftArm.yaw = 0.1F - g * 0.6F;
-				this.rightArm.pitch = (float) (-Math.PI / 2);
-				this.leftArm.pitch = (float) (-Math.PI / 2);
-				this.rightArm.pitch -= g * 1.2F - h * 0.4F;
-				this.leftArm.pitch -= g * 1.2F - h * 0.4F;
-				ArmPosing.swingArms(this.rightArm, this.leftArm, skeletonEntityRenderState.age);
-			}
-		}
-
-		if (state instanceof ArmorStandEntityRenderState armorStandEntityRenderState) {
-			EulerAngle leftAngle = armorStandEntityRenderState.leftArmRotation;
-			EulerAngle rightAngle = armorStandEntityRenderState.rightArmRotation;
-
-			this.leftArm.setAngles((float) Math.toRadians(leftAngle.pitch()), (float) Math.toRadians(leftAngle.yaw()), (float) Math.toRadians(leftAngle.roll()));
-			this.rightArm.setAngles((float) Math.toRadians(rightAngle.pitch()), (float) Math.toRadians(rightAngle.yaw()), (float) Math.toRadians(rightAngle.roll()));
-		}
-
-		rightBodyStick.visible = false;
-		leftBodyStick.visible = false;
-		shoulderStick.visible = false;
-		basePlate.visible = false;
-
 		boolean slim = state instanceof PlayerEntityRenderState playerState && playerState.skinTextures.model() == PlayerSkinType.SLIM || state instanceof SkeletonEntityRenderState;
 		rightArmArmorThick.visible = leftArmArmorThick.visible = !slim;
 		rightArmArmor.visible = leftArmArmor.visible = slim;

@@ -8,22 +8,19 @@ import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.hollowed.antique.util.resources.MyriadStaffTransformData;
 import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
-import net.hollowed.combatamenities.util.items.ModComponents;
+import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.item.HeldItemRenderer;
 import net.minecraft.client.render.item.ItemRenderState;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.client.world.ClientWorld;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.registry.Registries;
 import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
@@ -59,13 +56,6 @@ public abstract class FirstPersonHeldItemRendererMixin {
         Vec3d itemWorldPos;
 
         if (entity instanceof PlayerEntity player) {
-            if (stack.isOf(Items.DIAMOND)) {
-                matrices.translate( -0.1, 0, -0.2);
-                if (player.getEntityWorld() instanceof ClientWorld clientWorld) {
-                    Vec3d testPos = ClothManager.matrixToVec(matrices);
-                    clientWorld.addParticleClient(ParticleTypes.ELECTRIC_SPARK, testPos.x, testPos.y, testPos.z, 0, 0, 0);
-                }
-            }
             if (stack.isOf(AntiqueItems.MYRIAD_TOOL) || stack.isOf(AntiqueItems.MYRIAD_STAFF)) {
                 if (renderMode != ItemDisplayContext.NONE) {
                     matrices.translate(0, -0.1, 0.1);
@@ -103,7 +93,7 @@ public abstract class FirstPersonHeldItemRendererMixin {
                                 matrices,
                                 orderedRenderCommandQueue,
                                 data.light() != 0 ? data.light() : light,
-                                stack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false),
+                                stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
                                 data.dyeable() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
                                 new Color(stack.getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb()),
                                 true,

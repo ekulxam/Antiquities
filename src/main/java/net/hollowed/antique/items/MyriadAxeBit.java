@@ -165,13 +165,13 @@ public class MyriadAxeBit extends MyriadToolBitItem{
     }
 
     @Override
-    public void setToolAttributes(ItemStack tool) {
-        tool.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
+    public void setToolAttributes(ItemStack toolStack) {
+        toolStack.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
                 .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 9, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                 .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -3, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                 .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.75, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
                 .build());
-        tool.set(DataComponentTypes.TOOL, new ToolComponent(
+        toolStack.set(DataComponentTypes.TOOL, new ToolComponent(
                 List.of(
                         ToolComponent.Rule.ofNeverDropping(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.INCORRECT_FOR_IRON_TOOL)),
                         ToolComponent.Rule.ofAlwaysDropping(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.AXE_MINEABLE), 20)
@@ -180,7 +180,7 @@ public class MyriadAxeBit extends MyriadToolBitItem{
                 1,
                 true
         ));
-        tool.set(DataComponentTypes.WEAPON, new WeaponComponent(0, 2));
-        tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_axe"));
+        toolStack.set(DataComponentTypes.WEAPON, new WeaponComponent(0, 2));
+        toolStack.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_axe"));
     }
 }

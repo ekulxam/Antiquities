@@ -1,0 +1,33 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:item/generated",
+	"textures": {
+		"layer0": "antique:item/cryoscythe"
+	},
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [-55, -90, 0],
+			"translation": [-0.5, 5, 3],
+			"scale": [1.7, 1.7, 0.85]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [-55, 90, 0],
+			"translation": [0.5, 5, 3],
+			"scale": [1.7, 1.7, 0.85]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, -90, 25],
+			"translation": [5.13, 5.7, -1.5],
+			"scale": [1.36, 1.36, 0.68]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, 90, -25],
+			"translation": [5.13, 5.7, -1.5],
+			"scale": [1.36, 1.36, 0.68]
+		},
+		"head": {
+			"translation": [0, 17, 0]
+		}
+	}
+}

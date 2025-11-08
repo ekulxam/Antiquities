@@ -2,11 +2,12 @@ package net.hollowed.antique.items;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueItems;
-import net.hollowed.combatamenities.util.items.ModComponents;
+import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.AttributeModifierSlot;
 import net.minecraft.component.type.AttributeModifiersComponent;
 import net.minecraft.component.type.ToolComponent;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.attribute.EntityAttributeModifier;
 import net.minecraft.entity.attribute.EntityAttributes;
@@ -34,6 +35,10 @@ public class MyriadCleaverBit extends MyriadToolBitItem{
 
     @Override
     public boolean toolOnStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+        for (Entity entity : world.getOtherEntities(user, user.getBoundingBox().expand(3, 0.5, 3))) {
+            entity.addVelocity(entity.getEntityPos().subtract(user.getEntityPos()).normalize().multiply(1.25, 0.5, 1.25).add(0, 0.75, 0));
+            entity.velocityModified = true;
+        }
         return true;
     }
 
@@ -60,6 +65,6 @@ public class MyriadCleaverBit extends MyriadToolBitItem{
                 true
         ));
         tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_cleaver"));
-        tool.set(ModComponents.INTEGER_PROPERTY, 1);
+        tool.set(CAComponents.INTEGER_PROPERTY, 1);
     }
 }

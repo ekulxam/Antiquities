@@ -9,7 +9,7 @@ import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.hollowed.antique.util.resources.MyriadStaffTransformData;
 import net.hollowed.antique.util.resources.MyriadStaffTransformResourceReloadListener;
-import net.hollowed.combatamenities.util.items.ModComponents;
+import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -94,7 +94,7 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                                 matrices,
                                 orderedRenderCommandQueue,
                                 data.light() != 0 ? data.light() : light,
-                                stack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false),
+                                stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
                                 data.dyeable() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
                                 new Color(stack.getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb()),
                                 true,

@@ -12,6 +12,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class SatchelPacketReceiver {
 
     public static void registerServerPacket() {
@@ -45,7 +48,16 @@ public class SatchelPacketReceiver {
                             MyriadToolItem.setStoredStack(currentHotbarStack, currentSatchelStack);
                             player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
                         } else {
-                            playerInventory.setStack(currentHotbarSlot, currentSatchelStack);
+                            List<ItemStack> storedStacks = new ArrayList<>(SatchelItem.getStoredStacks(satchelInventory));
+                            if (storedStacks.stream().anyMatch(itemStack -> ItemStack.areItemsAndComponentsEqual(itemStack, currentHotbarStack) && itemStack.getCount() < itemStack.getMaxCount())) {
+                                ItemStack remainder = SatchelItem.addToStoredStacks(storedStacks, currentHotbarStack);
+                                SatchelItem.setStoredStacks(satchelInventory, storedStacks);
+                                playerInventory.setStack(currentHotbarSlot, remainder);
+                                player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                                return;
+                            } else {
+                                playerInventory.setStack(currentHotbarSlot, currentSatchelStack);
+                            }
                             player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_REMOVE_ONE, SoundCategory.PLAYERS, 1.0F, 1.0F);
                         }
                     } else if (currentHotbarStack.getItem() instanceof MyriadToolItem) {
@@ -77,7 +89,13 @@ public class SatchelPacketReceiver {
                                 satchelItem.setSlot(satchelInventory, myriadItem);
                             }
                         } else {
-                            satchelItem.setSlot(satchelInventory, currentHotbarStack);
+                            if (currentSatchelStack.isEmpty()) {
+                                List<ItemStack> storedStacks = new ArrayList<>(SatchelItem.getStoredStacks(satchelInventory));
+                                SatchelItem.addToStoredStacks(storedStacks, currentHotbarStack);
+                                SatchelItem.setStoredStacks(satchelInventory, storedStacks);
+                            } else {
+                                satchelItem.setSlot(satchelInventory, currentHotbarStack);
+                            }
                         }
                         player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_INSERT, SoundCategory.PLAYERS, 1.0F, 1.0F);
                     } else  {

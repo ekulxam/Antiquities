@@ -30,7 +30,6 @@ public abstract class RaidModifierMixin {
         int i = this.wavesSpawned;
         IllusionerEntity raiderEntity = new IllusionerEntity(AntiqueEntities.ILLUSIONER, world);
         raiderEntity.setStackInHand(Hand.MAIN_HAND, Items.BOW.getDefaultStack());
-        System.out.println(i);
         switch (world.getDifficulty()) {
             case Difficulty.EASY -> {
                 if (i == this.getMaxWaves(Difficulty.EASY)) {

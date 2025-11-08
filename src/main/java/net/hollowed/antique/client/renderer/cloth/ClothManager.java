@@ -1,5 +1,6 @@
 package net.hollowed.antique.client.renderer.cloth;
 
+import net.hollowed.antique.config.AntiquitiesConfig;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
@@ -10,6 +11,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.Util;
 import net.minecraft.util.math.*;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -22,12 +24,14 @@ import java.util.Objects;
 
 public class ClothManager {
 
+    private long lastTimeStep = Util.getMeasuringTimeMs();
+
     public static RenderLayer getClothRenderLayer(Identifier cloth) {
-        return RenderLayer.getEntityTranslucent(Identifier.of(cloth.getNamespace() + ":textures/cloth/" + cloth.getPath() + ".png"));
+        return RenderLayer.getItemEntityTranslucentCull(Identifier.of(cloth.getNamespace() + ":textures/cloth/" + cloth.getPath() + ".png"));
     }
 
     public static RenderLayer getOverlayRenderLayer(String cloth, Identifier overlay) {
-        return RenderLayer.getEntityTranslucent(Identifier.of(overlay.getNamespace() + ":textures/overlay/" + overlay.getPath() + cloth + ".png"));
+        return RenderLayer.getItemEntityTranslucentCull(Identifier.of(overlay.getNamespace() + ":textures/overlay/" + overlay.getPath() + cloth + ".png"));
     }
 
     public Vector3d pos = new Vector3d();
@@ -53,7 +57,8 @@ public class ClothManager {
     }
 
     public void tick(boolean ignoreFreeze, double length) {
-        double delta = MinecraftClient.getInstance().getRenderTickCounter().getTickProgress(ignoreFreeze);
+        long currentTimeStep = Util.getMeasuringTimeMs();
+        double delta = ((double) (currentTimeStep - lastTimeStep)) * 1000;
         ClientWorld world = MinecraftClient.getInstance().world;
 
         if (delta == 0) {
@@ -87,23 +92,21 @@ public class ClothManager {
                 double newDrag = Math.random() * (state.getBlock() == Blocks.WATER ? 0.25 : 1.25);
                 double smoothDrag = MathHelper.lerp(delta * 0.1, previousDrag, newDrag);
 
-                // Apply gravity and wind
-                if (state.getBlock() == Blocks.WATER) {
-                    body.accel.add(0.0, 0.0025, 0.0);
-
-                    //ClothWindHelper.applyWindToBody(body, i, (i * i * 0.5), 0.75, smoothDrag);
-                } else {
-                    body.accel.add(0, -0.005, 0);
-
-                    //ClothWindHelper.applyWindToBody(body, i, (i * i * 0.5), 1.00, smoothDrag);
+                // Apply gravity
+                var gravity = AntiquitiesConfig.clothGravity;
+                if(state.getBlock() == Blocks.WATER) {
+                    gravity *= -0.5;
                 }
+                gravity /= 1000000000;
+
+                body.accel.add(0, -gravity, 0);
 
                 previousDrag = smoothDrag; // Store for next iteration
                 body.update(delta);
             }
         }
 
-        for (int k = 0; k < 10; k++) {
+        for (int k = 0; k < 32; k++) {
             if (k % 2 == 0) {
                 for (int i = 0; i < bodies.size() - 1; i++) {
                     bodies.get(i).containDistance(bodies.get(i + 1), length / bodies.size());
@@ -134,6 +137,8 @@ public class ClothManager {
         if (root.pos.distance(root.posCache) > maxDistance) {
             resetCloth(); // Call reset method
         }
+
+        lastTimeStep = currentTimeStep;
     }
 
     // Reset all body segments to be near the root position
@@ -170,6 +175,7 @@ public class ClothManager {
     }
 
     public void renderCloth(Vec3d position, MatrixStack matrices, OrderedRenderCommandQueue queue, int light, boolean glow, Color color, Color overlayColor, boolean ignoreFreeze, Identifier cloth, Identifier overlay, double length, double width, int bodyCount) {
+
         if (bodyCount != 0 && this.bodyCountCooldown <= 0 && bodyCount != (bodies.size() - 1)) {
             setBodyCount(bodyCount);
             this.bodyCountCooldown = 3;
@@ -254,19 +260,29 @@ public class ClothManager {
     public void drawQuad(MatrixStack matrices, Matrix4f matrix, RenderLayer layer, @Nullable RenderLayer overlay, OrderedRenderCommandQueue queue, Vector3d posA, Vector3d posB, Vector3d posC, Vector3d posD, Vec2f uvA, Vec2f uvB, Vec2f uvC, Vec2f uvD, int light, boolean glow, Color color, Color overlayColor) {
         var cam = MinecraftClient.getInstance().gameRenderer.getCamera().getPos().multiply(-1);
 
-        queue.submitCustom(matrices, layer, ((matricesEntry, vertexConsumer) -> {
+        queue.getBatchingQueue(1).submitCustom(matrices, layer, ((matricesEntry, vertexConsumer) -> {
             vertexConsumer.vertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(light).texture(uvD.x, uvD.y).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
             vertexConsumer.vertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(light).texture(uvC.x, uvC.y).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
             vertexConsumer.vertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(light).texture(uvB.x, uvB.y).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
             vertexConsumer.vertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(light).texture(uvA.x, uvA.y).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+
+            vertexConsumer.vertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(light).texture(uvA.x, uvA.y).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+            vertexConsumer.vertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(light).texture(uvB.x, uvB.y).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+            vertexConsumer.vertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(light).texture(uvC.x, uvC.y).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
+            vertexConsumer.vertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(light).texture(uvD.x, uvD.y).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
         }));
 
         if (overlay == null) return;
-        queue.submitCustom(matrices, overlay, ((matricesEntry, vertexConsumer) -> {
+        queue.getBatchingQueue(2).submitCustom(matrices, overlay, ((matricesEntry, vertexConsumer) -> {
             vertexConsumer.vertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(glow ? 255 : light).texture(uvD.x, uvD.y).color(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
             vertexConsumer.vertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(glow ? 255 : light).texture(uvC.x, uvC.y).color(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
             vertexConsumer.vertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(glow ? 255 : light).texture(uvB.x, uvB.y).color(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
             vertexConsumer.vertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(glow ? 255 : light).texture(uvA.x, uvA.y).color(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
+
+            vertexConsumer.vertex(matrix, (float) ((float) posA.x + cam.x), (float) ((float) posA.y + cam.y), (float) ((float) posA.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(glow ? 255 : light).texture(uvA.x, uvA.y).color(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
+            vertexConsumer.vertex(matrix, (float) ((float) posB.x + cam.x), (float) ((float) posB.y + cam.y), (float) ((float) posB.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(glow ? 255 : light).texture(uvB.x, uvB.y).color(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
+            vertexConsumer.vertex(matrix, (float) ((float) posC.x + cam.x), (float) ((float) posC.y + cam.y), (float) ((float) posC.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(glow ? 255 : light).texture(uvC.x, uvC.y).color(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
+            vertexConsumer.vertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).overlay(OverlayTexture.DEFAULT_UV).normal(0,1,0).light(glow ? 255 : light).texture(uvD.x, uvD.y).color(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
         }));
     }
 }

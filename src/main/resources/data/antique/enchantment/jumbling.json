@@ -16,6 +16,6 @@
     "hand"
   ],
   "exclusive_set": "#antique:exclusive_set/bundle",
-  "supported_items": "#minecraft:bundles",
+  "supported_items": "antique:satchel",
   "weight": 5
 }

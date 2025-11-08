@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
-import net.hollowed.combatamenities.util.items.ModComponents;
+import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.network.RegistryByteBuf;
@@ -84,7 +84,7 @@ public class ClothPatternGlowRecipe implements CraftingRecipe {
 
 		if (clothPattern != null) {
 			ItemStack result = clothPattern.copy();
-			result.set(ModComponents.BOOLEAN_PROPERTY, glow);
+			result.set(CAComponents.BOOLEAN_PROPERTY, glow);
 			return result;
 		}
 		return ItemStack.EMPTY;

@@ -59,7 +59,7 @@
   "item.antique.myriad_staff.empty": " - Empty -",
 
   "item.antique.reverence": "Reverence",
-  "item.antique.irreverence": "Irreverence",
+  "item.antique.cryoscythe": "Cryoscythe",
   "item.antique.explosive_spear": "Explosive Spear",
 
   "effect.antique.bouncy": "Bouncy",
@@ -69,7 +69,7 @@
   "itemGroup.antique.antiquities_blocks": "Antiquities Blocks",
   "itemGroup.antique.antiquities_cloths": "Antiquities Cloths & Patterns",
   "death.antique.death": " was erased from existence",
-  "instrument.antique.warhorn": "Warhorn",
+  "instrument.antique.warhorn": "Ravage",
 
   "subtitles.antique.firecracker": "Firecracker Explodes",
   "subtitles.antique.warhorn": "Warhorn Blasts",
@@ -91,6 +91,7 @@
   "stat.antique.interact_with_dye_table": "Interactions with Dye Table",
   "container.antique.hex": "Hex",
   "item.antique.satchel.empty.description": "Can hold 8 separate stacks",
+  "item.antique.bundle_minecart": "Not enough space for a minecart.",
 
   "item.antique.cloth": "Default Cloth",
   "item.antique.tattered_cloth": "Tattered Cloth",
@@ -112,6 +113,7 @@
   "item.antique.tarnish_cloth": "Tarnish Cloth",
   "item.antique.winter_cloth": "Winter Cloth",
   "item.antique.hollowed_cloth": "Hollowed Cloth",
+  "item.antique.amber_cloth": "Amber Cloth",
   "item.antique.cord_cloth": "Cord Cloth",
   "item.antique.shiny_cloth": "Shiny Cloth",
   "item.antique.nitron_cloth": "Nitron Cloth",

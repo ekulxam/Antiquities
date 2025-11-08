@@ -1,5 +1,6 @@
 package net.hollowed.antique;
 
+import eu.midnightdust.lib.config.MidnightConfig;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
@@ -11,6 +12,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType;
 import net.fabricmc.fabric.api.resource.v1.ResourceLoader;
 import net.fabricmc.loader.api.FabricLoader;
+import net.hollowed.antique.config.AntiquitiesConfig;
 import net.hollowed.antique.index.AntiqueBlockEntities;
 import net.hollowed.antique.index.*;
 import net.hollowed.antique.networking.*;
@@ -33,7 +35,6 @@ import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.resource.ResourceType;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
@@ -46,6 +47,7 @@ import static net.minecraft.item.Item.BASE_ATTACK_DAMAGE_MODIFIER_ID;
 import static net.minecraft.item.Item.BASE_ATTACK_SPEED_MODIFIER_ID;
 
 public class Antiquities implements ModInitializer {
+
 	public static final String MOD_ID = "antique";
 
 	public static Identifier id(String string) {
@@ -77,6 +79,9 @@ public class Antiquities implements ModInitializer {
 		AntiqueEffects.initialize();
 		AntiqueDispenserBehaviors.initialize();
 		AntiqueRecipeSerializer.init();
+		AntiquePlacedFeatures.init();
+		AntiqueFeatures.init();
+		MidnightConfig.init(MOD_ID, AntiquitiesConfig.class);
 
 		ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(id("staff_transforms"), new MyriadStaffTransformResourceReloadListener());
 		ResourceLoader.get(ResourceType.CLIENT_RESOURCES).registerReloader(id("pedestal_transforms"), new PedestalDisplayListener());
@@ -118,14 +123,6 @@ public class Antiquities implements ModInitializer {
 		 */
 
 		ServerTickEvents.END_SERVER_TICK.register(server -> TickDelayScheduler.tick());
-
-		ServerTickEvents.END_WORLD_TICK.register(world -> {
-			for (ServerPlayerEntity player : world.getPlayers()) {
-				if (player.isSneaking()) {
-					player.setSwimming(true);
-				}
-			}
-		});
 
 		/*
 			Component Modification
@@ -195,7 +192,7 @@ public class Antiquities implements ModInitializer {
 			.build();
 
 	private void addItems() {
-		ItemGroupEvents.modifyEntriesEvent(ItemGroups.OPERATOR).register(itemGroup -> itemGroup.add(AntiqueItems.IRREVERENT));
+		ItemGroupEvents.modifyEntriesEvent(ItemGroups.OPERATOR).register(itemGroup -> itemGroup.add(AntiqueItems.CRYOSCYTHE));
 
 		ItemGroupEvents.modifyEntriesEvent(ANTIQUITIES_BLOCKS_GROUP_KEY).register(itemGroup -> {
 			itemGroup.add(AntiqueBlocks.MYRIAD_ORE);
@@ -286,7 +283,7 @@ public class Antiquities implements ModInitializer {
 					.add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.2, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
 					.add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 1, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
 					.build());
-			myriadCleaver.set(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY, 1);
+			myriadCleaver.set(net.hollowed.combatamenities.util.items.CAComponents.INTEGER_PROPERTY, 1);
 			itemGroup.add(myriadCleaver);
 
 			itemGroup.add(AntiqueItems.MYRIAD_PICK_HEAD);

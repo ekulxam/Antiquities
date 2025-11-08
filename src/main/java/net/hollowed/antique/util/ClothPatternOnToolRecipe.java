@@ -19,7 +19,7 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
 import net.hollowed.antique.util.resources.ClothSkinData;
-import net.hollowed.combatamenities.util.items.ModComponents;
+import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.item.ItemStack;
@@ -159,7 +159,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 
 			result.set(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, clothPattern.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)));
 			result.set(AntiqueDataComponentTypes.CLOTH_PATTERN, pattern);
-			result.set(ModComponents.BOOLEAN_PROPERTY, clothPattern.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false));
+			result.set(CAComponents.BOOLEAN_PROPERTY, clothPattern.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 
 			return result;
 		}

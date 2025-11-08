@@ -47,8 +47,8 @@ public class BlockNoCollisionMixin {
         }
     }
 
-    @WrapWithCondition(method = "onEntityCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;onEntityCollision(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/EntityCollisionHandler;)V"))
-    private boolean onEntityCollision(Block instance, BlockState blockState, World world, BlockPos blockPos, Entity entity, EntityCollisionHandler entityCollisionHandler) {
+    @WrapWithCondition(method = "onEntityCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;onEntityCollision(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/EntityCollisionHandler;Z)V"))
+    private boolean onEntityCollision(Block instance, BlockState blockState, World world, BlockPos blockPos, Entity entity, EntityCollisionHandler entityCollisionHandler, boolean b) {
         return !(entity instanceof LivingEntity living && living.hasStatusEffect(AntiqueEffects.ANIME_EFFECT) && world.getBlockState(blockPos).getBlock().getBlastResistance() < 500);
     }
 }

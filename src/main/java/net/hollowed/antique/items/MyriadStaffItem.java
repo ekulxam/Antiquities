@@ -119,9 +119,9 @@ public class MyriadStaffItem extends Item {
         super.inventoryTick(stack, world, entity, slot);
         Object name = stack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "None");
         if (name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))) {
-            stack.set(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY, 1);
+            stack.set(net.hollowed.combatamenities.util.items.CAComponents.INTEGER_PROPERTY, 1);
         } else {
-            stack.set(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY, 0);
+            stack.set(net.hollowed.combatamenities.util.items.CAComponents.INTEGER_PROPERTY, 0);
         }
     }
 

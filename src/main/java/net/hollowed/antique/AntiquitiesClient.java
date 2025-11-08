@@ -8,18 +8,16 @@ import net.fabricmc.fabric.api.client.rendering.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.hollowed.antique.client.armor.models.VanillaArmorModel;
 import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
+import net.hollowed.antique.client.armor.renderers.VanillaArmorFeatureRenderer;
 import net.hollowed.antique.index.*;
 import net.hollowed.antique.blocks.screens.DyeingScreen;
 import net.hollowed.antique.blocks.entities.renderer.PedestalRenderer;
 import net.hollowed.antique.client.armor.models.AdventureArmor;
-import net.hollowed.antique.client.armor.models.ArmorStandAdventureArmor;
 import net.hollowed.antique.entities.models.PaleWardenModel;
 import net.hollowed.antique.entities.renderer.*;
 import net.hollowed.antique.networking.*;
 import net.hollowed.antique.util.models.*;
-import net.hollowed.combatamenities.util.delay.ClientTickDelayScheduler;
 import net.minecraft.block.Blocks;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
@@ -27,12 +25,17 @@ import net.minecraft.client.render.entity.EntityRendererFactories;
 import net.minecraft.client.render.entity.FlyingItemEntityRenderer;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.render.item.model.ItemModelTypes;
-import net.minecraft.client.texture.TextureManager;
 import net.minecraft.entity.projectile.thrown.SnowballEntity;
+import net.minecraft.item.ItemConvertible;
+import net.minecraft.item.Items;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.Registries;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class AntiquitiesClient implements ClientModInitializer {
 
@@ -44,8 +47,21 @@ public class AntiquitiesClient implements ClientModInitializer {
 
     public static final EntityModelLayer PALE_WARDEN_LAYER = new EntityModelLayer(Identifier.of(Antiquities.MOD_ID, "pale_warden"), "main");
 
+    public static List<Identifier> BETTER_ARMOR_LIST = new ArrayList<>();
+
+    private static void registerVanillaArmor(ItemConvertible... items) {
+        for (ItemConvertible item : items) {
+            BETTER_ARMOR_LIST.add(Registries.ITEM.getId(item.asItem()));
+        }
+
+        ArmorRenderer.register(new VanillaArmorFeatureRenderer.Factory(), items);
+    }
+
     @Override
     public void onInitializeClient() {
+
+        ArmorRenderer.register(new AdventureArmorFeatureRenderer.Factory(), AntiqueItems.NETHERITE_PAULDRONS, AntiqueItems.SATCHEL, AntiqueItems.FUR_BOOTS);
+        registerVanillaArmor(Items.IRON_HELMET, Items.IRON_CHESTPLATE, Items.IRON_LEGGINGS, Items.IRON_BOOTS);
 
         ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "satchel/selected_item"), SatchelSelectedItemModel.Unbaked.CODEC);
         ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "bag/selected_item"), BagOfTricksSelectedItemModel.Unbaked.CODEC);
@@ -54,12 +70,6 @@ public class AntiquitiesClient implements ClientModInitializer {
         ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "cloth"), ClothItemModel.Unbaked.CODEC);
         ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "cloth_pattern"), ClothPatternItemModel.Unbaked.CODEC);
         ItemModelTypes.ID_MAPPER.put(Identifier.of(Antiquities.MOD_ID, "model_glow"), GlowBasicItemModel.Unbaked.CODEC);
-
-        MinecraftClient.getInstance().execute(() -> ClientTickDelayScheduler.schedule(-1, () -> {
-            TextureManager textureManager = MinecraftClient.getInstance().getTextureManager();
-            textureManager.registerTexture(Antiquities.id("textures/environment/star.png"));
-        }));
-
 
         AntiqueParticles.initializeClient();
         HandledScreens.register(AntiqueScreenHandlerType.DYE_TABLE, DyeingScreen::new);
@@ -86,9 +96,7 @@ public class AntiquitiesClient implements ClientModInitializer {
          */
 
         EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.VANILLA_ARMOR, VanillaArmorModel::getTexturedModelData);
-        EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ARMOR_STAND_ADVENTURE_ARMOR, ArmorStandAdventureArmor::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(AntiqueEntityLayers.ADVENTURE_ARMOR, AdventureArmor::getTexturedModelData);
-        ArmorRenderer.register(new AdventureArmorFeatureRenderer(), AntiqueItems.NETHERITE_PAULDRONS, AntiqueItems.SATCHEL, AntiqueItems.FUR_BOOTS);
 
         EntityRendererFactories.register(AntiqueEntities.PALE_WARDEN, PaleWardenRenderer::new);
         EntityModelLayerRegistry.registerModelLayer(PALE_WARDEN_LAYER, PaleWardenModel::getTexturedModelData);
@@ -156,6 +164,8 @@ public class AntiquitiesClient implements ClientModInitializer {
         /*
             This entire section is ARR
          */
+
+
 
 //        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
 //            MinecraftClient client = MinecraftClient.getInstance();

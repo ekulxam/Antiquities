@@ -1,7 +1,6 @@
 package net.hollowed.antique.mixin.entities.features;
 
 import net.hollowed.antique.Antiquities;
-import net.hollowed.antique.client.armor.renderers.VanillaArmorFeatureRenderer;
 import net.hollowed.antique.index.AntiqueEntityLayers;
 import net.hollowed.antique.client.armor.models.AdventureArmor;
 import net.hollowed.antique.index.AntiqueItems;
@@ -32,6 +31,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+@SuppressWarnings("all") // this class is still broken - fix please
 @Mixin(PlayerEntityRenderer.class)
 public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractClientPlayerEntity, PlayerEntityRenderState, PlayerEntityModel> {
 
@@ -52,7 +52,6 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
     private void addCustomFeature(EntityRendererFactory.Context ctx, boolean slim, CallbackInfo ci) {
         this.slim = slim;
         this.armorModel = new AdventureArmor<>(ctx.getEntityModels().getModelPart(AntiqueEntityLayers.ADVENTURE_ARMOR));
-        this.addFeature(new VanillaArmorFeatureRenderer<>(this, 0, ctx.getEntityModels()));
     }
 
     @Inject(method = "getArmPose(Lnet/minecraft/entity/PlayerLikeEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;)Lnet/minecraft/client/render/entity/model/BipedEntityModel$ArmPose;", at = @At("HEAD"), cancellable = true)

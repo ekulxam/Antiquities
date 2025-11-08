@@ -1,6 +1,6 @@
 {
   "type": "antique:crafting_special_pattern_glow",
-  "category": "equipment",
+  "category": "misc",
   "ingredients": [
     "antique:cloth_pattern",
     "minecraft:glow_ink_sac"

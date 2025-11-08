@@ -5,7 +5,7 @@ import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ClothSkinListener;
-import net.hollowed.combatamenities.util.items.ModComponents;
+import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.*;
 import net.minecraft.entity.LivingEntity;
@@ -151,7 +151,7 @@ public class MyriadToolItem extends Item {
 
             toolStack.set(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, patternStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)));
             toolStack.set(AntiqueDataComponentTypes.CLOTH_PATTERN, pattern);
-            toolStack.set(ModComponents.BOOLEAN_PROPERTY, patternStack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false));
+            toolStack.set(CAComponents.BOOLEAN_PROPERTY, patternStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 
             player.playSound(SoundEvents.ITEM_DYE_USE, 1.0F, 1.0F);
         } else {
@@ -214,7 +214,7 @@ public class MyriadToolItem extends Item {
                     .build());
             tool.remove(DataComponentTypes.TOOL);
             tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_tool"));
-            tool.remove(net.hollowed.combatamenities.util.items.ModComponents.INTEGER_PROPERTY);
+            tool.remove(net.hollowed.combatamenities.util.items.CAComponents.INTEGER_PROPERTY);
         }
         tool.set(AntiqueDataComponentTypes.MYRIAD_STACK, newStack);
     }

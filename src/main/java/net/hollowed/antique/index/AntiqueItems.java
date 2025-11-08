@@ -3,7 +3,7 @@ package net.hollowed.antique.index;
 import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.*;
-import net.hollowed.combatamenities.util.items.ModComponents;
+import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.block.Block;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.DyedColorComponent;
@@ -34,7 +34,7 @@ public interface AntiqueItems {
     ));
     Item MIRAGE_SILK = register("mirage_silk", settings -> new Item(settings.rarity(Rarity.RARE)));
     Item BAG_OF_TRICKS = register("bag_of_tricks", settings -> new BagOfTricksItem(settings.maxCount(1)
-            .component(ModComponents.INTEGER_PROPERTY, -1)
+            .component(CAComponents.INTEGER_PROPERTY, -1)
             .component(AntiqueDataComponentTypes.SATCHEL_STACK, List.of())
             .component(AntiqueDataComponentTypes.COUNTER, 2)
             .rarity(Rarity.RARE)
@@ -46,7 +46,7 @@ public interface AntiqueItems {
     ));
     Item SATCHEL = register("satchel", settings -> new SatchelItem(settings.maxCount(1)
             .armor(AntiqueArmorMaterials.ADVENTURE_BASIC, EquipmentType.LEGGINGS)
-            .component(ModComponents.INTEGER_PROPERTY, -1)
+            .component(CAComponents.INTEGER_PROPERTY, -1)
             .component(AntiqueDataComponentTypes.SATCHEL_STACK, List.of())
             .component(AntiqueDataComponentTypes.COUNTER, 2)
             .rarity(Rarity.UNCOMMON)
@@ -94,7 +94,7 @@ public interface AntiqueItems {
             .maxDamage(2031)
             .fireproof()
     ));
-    Item IRREVERENT = register("irreverence", settings -> new DeathItem(settings.maxCount(1)
+    Item CRYOSCYTHE = register("cryoscythe", settings -> new DeathItem(settings.maxCount(1)
             .attributeModifiers(DeathItem.createAttributeModifiers())
             .enchantable(10).rarity(Rarity.EPIC)
             .maxDamage(2031)
@@ -231,7 +231,7 @@ public interface AntiqueItems {
                 Color patternColor = new Color(itemStack.getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
                 String patternName = itemStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, "").replace(":", ".");
                 Text pattern = Text.literal(" - ").append(Text.translatable("item." + patternName + "_cloth_pattern")).withColor(patternColor.brighter().getRGB());
-                if (itemStack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false)) {
+                if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
                     pattern = pattern.copy().append(Text.literal(" - ").withColor(0xff4adbb8)).append(Text.translatable("item.antique.glowing").withColor(0xff4adbb8));
                 }
                 if (!patternName.isEmpty()) {
@@ -252,7 +252,7 @@ public interface AntiqueItems {
                 list.add(1, text.getString().equals(" - Air -") ? Text.translatable("item.antique.myriad_staff.empty") : text);
             }
             if (itemStack.isOf(CLOTH_PATTERN)) {
-                if (itemStack.getOrDefault(ModComponents.BOOLEAN_PROPERTY, false)) {
+                if (itemStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false)) {
                     list.add(2, Text.translatable("item.antique.glowing").withColor(0xff4adbb8));
                 }
             }

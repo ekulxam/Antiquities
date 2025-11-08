@@ -1,6 +1,6 @@
 package net.hollowed.antique.items;
 
-import net.hollowed.combatamenities.util.items.ModComponents;
+import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.StackReference;
 import net.minecraft.item.Item;
@@ -39,7 +39,7 @@ public class ClothPatternItem extends Item {
     }
 
     private void addInk(PlayerEntity player, ItemStack patternStack, ItemStack inkStack) {
-        patternStack.set(ModComponents.BOOLEAN_PROPERTY, inkStack.isOf(Items.GLOW_INK_SAC));
+        patternStack.set(CAComponents.BOOLEAN_PROPERTY, inkStack.isOf(Items.GLOW_INK_SAC));
         player.playSound(inkStack.isOf(Items.GLOW_INK_SAC) ? SoundEvents.ITEM_GLOW_INK_SAC_USE : SoundEvents.ITEM_INK_SAC_USE, 1.0F, 1.0F);
         inkStack.decrementUnlessCreative(1, player);
     }

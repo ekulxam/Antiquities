@@ -221,25 +221,25 @@ public abstract class WallJumpMixin extends Entity implements Attackable {
                 if (collidingWest) {
                     pushVector = pushVector.add(lookingWest && movingForward ? 0.5 : 0.3, 0, 0); // Push east
                     if (ledgeWest && lookingWest) {
-                        pushVector = pushVector.multiply(0, 1, 0).add(this.getVelocity());
+                        pushVector = pushVector.multiply(0, entity.isSneaking() ? 1 : 1.35, 0).add(this.getVelocity());
                     }
                 }
                 if (collidingEast) {
                     pushVector = pushVector.add(lookingEast && movingForward ? -0.5 : -0.3, 0, 0); // Push west
                     if (ledgeEast && lookingEast) {
-                        pushVector = pushVector.multiply(0, 1, 0).add(this.getVelocity());
+                        pushVector = pushVector.multiply(0, entity.isSneaking() ? 1 : 1.35, 0).add(this.getVelocity());
                     }
                 }
                 if (collidingNorth) {
                     pushVector = pushVector.add(0, 0, lookingNorth && movingForward ? 0.5 : 0.3); // Push south
                     if (ledgeNorth && lookingNorth) {
-                        pushVector = pushVector.multiply(0, 1, 0).add(this.getVelocity());
+                        pushVector = pushVector.multiply(0, entity.isSneaking() ? 1 : 1.35, 0).add(this.getVelocity());
                     }
                 }
                 if (collidingSouth) {
                     pushVector = pushVector.add(0, 0, lookingSouth && movingForward ? -0.5 : -0.3); // Push north
                     if (ledgeSouth && lookingSouth) {
-                        pushVector = pushVector.multiply(0, 1, 0).add(this.getVelocity());
+                        pushVector = pushVector.multiply(0, entity.isSneaking() ? 1 : 1.35, 0).add(this.getVelocity());
                     }
                 }
 

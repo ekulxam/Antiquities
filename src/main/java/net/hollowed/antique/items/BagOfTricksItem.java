@@ -3,7 +3,7 @@ package net.hollowed.antique.items;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.tooltips.BagOfTricksTooltipData;
-import net.hollowed.combatamenities.util.items.ModComponents;
+import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.TooltipDisplayComponent;
 import net.minecraft.entity.ItemEntity;
@@ -110,19 +110,17 @@ public class BagOfTricksItem extends Item {
                 if (i >= storedStacks.size()) {
                     storedStacks.add(ItemStack.EMPTY);
                 }
-
-                if (storedStacks.get(i).isEmpty()) {
-                    ItemStack splitStack = otherStack.split(otherStack.getCount());
-                    storedStacks.set(i, splitStack);
-                    player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 0.8F, 1.0F);
-                    setStoredStacks(stack, storedStacks);
-                    slot.setStack(ItemStack.EMPTY);
-                    return true;
-                } else if (i == 7) {
-                    player.playSound(SoundEvents.ITEM_BUNDLE_INSERT_FAIL, 0.8F, 1.0F);
-                    return true;
-                }
             }
+
+            int otherStackCount = otherStack.getCount();
+            ItemStack remainder = addToStoredStacks(storedStacks, otherStack);
+            if (remainder.getCount() == otherStackCount) {
+                player.playSound(SoundEvents.ITEM_BUNDLE_INSERT_FAIL, 0.8F, 1.0F);
+            } else {
+                player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 0.8F, 1.0F);
+            }
+            setStoredStacks(stack, storedStacks);
+            return true;
         }
         return super.onStackClicked(stack, slot, clickType, player);
     }
@@ -158,19 +156,17 @@ public class BagOfTricksItem extends Item {
                 if (i >= storedStacks.size()) {
                     storedStacks.add(ItemStack.EMPTY);
                 }
-
-                if (storedStacks.get(i).isEmpty()) {
-                    ItemStack splitStack = otherStack.split(otherStack.getCount());
-                    storedStacks.set(i, splitStack);
-                    player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 1.0F, 1.0F);
-                    setStoredStacks(stack, storedStacks);
-                    cursorStackReference.set(ItemStack.EMPTY);
-                    return true;
-                } else if (i == 7) {
-                    player.playSound(SoundEvents.ITEM_BUNDLE_INSERT_FAIL, 1.0F, 1.0F);
-                    return true;
-                }
             }
+
+            int otherStackCount = otherStack.getCount();
+            ItemStack remainder = addToStoredStacks(storedStacks, otherStack);
+            if (remainder.getCount() == otherStackCount) {
+                player.playSound(SoundEvents.ITEM_BUNDLE_INSERT_FAIL, 1.0F, 1.0F);
+            } else {
+                player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 1.0F, 1.0F);
+            }
+            setStoredStacks(stack, storedStacks);
+            return true;
         }
         return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
     }
@@ -207,7 +203,7 @@ public class BagOfTricksItem extends Item {
     }
 
     public static boolean hasSelectedStack(ItemStack stack) {
-        return stack.getOrDefault(ModComponents.INTEGER_PROPERTY, -1) != -1;
+        return stack.getOrDefault(CAComponents.INTEGER_PROPERTY, -1) != -1;
     }
 
     public boolean isInvalidItem(ItemStack stack) {
@@ -228,11 +224,57 @@ public class BagOfTricksItem extends Item {
     }
 
     public static void setInternalIndex(ItemStack stack, int internalIndex) {
-        stack.set(ModComponents.INTEGER_PROPERTY, internalIndex);
+        stack.set(CAComponents.INTEGER_PROPERTY, internalIndex);
     }
 
     public static int getInternalIndex(ItemStack stack) {
-        return stack.getOrDefault(ModComponents.INTEGER_PROPERTY, -1);
+        return stack.getOrDefault(CAComponents.INTEGER_PROPERTY, -1);
+    }
+
+    public static ItemStack addToStoredStacks(List<ItemStack> storedStacks, ItemStack stack) {
+
+        for (int i = 0; i < storedStacks.size(); i++) {
+            ItemStack storedStack = storedStacks.get(i);
+            int stackRoom = storedStack.getMaxCount() - storedStack.getCount();
+            if (stackRoom > 0 && !storedStack.isEmpty()) {
+                if (ItemStack.areItemsAndComponentsEqual(storedStack, stack)) {
+                    int stackAmount = Math.min(stack.getCount(), stackRoom);
+                    storedStack.increment(stackAmount);
+                    stack.decrement(stackAmount);
+                    storedStacks.set(i, storedStack);
+
+                    if (!stack.isEmpty()) {
+                        if (storedStacks.size() < MAX_STACKS) {
+                            storedStacks.add(stack.copy());
+                            stack.setCount(0);
+                            return ItemStack.EMPTY;
+                        } else if (storedStacks.contains(ItemStack.EMPTY)) {
+                            storedStacks.set(storedStacks.indexOf(ItemStack.EMPTY), stack.copy());
+                            stack.setCount(0);
+                            return ItemStack.EMPTY;
+                        } else {
+                            for (ItemStack checkStack : storedStacks) {
+                                if (checkStack.getCount() < checkStack.getMaxCount() && ItemStack.areItemsAndComponentsEqual(checkStack, stack)) {
+                                    return addToStoredStacks(storedStacks, stack);
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (storedStack.isEmpty()) {
+                storedStacks.set(i, stack.copy());
+                stack.setCount(0);
+                return ItemStack.EMPTY;
+            }
+        }
+
+        if (storedStacks.size() < MAX_STACKS && storedStacks.stream().noneMatch(ItemStack::isEmpty)) {
+            storedStacks.add(stack.copy());
+            stack.setCount(0);
+            return ItemStack.EMPTY;
+        }
+
+        return stack;
     }
 
     public static void setStoredStacks(ItemStack satchel, List<ItemStack> stacks) {

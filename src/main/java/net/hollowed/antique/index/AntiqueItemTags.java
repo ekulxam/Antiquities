@@ -5,9 +5,8 @@ import net.minecraft.item.Item;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.TagKey;
 
+@SuppressWarnings("unused")
 public class AntiqueItemTags {
-
-    public static final TagKey<Item> BETTER_ARMOR = of("better_armor");
 
     public static final TagKey<Item> IRON_ARMOR = of("iron_armor");
     public static final TagKey<Item> CHAIN_ARMOR = of("chain_armor");
