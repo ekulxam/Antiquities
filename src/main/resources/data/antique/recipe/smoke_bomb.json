@@ -2,13 +2,13 @@
   "type": "minecraft:crafting_shapeless",
   "category": "equipment",
   "ingredients": [
-    "antique:silk",
+    "minecraft:red_dye",
     "minecraft:iron_ingot",
     "minecraft:gunpowder",
     "minecraft:sugar"
   ],
   "result": {
     "id": "antique:smoke_bomb",
-    "count": 2
+    "count": 4
   }
 }

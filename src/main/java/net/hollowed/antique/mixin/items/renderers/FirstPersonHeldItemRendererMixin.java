@@ -26,7 +26,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -53,7 +52,6 @@ public abstract class FirstPersonHeldItemRendererMixin {
         }
 
         ClothManager manager;
-        Vec3d itemWorldPos;
 
         if (entity instanceof PlayerEntity player) {
             if (stack.isOf(AntiqueItems.MYRIAD_TOOL) || stack.isOf(AntiqueItems.MYRIAD_STAFF)) {
@@ -74,7 +72,6 @@ public abstract class FirstPersonHeldItemRendererMixin {
                 if (renderMode.isFirstPerson() && stack.isOf(AntiqueItems.MYRIAD_STAFF)) {
                     matrices.translate(-0.1, -0.1, 0);
                 }
-                itemWorldPos = ClothManager.matrixToVec(matrices);
                 manager = renderMode == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_right_arm")) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_first_person_left_arm"));
                 switch (renderMode) {
                     case ItemDisplayContext.NONE -> manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_back"));
@@ -89,15 +86,13 @@ public abstract class FirstPersonHeldItemRendererMixin {
                     Object name = stack.getOrDefault(DataComponentTypes.CUSTOM_NAME, "");
                     if (!(stack.isOf(AntiqueItems.MYRIAD_STAFF) && (name.equals(Text.literal("Perfected Staff")) || name.equals(Text.literal("Orb Staff")) || name.equals(Text.literal("Lapis Staff"))))) {
                         manager.renderCloth(
-                                itemWorldPos,
                                 matrices,
                                 orderedRenderCommandQueue,
                                 data.light() != 0 ? data.light() : light,
                                 stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
                                 data.dyeable() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
                                 new Color(stack.getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb()),
-                                true,
-                                data.model(),
+                                stack.get(AntiqueDataComponentTypes.CLOTH_TYPE) != null ? data.model() : null,
                                 Identifier.of(stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, "")),
                                 data.length() != 0 ? data.length() : 1.4,
                                 data.width() != 0 ? data.width() : 0.1,

@@ -34,7 +34,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Arm;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -79,7 +78,6 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
             }
 
             ClothManager manager;
-            Vec3d itemWorldPos = ClothManager.matrixToVec(matrices);
 
             if (entity instanceof LivingEntity living) {
                 ItemStack stack = living.getStackInArm(arm);
@@ -90,15 +88,13 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                     manager = arm == Arm.RIGHT ? ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_right_arm")) : ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_left_arm"));
                     if (manager != null && stack.get(DataComponentTypes.DYED_COLOR) != null) {
                         manager.renderCloth(
-                                itemWorldPos,
                                 matrices,
                                 orderedRenderCommandQueue,
                                 data.light() != 0 ? data.light() : light,
                                 stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false),
                                 data.dyeable() ? new Color(stack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd13a68)).rgb()) : Color.WHITE,
                                 new Color(stack.getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb()),
-                                true,
-                                data.model(),
+                                stack.get(AntiqueDataComponentTypes.CLOTH_TYPE) != null ? data.model() : null,
                                 Identifier.of(stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, "")),
                                 data.length() != 0 ? data.length() : 1.4,
                                 data.width() != 0 ? data.width() : 0.1,

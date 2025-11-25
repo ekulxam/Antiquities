@@ -50,6 +50,23 @@ public class AdventureArmorFeatureRenderer implements ArmorRenderer {
                 state.outlineColor,
                 null
         );
+
+        if (stack.hasGlint()) {
+            ArmorRenderer.submitTransformCopyingModel(
+                    contextModel,
+                    state,
+                    model,
+                    state,
+                    true,
+                    queue,
+                    matrices,
+                    RenderLayer.getArmorEntityGlint(),
+                    light,
+                    OverlayTexture.DEFAULT_UV,
+                    state.outlineColor,
+                    null
+            );
+        }
     }
 
     public static class Factory implements ArmorRenderer.Factory {

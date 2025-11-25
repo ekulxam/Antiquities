@@ -7,6 +7,7 @@ package net.hollowed.antique.entities;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.hollowed.antique.index.AntiqueEntities;
+import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.networking.IllusionerParticlePacketPayload;
 import net.hollowed.antique.util.FireworkUtil;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
@@ -89,7 +90,7 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
         this.goalSelector.add(3, new IllusionerCloneEntity.TeleportGoal(this));
         this.goalSelector.add(4, new SmokeBombGoal());
         this.goalSelector.add(5, new GiveInvisibilityGoal());
-        this.goalSelector.add(6, new BowAttackGoal<>(this, 0.5, 60, 15.0F));
+        this.goalSelector.add(6, new BowAttackGoal<>(this, 0.5, 50, 15.0F));
         this.goalSelector.add(8, new WanderAroundGoal(this, 0.6));
         this.goalSelector.add(9, new LookAtEntityGoal(this, PlayerEntity.class, 3.0F, 1.0F));
         this.goalSelector.add(10, new LookAtEntityGoal(this, MobEntity.class, 8.0F));
@@ -388,10 +389,13 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
         protected void castSpell() {
             for (int i = 0; i < 3; i++) {
                 TickDelayScheduler.schedule(random.nextBetween(0, 10), () -> {
+                    ItemStack stack = AntiqueItems.SMOKE_BOMB.getDefaultStack();
+                    stack.set(DataComponentTypes.FIREWORKS, FireworkUtil.randomFireworkBall());
+
                     SmokeBombEntity smokeBomb = new SmokeBombEntity(AntiqueEntities.SMOKE_BOMB, IllusionerEntity.this.getEntityWorld());
                     smokeBomb.setPosition(IllusionerEntity.this.getEntityPos().add((Math.random() - 0.5) * 2, 3, (Math.random() - 0.5) * 2));
                     smokeBomb.setVelocity((Math.random() - 0.5) * 0.8, 0.25, (Math.random() - 0.5) * 0.8);
-                    smokeBomb.setFirework(true);
+                    smokeBomb.setItem(stack);
                     IllusionerEntity.this.getEntityWorld().spawnEntity(smokeBomb);
                     IllusionerEntity.this.getEntityWorld().playSound(null, IllusionerEntity.this.getX(), IllusionerEntity.this.getY(), IllusionerEntity.this.getZ(), SoundEvents.ENTITY_WITCH_THROW, SoundCategory.BLOCKS, 1F, 1F);
                 });

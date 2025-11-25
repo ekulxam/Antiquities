@@ -58,11 +58,11 @@ public class MyriadToolItem extends Item {
             }
         } else {
             if (otherStack.isOf(AntiqueItems.CLOTH)) {
-                swapCloth(player, stack, otherStack);
+                slot.setStack(swapCloth(player, stack, otherStack));
                 return true;
             }
 
-            if (otherStack.isOf(AntiqueItems.CLOTH_PATTERN)) {
+            if (otherStack.isOf(AntiqueItems.CLOTH_PATTERN) && stack.get(AntiqueDataComponentTypes.CLOTH_TYPE) != null) {
                 addPattern(player, stack, otherStack);
                 return true;
             }
@@ -102,15 +102,18 @@ public class MyriadToolItem extends Item {
                     player.playSound(SoundEvents.ITEM_BUNDLE_REMOVE_ONE, 1.0F, 1.0F);
                     setStoredStack(stack, storedStack);
                     return true;
+                } else if (stack.get(AntiqueDataComponentTypes.CLOTH_TYPE) != null) {
+                    cursorStackReference.set(swapCloth(player, stack, otherStack));
+                    return true;
                 }
             }
         } else {
             if (otherStack.isOf(AntiqueItems.CLOTH)) {
-                swapCloth(player, stack, otherStack);
+                cursorStackReference.set(swapCloth(player, stack, otherStack));
                 return true;
             }
 
-            if (otherStack.isOf(AntiqueItems.CLOTH_PATTERN)) {
+            if (otherStack.isOf(AntiqueItems.CLOTH_PATTERN) && stack.get(AntiqueDataComponentTypes.CLOTH_TYPE) != null) {
                 addPattern(player, stack, otherStack);
                 return true;
             }
@@ -159,39 +162,59 @@ public class MyriadToolItem extends Item {
         }
     }
 
-    private void swapCloth(PlayerEntity player, ItemStack toolStack, ItemStack clothStack) {
-        String model = "item.antique.cloth";
-        Text text = clothStack.getOrDefault(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique.cloth"));
-        if (text.getContent() instanceof TranslatableTextContent translatable) {
-            model = translatable.getKey();
-        }
-        model = model.substring(model.indexOf(".") + 1).replace(".", ":");
+    private ItemStack swapCloth(PlayerEntity player, ItemStack toolStack, ItemStack clothStack) {
         String toolModel = toolStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "antique:cloth");
         ClothSkinData.ClothSubData toolData = ClothSkinListener.getTransform(toolModel);
-        DyedColorComponent clothColor = clothStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xD43B69));
-        if (toolData.dyeable()) {
-            clothStack.set(DataComponentTypes.DYED_COLOR, toolStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xD43B69)));
+        boolean remove = false;
+
+        if (!clothStack.isEmpty()) {
+            String model = "item.antique.cloth";
+            Text text = clothStack.getOrDefault(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique.cloth"));
+            if (text.getContent() instanceof TranslatableTextContent translatable) {
+                model = translatable.getKey();
+            }
+            model = model.substring(model.indexOf(".") + 1).replace(".", ":");
+            DyedColorComponent clothColor = clothStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xD43B69));
+
+            if (toolStack.get(AntiqueDataComponentTypes.CLOTH_TYPE) == null) remove = true;
+            toolStack.set(AntiqueDataComponentTypes.CLOTH_TYPE, model);
+            ClothSkinData.ClothSubData clothData = ClothSkinListener.getTransform(model);
+            int intValue = 0;
+            try {
+                if (!clothData.hex().isBlank()) {
+                    intValue = Integer.parseInt(clothData.hex(), 16);
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Invalid hexadecimal string format: " + e.getMessage());
+            }
+
+            if (toolData.dyeable()) {
+                clothStack.set(DataComponentTypes.DYED_COLOR, toolStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xD43B69)));
+            } else {
+                clothStack.remove(DataComponentTypes.DYED_COLOR);
+            }
+
+            toolStack.set(DataComponentTypes.DYED_COLOR, clothData.dyeable() ? clothColor : new DyedColorComponent(intValue));
         } else {
-            clothStack.remove(DataComponentTypes.DYED_COLOR);
+            toolStack.remove(AntiqueDataComponentTypes.CLOTH_TYPE);
+            toolStack.remove(DataComponentTypes.DYED_COLOR);
+
+            clothStack = AntiqueItems.CLOTH.getDefaultStack();
+
+            if (toolData.dyeable()) {
+                clothStack.set(DataComponentTypes.DYED_COLOR, toolStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xD43B69)));
+            } else {
+                clothStack.remove(DataComponentTypes.DYED_COLOR);
+            }
         }
+
         toolModel = "item." + toolModel.replace(":", ".");
         clothStack.set(DataComponentTypes.ITEM_NAME, Text.translatable(toolModel));
-        toolStack.set(AntiqueDataComponentTypes.CLOTH_TYPE, model);
 
-        ClothSkinData.ClothSubData clothData = ClothSkinListener.getTransform(model);
         toolStack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN);
-
-        int intValue = 0;
-        try {
-            if (!clothData.hex().isBlank()) {
-                intValue = Integer.parseInt(clothData.hex(), 16);
-            }
-        } catch (NumberFormatException e) {
-            System.err.println("Invalid hexadecimal string format: " + e.getMessage());
-        }
-
-        toolStack.set(DataComponentTypes.DYED_COLOR, clothData.dyeable() ? clothColor : new DyedColorComponent(intValue));
         player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 1.0F, 1.0F);
+
+        return remove ? ItemStack.EMPTY : clothStack;
     }
 
     public static boolean isInvalidItem(ItemStack stack) {

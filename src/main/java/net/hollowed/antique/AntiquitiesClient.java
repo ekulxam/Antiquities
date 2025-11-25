@@ -78,7 +78,7 @@ public class AntiquitiesClient implements ClientModInitializer {
             Block Renderers
          */
 
-        BlockEntityRendererFactories.register(AntiqueBlockEntities.PEDESTAL_BLOCK_ENTITY, context1 -> new PedestalRenderer());
+        BlockEntityRendererFactories.register(AntiqueBlockEntities.PEDESTAL_BLOCK_ENTITY, context -> new PedestalRenderer());
         BlockRenderLayerMap.putBlocks(BlockRenderLayer.CUTOUT, AntiqueBlocks.PEDESTAL, AntiqueBlocks.HOLLOW_CORE, AntiqueBlocks.JAR, AntiqueBlocks.MYRIAD_CLUSTER, AntiqueBlocks.DEEPSLATE_MYRIAD_CLUSTER);
         BlockRenderLayerMap.putBlocks(BlockRenderLayer.TRIPWIRE, AntiqueBlocks.IVY);
         BlockRenderLayerMap.putBlocks(BlockRenderLayer.TRANSLUCENT, Blocks.GLASS, Blocks.GLASS_PANE);

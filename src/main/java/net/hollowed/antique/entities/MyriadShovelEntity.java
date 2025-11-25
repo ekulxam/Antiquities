@@ -59,7 +59,7 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		this.setStack(Antiquities.getMyriadShovelStack());
 		this.dataTracker.set(COLOR, this.getItemStack().getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
 		this.dataTracker.set(OVERLAY_COLOR, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
-		this.dataTracker.set(CLOTH, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth"));
+		this.dataTracker.set(CLOTH, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, ""));
 		this.dataTracker.set(GLOW, this.getItemStack().getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 		this.setPierceLevel((byte) 5);
 	}
@@ -73,7 +73,7 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		this.setStack(stack);
 		this.dataTracker.set(COLOR, this.getItemStack().getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
 		this.dataTracker.set(OVERLAY_COLOR, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
-		this.dataTracker.set(CLOTH, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth"));
+		this.dataTracker.set(CLOTH, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, ""));
 		this.dataTracker.set(PATTERN, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, ""));
 		this.setPierceLevel((byte) 5);
 	}

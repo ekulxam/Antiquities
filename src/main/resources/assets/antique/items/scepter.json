@@ -12,21 +12,12 @@
           "ground",
           "fixed"
         ]
-      },
-      {
-        "model": {
-          "type": "minecraft:model",
-          "model": "antique:item/weightless_scepter"
-        },
-        "when": [
-          "firstperson_righthand",
-          "firstperson_lefthand",
-          "thirdperson_righthand",
-          "thirdperson_lefthand",
-          "head"
-        ]
       }
     ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "antique:item/weightless_scepter"
+    },
     "property": "minecraft:display_context"
   }
 }

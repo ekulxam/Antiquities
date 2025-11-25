@@ -64,6 +64,7 @@ dependencies {
 
 	// Lemon Lib
 	modImplementation include ('com.github.Dusty-Development:LemonLib:main-SNAPSHOT')
+	implementation include ("dev.dominion.ecs:dominion-ecs-engine:${project.dominion_version}")
 
 	// Mod Menu
 	modApi "com.terraformersmc:modmenu:${project.modmenu_version}"

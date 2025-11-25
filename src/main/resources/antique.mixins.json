@@ -56,8 +56,10 @@
     "items.BundleShowsAllContents",
     "items.CakeThrowMixin",
     "items.CrossbowItemMixin",
+    "items.EnchantmentMixin",
     "items.MyriadAxeBlockMixin",
     "items.SlotMixin",
+    "physics.PhysicsWorldMixin",
     "worldgen.ChunkNoiseSamplerMixin",
     "worldgen.NoiseChunkGeneratorMixin"
   ],
@@ -84,6 +86,7 @@
     "entities.states.ZombieRenderStateHuskAdder",
     "items.BundleScrollHandler",
     "items.BundleTooltipShowsAll",
+    "items.ItemModelManagerMixin",
     "items.PreventItemActionsMixin",
     "items.TooltipComponentMixin",
     "items.renderers.FirstPersonHeldItemRendererMixin",

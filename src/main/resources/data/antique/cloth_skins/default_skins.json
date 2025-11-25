@@ -92,6 +92,12 @@
       "bodies": 12
     },
     {
+      "model": "antique:elegant_cloth",
+      "color": "be113e",
+      "length": 2.1,
+      "bodies": 12
+    },
+    {
       "model": "antique:amber_cloth",
       "color": "e8944d",
       "length": 2.8,

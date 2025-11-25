@@ -22,7 +22,6 @@ import net.minecraft.item.ItemDisplayContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.RotationAxis;
-import net.minecraft.util.math.Vec3d;
 
 import java.awt.*;
 
@@ -65,17 +64,14 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<MyriadShovelEntit
 			ClothManager manager = ClothManager.getOrCreate(entity, Antiquities.id(entity.getId() + "_spade"));
 			if(manager != null && shovel.get(DataComponentTypes.DYED_COLOR) != null) {
 				matrixStack.translate(0.05, 0.3, 0.1);
-				Vec3d itemWorldPos = ClothManager.matrixToVec(matrixStack);
 				manager.renderCloth(
-						itemWorldPos,
 						matrixStack,
 						queue,
 						data.light() != 0 ? data.light() : myriadShovelRenderState.light,
 						myriadShovelRenderState.glow,
 						data.dyeable() ? new Color(myriadShovelRenderState.color) : Color.WHITE,
 						new Color(myriadShovelRenderState.overlayColor),
-						true,
-						data.model(),
+                        !myriadShovelRenderState.cloth.isEmpty() ? data.model() : null,
 						Identifier.of(myriadShovelRenderState.pattern),
 						data.length() != 0 ? data.length() : 1.4,
 						data.width() != 0 ? data.width() : 0.1,

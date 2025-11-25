@@ -7,4 +7,5 @@ import java.util.Map;
 
 public interface ClothAccess {
     Map<Identifier, ClothManager> antique$getManagers();
+    Map<Identifier, net.hollowed.antique.client.renderer.experimental_cloth.ClothManager> antique$getExperimentalManagers();
 }

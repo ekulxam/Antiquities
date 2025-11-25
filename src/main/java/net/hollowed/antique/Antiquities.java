@@ -211,6 +211,7 @@ public class Antiquities implements ModInitializer {
 			itemGroup.add(AntiqueBlocks.HOLLOW_CORE);
 			itemGroup.add(AntiqueBlocks.PEDESTAL);
 			itemGroup.add(AntiqueBlocks.DYE_TABLE);
+			itemGroup.add(AntiqueBlocks.JAR);
 			itemGroup.add(AntiqueBlocks.IVY);
 		});
 

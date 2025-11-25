@@ -35,11 +35,16 @@ public class MyriadCleaverBit extends MyriadToolBitItem{
 
     @Override
     public boolean toolOnStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        for (Entity entity : world.getOtherEntities(user, user.getBoundingBox().expand(3, 0.5, 3))) {
-            entity.addVelocity(entity.getEntityPos().subtract(user.getEntityPos()).normalize().multiply(1.25, 0.5, 1.25).add(0, 0.75, 0));
-            entity.velocityModified = true;
+        if (user.isOnGround()) {
+            for (Entity entity : world.getOtherEntities(user, user.getBoundingBox().expand(3, 0.5, 3))) {
+                entity.addVelocity(entity.getEntityPos().subtract(user.getEntityPos()).normalize().multiply(1.25, 0.5, 1.25).add(0, 0.75, 0));
+                entity.velocityModified = true;
+            }
+
+            return true;
         }
-        return true;
+
+        return false;
     }
 
     @Override

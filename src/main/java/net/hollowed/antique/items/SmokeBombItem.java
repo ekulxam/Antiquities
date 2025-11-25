@@ -38,6 +38,7 @@ public class SmokeBombItem extends Item implements ProjectileItem {
 		);
 		if (world instanceof ServerWorld serverWorld) {
 			SmokeBombEntity smokeBomb = new SmokeBombEntity(AntiqueEntities.SMOKE_BOMB, serverWorld);
+			smokeBomb.setItem(itemStack);
 			smokeBomb.setPosition(user.getEyePos());
 			smokeBomb.setVelocity(user, user.getPitch(), user.getYaw(), 0, 0.5F, 1.0F);
 			serverWorld.spawnEntity(smokeBomb);

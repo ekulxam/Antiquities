@@ -2,6 +2,7 @@ package net.hollowed.antique.index;
 
 import com.mojang.serialization.Codec;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.minecraft.component.ComponentType;
 import net.minecraft.component.type.DyedColorComponent;
 import net.minecraft.item.ItemStack;
@@ -17,6 +18,13 @@ public interface AntiqueDataComponentTypes {
             Identifier.of(Antiquities.MOD_ID, "satchel_stacks"),
             ComponentType.<List<ItemStack>>builder()
                     .codec(ItemStack.CODEC.listOf().fieldOf("satchel_stacks").codec())
+                    .build()
+    );
+    ComponentType<MyriadToolComponent> MYRIAD_TOOL = Registry.register(
+            Registries.DATA_COMPONENT_TYPE,
+            Identifier.of(Antiquities.MOD_ID, "myriad_tool"),
+            ComponentType.<MyriadToolComponent>builder()
+                    .codec(MyriadToolComponent.CODEC)
                     .build()
     );
     ComponentType<ItemStack> MYRIAD_STACK = Registry.register(

@@ -1,14 +1,18 @@
 package net.hollowed.antique.client.renderer.cloth;
 
+import net.hollowed.antique.entities.parts.MyriadShovelPart;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.shape.VoxelShape;
 import org.joml.Vector3d;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ClothBody {
 
@@ -25,7 +29,7 @@ public class ClothBody {
     public void update(double delta) {
         Vector3d velocity = new Vector3d(pos).sub(posCache).mul(0.96); // Apply drag here
         posCache.set(pos);
-        Vector3d accelerationTerm = new Vector3d(accel).mul(delta * delta);
+        Vector3d accelerationTerm = new Vector3d(accel).mul(delta * 0.5);
         if (!isPinned) pos.add(velocity).add(accelerationTerm);
         accel.zero();
     }
@@ -48,6 +52,53 @@ public class ClothBody {
 
     public Vector3d getPos() {
         return new Vector3d(pos);
+    }
+
+    public Vector3d entityCollisionPerchance(ClientWorld world, Entity except) {
+        double padding = 0.075;
+
+        Vec3d startPos = new Vec3d(pos.x, pos.y, pos.z);
+
+        Map<Box, Entity> collBoxes = new HashMap<>();
+        for (Entity entity : world.getOtherEntities(except, new Box(startPos.subtract(0.1), startPos.add(0.1)))) {
+            if (!(entity instanceof MyriadShovelPart)) {
+                collBoxes.put(entity.getBoundingBox(), entity);
+            }
+        }
+
+        // We'll treat the point as an itty-bitty bounding box
+        double x = startPos.x;
+        double y = startPos.y;
+        double z = startPos.z;
+
+        // Build a small bounding box around the point
+        Box pointBox = new Box(x - padding, y - padding, z - padding, x + padding, y + padding, z + padding);
+
+        // Try sliding out by checking overlaps
+        double dx = 0, dy = 0, dz = 0;
+        Vector3d collisionAccel = new Vector3d();
+        for (Box box : collBoxes.keySet()) {
+            if (box.intersects(pointBox)) {
+                Vec3d vel = collBoxes.get(box).getVelocity();
+                collisionAccel = new Vector3d(vel.x, vel.y, vel.z).mul(1.75);
+
+                double xOverlap = getOverlap(pointBox.minX, pointBox.maxX, box.minX, box.maxX);
+                double yOverlap = getOverlap(pointBox.minY, pointBox.maxY, box.minY, box.maxY);
+                double zOverlap = getOverlap(pointBox.minZ, pointBox.maxZ, box.minZ, box.maxZ);
+
+                // Pick the smallest overlap to push out
+                if (Math.abs(xOverlap) < Math.abs(yOverlap) && Math.abs(xOverlap) < Math.abs(zOverlap)) {
+                    dx += xOverlap;
+                } else if (Math.abs(yOverlap) < Math.abs(zOverlap)) {
+                    dy += yOverlap;
+                } else {
+                    dz += zOverlap;
+                }
+            }
+        }
+
+        if (!isPinned && collisionAccel.length() < 0.15) pos = new Vector3d(x + dx, y + dy, z + dz);
+        return new Vector3d(accel).add(collisionAccel);
     }
 
     public void slideOutOfBlocks(ClientWorld world) {

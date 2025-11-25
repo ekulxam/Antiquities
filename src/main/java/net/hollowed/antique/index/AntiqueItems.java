@@ -102,8 +102,6 @@ public interface AntiqueItems {
     ));
     Item MYRIAD_TOOL = register("myriad_tool", settings -> new MyriadToolItem(settings.maxCount(1)
             .attributeModifiers(MyriadToolItem.createAttributeModifiers(4, 1.8, 0.25))
-            .component(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd43b69))
-            .component(AntiqueDataComponentTypes.CLOTH_TYPE, "antique:cloth")
             .component(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY)
             .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
             .component(DataComponentTypes.UNBREAKABLE, Unit.INSTANCE)
@@ -224,9 +222,12 @@ public interface AntiqueItems {
                 list.add(1, line);
 
                 Color color = new Color(itemStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xd43b69)).rgb());
-                String clothName = itemStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "antique:cloth").replace(":", ".");
-                Text cloth = Text.literal(" - ").append(Text.translatable("item." + clothName)).withColor(color.brighter().getRGB());
-                list.add(2, cloth);
+                String clothType = itemStack.get(AntiqueDataComponentTypes.CLOTH_TYPE);
+                if (clothType != null) {
+                    String clothName = clothType.replace(":", ".");
+                    Text cloth = Text.literal(" - ").append(Text.translatable("item." + clothName)).withColor(color.brighter().getRGB());
+                    list.add(2, cloth);
+                }
 
                 Color patternColor = new Color(itemStack.getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
                 String patternName = itemStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, "").replace(":", ".");

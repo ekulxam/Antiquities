@@ -44,6 +44,23 @@ public class VanillaArmorFeatureRenderer implements ArmorRenderer {
                 state.outlineColor,
                 null
         );
+
+        if (stack.hasGlint()) {
+            ArmorRenderer.submitTransformCopyingModel(
+                    contextModel,
+                    state,
+                    model,
+                    state,
+                    true,
+                    orderedRenderCommandQueue,
+                    matrices,
+                    RenderLayer.getArmorEntityGlint(),
+                    light,
+                    OverlayTexture.DEFAULT_UV,
+                    state.outlineColor,
+                    null
+            );
+        }
     }
 
     private Identifier getArmorTextureFromStack(ItemStack stack) {

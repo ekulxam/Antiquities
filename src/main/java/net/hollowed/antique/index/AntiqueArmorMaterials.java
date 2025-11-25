@@ -15,7 +15,7 @@ public interface AntiqueArmorMaterials extends ArmorMaterials {
     AdventureArmorMaterial ADVENTURE = new AdventureArmorMaterial(2000, Util.make(new EnumMap(EquipmentType.class), (map) -> {
         map.put(EquipmentType.BOOTS, 3);
         map.put(EquipmentType.LEGGINGS, 2);
-        map.put(EquipmentType.CHESTPLATE, 8);
+        map.put(EquipmentType.CHESTPLATE, 6);
         map.put(EquipmentType.HELMET, 0);
         map.put(EquipmentType.BODY, 0);
     }), 15, SoundEvents.ITEM_ARMOR_EQUIP_LEATHER, 1.0F, 0.025F, ItemTags.REPAIRS_LEATHER_ARMOR, AntiqueEquipmentAssetKeys.EMPTY, 0.5F, 1.0F, 0.2F);

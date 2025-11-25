@@ -64,7 +64,7 @@ public class IllusionerCloneEntity extends SpellcastingIllagerEntity implements 
         this.goalSelector.add(1, new SpellcastingIllagerEntity.LookAtTargetGoal());
         this.goalSelector.add(3, new FleeEntityGoal<>(this, CreakingEntity.class, 8.0F, 1.0, 1.2));
         this.goalSelector.add(3, new TeleportGoal(this));
-        this.goalSelector.add(6, new BowAttackGoal<>(this, 0.5, 20, 15.0F));
+        this.goalSelector.add(6, new BowAttackGoal<>(this, 0.5, 60, 15.0F));
         this.goalSelector.add(8, new WanderAroundGoal(this, 0.6));
         this.goalSelector.add(9, new LookAtEntityGoal(this, PlayerEntity.class, 3.0F, 1.0F));
         this.goalSelector.add(10, new LookAtEntityGoal(this, MobEntity.class, 8.0F));
