@@ -1,9 +1,9 @@
 package net.hollowed.antique.mixin.items;
 
 import net.hollowed.antique.enchantments.EnchantmentListener;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -12,15 +12,15 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 public class BundleJumblingPreventStackDecrement {
 
     @Redirect(
-            method = "place(Lnet/minecraft/item/ItemPlacementContext;)Lnet/minecraft/util/ActionResult;",
+            method = "place(Lnet/minecraft/world/item/context/BlockPlaceContext;)Lnet/minecraft/world/InteractionResult;",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/item/ItemStack;decrementUnlessCreative(ILnet/minecraft/entity/LivingEntity;)V"
+                    target = "Lnet/minecraft/world/item/ItemStack;consume(ILnet/minecraft/world/entity/LivingEntity;)V"
             )
     )
     private void conditionalDecrement(ItemStack instance, int amount, LivingEntity entity) {
         if (!EnchantmentListener.hasEnchantment(instance, "antique:jumbling")) {
-            instance.decrementUnlessCreative(1, entity);
+            instance.consume(1, entity);
         }
     }
 }

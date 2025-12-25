@@ -4,36 +4,36 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.render.item.property.select.SelectProperty;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ChargedProjectilesComponent;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.ItemDisplayContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.item.properties.select.SelectItemModelProperty;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public record ProjectileTypeProperty() implements SelectProperty<Identifier> {
-	public static final SelectProperty.Type<ProjectileTypeProperty, Identifier> TYPE = SelectProperty.Type.create(
+public record ProjectileTypeProperty() implements SelectItemModelProperty<Identifier> {
+	public static final SelectItemModelProperty.Type<ProjectileTypeProperty, Identifier> TYPE = SelectItemModelProperty.Type.create(
 			MapCodec.unit(new ProjectileTypeProperty()), Identifier.CODEC
 	);
 
-	public Identifier getValue(
-		ItemStack itemStack, @Nullable ClientWorld clientWorld, @Nullable LivingEntity livingEntity, int i, ItemDisplayContext itemDisplayContext
+	public Identifier get(
+		ItemStack itemStack, @Nullable ClientLevel clientWorld, @Nullable LivingEntity livingEntity, int i, ItemDisplayContext itemDisplayContext
 	) {
-		ChargedProjectilesComponent chargedProjectilesComponent = itemStack.get(DataComponentTypes.CHARGED_PROJECTILES);
+		ChargedProjectiles chargedProjectilesComponent = itemStack.get(DataComponents.CHARGED_PROJECTILES);
 		if (chargedProjectilesComponent == null || chargedProjectilesComponent.isEmpty()) {
-			return Identifier.of("none");
+			return Identifier.parse("none");
 		} else {
-			return Registries.ITEM.getId(chargedProjectilesComponent.getProjectiles().getFirst().getItem());
+			return BuiltInRegistries.ITEM.getKey(chargedProjectilesComponent.getItems().getFirst().getItem());
 		}
 	}
 
 	@Override
-	public Type<ProjectileTypeProperty, Identifier> getType() {
+	public Type<ProjectileTypeProperty, Identifier> type() {
 		return TYPE;
 	}
 

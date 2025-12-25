@@ -3,62 +3,62 @@ package net.hollowed.antique.entities;
 import net.hollowed.antique.index.AntiqueSounds;
 import net.hollowed.antique.index.AntiqueParticles;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.EntityStatuses;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.EntityEvent;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 
-public class CakeEntity extends PersistentProjectileEntity {
-    private static final TrackedData<Boolean> FROZEN = DataTracker.registerData(CakeEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-    private static final TrackedData<Float> YAW = DataTracker.registerData(CakeEntity.class, TrackedDataHandlerRegistry.FLOAT);
-    private static final TrackedData<Float> PITCH = DataTracker.registerData(CakeEntity.class, TrackedDataHandlerRegistry.FLOAT);
+public class CakeEntity extends AbstractArrow {
+    private static final EntityDataAccessor<Boolean> FROZEN = SynchedEntityData.defineId(CakeEntity.class, EntityDataSerializers.BOOLEAN);
+    private static final EntityDataAccessor<Float> YAW = SynchedEntityData.defineId(CakeEntity.class, EntityDataSerializers.FLOAT);
+    private static final EntityDataAccessor<Float> PITCH = SynchedEntityData.defineId(CakeEntity.class, EntityDataSerializers.FLOAT);
 
-    public CakeEntity(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
+    public CakeEntity(EntityType<? extends AbstractArrow> entityType, Level world) {
         super(entityType, world);
-        this.setDamage(0);
-        this.dataTracker.set(FROZEN, false);
-        this.dataTracker.set(PITCH, this.getPitch());
-        this.dataTracker.set(YAW, this.getYaw());
+        this.setBaseDamage(0);
+        this.entityData.set(FROZEN, false);
+        this.entityData.set(PITCH, this.getXRot());
+        this.entityData.set(YAW, this.getYRot());
     }
 
     @Override
-    public void handleStatus(byte status) {
-        if (status == EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES) {
-            this.getEntityWorld().addBlockBreakParticles(this.getBlockPos(), Blocks.CAKE.getDefaultState());
+    public void handleEntityEvent(byte status) {
+        if (status == EntityEvent.DEATH) {
+            this.level().addDestroyBlockEffect(this.blockPosition(), Blocks.CAKE.defaultBlockState());
         }
-        if (status == EntityStatuses.ADD_DEATH_PARTICLES) {
-            BlockPos entityPos = this.getBlockPos();
-            World world = this.getEntityWorld();
+        if (status == EntityEvent.POOF) {
+            BlockPos entityPos = this.blockPosition();
+            Level world = this.level();
 
             for (Direction direction : Direction.values()) {
-                BlockPos offsetPos = entityPos.offset(direction);
-                if (world.getBlockState(offsetPos).isFullCube(world, offsetPos) && direction.getAxis().isHorizontal()) {
-                    Vec3d vec = Vec3d.ZERO;
+                BlockPos offsetPos = entityPos.relative(direction);
+                if (world.getBlockState(offsetPos).isCollisionShapeFullBlock(world, offsetPos) && direction.getAxis().isHorizontal()) {
+                    Vec3 vec = Vec3.ZERO;
                     switch (direction) {
-                        case NORTH, SOUTH -> vec = new Vec3d(0, 0, 1);
-                        case EAST, WEST -> vec = new Vec3d(1, 0, 0);
+                        case NORTH, SOUTH -> vec = new Vec3(0, 0, 1);
+                        case EAST, WEST -> vec = new Vec3(1, 0, 0);
                     }
 
-                    Vec3d particlePos = this.getEntityPos();
+                    Vec3 particlePos = this.position();
 
-                    world.addParticleClient(
+                    world.addParticle(
                             AntiqueParticles.CAKE_SMEAR,
-                            particlePos.x + direction.getOffsetX() * (Math.random() / 10.0),
-                            particlePos.y + direction.getOffsetY() * (Math.random() / 10.0),
-                            particlePos.z + direction.getOffsetZ() * (Math.random() / 10.0),
+                            particlePos.x + direction.getStepX() * (Math.random() / 10.0),
+                            particlePos.y + direction.getStepY() * (Math.random() / 10.0),
+                            particlePos.z + direction.getStepZ() * (Math.random() / 10.0),
                             vec.x,
                             vec.y,
                             vec.z
@@ -69,28 +69,28 @@ public class CakeEntity extends PersistentProjectileEntity {
         }
     }
 
-    public ItemStack getPickBlockStack() {
-        return Items.CAKE.getDefaultStack();
+    public ItemStack getPickResult() {
+        return Items.CAKE.getDefaultInstance();
     }
 
     public boolean noRotate() {
-        return this.dataTracker.get(FROZEN);
+        return this.entityData.get(FROZEN);
     }
 
     public float getStoredPitch() {
-        return this.dataTracker.get(PITCH);
+        return this.entityData.get(PITCH);
     }
 
     public float getStoredYaw() {
-        return this.dataTracker.get(YAW);
+        return this.entityData.get(YAW);
     }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
-        super.initDataTracker(builder);
-        builder.add(FROZEN, false);
-        builder.add(PITCH, this.getPitch());
-        builder.add(YAW, this.getYaw());
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(FROZEN, false);
+        builder.define(PITCH, this.getXRot());
+        builder.define(YAW, this.getYRot());
     }
 
     private int lowGravityTicksRemaining = 0;
@@ -102,22 +102,22 @@ public class CakeEntity extends PersistentProjectileEntity {
         if (lastParticleTime > 0) {
             lastParticleTime--;
         }
-        if (this.age > 400) {
+        if (this.tickCount > 400) {
             this.discard();
         }
-        if (lowGravityTicksRemaining > 0 && this.getVelocity().getY() < -0.05) {
-            this.addVelocity(0, 0.04, 0);
+        if (lowGravityTicksRemaining > 0 && this.getDeltaMovement().y() < -0.05) {
+            this.push(0, 0.04, 0);
             lowGravityTicksRemaining--;
         }
         if (!this.noRotate()) {
-            this.dataTracker.set(PITCH, this.getPitch());
-            this.dataTracker.set(YAW, this.getYaw());
+            this.entityData.set(PITCH, this.getXRot());
+            this.entityData.set(YAW, this.getYRot());
         }
-        if (this.getVelocity().getY() < 0 && this.getVelocity().horizontalLength() < 0.2 && lastParticleTime <= 0) {
-            this.getEntityWorld().sendEntityStatus(this, EntityStatuses.ADD_DEATH_PARTICLES);
-            if (this.getVelocity().getY() < -0.5) {
+        if (this.getDeltaMovement().y() < 0 && this.getDeltaMovement().horizontalDistance() < 0.2 && lastParticleTime <= 0) {
+            this.level().broadcastEntityEvent(this, EntityEvent.POOF);
+            if (this.getDeltaMovement().y() < -0.5) {
                 this.lastParticleTime = 2;
-            } else if (this.getVelocity().getY() < -0.2) {
+            } else if (this.getDeltaMovement().y() < -0.2) {
                 this.lastParticleTime = 6;
             } else {
                 this.lastParticleTime = 10;
@@ -128,13 +128,13 @@ public class CakeEntity extends PersistentProjectileEntity {
     }
 
     @Override
-    protected void onEntityHit(EntityHitResult entityHitResult) {
-        if (!this.getEntityWorld().isClient() && !(entityHitResult.getEntity() instanceof CakeEntity)) {
-            this.playSound(this.getSound(), 1.0F, 1.0F / (this.random.nextFloat() * 0.2F + 0.9F));
-            this.getEntityWorld().sendEntityStatus(this, EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES);
-            this.setVelocity(Vec3d.ZERO);
+    protected void onHitEntity(EntityHitResult entityHitResult) {
+        if (!this.level().isClientSide() && !(entityHitResult.getEntity() instanceof CakeEntity)) {
+            this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.0F / (this.random.nextFloat() * 0.2F + 0.9F));
+            this.level().broadcastEntityEvent(this, EntityEvent.DEATH);
+            this.setDeltaMovement(Vec3.ZERO);
             this.setNoGravity(true);
-            this.dataTracker.set(FROZEN, true);
+            this.entityData.set(FROZEN, true);
 
             TickDelayScheduler.schedule(5, () -> {
                 this.setNoGravity(false);
@@ -144,16 +144,16 @@ public class CakeEntity extends PersistentProjectileEntity {
     }
 
     @Override
-    protected void onBlockHit(BlockHitResult blockHitResult) {
-        if (!this.getEntityWorld().isClient()) {
-            this.playSound(this.getSound(), 1.0F, 1.0F / (this.random.nextFloat() * 0.2F + 0.9F));
-            this.getEntityWorld().sendEntityStatus(this, EntityStatuses.PLAY_DEATH_SOUND_OR_ADD_PROJECTILE_HIT_PARTICLES);
-            this.setVelocity(0, 0, 0);
+    protected void onHitBlock(BlockHitResult blockHitResult) {
+        if (!this.level().isClientSide()) {
+            this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.0F / (this.random.nextFloat() * 0.2F + 0.9F));
+            this.level().broadcastEntityEvent(this, EntityEvent.DEATH);
+            this.setDeltaMovement(0, 0, 0);
             this.setNoGravity(true);
-            this.dataTracker.set(FROZEN, true);
+            this.entityData.set(FROZEN, true);
 
-            Vector3f normal = blockHitResult.getSide().getUnitVector();
-            this.setPosition(
+            Vector3f normal = blockHitResult.getDirection().step();
+            this.setPos(
                     this.getX() + normal.x * 0.1,
                     this.getY(),
                     this.getZ() + normal.z * 0.1
@@ -166,17 +166,17 @@ public class CakeEntity extends PersistentProjectileEntity {
             TickDelayScheduler.schedule(60, this::discard);
         }
 
-        super.onBlockHit(blockHitResult);
-        this.setSound(AntiqueSounds.CAKE_SPLAT);
+        super.onHitBlock(blockHitResult);
+        this.setSoundEvent(AntiqueSounds.CAKE_SPLAT);
     }
 
     @Override
-    protected ItemStack getDefaultItemStack() {
-        return Items.CAKE.getDefaultStack();
+    protected ItemStack getDefaultPickupItem() {
+        return Items.CAKE.getDefaultInstance();
     }
 
     @Override
-    protected SoundEvent getHitSound() {
+    protected SoundEvent getDefaultHitGroundSoundEvent() {
         return AntiqueSounds.CAKE_SPLAT;
     }
 }

@@ -1,40 +1,40 @@
 package net.hollowed.antique.util;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 public class MovementUtilsClass {
 
-    public static Vec3d applyAxeClimbingSpeed(Vec3d motion, LivingEntity entity) {
-        Box box = entity.getBoundingBox();
+    public static Vec3 applyAxeClimbingSpeed(Vec3 motion, LivingEntity entity) {
+        AABB box = entity.getBoundingBox();
         double offset = 0.35;
 
-        boolean collidingWest = MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), box.offset(-offset, 0, 0), entity);
-        boolean collidingEast = MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), box.offset(offset, 0, 0), entity);
-        boolean collidingNorth = MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), box.offset(0, 0, -offset), entity);
-        boolean collidingSouth = MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), box.offset(0, 0, offset), entity);
+        boolean collidingWest = MovementUtilsClass.collidesWithSolidBlock(entity.level(), box.move(-offset, 0, 0), entity);
+        boolean collidingEast = MovementUtilsClass.collidesWithSolidBlock(entity.level(), box.move(offset, 0, 0), entity);
+        boolean collidingNorth = MovementUtilsClass.collidesWithSolidBlock(entity.level(), box.move(0, 0, -offset), entity);
+        boolean collidingSouth = MovementUtilsClass.collidesWithSolidBlock(entity.level(), box.move(0, 0, offset), entity);
 
-        Box ledgeBox = box.withMaxY(box.maxY - 0.5);
+        AABB ledgeBox = box.setMaxY(box.maxY - 0.5);
 
-        boolean ledgeWest = !MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), ledgeBox.offset(-offset, 1.75, 0), entity);
-        boolean ledgeEast = !MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), ledgeBox.offset(offset, 1.75, 0), entity);
-        boolean ledgeNorth = !MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), ledgeBox.offset(0, 1.75, -offset), entity);
-        boolean ledgeSouth = !MovementUtilsClass.collidesWithSolidBlock(entity.getEntityWorld(), ledgeBox.offset(0, 1.75, offset), entity);
+        boolean ledgeWest = !MovementUtilsClass.collidesWithSolidBlock(entity.level(), ledgeBox.move(-offset, 1.75, 0), entity);
+        boolean ledgeEast = !MovementUtilsClass.collidesWithSolidBlock(entity.level(), ledgeBox.move(offset, 1.75, 0), entity);
+        boolean ledgeNorth = !MovementUtilsClass.collidesWithSolidBlock(entity.level(), ledgeBox.move(0, 1.75, -offset), entity);
+        boolean ledgeSouth = !MovementUtilsClass.collidesWithSolidBlock(entity.level(), ledgeBox.move(0, 1.75, offset), entity);
 
-        if (entity.isClimbing()) {
-            entity.onLanding();
-            double d = MathHelper.clamp(motion.x, -1F, 1F);
-            double e = MathHelper.clamp(motion.z, -1F, 1F);
+        if (entity.onClimbable()) {
+            entity.resetFallDistance();
+            double d = Mth.clamp(motion.x, -1F, 1F);
+            double e = Mth.clamp(motion.z, -1F, 1F);
             double g = Math.max(motion.y, -0.15F);
-            if (g < 0.0 && !entity.getBlockStateAtPos().isOf(Blocks.SCAFFOLDING)) {
-                entity.isHoldingOntoLadder();
+            if (g < 0.0 && !entity.getInBlockState().is(Blocks.SCAFFOLDING)) {
+                entity.isSuppressingSlidingDownLadder();
             }
-            if (entity.isSneaking()) {
+            if (entity.isShiftKeyDown()) {
                 g = Math.max(motion.y, -0.6F);
                 if (collidingWest && ledgeWest) {
                     g = Math.max(motion.y, 0.01F);
@@ -50,13 +50,13 @@ public class MovementUtilsClass {
                 }
             }
 
-            motion = new Vec3d(d, g, e);
+            motion = new Vec3(d, g, e);
         }
 
         return motion;
     }
 
-    public static boolean collidesWithSolidBlock(World world, Box box, Entity entity) {
+    public static boolean collidesWithSolidBlock(Level world, AABB box, Entity entity) {
         // Check for collision with any solid block in the given bounding box
         return world.getBlockCollisions(entity, box).iterator().hasNext();
     }

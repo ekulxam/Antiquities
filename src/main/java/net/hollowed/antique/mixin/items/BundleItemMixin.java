@@ -1,27 +1,41 @@
 package net.hollowed.antique.mixin.items;
 
 import net.hollowed.antique.enchantments.EnchantmentListener;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueEnchantments;
+import net.hollowed.antique.index.AntiqueItems;
+import net.hollowed.antique.items.MyriadToolBitItem;
+import net.hollowed.antique.items.MyriadToolItem;
 import net.hollowed.antique.items.SatchelItem;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.mixin.accessors.MinecartItemAccessor;
-import net.minecraft.block.TntBlock;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BundleContentsComponent;
-import net.minecraft.entity.*;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.thrown.SplashPotionEntity;
-import net.minecraft.entity.vehicle.AbstractMinecartEntity;
-import net.minecraft.inventory.StackReference;
-import net.minecraft.item.*;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.Stats;
-import net.minecraft.text.Text;
-import net.minecraft.util.*;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.item.PrimedTnt;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownSplashPotion;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BundleItem;
+import net.minecraft.world.item.FireChargeItem;
+import net.minecraft.world.item.FlintAndSteelItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.MinecartItem;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.ThrowablePotionItem;
+import net.minecraft.world.item.component.BundleContents;
+import net.minecraft.world.level.block.TntBlock;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -34,59 +48,89 @@ import java.util.*;
 @Mixin(BundleItem.class)
 public abstract class BundleItemMixin extends Item {
 
-    public BundleItemMixin(Settings settings) {
+    public BundleItemMixin(Properties settings) {
         super(settings);
     }
 
-    @Inject(method = "onStackClicked", at = @At("HEAD"), cancellable = true)
-    private void preventSatchelsOnStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player, CallbackInfoReturnable<Boolean> cir) {
-        ItemStack itemStack = slot.getStack();
+    @Inject(method = "overrideStackedOnOther", at = @At("HEAD"), cancellable = true)
+    private void preventSatchelsOnStackClicked(ItemStack stack, Slot slot, ClickAction clickType, Player player, CallbackInfoReturnable<Boolean> cir) {
+        ItemStack itemStack = slot.getItem();
         if (itemStack.getItem() instanceof SatchelItem) {
             cir.setReturnValue(false);
         }
     }
 
-    @Inject(method = "onClicked", at = @At("HEAD"), cancellable = true)
-    private void preventSatchelsOnClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "overrideOtherStackedOnMe", at = @At("HEAD"), cancellable = true)
+    private void preventSatchelsOnClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickAction clickType, Player player, SlotAccess cursorStackReference, CallbackInfoReturnable<Boolean> cir) {
         if (otherStack.getItem() instanceof SatchelItem) {
             cir.setReturnValue(false);
         }
     }
 
-    @Shadow
-    private static Optional<ItemStack> popFirstBundledStack(ItemStack stack, PlayerEntity player, BundleContentsComponent contents) {
-        return Optional.empty();
-    }
+    @Inject(method = "overrideOtherStackedOnMe", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;isEmpty()Z", ordinal = 1), cancellable = true)
+    private void myriadToolCompatibleSelectable(ItemStack itemStack, ItemStack itemStack2, Slot slot, ClickAction clickAction, Player player, SlotAccess slotAccess, CallbackInfoReturnable<Boolean> cir) {
+        if (itemStack2.is(AntiqueItems.MYRIAD_TOOL)) {
+            BundleContents bundleContents = itemStack.get(DataComponents.BUNDLE_CONTENTS);
+            if (bundleContents != null) {
+                BundleContents.Mutable mutable = new BundleContents.Mutable(bundleContents);
+                MyriadToolComponent toolComponent = itemStack2.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
+                if (toolComponent != null) {
+                    ItemStack replacementStack = toolComponent.toolBit();
+                    if (bundleContents.getSelectedItem() != -1 && bundleContents.itemCopyStream().toList().get(bundleContents.getSelectedItem()).getItem() instanceof MyriadToolBitItem) {
+                        ItemStack toolBitStack = mutable.removeOne();
 
-    @Inject(method = "onStackClicked", at = @At("RETURN"))
-    public void onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player, CallbackInfoReturnable<Boolean> cir) {
-        if (EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.CURSE_OF_VOIDING.getValue().toString())) {
-            BundleContentsComponent bundleContentsComponent = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
-            if (bundleContentsComponent == null) return;
+                        if (toolBitStack != null) {
+                            MyriadToolItem.setStoredStack(itemStack2, toolBitStack);
+                            playRemoveOneSound(player);
+                            if (!replacementStack.isEmpty() && !(slot.allowModification(player) && mutable.tryInsert(replacementStack) > 0)) {
+                                playInsertFailSound(player);
+                            }
+                        }
 
-            BundleContentsComponent.Builder builder = new BundleContentsComponent.Builder(bundleContentsComponent);
-            ItemStack itemStack = builder.removeSelected();
+                        itemStack.set(DataComponents.BUNDLE_CONTENTS, mutable.toImmutable());
+                        this.broadcastChangesOnContainerMenu(player);
+                        cir.setReturnValue(true);
+                    } else if (!replacementStack.isEmpty()) {
+                        if (slot.allowModification(player) && mutable.tryInsert(replacementStack) > 0) {
+                            MyriadToolItem.setStoredStack(itemStack2, ItemStack.EMPTY);
+                            playInsertSound(player);
+                        } else {
+                            playInsertFailSound(player);
+                        }
 
-            if (itemStack != null) {
-                float xpToGrant = calculateXpFromStackSize(itemStack.getCount(), itemStack) / 2;
-                if (xpToGrant > 0) {
-                    spawnXpOrb(player, (int) xpToGrant + 1);
+                        itemStack.set(DataComponents.BUNDLE_CONTENTS, mutable.toImmutable());
+                        this.broadcastChangesOnContainerMenu(player);
+                        cir.setReturnValue(true);
+                    }
                 }
             }
-
-            builder.removeSelected();
-            stack.set(DataComponentTypes.BUNDLE_CONTENTS, builder.build());
         }
     }
 
-    @Inject(method = "onClicked", at = @At("RETURN"))
-    public void onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference, CallbackInfoReturnable<Boolean> cir) {
-        if (EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.CURSE_OF_VOIDING.getValue().toString())) {
-            BundleContentsComponent bundleContentsComponent = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
+    @Shadow
+    private static Optional<ItemStack> removeOneItemFromBundle(ItemStack stack, Player player, BundleContents contents) {
+        return Optional.empty();
+    }
+
+    @Shadow protected abstract void broadcastChangesOnContainerMenu(Player player);
+
+    @Shadow
+    private static void playInsertSound(Entity entity) {}
+
+    @Shadow
+    private static void playInsertFailSound(Entity entity) {}
+
+    @Shadow
+    private static void playRemoveOneSound(Entity entity) {}
+
+    @Inject(method = "overrideStackedOnOther", at = @At("RETURN"))
+    public void onStackClicked(ItemStack stack, Slot slot, ClickAction clickType, Player player, CallbackInfoReturnable<Boolean> cir) {
+        if (EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.CURSE_OF_VOIDING.identifier().toString())) {
+            BundleContents bundleContentsComponent = stack.get(DataComponents.BUNDLE_CONTENTS);
             if (bundleContentsComponent == null) return;
 
-            BundleContentsComponent.Builder builder = new BundleContentsComponent.Builder(bundleContentsComponent);
-            ItemStack itemStack = builder.removeSelected();
+            BundleContents.Mutable builder = new BundleContents.Mutable(bundleContentsComponent);
+            ItemStack itemStack = builder.removeOne();
 
             if (itemStack != null) {
                 float xpToGrant = calculateXpFromStackSize(itemStack.getCount(), itemStack) / 2;
@@ -95,8 +139,29 @@ public abstract class BundleItemMixin extends Item {
                 }
             }
 
-            builder.removeSelected();
-            stack.set(DataComponentTypes.BUNDLE_CONTENTS, builder.build());
+            builder.removeOne();
+            stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
+        }
+    }
+
+    @Inject(method = "overrideOtherStackedOnMe", at = @At("RETURN"))
+    public void onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickAction clickType, Player player, SlotAccess cursorStackReference, CallbackInfoReturnable<Boolean> cir) {
+        if (EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.CURSE_OF_VOIDING.identifier().toString())) {
+            BundleContents bundleContentsComponent = stack.get(DataComponents.BUNDLE_CONTENTS);
+            if (bundleContentsComponent == null) return;
+
+            BundleContents.Mutable builder = new BundleContents.Mutable(bundleContentsComponent);
+            ItemStack itemStack = builder.removeOne();
+
+            if (itemStack != null) {
+                float xpToGrant = calculateXpFromStackSize(itemStack.getCount(), itemStack) / 2;
+                if (xpToGrant > 0) {
+                    spawnXpOrb(player, (int) xpToGrant + 1);
+                }
+            }
+
+            builder.removeOne();
+            stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
         }
     }
 
@@ -115,129 +180,129 @@ public abstract class BundleItemMixin extends Item {
     }
 
     @Unique
-    private void spawnXpOrb(PlayerEntity player, int xpAmount) {
-        if (xpAmount > 0 && player.getEntityWorld() instanceof ServerWorld) {
-            ExperienceOrbEntity xpOrb = new ExperienceOrbEntity(player.getEntityWorld(), player.getX(), player.getY(), player.getZ(), xpAmount);
-            player.getEntityWorld().spawnEntity(xpOrb);
+    private void spawnXpOrb(Player player, int xpAmount) {
+        if (xpAmount > 0 && player.level() instanceof ServerLevel) {
+            ExperienceOrb xpOrb = new ExperienceOrb(player.level(), player.getX(), player.getY(), player.getZ(), xpAmount);
+            player.level().addFreshEntity(xpOrb);
         }
     }
 
-    @Inject(method = "popFirstBundledStack", at = @At("HEAD"), cancellable = true)
-    private static void popFirstBundledStackInject(ItemStack stack, PlayerEntity player, BundleContentsComponent contents, CallbackInfoReturnable<Optional<ItemStack>> cir) {
+    @Inject(method = "removeOneItemFromBundle", at = @At("HEAD"), cancellable = true)
+    private static void popFirstBundledStackInject(ItemStack stack, Player player, BundleContents contents, CallbackInfoReturnable<Optional<ItemStack>> cir) {
 
-        boolean hasProjectingEnchantment = EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.PROJECTING.getValue().toString());
+        boolean hasProjectingEnchantment = EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.PROJECTING.identifier().toString());
 
-        BundleContentsComponent.Builder builder = new BundleContentsComponent.Builder(contents);
-        ItemStack itemStack = builder.removeSelected();
+        BundleContents.Mutable builder = new BundleContents.Mutable(contents);
+        ItemStack itemStack = builder.removeOne();
 
         if (hasProjectingEnchantment && itemStack != null) {
             cir.setReturnValue(Optional.of(itemStack));
 
-            boolean hasFlintAndSteel = player.getMainHandStack().getItem() instanceof FlintAndSteelItem ||
-                    player.getOffHandStack().getItem() instanceof FlintAndSteelItem ||
-                    player.getMainHandStack().getItem() instanceof FireChargeItem ||
-                    player.getOffHandStack().getItem() instanceof FireChargeItem;
+            boolean hasFlintAndSteel = player.getMainHandItem().getItem() instanceof FlintAndSteelItem ||
+                    player.getOffhandItem().getItem() instanceof FlintAndSteelItem ||
+                    player.getMainHandItem().getItem() instanceof FireChargeItem ||
+                    player.getOffhandItem().getItem() instanceof FireChargeItem;
 
-            boolean isMainhand = player.getMainHandStack().getItem() instanceof FlintAndSteelItem ||
-                    player.getMainHandStack().getItem() instanceof FireChargeItem;
+            boolean isMainhand = player.getMainHandItem().getItem() instanceof FlintAndSteelItem ||
+                    player.getMainHandItem().getItem() instanceof FireChargeItem;
 
             switch (itemStack.getItem()) {
                 case BlockItem blockItem when blockItem.getBlock() instanceof TntBlock -> {
                     if (hasFlintAndSteel || player.isCreative()) {
-                        itemStack.decrement(1);
-                        builder.add(itemStack);
-                        ItemStack item = isMainhand ? player.getMainHandStack() : player.getOffHandStack();
+                        itemStack.shrink(1);
+                        builder.tryInsert(itemStack);
+                        ItemStack item = isMainhand ? player.getMainHandItem() : player.getOffhandItem();
 
                         if (item.getItem() instanceof FlintAndSteelItem) {
-                            item.damage(1, player);
+                            item.hurtWithoutBreaking(1, player);
                         } else {
-                            item.decrement(1);
+                            item.shrink(1);
                         }
 
-                        TntEntity tntEntity = new TntEntity(player.getEntityWorld(), player.getX(), player.getY() + 0.75, player.getZ(), player);
+                        PrimedTnt tntEntity = new PrimedTnt(player.level(), player.getX(), player.getY() + 0.75, player.getZ(), player);
                         tntEntity.setFuse(40);
 
-                        Vec3d forward = player.getRotationVec(1.5F);
-                        tntEntity.setVelocity(forward);
+                        Vec3 forward = player.getViewVector(1.5F);
+                        tntEntity.setDeltaMovement(forward);
 
-                        player.getEntityWorld().spawnEntity(tntEntity);
-                        player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ENTITY_WITCH_THROW, SoundCategory.PLAYERS, 0.8F, 1.0F);
-                        player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_DROP_CONTENTS, SoundCategory.PLAYERS, 0.8F, 1.0F);
-                        player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_FLINTANDSTEEL_USE, SoundCategory.PLAYERS, 0.8F, 1.0F);
+                        player.level().addFreshEntity(tntEntity);
+                        player.level().playSound(null, player.blockPosition(), SoundEvents.WITCH_THROW, SoundSource.PLAYERS, 0.8F, 1.0F);
+                        player.level().playSound(null, player.blockPosition(), SoundEvents.BUNDLE_DROP_CONTENTS, SoundSource.PLAYERS, 0.8F, 1.0F);
+                        player.level().playSound(null, player.blockPosition(), SoundEvents.FLINTANDSTEEL_USE, SoundSource.PLAYERS, 0.8F, 1.0F);
 
-                        player.incrementStat(Stats.USED.getOrCreateStat(itemStack.getItem()));
+                        player.awardStat(Stats.ITEM_USED.get(itemStack.getItem()));
                         if (!player.isCreative()) {
-                            stack.set(DataComponentTypes.BUNDLE_CONTENTS, builder.build());
+                            stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
                         }
                     } else {
-                        stack.set(DataComponentTypes.BUNDLE_CONTENTS, builder.build());
+                        stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
                     }
                 }
                 case MinecartItem ignored -> {
 
                     boolean takeItem = true;
 
-                    if (player.getEntityWorld() instanceof ServerWorld) {
+                    if (player.level() instanceof ServerLevel) {
 
-                        EntityType<? extends AbstractMinecartEntity> minecartType = ((MinecartItemAccessor) itemStack.getItem()).getType();
+                        EntityType<? extends AbstractMinecart> minecartType = ((MinecartItemAccessor) itemStack.getItem()).getType();
 
-                        Vec3d forward = player.getRotationVector().normalize();
+                        Vec3 forward = player.getLookAngle().normalize();
                         double offsetDistance = 1.5;
-                        Vec3d offsetPos = player.getEntityPos().add(forward.multiply(offsetDistance)).add(0, 1, 0);
+                        Vec3 offsetPos = player.position().add(forward.scale(offsetDistance)).add(0, 1, 0);
 
-                        if (player.getEntityWorld().isSpaceEmpty(minecartType.create(player.getEntityWorld(), SpawnReason.DISPENSER), new Box(offsetPos.x - 0.25, offsetPos.y, offsetPos.z - 0.25, offsetPos.x + 0.25, offsetPos.y + 0.5, offsetPos.z + 0.25))) {
+                        if (player.level().noCollision(minecartType.create(player.level(), EntitySpawnReason.DISPENSER), new AABB(offsetPos.x - 0.25, offsetPos.y, offsetPos.z - 0.25, offsetPos.x + 0.25, offsetPos.y + 0.5, offsetPos.z + 0.25))) {
 
-                            AbstractMinecartEntity abstractMinecartEntity = AbstractMinecartEntity.create(
-                                    player.getEntityWorld(),
+                            AbstractMinecart abstractMinecartEntity = AbstractMinecart.createMinecart(
+                                    player.level(),
                                     offsetPos.x, offsetPos.y, offsetPos.z,
-                                    minecartType, SpawnReason.DISPENSER, itemStack, player
+                                    minecartType, EntitySpawnReason.DISPENSER, itemStack, player
                             );
 
                             if (abstractMinecartEntity == null) return;
-                            abstractMinecartEntity.setVelocity(forward.add(player.getVelocity()));
-                            player.getEntityWorld().spawnEntity(abstractMinecartEntity);
-                            player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ENTITY_WITCH_THROW, SoundCategory.PLAYERS, 0.8F, 1.0F);
-                            player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_DROP_CONTENTS, SoundCategory.PLAYERS, 0.8F, 1.0F);
+                            abstractMinecartEntity.setDeltaMovement(forward.add(player.getDeltaMovement()));
+                            player.level().addFreshEntity(abstractMinecartEntity);
+                            player.level().playSound(null, player.blockPosition(), SoundEvents.WITCH_THROW, SoundSource.PLAYERS, 0.8F, 1.0F);
+                            player.level().playSound(null, player.blockPosition(), SoundEvents.BUNDLE_DROP_CONTENTS, SoundSource.PLAYERS, 0.8F, 1.0F);
 
-                            itemStack.decrement(1);
-                            builder.add(itemStack);
+                            itemStack.shrink(1);
+                            builder.tryInsert(itemStack);
                         } else {
                             takeItem = false;
-                            player.sendMessage(Text.translatable("item.antique.bundle_minecart"), true);
+                            player.displayClientMessage(Component.translatable("item.antique.bundle_minecart"), true);
                             cir.setReturnValue(Optional.empty());
                         }
-                        player.incrementStat(Stats.USED.getOrCreateStat(itemStack.getItem()));
+                        player.awardStat(Stats.ITEM_USED.get(itemStack.getItem()));
                         if (!player.isCreative() && takeItem) {
-                            stack.set(DataComponentTypes.BUNDLE_CONTENTS, builder.build());
+                            stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
                         }
                     }
                 }
                 case ThrowablePotionItem ignored -> {
                     if (!player.isCreative()) {
-                        stack.set(DataComponentTypes.BUNDLE_CONTENTS, builder.build());
+                        stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
                     }
                 }
-                case null, default -> stack.set(DataComponentTypes.BUNDLE_CONTENTS, builder.build());
+                default -> stack.set(DataComponents.BUNDLE_CONTENTS, builder.toImmutable());
             }
         }
     }
 
-    @Inject(method = "dropFirstBundledStack", at = @At("HEAD"), cancellable = true)
-    private void projectingDropStack(ItemStack stack, PlayerEntity player, CallbackInfoReturnable<Boolean> cir) {
-        if (EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.PROJECTING.getValue().toString())) {
-            BundleContentsComponent bundleContentsComponent = stack.get(DataComponentTypes.BUNDLE_CONTENTS);
+    @Inject(method = "dropContent(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/entity/player/Player;)Z", at = @At("HEAD"), cancellable = true)
+    private void projectingDropStack(ItemStack stack, Player player, CallbackInfoReturnable<Boolean> cir) {
+        if (EnchantmentListener.hasEnchantment(stack, AntiqueEnchantments.PROJECTING.identifier().toString())) {
+            BundleContents bundleContentsComponent = stack.get(DataComponents.BUNDLE_CONTENTS);
             if (bundleContentsComponent != null && !bundleContentsComponent.isEmpty()) {
-                Optional<ItemStack> optional = popFirstBundledStack(stack, player, bundleContentsComponent);
+                Optional<ItemStack> optional = removeOneItemFromBundle(stack, player, bundleContentsComponent);
                 if (optional.isPresent()) {
                     cir.setReturnValue(true);
                     if (optional.get().getItem() instanceof ThrowablePotionItem) {
                         handlePotionThrow(player, optional.get());
                     } else {
-                        player.playSound(SoundEvents.ITEM_BUNDLE_REMOVE_ONE, 0.8F, 0.8F + player.getEntityWorld().getRandom().nextFloat() * 0.4F);
-                        ItemEntity entity = player.dropItem(optional.get(), true);
+                        player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 0.8F, 0.8F + player.level().getRandom().nextFloat() * 0.4F);
+                        ItemEntity entity = player.drop(optional.get(), true);
                         if (entity != null) {
-                            entity.setVelocity(entity.getVelocity().multiply(2));
-                            entity.velocityModified = true;
+                            entity.setDeltaMovement(entity.getDeltaMovement().scale(2));
+                            entity.hurtMarked = true;
                         }
                     }
                 } else {
@@ -249,15 +314,15 @@ public abstract class BundleItemMixin extends Item {
     }
 
     @Unique
-    private void handlePotionThrow(PlayerEntity player, ItemStack itemStack) {
-        if (player.getEntityWorld() instanceof ServerWorld) {
-            SplashPotionEntity potionEntity = new SplashPotionEntity(player.getEntityWorld(), player, itemStack);
-            potionEntity.setPosition(player.getEntityPos().add(0, 1.5, 0));
-            potionEntity.setVelocity(player.getRotationVector().add(0, 0.25, 0));
-            player.getEntityWorld().spawnEntity(potionEntity);
-            player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ENTITY_WITCH_THROW, SoundCategory.PLAYERS, 0.8F, 1.0F);
-            player.getEntityWorld().playSound(null, player.getBlockPos(), SoundEvents.ITEM_BUNDLE_DROP_CONTENTS, SoundCategory.PLAYERS, 0.8F, 1.0F);
+    private void handlePotionThrow(Player player, ItemStack itemStack) {
+        if (player.level() instanceof ServerLevel) {
+            ThrownSplashPotion potionEntity = new ThrownSplashPotion(player.level(), player, itemStack);
+            potionEntity.setPos(player.position().add(0, 1.5, 0));
+            potionEntity.setDeltaMovement(player.getLookAngle().add(0, 0.25, 0));
+            player.level().addFreshEntity(potionEntity);
+            player.level().playSound(null, player.blockPosition(), SoundEvents.WITCH_THROW, SoundSource.PLAYERS, 0.8F, 1.0F);
+            player.level().playSound(null, player.blockPosition(), SoundEvents.BUNDLE_DROP_CONTENTS, SoundSource.PLAYERS, 0.8F, 1.0F);
         }
-        player.incrementStat(Stats.USED.getOrCreateStat(itemStack.getItem()));
+        player.awardStat(Stats.ITEM_USED.get(itemStack.getItem()));
     }
 }

@@ -1,29 +1,29 @@
 package net.hollowed.antique.mixin.entities.features;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueEntityLayers;
 import net.hollowed.antique.client.armor.models.AdventureArmor;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.items.MyriadToolItem;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.network.AbstractClientPlayerEntity;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.LivingEntityRenderer;
-import net.minecraft.client.render.entity.PlayerEntityRenderer;
-import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.client.render.entity.model.PlayerEntityModel;
-import net.minecraft.client.render.entity.state.PlayerEntityRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.PlayerLikeEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.RotationAxis;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.player.PlayerModel;
+import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
+import net.minecraft.client.renderer.entity.player.AvatarRenderer;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Avatar;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -32,53 +32,52 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @SuppressWarnings("all") // this class is still broken - fix please
-@Mixin(PlayerEntityRenderer.class)
-public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractClientPlayerEntity, PlayerEntityRenderState, PlayerEntityModel> {
+@Mixin(AvatarRenderer.class)
+public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractClientPlayer, AvatarRenderState, PlayerModel> {
 
     @Unique
-    private static final Identifier TEXTURE = Identifier.of(Antiquities.MOD_ID, "textures/entity/adventure_armor.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/adventure_armor.png");
     @Unique
-    private static final Identifier THICK_TEXTURE = Identifier.of(Antiquities.MOD_ID, "textures/entity/adventure_armor_thick.png");
+    private static final Identifier THICK_TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/adventure_armor_thick.png");
     @Unique
-    private AdventureArmor<PlayerEntityRenderState> armorModel;
+    private AdventureArmor<AvatarRenderState> armorModel;
     @Unique
     private boolean slim = false;
 
-    public PlayerFeatureAdder(EntityRendererFactory.Context ctx, PlayerEntityModel model, float shadowRadius) {
+    public PlayerFeatureAdder(EntityRendererProvider.Context ctx, PlayerModel model, float shadowRadius) {
         super(ctx, model, shadowRadius);
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))
-    private void addCustomFeature(EntityRendererFactory.Context ctx, boolean slim, CallbackInfo ci) {
+    private void addCustomFeature(EntityRendererProvider.Context ctx, boolean slim, CallbackInfo ci) {
         this.slim = slim;
-        this.armorModel = new AdventureArmor<>(ctx.getEntityModels().getModelPart(AntiqueEntityLayers.ADVENTURE_ARMOR));
+        this.armorModel = new AdventureArmor<>(ctx.getModelSet().bakeLayer(AntiqueEntityLayers.ADVENTURE_ARMOR));
     }
 
-    @Inject(method = "getArmPose(Lnet/minecraft/entity/PlayerLikeEntity;Lnet/minecraft/item/ItemStack;Lnet/minecraft/util/Hand;)Lnet/minecraft/client/render/entity/model/BipedEntityModel$ArmPose;", at = @At("HEAD"), cancellable = true)
-    private static void getArmPose(PlayerLikeEntity player, ItemStack stack, Hand hand, CallbackInfoReturnable<BipedEntityModel.ArmPose> cir) {
-        if (stack.streamTags().toList().contains(TagKey.of(RegistryKeys.ITEM, Identifier.of(Antiquities.MOD_ID, "two_handed")))) {
-            if (!player.isUsingItem() && !player.handSwinging && !player.isSneaking()) {
-                cir.setReturnValue(BipedEntityModel.ArmPose.CROSSBOW_CHARGE);
-            } else if (player.isSneaking() || player.handSwinging) {
-                cir.setReturnValue(BipedEntityModel.ArmPose.CROSSBOW_HOLD);
+    @Inject(method = "getArmPose(Lnet/minecraft/world/entity/Avatar;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/client/model/HumanoidModel$ArmPose;", at = @At("HEAD"), cancellable = true)
+    private static void getArmPose(Avatar player, ItemStack stack, InteractionHand hand, CallbackInfoReturnable<HumanoidModel.ArmPose> cir) {
+        if (stack.getTags().toList().contains(TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "two_handed")))) {
+            if (!player.isUsingItem() && !player.swinging && !player.isShiftKeyDown()) {
+                cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_CHARGE);
+            } else if (player.isShiftKeyDown() || player.swinging) {
+                cir.setReturnValue(HumanoidModel.ArmPose.CROSSBOW_HOLD);
             }
         }
         if (stack.getItem() instanceof MyriadToolItem) {
-            if (player.isSneaking() && !player.isUsingItem()) {
-                cir.setReturnValue(BipedEntityModel.ArmPose.BLOCK);
+            if (player.isShiftKeyDown() && !player.isUsingItem()) {
+                cir.setReturnValue(HumanoidModel.ArmPose.BLOCK);
             } else if (!player.isUsingItem()) {
-                cir.setReturnValue(BipedEntityModel.ArmPose.BRUSH);
+                cir.setReturnValue(HumanoidModel.ArmPose.BRUSH);
             }
         }
     }
 
-
-    @Inject(method = "renderLeftArm", at = @At("TAIL"))
-    public void renderArmoredLeftArm(MatrixStack matrices, OrderedRenderCommandQueue queue, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+    @Inject(method = "renderLeftHand", at = @At("TAIL"))
+    public void renderArmoredLeftArm(PoseStack matrices, SubmitNodeCollector queue, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
+        LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
-        if (player.getEquippedStack(EquipmentSlot.CHEST).getItem() == AntiqueItems.NETHERITE_PAULDRONS) {
-            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-5));
+        if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() == AntiqueItems.MYRIAD_PAULDRONS) {
+            matrices.mulPose(Axis.ZP.rotationDegrees(-5));
             matrices.translate(0.075, 0, 0);
             if (slim) {
 //                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),
@@ -93,12 +92,12 @@ public abstract class PlayerFeatureAdder extends LivingEntityRenderer<AbstractCl
         }
     }
 
-    @Inject(method = "renderRightArm", at = @At("TAIL"))
-    public void renderArmoredRightArm(MatrixStack matrices, OrderedRenderCommandQueue queue, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
-        ClientPlayerEntity player = MinecraftClient.getInstance().player;
+    @Inject(method = "renderRightHand", at = @At("TAIL"))
+    public void renderArmoredRightArm(PoseStack matrices, SubmitNodeCollector queue, int light, Identifier skinTexture, boolean sleeveVisible, CallbackInfo ci) {
+        LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return;
-        if (player.getEquippedStack(EquipmentSlot.CHEST).getItem() == AntiqueItems.NETHERITE_PAULDRONS) {
-            matrices.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(5));
+        if (player.getItemBySlot(EquipmentSlot.CHEST).getItem() == AntiqueItems.MYRIAD_PAULDRONS) {
+            matrices.mulPose(Axis.ZP.rotationDegrees(5));
             matrices.translate(-0.075, 0, 0);
             if (slim) {
 //                VertexConsumer vertexConsumer = ItemRenderer.getArmorGlintConsumer(vertexConsumers, RenderLayer.getArmorCutoutNoCull(TEXTURE),

@@ -1,12 +1,12 @@
 package net.hollowed.antique.mixin.entities.living.player;
 
 import net.hollowed.antique.index.AntiqueItems;
-import net.minecraft.client.render.Camera;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.math.Box;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.client.Camera;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.spongepowered.asm.mixin.Final;
@@ -19,32 +19,32 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Camera.class)
 public abstract class CameraMixin {
-    @Shadow private float pitch;
-    @Shadow private float yaw;
+    @Shadow private float xRot;
+    @Shadow private float yRot;
 
-    @Shadow @Final private static Vector3f HORIZONTAL;
-    @Shadow @Final private static Vector3f VERTICAL;
-    @Shadow @Final private static Vector3f DIAGONAL;
+    @Shadow @Final private static Vector3f FORWARDS;
+    @Shadow @Final private static Vector3f UP;
+    @Shadow @Final private static Vector3f LEFT;
     @Shadow @Final private Quaternionf rotation;
-    @Shadow @Final private Vector3f horizontalPlane;
-    @Shadow @Final private Vector3f verticalPlane;
-    @Shadow @Final private Vector3f diagonalPlane;
+    @Shadow @Final private Vector3f forwards;
+    @Shadow @Final private Vector3f up;
+    @Shadow @Final private Vector3f left;
 
     @Unique
     private float roll = 0.0F;
 
-    @Inject(method = "update", at = @At("TAIL"))
-    public void update(BlockView area, Entity focusedEntity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
-        if (focusedEntity instanceof PlayerEntity player) {
-            Box box = player.getBoundingBox();
+    @Inject(method = "setup", at = @At("TAIL"))
+    public void update(Level level, Entity focusedEntity, boolean bl, boolean bl2, float f, CallbackInfo ci) {
+        if (focusedEntity instanceof Player player) {
+            AABB box = player.getBoundingBox();
             double offset = 0.1;
 
-            boolean collidingWest = collidesWithSolidBlock(player.getEntityWorld(), box.offset(-offset, 0, 0), player);
-            boolean collidingEast = collidesWithSolidBlock(player.getEntityWorld(), box.offset(offset, 0, 0), player);
-            boolean collidingNorth = collidesWithSolidBlock(player.getEntityWorld(), box.offset(0, 0, -offset), player);
-            boolean collidingSouth = collidesWithSolidBlock(player.getEntityWorld(), box.offset(0, 0, offset), player);
+            boolean collidingWest = collidesWithSolidBlock(player.level(), box.move(-offset, 0, 0), player);
+            boolean collidingEast = collidesWithSolidBlock(player.level(), box.move(offset, 0, 0), player);
+            boolean collidingNorth = collidesWithSolidBlock(player.level(), box.move(0, 0, -offset), player);
+            boolean collidingSouth = collidesWithSolidBlock(player.level(), box.move(0, 0, offset), player);
 
-            float correctedYaw = this.yaw;
+            float correctedYaw = this.yRot;
 
             while (correctedYaw > 360) {
                 correctedYaw -= 360;
@@ -60,7 +60,7 @@ public abstract class CameraMixin {
 
             float targetRoll = 0.0F;
 
-            if (player.isClimbing() && (this.pitch < 30 && this.pitch > -30) && !thirdPerson && !player.isOnGround() && player.isHolding(AntiqueItems.MYRIAD_AXE_HEAD)) {
+            if (player.onClimbable() && (this.xRot < 30 && this.xRot > -30) && !bl2 && !player.onGround() && player.isHolding(AntiqueItems.MYRIAD_AXE_HEAD)) {
                 if (collidingNorth) {
                     if (lookingEast) {
                         targetRoll = -15;
@@ -97,23 +97,23 @@ public abstract class CameraMixin {
             }
 
             this.roll += (targetRoll - this.roll) * 0.05F;
-            this.setRotationWithRoll(this.yaw, this.pitch, this.roll);
+            this.setRotationWithRoll(this.yRot, this.xRot, this.roll);
         }
     }
 
     @Unique
     private void setRotationWithRoll(float yaw, float pitch, float roll) {
-        this.pitch = pitch;
-        this.yaw = yaw;
+        this.xRot = pitch;
+        this.yRot = yaw;
         this.roll = roll;
         this.rotation.rotationYXZ((float) Math.PI - yaw * (float) (Math.PI / 180.0), -pitch * (float) (Math.PI / 180.0), roll * (float) (Math.PI / 180.0));
-        HORIZONTAL.rotate(this.rotation, this.horizontalPlane);
-        VERTICAL.rotate(this.rotation, this.verticalPlane);
-        DIAGONAL.rotate(this.rotation, this.diagonalPlane);
+        FORWARDS.rotate(this.rotation, this.forwards);
+        UP.rotate(this.rotation, this.up);
+        LEFT.rotate(this.rotation, this.left);
     }
 
     @Unique
-    private boolean collidesWithSolidBlock(World world, Box box, Entity entity) {
+    private boolean collidesWithSolidBlock(Level world, AABB box, Entity entity) {
         return world.getBlockCollisions(entity, box).iterator().hasNext();
     }
 }

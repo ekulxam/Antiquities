@@ -1,0 +1,7 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:item/large_tool",
+	"textures": {
+		"layer0": "item/copper_axe_large"
+	}
+}

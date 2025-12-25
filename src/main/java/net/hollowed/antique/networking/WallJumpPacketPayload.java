@@ -1,27 +1,26 @@
 package net.hollowed.antique.networking;
 
 import net.hollowed.antique.Antiquities;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
-public record WallJumpPacketPayload(int entityId) implements CustomPayload {
-    public static final Id<WallJumpPacketPayload> ID = new Id<>(Identifier.of(Antiquities.MOD_ID, "wall_jump_packet"));
+public record WallJumpPacketPayload(int entityId) implements CustomPacketPayload {
+    public static final Type<WallJumpPacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "wall_jump_packet"));
 
-    public static final PacketCodec<RegistryByteBuf, WallJumpPacketPayload> CODEC = PacketCodec.of(WallJumpPacketPayload::write, WallJumpPacketPayload::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, WallJumpPacketPayload> CODEC = StreamCodec.ofMember(WallJumpPacketPayload::write, WallJumpPacketPayload::new);
 
-    public WallJumpPacketPayload(RegistryByteBuf buf) {
+    public WallJumpPacketPayload(RegistryFriendlyByteBuf buf) {
         this(buf.readInt());
     }
 
-    public void write(RegistryByteBuf buf) {
+    public void write(RegistryFriendlyByteBuf buf) {
         buf.writeInt(entityId);
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

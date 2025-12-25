@@ -1,42 +1,42 @@
 package net.hollowed.antique.mixin.entities.living;
 
 import net.hollowed.antique.items.MyriadMattockBit;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.Shearable;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.passive.SheepEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Shearable;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(SheepEntity.class)
-public abstract class SheepEntityMixin extends AnimalEntity implements Shearable {
+@Mixin(Sheep.class)
+public abstract class SheepEntityMixin extends Animal implements Shearable {
 
-    @Shadow public abstract boolean isShearable();
+    @Shadow public abstract boolean readyForShearing();
 
-    @Shadow public abstract void sheared(ServerWorld world, SoundCategory shearedSoundCategory, ItemStack shears);
+    @Shadow public abstract void shear(ServerLevel world, SoundSource shearedSoundCategory, ItemStack shears);
 
-    protected SheepEntityMixin(EntityType<? extends AnimalEntity> entityType, World world) {
+    protected SheepEntityMixin(EntityType<? extends Animal> entityType, Level world) {
         super(entityType, world);
     }
 
-    @Inject(method = "interactMob", at = @At("HEAD"))
-    public void interact(PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
-        ItemStack itemStack = player.getStackInHand(hand);
+    @Inject(method = "mobInteract", at = @At("HEAD"))
+    public void interact(Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+        ItemStack itemStack = player.getItemInHand(hand);
         if (itemStack.getItem() instanceof MyriadMattockBit) {
-            if (this.getEntityWorld() instanceof ServerWorld serverWorld && this.isShearable()) {
-                this.sheared(serverWorld, SoundCategory.PLAYERS, itemStack);
-                this.emitGameEvent(GameEvent.SHEAR, player);
+            if (this.level() instanceof ServerLevel serverWorld && this.readyForShearing()) {
+                this.shear(serverWorld, SoundSource.PLAYERS, itemStack);
+                this.gameEvent(GameEvent.SHEAR, player);
             }
         }
     }

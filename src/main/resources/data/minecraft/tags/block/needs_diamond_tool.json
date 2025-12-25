@@ -1,18 +1,6 @@
 {
   "replace": false,
   "values": [
-    "antique:myriad_ore",
-    "antique:deepslate_myriad_ore",
-    "antique:myriad_cluster",
-    "antique:deepslate_myriad_cluster",
-    "antique:myriad_block",
-    "antique:exposed_myriad_block",
-    "antique:weathered_myriad_block",
-    "antique:tarnished_myriad_block",
-    "antique:coated_myriad_block",
-    "antique:coated_exposed_myriad_block",
-    "antique:coated_weathered_myriad_block",
-    "antique:coated_tarnished_myriad_block",
-    "antique:raw_myriad_block"
+
   ]
 }

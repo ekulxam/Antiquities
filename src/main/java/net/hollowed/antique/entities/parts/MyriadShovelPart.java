@@ -3,26 +3,30 @@ package net.hollowed.antique.entities.parts;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.*;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.item.ItemStack;
-import net.minecraft.predicate.entity.EntityPredicates;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.Uuids;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.TraceableEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class MyriadShovelPart extends Entity implements Ownable {
+public class MyriadShovelPart extends Entity implements TraceableEntity {
 
 	private Entity owner;
 	private UUID ownerUuid;
@@ -30,18 +34,18 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 	private int id;
 
-	public MyriadShovelPart(EntityType<MyriadShovelPart> myriadShovelEntityEntityType, World world) {
+	public MyriadShovelPart(EntityType<MyriadShovelPart> myriadShovelEntityEntityType, Level world) {
 		super(myriadShovelEntityEntityType, world);
 	}
 
 	@Nullable
 	protected Entity getEntity(UUID uuid) {
-		return this.getEntityWorld() instanceof ServerWorld serverWorld ? serverWorld.getEntity(uuid) : null;
+		return this.level() instanceof ServerLevel serverWorld ? serverWorld.getEntity(uuid) : null;
 	}
 
-	public ItemStack getPickBlockStack() {
+	public ItemStack getPickResult() {
 		if (this.getOwner() == null) return Antiquities.getMyriadShovelStack();
-		return this.getOwner() instanceof MyriadShovelEntity shovel ? shovel.getItemStack() : Antiquities.getMyriadShovelStack();
+		return this.getOwner() instanceof MyriadShovelEntity shovel ? shovel.getPickupItemStackOrigin() : Antiquities.getMyriadShovelStack();
 	}
 
 	public void setOrderId(int id) {
@@ -54,13 +58,13 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 	@Override
 	public void tick() {
-		if (this.getOwner() == null && this.getEntityWorld() instanceof ServerWorld) {
+		if (this.getOwner() == null && this.level() instanceof ServerLevel) {
 			this.discard();
 			return;
 		}
 
-		if (this.age >= 20) {
-			this.age -= 9;
+		if (this.tickCount >= 20) {
+			this.tickCount -= 9;
 		}
 
 		if (!this.leftOwner) {
@@ -68,15 +72,15 @@ public class MyriadShovelPart extends Entity implements Ownable {
 		}
 
 		super.tick();
-		if (this.getEntityWorld() instanceof ServerWorld world) {
-			world.getChunkManager().unloadEntity(this);
-			world.getChunkManager().loadEntity(this);
+		if (this.level() instanceof ServerLevel world) {
+			world.getChunkSource().removeEntity(this);
+			world.getChunkSource().addEntity(this);
 		}
 
-		List<Entity> list = this.getEntityWorld().getOtherEntities(this, this.getBoundingBox().shrink(0.1, 0.1, 0.1), entity -> !(entity instanceof MyriadShovelPart));
+		List<Entity> list = this.level().getEntities(this, this.getBoundingBox().contract(0.1, 0.1, 0.1), entity -> !(entity instanceof MyriadShovelPart));
 		for (Entity entity : list) {
 			if (entity instanceof LivingEntity) {
-				entity.slowMovement(Blocks.AIR.getDefaultState(), new Vec3d(0.05, 0.01, 0.05));
+				entity.makeStuckInBlock(Blocks.AIR.defaultBlockState(), new Vec3(0.05, 0.01, 0.05));
 			}
 		}
 
@@ -87,34 +91,34 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 		if (this.getOwner() != null) {
 			float multiplier = 0.25F;
-			this.setPosition(Objects.requireNonNull(this.getOwner()).getEntityPos().x, this.getOwner().getEntityPos().y - 0.25, this.getOwner().getEntityPos().z);
+			this.setPos(Objects.requireNonNull(this.getOwner()).position().x, this.getOwner().position().y - 0.25, this.getOwner().position().z);
 			multiplier += (this.getOrderId() / 3.5F) - 0.2F;
-			Vec3d look = this.getOwner().getRotationVec(0);
-			this.setPosition(this.getEntityPos().add(look.multiply(multiplier, multiplier, -multiplier)));
+			Vec3 look = this.getOwner().getViewVector(0);
+			this.setPos(this.position().add(look.multiply(multiplier, multiplier, -multiplier)));
 		}
 	}
 
 	@Override
-	public boolean isCollidable(@Nullable Entity entity) {
+	public boolean canBeCollidedWith(@Nullable Entity entity) {
 		if (entity == null) return false;
-		List<Entity> list = this.getEntityWorld().getOtherEntities(this, this.getBoundingBox(), entity1 -> !(entity1 instanceof MyriadShovelPart));
-		return entity.getY() >= this.getBoundingBox().maxY - 0.5 || !entity.getPose().equals(EntityPose.SWIMMING) && !list.contains(entity);
+		List<Entity> list = this.level().getEntities(this, this.getBoundingBox(), entity1 -> !(entity1 instanceof MyriadShovelPart));
+		return entity.getY() >= this.getBoundingBox().maxY - 0.5 || !entity.getPose().equals(Pose.SWIMMING) && !list.contains(entity);
 	}
 
 	@Override
-	protected void initDataTracker(DataTracker.Builder builder) {
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
 	}
 
 	@Override
-	protected void readCustomData(ReadView view) {
-		this.setOwner(view.read("Owner", Uuids.INT_STREAM_CODEC).orElse(null));
-		this.leftOwner = view.getBoolean("LeftOwner", false);
-		this.id = view.getInt("Id", 0);
+	protected void readAdditionalSaveData(ValueInput view) {
+		this.setOwner(view.read("Owner", UUIDUtil.CODEC).orElse(null));
+		this.leftOwner = view.getBooleanOr("LeftOwner", false);
+		this.id = view.getIntOr("Id", 0);
 	}
 
 	@Override
-	protected void writeCustomData(WriteView view) {
-		view.putNullable("Owner", Uuids.INT_STREAM_CODEC, this.ownerUuid);
+	protected void addAdditionalSaveData(ValueOutput view) {
+		view.storeNullable("Owner", UUIDUtil.CODEC, this.ownerUuid);
 		if (this.leftOwner) {
 			view.putBoolean("LeftOwner", true);
 		}
@@ -122,16 +126,16 @@ public class MyriadShovelPart extends Entity implements Ownable {
 	}
 
 	@Override
-	public boolean canHit() {
+	public boolean isPickable() {
 		return true;
 	}
 
 	@Override
-	public final boolean damage(ServerWorld world, DamageSource source, float amount) {
+	public final boolean hurtServer(ServerLevel world, DamageSource source, float amount) {
 		TickDelayScheduler.schedule(1, () -> {
 			if (this.owner != null && this.owner instanceof MyriadShovelEntity entity) {
 				entity.canPickup = true;
-				entity.getDataTracker().set(MyriadShovelEntity.LOYALTY, (byte) 3);
+				entity.getEntityData().set(MyriadShovelEntity.LOYALTY, (byte) 3);
 				entity.returnTimer = 1;
 			}
 		});
@@ -139,7 +143,7 @@ public class MyriadShovelPart extends Entity implements Ownable {
 	}
 
     @Override
-	public boolean shouldSave() {
+	public boolean shouldBeSaved() {
 		return true;
 	}
 
@@ -150,7 +154,7 @@ public class MyriadShovelPart extends Entity implements Ownable {
 
 	public void setOwner(@Nullable Entity entity) {
 		if (entity != null) {
-			this.ownerUuid = entity.getUuid();
+			this.ownerUuid = entity.getUUID();
 			this.owner = entity;
 		}
 	}
@@ -178,8 +182,8 @@ public class MyriadShovelPart extends Entity implements Ownable {
 	private boolean shouldLeaveOwner() {
 		Entity entity = this.getOwner();
 		if (entity != null) {
-			Box box = this.getBoundingBox().stretch(this.getVelocity()).expand(1.0);
-			return entity.getRootVehicle().streamSelfAndPassengers().filter(EntityPredicates.CAN_HIT).noneMatch(entityx -> box.intersects(entityx.getBoundingBox()));
+			AABB box = this.getBoundingBox().expandTowards(this.getDeltaMovement()).inflate(1.0);
+			return entity.getRootVehicle().getSelfAndPassengers().filter(EntitySelector.CAN_BE_PICKED).noneMatch(entityx -> box.intersects(entityx.getBoundingBox()));
 		} else {
 			return true;
 		}

@@ -6,7 +6,7 @@ import net.hollowed.antique.blocks.screens.DyeingScreenHandler;
 public class DyePacketReceiver {
     public static void registerServerPacket() {
         ServerPlayNetworking.registerGlobalReceiver(DyePacketPayload.ID, (payload, context) -> context.server().execute(() -> {
-            if (context.player().currentScreenHandler instanceof DyeingScreenHandler screen) {
+            if (context.player().containerMenu instanceof DyeingScreenHandler screen) {
                 screen.setHexCode(payload.color());
             }
         }));

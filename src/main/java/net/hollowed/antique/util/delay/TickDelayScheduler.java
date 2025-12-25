@@ -4,17 +4,18 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TickDelayScheduler {
+
     private static final Map<Integer, DelayHandler> scheduledTasks = new ConcurrentHashMap<>();
     private static int taskIdCounter = 0;
 
     /**
-     * Schedules a task to run after a delay in server ticks.
+     * Uses a Runnable to schedule code to run after a set amount of ticks
      *
-     * @param ticks Delay in ticks before execution.
-     * @param task  Code to run after the delay.
-     * @return Task ID (can be used to cancel).
+     * @param ticks Delay before execution
+     * @param task Code executed after the delay
+     * @return the task ID in the case of a cancel being warranted
      */
-    @SuppressWarnings("all")
+    @SuppressWarnings("unused")
     public static int schedule(int ticks, Runnable task) {
         int taskId = taskIdCounter++;
 
@@ -23,7 +24,7 @@ public class TickDelayScheduler {
     }
 
     /**
-     * Called every tick to process scheduled tasks.
+     * Just a tick method, called at the end of every server tick.
      */
     public static void tick() {
         if (!scheduledTasks.isEmpty()) {

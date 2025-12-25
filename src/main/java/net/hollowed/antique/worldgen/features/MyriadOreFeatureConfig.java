@@ -2,13 +2,12 @@ package net.hollowed.antique.worldgen.features;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.block.BlockState;
-import net.minecraft.structure.rule.RuleTest;
-import net.minecraft.world.gen.feature.FeatureConfig;
-
 import java.util.List;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.feature.configurations.FeatureConfiguration;
+import net.minecraft.world.level.levelgen.structure.templatesystem.RuleTest;
 
-public record MyriadOreFeatureConfig(List<Target> targets, int size, float discardOnAirChance) implements FeatureConfig {
+public record MyriadOreFeatureConfig(List<Target> targets, int size, float discardOnAirChance) implements FeatureConfiguration {
 
 	public static final Codec<MyriadOreFeatureConfig> CODEC = RecordCodecBuilder.create(
 			instance -> instance.group(
@@ -22,9 +21,9 @@ public record MyriadOreFeatureConfig(List<Target> targets, int size, float disca
 	public static class Target {
 		public static final Codec<Target> CODEC = RecordCodecBuilder.create(
 				instance -> instance.group(
-								RuleTest.TYPE_CODEC.fieldOf("target").forGetter(target -> target.target),
+								RuleTest.CODEC.fieldOf("target").forGetter(target -> target.target),
 								BlockState.CODEC.fieldOf("state").forGetter(target -> target.state),
-								RuleTest.TYPE_CODEC.fieldOf("cluster_target").forGetter(target -> target.clusterTarget),
+								RuleTest.CODEC.fieldOf("cluster_target").forGetter(target -> target.clusterTarget),
 								BlockState.CODEC.fieldOf("cluster_state").forGetter(target -> target.clusterState)
 						)
 						.apply(instance, Target::new)

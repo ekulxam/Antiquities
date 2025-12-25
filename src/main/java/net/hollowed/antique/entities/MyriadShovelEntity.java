@@ -1,51 +1,49 @@
 package net.hollowed.antique.entities;
 
+import com.google.common.base.Suppliers;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueDamageTypes;
 import net.hollowed.antique.index.AntiqueEntities;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
+import net.hollowed.antique.index.AntiqueTrackedData;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.combatamenities.index.CAParticles;
 import net.hollowed.combatamenities.util.items.CAComponents;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.DyedColorComponent;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ProjectileDeflection;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.hit.EntityHitResult;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.util.Mth;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.ProjectileDeflection;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-public class MyriadShovelEntity extends PersistentProjectileEntity {
-	public static final TrackedData<Byte> LOYALTY = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BYTE);
-	public static final TrackedData<Integer> COLOR = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	public static final TrackedData<Integer> OVERLAY_COLOR = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.INTEGER);
-	public static final TrackedData<String> CLOTH = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.STRING);
-	public static final TrackedData<String> PATTERN = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.STRING);
-	public static final TrackedData<Boolean> ENCHANTED = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
-	public static final TrackedData<Byte> PIERCE_LEVEL = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BYTE);
-	public static final TrackedData<Boolean> GLOW = DataTracker.registerData(MyriadShovelEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+public class MyriadShovelEntity extends AbstractArrow {
+	public static final EntityDataAccessor<Byte> LOYALTY = SynchedEntityData.defineId(MyriadShovelEntity.class, EntityDataSerializers.BYTE);
+	public static final EntityDataAccessor<MyriadToolComponent> ATTRIBUTES = SynchedEntityData.defineId(MyriadShovelEntity.class, AntiqueTrackedData.MYRIAD_ATTRIBUTES);
+	public static final EntityDataAccessor<Boolean> ENCHANTED = SynchedEntityData.defineId(MyriadShovelEntity.class, EntityDataSerializers.BOOLEAN);
+	public static final EntityDataAccessor<Byte> PIERCE_LEVEL = SynchedEntityData.defineId(MyriadShovelEntity.class, EntityDataSerializers.BYTE);
+	public static final EntityDataAccessor<Boolean> GLOW = SynchedEntityData.defineId(MyriadShovelEntity.class, EntityDataSerializers.BOOLEAN);
     private boolean dealtDamage;
 	public int returnTimer;
 	@Nullable
@@ -53,76 +51,72 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 
 	public boolean canPickup;
 
-	public MyriadShovelEntity(EntityType<MyriadShovelEntity> entityType, World world) {
+	public MyriadShovelEntity(EntityType<MyriadShovelEntity> entityType, Level world) {
 		super(entityType, world);
-		this.setDamage(8);
-		this.setStack(Antiquities.getMyriadShovelStack());
-		this.dataTracker.set(COLOR, this.getItemStack().getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
-		this.dataTracker.set(OVERLAY_COLOR, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
-		this.dataTracker.set(CLOTH, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, ""));
-		this.dataTracker.set(GLOW, this.getItemStack().getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
+		this.setBaseDamage(8);
+		this.setPickupItemStack(Antiquities.getMyriadShovelStack());
+		this.entityData.set(ATTRIBUTES, this.getPickupItemStackOrigin().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()));
+		this.entityData.set(GLOW, this.getPickupItemStackOrigin().getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 		this.setPierceLevel((byte) 5);
 	}
 
-	public MyriadShovelEntity(World world, LivingEntity owner, ItemStack stack) {
+	public MyriadShovelEntity(Level world, LivingEntity owner, ItemStack stack) {
 		super(AntiqueEntities.MYRIAD_SHOVEL, owner, world, stack, null);
-		this.setDamage(8);
-		this.dataTracker.set(LOYALTY, this.getLoyalty(stack));
-		this.dataTracker.set(ENCHANTED, stack.hasGlint());
-		this.dataTracker.set(GLOW, stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
-		this.setStack(stack);
-		this.dataTracker.set(COLOR, this.getItemStack().getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
-		this.dataTracker.set(OVERLAY_COLOR, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, new DyedColorComponent(0xFFFFFF)).rgb());
-		this.dataTracker.set(CLOTH, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, ""));
-		this.dataTracker.set(PATTERN, this.getItemStack().getOrDefault(AntiqueDataComponentTypes.CLOTH_PATTERN, ""));
+		this.setBaseDamage(8);
+		this.entityData.set(LOYALTY, this.getLoyalty(stack));
+		this.entityData.set(ENCHANTED, stack.hasFoil());
+		this.entityData.set(GLOW, stack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
+		this.setPickupItemStack(stack);
+		this.entityData.set(ATTRIBUTES, this.getPickupItemStackOrigin().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()));
 		this.setPierceLevel((byte) 5);
 	}
 
 	public int getDyeColor() {
-		return this.dataTracker.get(COLOR);
+		return this.entityData.get(ATTRIBUTES).clothColor();
 	}
 
 	public int getOverlayColor() {
-		return this.dataTracker.get(OVERLAY_COLOR);
+		return this.entityData.get(ATTRIBUTES).patternColor();
 	}
 
 	public boolean getGlow() {
-		return this.dataTracker.get(GLOW);
+		return this.entityData.get(GLOW);
 	}
 
 	public void summonPart() {
 		for (int i = 1; i < 9; i++) {
-			MyriadShovelPart entity = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.getEntityWorld());
-			entity.setPosition(this.getEntityPos());
+			MyriadShovelPart entity = new MyriadShovelPart(AntiqueEntities.MYRIAD_SHOVEL_PART, this.level());
+			entity.setPos(this.position());
 			entity.setOwner(this);
 			entity.setOrderId(i);
-			this.getEntityWorld().spawnEntity(entity);
+			this.level().addFreshEntity(entity);
 		}
 	}
 
 	public boolean isEnchanted() {
-		return this.dataTracker.get(ENCHANTED);
+		return this.entityData.get(ENCHANTED);
 	}
 
 	public String getCloth() {
-		return this.dataTracker.get(CLOTH);
+		return this.entityData.get(ATTRIBUTES).clothType();
 	}
 
 	public String getPattern() {
-		return this.dataTracker.get(PATTERN);
+		return this.entityData.get(ATTRIBUTES).clothPattern();
+	}
+
+	public MyriadToolComponent getAttributes() {
+		return this.entityData.get(ATTRIBUTES);
 	}
 
 	@Override
-	protected void initDataTracker(DataTracker.Builder builder) {
-		super.initDataTracker(builder);
-		builder.add(LOYALTY, (byte)0);
-		builder.add(ENCHANTED, false);
-		builder.add(GLOW, false);
-		builder.add(COLOR, 1);
-		builder.add(OVERLAY_COLOR, 1);
-		builder.add(PIERCE_LEVEL, (byte) 0);
-		builder.add(CLOTH, "cloth");
-		builder.add(PATTERN, "");
+	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+		super.defineSynchedData(builder);
+		builder.define(LOYALTY, (byte)0);
+		builder.define(ENCHANTED, false);
+		builder.define(GLOW, false);
+		builder.define(ATTRIBUTES, Antiquities.getDefaultMyriadTool());
+		builder.define(PIERCE_LEVEL, (byte) 0);
 	}
 
 	@Override
@@ -132,27 +126,27 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 		}
 
 		Entity entity = this.getOwner();
-		int i = this.dataTracker.get(LOYALTY);
-		if (i > 0 && (this.dealtDamage || this.isNoClip()) && entity != null) {
+		int i = this.entityData.get(LOYALTY);
+		if (i > 0 && (this.dealtDamage || this.isNoPhysics()) && entity != null) {
 			if (!this.isOwnerAlive()) {
-				if (this.getEntityWorld() instanceof ServerWorld serverWorld && this.pickupType == PersistentProjectileEntity.PickupPermission.ALLOWED) {
-					this.dropStack(serverWorld, this.asItemStack(), 0.1F);
+				if (this.level() instanceof ServerLevel serverWorld && this.pickup == AbstractArrow.Pickup.ALLOWED) {
+					this.spawnAtLocation(serverWorld, this.getPickupItem(), 0.1F);
 				}
 
 				this.discard();
 			} else {
-				if (!(entity instanceof PlayerEntity) && this.getEntityPos().distanceTo(entity.getEyePos()) < (double)entity.getWidth() + 1.0) {
+				if (!(entity instanceof Player) && this.position().distanceTo(entity.getEyePosition()) < (double)entity.getBbWidth() + 1.0) {
 					this.discard();
 					return;
 				}
 
-				this.setNoClip(true);
-				Vec3d vec3d = entity.getEyePos().subtract(this.getEntityPos());
-				this.setPos(this.getX(), this.getY() + vec3d.y * 0.015 * (double)i, this.getZ());
+				this.setNoPhysics(true);
+				Vec3 vec3d = entity.getEyePosition().subtract(this.position());
+				this.setPosRaw(this.getX(), this.getY() + vec3d.y * 0.015 * (double)i, this.getZ());
 				double d = 0.05 * (double)i;
-				this.setVelocity(this.getVelocity().multiply(0.95).add(vec3d.normalize().multiply(d)));
+				this.setDeltaMovement(this.getDeltaMovement().scale(0.95).add(vec3d.normalize().scale(d)));
 				if (this.returnTimer == 0) {
-					this.playSound(SoundEvents.ITEM_TRIDENT_RETURN, 10.0F, 1.0F);
+					this.playSound(SoundEvents.TRIDENT_RETURN, 10.0F, 1.0F);
 				}
 
 				this.returnTimer++;
@@ -164,29 +158,29 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 
 	private boolean isOwnerAlive() {
 		Entity entity = this.getOwner();
-		return entity != null && entity.isAlive() && (!(entity instanceof ServerPlayerEntity) || !entity.isSpectator());
+		return entity != null && entity.isAlive() && (!(entity instanceof ServerPlayer) || !entity.isSpectator());
 	}
 
 	@Override
-	protected void onCollision(HitResult hitResult) {
-		super.onCollision(hitResult);
-		if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
-			Vec3d pos = this.getEntityPos().add(this.getRotationVector().multiply(1, 1, -1));
-			serverWorld.spawnParticles(CAParticles.RING, pos.getX(), pos.getY(), pos.getZ(), 1, 0.0, 0.0, 0.0, 0);
+	protected void onHit(HitResult hitResult) {
+		super.onHit(hitResult);
+		if (this.level() instanceof ServerLevel serverWorld) {
+			Vec3 pos = this.position().add(this.getLookAngle().multiply(1, 1, -1));
+			serverWorld.sendParticles(CAParticles.RING, pos.x(), pos.y(), pos.z(), 1, 0.0, 0.0, 0.0, 0);
 		}
 	}
 
 	@Override
-	protected void onEntityHit(EntityHitResult entityHitResult) {
-		if (this.age >= 2000) {
-			this.age -= 2000;
+	protected void onHitEntity(EntityHitResult entityHitResult) {
+		if (this.tickCount >= 2000) {
+			this.tickCount -= 2000;
 		}
 
 		Entity entity = entityHitResult.getEntity();
 		float f = 8.0F;
 		Entity entity2 = this.getOwner();
-		DamageSource damageSource = AntiqueDamageTypes.of(entity.getEntityWorld(), AntiqueDamageTypes.IMPALE, entity2 == null ? this : entity2);
-		if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
+		DamageSource damageSource = AntiqueDamageTypes.of(entity.level(), AntiqueDamageTypes.IMPALE, entity2 == null ? this : entity2);
+		if (this.level() instanceof ServerLevel serverWorld) {
 
 			if (this.getPierceLevel() > 0) {
 				if (this.piercedEntities == null) {
@@ -196,30 +190,30 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 				this.piercedEntities.add(entity.getId());
 			}
 
-			f = EnchantmentHelper.getDamage(serverWorld, this.getWeaponStack() != null ? this.getWeaponStack() : ItemStack.EMPTY, entity, damageSource, f);
-			if (entity.damage(serverWorld, damageSource, f)) {
+			f = EnchantmentHelper.modifyDamage(serverWorld, this.getWeaponItem() != null ? this.getWeaponItem() : ItemStack.EMPTY, entity, damageSource, f);
+			if (entity.hurtServer(serverWorld, damageSource, f)) {
 				if (entity.getType() == EntityType.ENDERMAN) {
 					return;
 				}
 
-				EnchantmentHelper.onTargetDamaged(serverWorld, entity, damageSource, this.getWeaponStack(), item -> this.kill(serverWorld));
+				EnchantmentHelper.doPostAttackEffectsWithItemSourceOnBreak(serverWorld, entity, damageSource, this.getWeaponItem(), item -> this.kill(serverWorld));
 				if (entity instanceof LivingEntity) {
-					entity.setVelocity(this.getVelocity().multiply(0.6, 0.45, 0.6));
-					entity.velocityModified = true;
+					entity.setDeltaMovement(this.getDeltaMovement().multiply(0.6, 0.45, 0.6));
+					entity.hurtMarked = true;
 				}
 			}
 		}
 
 		if (this.getPierceLevel() <= 0) {
-			this.deflect(ProjectileDeflection.SIMPLE, entity, null, false);
-			this.setVelocity(this.getVelocity().multiply(0.2, 0.2, 0.02));
-			this.playSound(SoundEvents.ITEM_TRIDENT_HIT, 1.0F, 1.0F);
+			this.deflect(ProjectileDeflection.REVERSE, entity, null, false);
+			this.setDeltaMovement(this.getDeltaMovement().multiply(0.2, 0.2, 0.02));
+			this.playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F);
 		}
 	}
 
 	@Override
-	protected void onBlockHitEnchantmentEffects(ServerWorld world, BlockHitResult blockHitResult, ItemStack weaponStack) {
-		Vec3d vec3d = blockHitResult.getBlockPos().clampToWithin(blockHitResult.getPos());
+	protected void hitBlockEnchantmentEffects(ServerLevel world, BlockHitResult blockHitResult, ItemStack weaponStack) {
+		Vec3 vec3d = blockHitResult.getBlockPos().clampLocationWithin(blockHitResult.getLocation());
 		EnchantmentHelper.onHitBlock(
 				world,
 				weaponStack,
@@ -233,100 +227,94 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	}
 
 	@Override
-	protected void onBlockHit(BlockHitResult blockHitResult) {
-		super.onBlockHit(blockHitResult);
+	protected void onHitBlock(BlockHitResult blockHitResult) {
+		super.onHitBlock(blockHitResult);
 		this.setPierceLevel((byte)0);
-		this.clearPiercingStatus();
+		this.resetPiercedEntities();
 		summonPart();
 	}
 
 	@Override
-	public ItemStack getWeaponStack() {
-		return this.getItemStack();
+	public ItemStack getWeaponItem() {
+		return this.getPickupItemStackOrigin();
 	}
 
 	@Override
-	protected boolean tryPickup(PlayerEntity player) {
-		return this.canPickup && !player.isCreative() && player.getInventory().insertStack(this.asItemStack())
-				|| this.isNoClip() && !player.isCreative() && this.isOwner(player) && player.getInventory().insertStack(this.asItemStack())
+	protected boolean tryPickup(Player player) {
+		return this.canPickup && !player.isCreative() && player.getInventory().add(this.getPickupItem())
+				|| this.isNoPhysics() && !player.isCreative() && this.ownedBy(player) && player.getInventory().add(this.getPickupItem())
 				|| this.canPickup && player.isCreative();
 	}
 
 	@Override
-	protected ItemStack getDefaultItemStack() {
+	protected ItemStack getDefaultPickupItem() {
 		return new ItemStack(Items.TRIDENT);
 	}
 
 	@Override
-	protected SoundEvent getHitSound() {
-		return SoundEvents.ITEM_TRIDENT_HIT_GROUND;
+	protected SoundEvent getDefaultHitGroundSoundEvent() {
+		return SoundEvents.TRIDENT_HIT_GROUND;
 	}
 
 	@Override
-	public void onPlayerCollision(PlayerEntity player) {
-		if (this.isOwner(player) || this.getOwner() == null) {
-			super.onPlayerCollision(player);
+	public void playerTouch(Player player) {
+		if (this.ownedBy(player) || this.getOwner() == null) {
+			super.playerTouch(player);
 		}
 	}
 
 	@Override
-	protected void readCustomData(ReadView view) {
-		super.readCustomData(view);
-		this.dealtDamage = view.getBoolean("DealtDamage", false);
-		this.dataTracker.set(LOYALTY, this.getLoyalty(this.getItemStack()));
-		this.dataTracker.set(ENCHANTED, view.getBoolean("Glint", false));
-		this.dataTracker.set(GLOW, view.getBoolean("Glow", false));
-		this.dataTracker.set(COLOR, view.getInt("Color", 0));
-		this.dataTracker.set(OVERLAY_COLOR, view.getInt("OverlayColor", 0));
-		this.dataTracker.set(CLOTH, view.getString("Cloth", "cloth"));
-		this.dataTracker.set(PATTERN, view.getString("Pattern", ""));
-		this.setPierceLevel(view.getByte("PierceLevel", (byte) 0));
+	protected void readAdditionalSaveData(ValueInput view) {
+		super.readAdditionalSaveData(view);
+		this.dealtDamage = view.getBooleanOr("DealtDamage", false);
+		this.entityData.set(LOYALTY, this.getLoyalty(this.getPickupItemStackOrigin()));
+		this.entityData.set(ENCHANTED, view.getBooleanOr("Glint", false));
+		this.entityData.set(GLOW, view.getBooleanOr("Glow", false));
+		this.entityData.set(ATTRIBUTES, view.read("Attributes", MyriadToolComponent.CODEC).orElseGet(Suppliers.ofInstance(Antiquities.getDefaultMyriadTool())));
+		this.setPierceLevel(view.getByteOr("PierceLevel", (byte) 0));
 	}
 
 	@Override
-	protected void writeCustomData(WriteView view) {
-		super.writeCustomData(view);
+	protected void addAdditionalSaveData(ValueOutput view) {
+		super.addAdditionalSaveData(view);
 		view.putBoolean("DealtDamage", this.dealtDamage);
-		view.putInt("Color", this.getDyeColor());
-		view.putInt("OverlayColor", this.getOverlayColor());
 		view.putBoolean("Glint", this.isEnchanted());
 		view.putBoolean("Glow", this.getGlow());
 		view.putByte("PierceLevel", this.getPierceLevel());
-		view.putString("Cloth", this.getCloth());
-		view.putString("Pattern", this.getPattern());
+		view.store("Attributes", MyriadToolComponent.CODEC, this.getAttributes());
 	}
 
 	private byte getLoyalty(ItemStack stack) {
-		return this.getEntityWorld() instanceof ServerWorld serverWorld
-				? (byte)MathHelper.clamp(EnchantmentHelper.getTridentReturnAcceleration(serverWorld, stack, this), 0, 127)
+		return this.level() instanceof ServerLevel serverWorld
+				? (byte)Mth.clamp(EnchantmentHelper.getTridentReturnToOwnerAcceleration(serverWorld, stack, this), 0, 127)
 				: 0;
 	}
 
 	@Override
-	public void age() {
+	public void tickDespawn() {
 
 	}
 
 	@Override
-	protected boolean canHit(Entity entity) {
-		if (entity instanceof PlayerEntity) {
+	protected boolean canHitEntity(Entity entity) {
+		if (entity instanceof Player) {
 			Entity var3 = this.getOwner();
-			if (var3 instanceof PlayerEntity playerEntity) {
-                if (!playerEntity.shouldDamagePlayer((PlayerEntity)entity)) {
+			if (var3 instanceof Player playerEntity) {
+                if (!playerEntity.canHarmPlayer((Player)entity)) {
 					return false;
 				}
 			}
 		}
 
-		return super.canHit(entity) && (this.piercedEntities == null || !this.piercedEntities.contains(entity.getId()));
+		return super.canHitEntity(entity) && (this.piercedEntities == null || !this.piercedEntities.contains(entity.getId()));
 	}
 
 	@Override
-	protected float getDragInWater() {
+	protected float getWaterInertia() {
 		return 0.7F;
 	}
 
-	private void clearPiercingStatus() {
+	private void resetPiercedEntities() {
 		if (this.piercedEntities != null) {
 			this.piercedEntities.clear();
 		}
@@ -334,10 +322,10 @@ public class MyriadShovelEntity extends PersistentProjectileEntity {
 	}
 
 	private void setPierceLevel(byte level) {
-		this.dataTracker.set(PIERCE_LEVEL, level);
+		this.entityData.set(PIERCE_LEVEL, level);
 	}
 
 	public byte getPierceLevel() {
-		return this.dataTracker.get(PIERCE_LEVEL);
+		return this.entityData.get(PIERCE_LEVEL);
 	}
 }

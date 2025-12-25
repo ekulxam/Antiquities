@@ -1,10 +1,10 @@
 package net.hollowed.antique.mixin.entities.states;
 
 import net.hollowed.antique.util.interfaces.duck.ArmedRenderStateAccess;
-import net.minecraft.client.item.ItemModelManager;
-import net.minecraft.client.render.entity.state.ArmedEntityRenderState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
+import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,8 +17,8 @@ public class ArmedEntityRenderStateMixin implements ArmedRenderStateAccess {
     @Unique
     private Entity entity;
 
-    @Inject(method = "updateRenderState", at = @At("HEAD"))
-    private static void updateRenderState(LivingEntity entity, ArmedEntityRenderState state, ItemModelManager itemModelManager, CallbackInfo ci) {
+    @Inject(method = "extractArmedEntityRenderState", at = @At("HEAD"))
+    private static void updateRenderState(LivingEntity entity, ArmedEntityRenderState state, ItemModelResolver itemModelResolver, float f, CallbackInfo ci) {
         if (state instanceof ArmedRenderStateAccess access) {
             access.antique$setEntity(entity);
         }

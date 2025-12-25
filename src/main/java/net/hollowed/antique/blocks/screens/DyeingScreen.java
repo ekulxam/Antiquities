@@ -5,82 +5,82 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.networking.DyePacketPayload;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.input.KeyInput;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerListener;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerListener;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 @Environment(EnvType.CLIENT)
-public class DyeingScreen extends HandledScreen<DyeingScreenHandler> implements ScreenHandlerListener {
+public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenHandler> implements ContainerListener {
 	private static final Identifier TEXTURE = Antiquities.id("textures/gui/container/dye_table.png");
-	private TextFieldWidget colorField;
+	private EditBox colorField;
 
-	public DyeingScreen(DyeingScreenHandler handler, PlayerInventory inventory, Text title) {
+	public DyeingScreen(DyeingScreenHandler handler, Inventory inventory, Component title) {
 		super(handler, inventory, title);
 	}
 
 	@Override
 	protected void init() {
 		super.init();
-		int i = (this.width - this.backgroundWidth) / 2;
-		int j = (this.height - this.backgroundHeight) / 2;
-		if (this.client == null) return;
-		this.colorField = new TextFieldWidget(MinecraftClient.getInstance().textRenderer, i + 63, j + 65, 58, 9, Text.translatable("container.antique.hex"));
-		this.colorField.setFocusUnlocked(false);
-		this.colorField.setEditableColor(0xFFFFF4BC);
-		this.colorField.setUneditableColor(0xFFFFF4BC);
-		this.colorField.setDrawsBackground(false);
+		int i = (this.width - this.imageWidth) / 2;
+		int j = (this.height - this.imageHeight) / 2;
+        this.colorField = new EditBox(Minecraft.getInstance().font, i + 63, j + 65, 58, 9, Component.translatable("container.antique.hex"));
+		this.colorField.setCanLoseFocus(false);
+		this.colorField.setTextColor(0xFFFFF4BC);
+		this.colorField.setTextColorUneditable(0xFFFFF4BC);
+		this.colorField.setBordered(false);
 		this.colorField.setMaxLength(6);
-		this.colorField.setChangedListener(this::onColorChanged);
-		this.colorField.setText("");
-		this.colorField.setTextPredicate(s -> s.matches("(?i)[0-9a-f]{0,6}"));
-		this.addDrawableChild(this.colorField);
-		this.colorField.setEditable(this.handler.getSlot(0).hasStack());
-		this.handler.addListener(this);
+		this.colorField.setResponder(this::onColorChanged);
+		this.colorField.setValue("");
+		this.colorField.setFilter(s -> s.matches("(?i)[0-9a-f]{0,6}"));
+		this.addRenderableWidget(this.colorField);
+		this.colorField.setEditable(this.menu.getSlot(0).hasItem());
+		this.menu.addSlotListener(this);
 	}
 
 	private void onColorChanged(String color) {
-		Slot slot = this.handler.getSlot(0);
-		if (slot.hasStack()) {
-            if (this.handler.setHexCode(color)) {
-                if (this.client == null || this.client.player == null) return;
+		Slot slot = this.menu.getSlot(0);
+		if (slot.hasItem()) {
+            if (this.menu.setHexCode(color)) {
+                if (this.minecraft.player == null) return;
 				ClientPlayNetworking.send(new DyePacketPayload(color));
 			}
 		}
 	}
 
 	@Override
-	public void render(DrawContext context, int mouseX, int mouseY, float deltaTicks) {
+	public void render(@NotNull GuiGraphics context, int mouseX, int mouseY, float deltaTicks) {
 		super.render(context, mouseX, mouseY, deltaTicks);
-		this.drawMouseoverTooltip(context, mouseX, mouseY);
+		this.renderTooltip(context, mouseX, mouseY);
 	}
 
 	@Override
-	protected void drawForeground(DrawContext context, int mouseX, int mouseY) {
-		context.drawText(this.textRenderer, this.title, this.titleX, this.titleY, 0xff6b5e3c, false);
+	protected void renderLabels(GuiGraphics context, int mouseX, int mouseY) {
+		context.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 0xff6b5e3c, false);
 	}
 
 	@Override
 	public void removed() {
 		super.removed();
-		this.handler.removeListener(this);
+		this.menu.removeSlotListener(this);
 	}
 
 	@Override
-	public void resize(MinecraftClient client, int width, int height) {
-		String string = this.colorField.getText();
-		this.init(client, width, height);
-		this.colorField.setText(string);
+	public void resize(int i, int j) {
+		String string = this.colorField.getValue();
+		this.init(width, height);
+		this.colorField.setValue(string);
 	}
 
 	@Override
@@ -89,43 +89,41 @@ public class DyeingScreen extends HandledScreen<DyeingScreenHandler> implements 
 	}
 
 	@Override
-	public boolean keyPressed(KeyInput input) {
+	public boolean keyPressed(KeyEvent input) {
 		if (input.key() == GLFW.GLFW_KEY_ESCAPE) {
-			if (this.client == null || this.client.player == null) return false;
-			this.client.player.closeHandledScreen();
+			if (this.minecraft.player == null) return false;
+			this.minecraft.player.closeContainer();
 		}
 
-		return this.colorField.keyPressed(input) || this.colorField.isActive() || super.keyPressed(input);
+		return this.colorField.keyPressed(input) || this.colorField.canConsumeInput() || super.keyPressed(input);
 	}
 
 	@Override
-	protected void drawBackground(DrawContext context, float deltaTicks, int mouseX, int mouseY) {
-		int i = this.x;
-		int j = this.y;
-		context.drawTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, i, j, 0.0F, 0.0F, this.backgroundWidth, this.backgroundHeight, 256, 256);
+	protected void renderBg(GuiGraphics context, float deltaTicks, int mouseX, int mouseY) {
+		int i = this.leftPos;
+		int j = this.topPos;
+		context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
 
-		if (this.colorField.getText() != null && this.colorField.getText().length() == 6) {
+		if (this.colorField.getValue().length() == 6) {
 			int intValue = 0;
 			try {
-				intValue = 0xFF000000 | Integer.parseInt(this.colorField.getText(), 16);
+				intValue = 0xFF000000 | Integer.parseInt(this.colorField.getValue(), 16);
 			} catch (NumberFormatException e) {
 				System.err.println("Invalid hexadecimal string format: " + e.getMessage());
 			}
-			context.drawTexture(RenderPipelines.GUI_TEXTURED, TEXTURE, i + 1, j + 3, 0.0F, 176.0F, 174, 80, 256, 256, intValue);
+			context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, i + 1, j + 3, 0.0F, 176.0F, 174, 80, 256, 256, intValue);
 		}
 	}
 
 	@Override
-	public void onSlotUpdate(ScreenHandler handler, int slotId, ItemStack stack) {
+	public void slotChanged(@NotNull AbstractContainerMenu handler, int slotId, @NotNull ItemStack stack) {
 		if (slotId == 0) {
-			this.colorField.setText("");
+			this.colorField.setValue("");
 			this.colorField.setEditable(!stack.isEmpty());
 			this.setFocused(this.colorField);
 		}
 	}
 
 	@Override
-	public void onPropertyUpdate(ScreenHandler handler, int property, int value) {
-
-	}
+	public void dataChanged(@NotNull AbstractContainerMenu handler, int property, int value) {}
 }

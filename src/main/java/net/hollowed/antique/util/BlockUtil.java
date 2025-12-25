@@ -2,8 +2,7 @@ package net.hollowed.antique.util;
 
 import com.google.common.collect.ImmutableMap;
 import net.hollowed.antique.index.AntiqueBlocks;
-import net.minecraft.block.Block;
-
+import net.minecraft.world.level.block.Block;
 import java.util.Map;
 
 public class BlockUtil {

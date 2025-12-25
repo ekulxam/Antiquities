@@ -1,77 +1,76 @@
 package net.hollowed.antique.items;
 
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-
 import java.util.Objects;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 
 public class PaleWardenSpawnEggItem extends SpawnEggItem {
-    private final EntityType<? extends MobEntity> type;
+    private final EntityType<? extends Mob> type;
 
-    public PaleWardenSpawnEggItem(EntityType<? extends MobEntity> type, Item.Settings settings) {
+    public PaleWardenSpawnEggItem(EntityType<? extends Mob> type, Item.Properties settings) {
         super(settings);
         this.type = type;
     }
 
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        World world = context.getWorld();
-        if (world.isClient()) {
-            return ActionResult.SUCCESS;
+    public InteractionResult useOn(UseOnContext context) {
+        Level world = context.getLevel();
+        if (world.isClientSide()) {
+            return InteractionResult.SUCCESS;
         }
 
-        ItemStack itemStack = context.getStack();
-        BlockPos blockPos = context.getBlockPos();
-        Direction direction = context.getSide();
-        BlockPos spawnPos = blockPos.offset(direction);
-        EntityType<?> entityType = this.getEntityType(itemStack);
+        ItemStack itemStack = context.getItemInHand();
+        BlockPos blockPos = context.getClickedPos();
+        Direction direction = context.getClickedFace();
+        BlockPos spawnPos = blockPos.relative(direction);
+        EntityType<?> entityType = this.getType(itemStack);
 
         // Spawn entity and apply modifications
-        if (world instanceof ServerWorld serverWorld) {
+        if (world instanceof ServerLevel serverWorld) {
             assert entityType != null;
-            Entity entity = entityType.spawnFromItemStack(
+            Entity entity = entityType.spawn(
                     serverWorld,
                     itemStack,
                     context.getPlayer(),
                     spawnPos,
-                    SpawnReason.SPAWN_ITEM_USE,
+                    EntitySpawnReason.SPAWN_ITEM_USE,
                     true,
                     false
             );
 
-            if (entity instanceof MobEntity mobEntity) {
+            if (entity instanceof Mob mobEntity) {
                 // Disable AI
-                mobEntity.setAiDisabled(true);
+                mobEntity.setNoAi(true);
 
                 // Snap entity rotation to face the player
                 final float snappedYaw = getSnappedYaw(context, entity);
-                entity.setYaw(snappedYaw);
-                entity.setHeadYaw(snappedYaw);
-                entity.setPitch(0); // Ensure no vertical pitch
+                entity.setYRot(snappedYaw);
+                entity.setYHeadRot(snappedYaw);
+                entity.setXRot(0); // Ensure no vertical pitch
             }
 
-            itemStack.decrement(1);
-            return ActionResult.SUCCESS;
+            itemStack.shrink(1);
+            return InteractionResult.SUCCESS;
         }
 
-        return ActionResult.FAIL;
+        return InteractionResult.FAIL;
     }
 
-    private static float getSnappedYaw(ItemUsageContext context, Entity entity) {
-        Vec3d playerPos = Objects.requireNonNull(context.getPlayer()).getEyePos();
-        Vec3d entityPos = entity.getEntityPos();
+    private static float getSnappedYaw(UseOnContext context, Entity entity) {
+        Vec3 playerPos = Objects.requireNonNull(context.getPlayer()).getEyePosition();
+        Vec3 entityPos = entity.position();
         double dx = playerPos.x - entityPos.x;
         double dz = playerPos.z - entityPos.z;
         double angle = Math.atan2(-dz, -dx) * (180.0 / Math.PI) + 90.0;

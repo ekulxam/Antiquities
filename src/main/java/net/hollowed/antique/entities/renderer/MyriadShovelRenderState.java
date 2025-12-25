@@ -1,8 +1,8 @@
 package net.hollowed.antique.entities.renderer;
 
-import net.minecraft.client.render.entity.state.EntityRenderState;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.client.renderer.entity.state.EntityRenderState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 
 public class MyriadShovelRenderState extends EntityRenderState {
     public Entity entity;

@@ -18,36 +18,40 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.combatamenities.util.items.CAComponents;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.DyedColorComponent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.recipe.*;
-import net.minecraft.recipe.book.CraftingRecipeCategory;
-import net.minecraft.recipe.input.CraftingRecipeInput;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableTextContent;
-import net.minecraft.util.JsonHelper;
-import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.util.GsonHelper;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 public class ClothPatternOnToolRecipe implements CraftingRecipe {
 	final String group;
-	final CraftingRecipeCategory category;
+	final CraftingBookCategory category;
 	final List<Ingredient> ingredients;
 	@Nullable
-	private IngredientPlacement ingredientPlacement;
+	private PlacementInfo ingredientPlacement;
 	private static final Map<String, ClothSkinData.ClothSubData> transforms = new LinkedHashMap<>();
 
-	public ClothPatternOnToolRecipe(String group, CraftingRecipeCategory category, List<Ingredient> ingredients) {
+	public ClothPatternOnToolRecipe(String group, CraftingBookCategory category, List<Ingredient> ingredients) {
 		this.group = group;
 		this.category = category;
 		this.ingredients = ingredients;
@@ -59,35 +63,35 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 	}
 
 	@Override
-	public String getGroup() {
+	public String group() {
 		return this.group;
 	}
 
 	@Override
-	public CraftingRecipeCategory getCategory() {
+	public CraftingBookCategory category() {
 		return this.category;
 	}
 
 	@Override
-	public IngredientPlacement getIngredientPlacement() {
+	public PlacementInfo placementInfo() {
 		if (this.ingredientPlacement == null) {
-			this.ingredientPlacement = IngredientPlacement.forShapeless(this.ingredients);
+			this.ingredientPlacement = PlacementInfo.create(this.ingredients);
 		}
 
 		return this.ingredientPlacement;
 	}
 
 	@Override
-	public DefaultedList<ItemStack> getRecipeRemainders(CraftingRecipeInput input) {
-		return collectRecipeRemainders(input);
+	public NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
+		return defaultCraftingReminder(input);
 	}
 
-	static DefaultedList<ItemStack> collectRecipeRemainders(CraftingRecipeInput input) {
-		DefaultedList<ItemStack> defaultedList = DefaultedList.ofSize(input.size(), ItemStack.EMPTY);
+	static NonNullList<ItemStack> defaultCraftingReminder(CraftingInput input) {
+		NonNullList<ItemStack> defaultedList = NonNullList.withSize(input.size(), ItemStack.EMPTY);
 
 		for (int i = 0; i < defaultedList.size(); i++) {
-			ItemStack item = input.getStackInSlot(i);
-			if (item.isOf(AntiqueItems.CLOTH_PATTERN)) {
+			ItemStack item = input.getItem(i);
+			if (item.is(AntiqueItems.CLOTH_PATTERN)) {
 				defaultedList.set(i, item.copy());
 			}
 		}
@@ -99,16 +103,16 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		return transforms.getOrDefault(id, new ClothSkinData.ClothSubData(Antiquities.id("cloth"), "d13a68", 1.4F, 0.1F, 8, 0, true, true));
 	}
 
-	public boolean matches(CraftingRecipeInput craftingRecipeInput, World world) {
-		if (craftingRecipeInput.getStackCount() != this.ingredients.size()) {
+	public boolean matches(CraftingInput craftingRecipeInput, Level world) {
+		if (craftingRecipeInput.ingredientCount() != this.ingredients.size()) {
 			return false;
 		} else {
-			if (world instanceof ServerWorld serverWorld) {
+			if (world instanceof ServerLevel serverWorld) {
 				ResourceManager manager = serverWorld.getServer().getResourceManager();
-				manager.findResources("cloth_skins", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
+				manager.listResources("cloth_skins", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
 					if (manager.getResource(id).isPresent()) {
-						try (InputStream stream = manager.getResource(id).get().getInputStream()) {
-							JsonObject json = JsonHelper.deserialize(new InputStreamReader(stream, StandardCharsets.UTF_8));
+						try (InputStream stream = manager.getResource(id).get().open()) {
+							JsonObject json = GsonHelper.parse(new InputStreamReader(stream, StandardCharsets.UTF_8));
 							DataResult<ClothSkinData> result = ClothSkinData.CODEC.parse(JsonOps.INSTANCE, json);
 
 							result.resultOrPartial(Antiquities.LOGGER::error).ifPresent(data -> {
@@ -122,26 +126,26 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 					}
 				});
 
-				for (ItemStack stack : craftingRecipeInput.getStacks()) {
-					if (stack.isOf(AntiqueItems.MYRIAD_TOOL) && !getTransform(stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth")).overlay()) {
+				for (ItemStack stack : craftingRecipeInput.items()) {
+					if (stack.is(AntiqueItems.MYRIAD_TOOL) && !getTransform(String.valueOf(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType())).overlay()) {
 						return false;
 					}
 				}
 			}
 			return craftingRecipeInput.size() == 1 && this.ingredients.size() == 1
-					? this.ingredients.getFirst().test(craftingRecipeInput.getStackInSlot(0))
-					: craftingRecipeInput.getRecipeMatcher().isCraftable(this, null);
+					? this.ingredients.getFirst().test(craftingRecipeInput.getItem(0))
+					: craftingRecipeInput.stackedContents().canCraft(this, null);
 		}
 	}
 
-	public ItemStack craft(CraftingRecipeInput craftingRecipeInput, RegistryWrapper.WrapperLookup wrapperLookup) {
+	public ItemStack assemble(CraftingInput craftingRecipeInput, HolderLookup.Provider wrapperLookup) {
 		ItemStack myriadTool = null;
 		ItemStack clothPattern = null;
 
-		for (ItemStack stack : craftingRecipeInput.getStacks()) {
-			if (stack.isOf(AntiqueItems.MYRIAD_TOOL)) {
+		for (ItemStack stack : craftingRecipeInput.items()) {
+			if (stack.is(AntiqueItems.MYRIAD_TOOL)) {
 				myriadTool = stack;
-			} else if (stack.isOf(AntiqueItems.CLOTH_PATTERN)) {
+			} else if (stack.is(AntiqueItems.CLOTH_PATTERN)) {
 				clothPattern = stack;
 			}
 		}
@@ -149,16 +153,24 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		if (myriadTool != null && clothPattern != null) {
 			ItemStack result = myriadTool.copy();
 			String pattern = "item.antique.cloth_pattern";
-			Text text = clothPattern.getOrDefault(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique.cloth_pattern"));
-			if (text.getContent() instanceof TranslatableTextContent translatable) {
+			Component text = clothPattern.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth_pattern"));
+			if (text.getContents() instanceof TranslatableContents translatable) {
 				pattern = translatable.getKey();
 			}
 			pattern = pattern.substring(pattern.indexOf(".") + 1);
 			pattern = pattern.replace(".", ":");
 			pattern = pattern.substring(0, pattern.indexOf("_"));
 
-			result.set(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, clothPattern.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)));
-			result.set(AntiqueDataComponentTypes.CLOTH_PATTERN, pattern);
+			MyriadToolComponent component = result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+
+			result.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
+					component.toolBit(),
+					component.clothType(),
+					pattern,
+					component.clothColor(),
+					clothPattern.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb()
+			));
+
 			result.set(CAComponents.BOOLEAN_PROPERTY, clothPattern.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 
 			return result;
@@ -170,17 +182,17 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		private static final MapCodec<ClothPatternOnToolRecipe> CODEC = RecordCodecBuilder.mapCodec(
 				instance -> instance.group(
 								Codec.STRING.optionalFieldOf("group", "").forGetter(recipe -> recipe.group),
-								CraftingRecipeCategory.CODEC.fieldOf("category").orElse(CraftingRecipeCategory.MISC).forGetter(recipe -> recipe.category),
+								CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(recipe -> recipe.category),
 								Ingredient.CODEC.listOf(1, 9).fieldOf("ingredients").forGetter(recipe -> recipe.ingredients)
 						)
 						.apply(instance, ClothPatternOnToolRecipe::new)
 		);
-		public static final PacketCodec<RegistryByteBuf, ClothPatternOnToolRecipe> PACKET_CODEC = PacketCodec.tuple(
-				PacketCodecs.STRING,
+		public static final StreamCodec<RegistryFriendlyByteBuf, ClothPatternOnToolRecipe> PACKET_CODEC = StreamCodec.composite(
+				ByteBufCodecs.STRING_UTF8,
 				recipe -> recipe.group,
-				CraftingRecipeCategory.PACKET_CODEC,
+				CraftingBookCategory.STREAM_CODEC,
 				recipe -> recipe.category,
-				Ingredient.PACKET_CODEC.collect(PacketCodecs.toList()),
+				Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()),
 				recipe -> recipe.ingredients,
 				ClothPatternOnToolRecipe::new
 		);
@@ -191,7 +203,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		}
 
 		@Override
-		public PacketCodec<RegistryByteBuf, ClothPatternOnToolRecipe> packetCodec() {
+		public StreamCodec<RegistryFriendlyByteBuf, ClothPatternOnToolRecipe> streamCodec() {
 			return PACKET_CODEC;
 		}
 	}

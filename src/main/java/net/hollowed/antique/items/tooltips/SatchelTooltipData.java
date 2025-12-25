@@ -1,11 +1,10 @@
 package net.hollowed.antique.items.tooltips;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.tooltip.TooltipData;
-
 import java.util.List;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
+import net.minecraft.world.item.ItemStack;
 
-public record SatchelTooltipData(List<ItemStack> contents, ItemStack stack) implements TooltipData {
+public record SatchelTooltipData(List<ItemStack> contents, ItemStack stack) implements TooltipComponent {
     public ItemStack stack() {
         return this.stack;
     }

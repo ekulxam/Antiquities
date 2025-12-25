@@ -1,6 +1,6 @@
 package net.hollowed.antique.index;
 
-import net.minecraft.block.DispenserBlock;
+import net.minecraft.world.level.block.DispenserBlock;
 
 public interface AntiqueDispenserBehaviors {
 

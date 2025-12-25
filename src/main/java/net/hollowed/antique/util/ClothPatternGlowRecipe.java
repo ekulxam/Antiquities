@@ -6,31 +6,31 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueRecipeSerializer;
 import net.hollowed.combatamenities.util.items.CAComponents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.recipe.CraftingRecipe;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.IngredientPlacement;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.book.CraftingRecipeCategory;
-import net.minecraft.recipe.input.CraftingRecipeInput;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.world.World;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class ClothPatternGlowRecipe implements CraftingRecipe {
 	final String group;
-	final CraftingRecipeCategory category;
+	final CraftingBookCategory category;
 	final List<Ingredient> ingredients;
 	@Nullable
-	private IngredientPlacement ingredientPlacement;
+	private PlacementInfo ingredientPlacement;
 
-	public ClothPatternGlowRecipe(String group, CraftingRecipeCategory category, List<Ingredient> ingredients) {
+	public ClothPatternGlowRecipe(String group, CraftingBookCategory category, List<Ingredient> ingredients) {
 		this.group = group;
 		this.category = category;
 		this.ingredients = ingredients;
@@ -42,42 +42,42 @@ public class ClothPatternGlowRecipe implements CraftingRecipe {
 	}
 
 	@Override
-	public String getGroup() {
+	public String group() {
 		return this.group;
 	}
 
 	@Override
-	public CraftingRecipeCategory getCategory() {
+	public CraftingBookCategory category() {
 		return this.category;
 	}
 
 	@Override
-	public IngredientPlacement getIngredientPlacement() {
+	public PlacementInfo placementInfo() {
 		if (this.ingredientPlacement == null) {
-			this.ingredientPlacement = IngredientPlacement.forShapeless(this.ingredients);
+			this.ingredientPlacement = PlacementInfo.create(this.ingredients);
 		}
 
 		return this.ingredientPlacement;
 	}
 
-	public boolean matches(CraftingRecipeInput craftingRecipeInput, World world) {
-		if (craftingRecipeInput.getStackCount() != this.ingredients.size()) {
+	public boolean matches(CraftingInput craftingRecipeInput, Level world) {
+		if (craftingRecipeInput.ingredientCount() != this.ingredients.size()) {
 			return false;
 		} else {
 			return craftingRecipeInput.size() == 1 && this.ingredients.size() == 1
-					? this.ingredients.getFirst().test(craftingRecipeInput.getStackInSlot(0))
-					: craftingRecipeInput.getRecipeMatcher().isCraftable(this, null);
+					? this.ingredients.getFirst().test(craftingRecipeInput.getItem(0))
+					: craftingRecipeInput.stackedContents().canCraft(this, null);
 		}
 	}
 
-	public ItemStack craft(CraftingRecipeInput craftingRecipeInput, RegistryWrapper.WrapperLookup wrapperLookup) {
+	public ItemStack assemble(CraftingInput craftingRecipeInput, HolderLookup.Provider wrapperLookup) {
 		ItemStack clothPattern = null;
 		boolean glow = false;
 
-		for (ItemStack stack : craftingRecipeInput.getStacks()) {
-			if (stack.isOf(AntiqueItems.CLOTH_PATTERN)) {
+		for (ItemStack stack : craftingRecipeInput.items()) {
+			if (stack.is(AntiqueItems.CLOTH_PATTERN)) {
 				clothPattern = stack;
-			} else if (stack.isOf(Items.GLOW_INK_SAC)) {
+			} else if (stack.is(Items.GLOW_INK_SAC)) {
 				glow = true;
 			}
 		}
@@ -94,17 +94,17 @@ public class ClothPatternGlowRecipe implements CraftingRecipe {
 		private static final MapCodec<ClothPatternGlowRecipe> CODEC = RecordCodecBuilder.mapCodec(
 				instance -> instance.group(
 								Codec.STRING.optionalFieldOf("group", "").forGetter(recipe -> recipe.group),
-								CraftingRecipeCategory.CODEC.fieldOf("category").orElse(CraftingRecipeCategory.MISC).forGetter(recipe -> recipe.category),
+								CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(recipe -> recipe.category),
 								Ingredient.CODEC.listOf(1, 9).fieldOf("ingredients").forGetter(recipe -> recipe.ingredients)
 						)
 						.apply(instance, ClothPatternGlowRecipe::new)
 		);
-		public static final PacketCodec<RegistryByteBuf, ClothPatternGlowRecipe> PACKET_CODEC = PacketCodec.tuple(
-				PacketCodecs.STRING,
+		public static final StreamCodec<RegistryFriendlyByteBuf, ClothPatternGlowRecipe> PACKET_CODEC = StreamCodec.composite(
+				ByteBufCodecs.STRING_UTF8,
 				recipe -> recipe.group,
-				CraftingRecipeCategory.PACKET_CODEC,
+				CraftingBookCategory.STREAM_CODEC,
 				recipe -> recipe.category,
-				Ingredient.PACKET_CODEC.collect(PacketCodecs.toList()),
+				Ingredient.CONTENTS_STREAM_CODEC.apply(ByteBufCodecs.list()),
 				recipe -> recipe.ingredients,
 				ClothPatternGlowRecipe::new
 		);
@@ -115,7 +115,7 @@ public class ClothPatternGlowRecipe implements CraftingRecipe {
 		}
 
 		@Override
-		public PacketCodec<RegistryByteBuf, ClothPatternGlowRecipe> packetCodec() {
+		public StreamCodec<RegistryFriendlyByteBuf, ClothPatternGlowRecipe> streamCodec() {
 			return PACKET_CODEC;
 		}
 	}

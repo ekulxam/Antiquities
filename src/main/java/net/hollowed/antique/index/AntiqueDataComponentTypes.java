@@ -3,70 +3,40 @@ package net.hollowed.antique.index;
 import com.mojang.serialization.Codec;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.items.components.MyriadToolComponent;
-import net.minecraft.component.ComponentType;
-import net.minecraft.component.type.DyedColorComponent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import java.util.List;
 
 public interface AntiqueDataComponentTypes {
-    ComponentType<List<ItemStack>> SATCHEL_STACK = Registry.register(
-            Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(Antiquities.MOD_ID, "satchel_stacks"),
-            ComponentType.<List<ItemStack>>builder()
-                    .codec(ItemStack.CODEC.listOf().fieldOf("satchel_stacks").codec())
+    DataComponentType<List<ItemStack>> SATCHEL_STACK = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "satchel_stacks"),
+            DataComponentType.<List<ItemStack>>builder()
+                    .persistent(ItemStack.CODEC.listOf().fieldOf("satchel_stacks").codec())
                     .build()
     );
-    ComponentType<MyriadToolComponent> MYRIAD_TOOL = Registry.register(
-            Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(Antiquities.MOD_ID, "myriad_tool"),
-            ComponentType.<MyriadToolComponent>builder()
-                    .codec(MyriadToolComponent.CODEC)
+    DataComponentType<MyriadToolComponent> MYRIAD_TOOL = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "myriad_tool"),
+            DataComponentType.<MyriadToolComponent>builder()
+                    .persistent(MyriadToolComponent.CODEC)
                     .build()
     );
-    ComponentType<ItemStack> MYRIAD_STACK = Registry.register(
-            Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(Antiquities.MOD_ID, "myriad_stack"),
-            ComponentType.<ItemStack>builder()
-                    .codec(ItemStack.CODEC.fieldOf("myriad_stack").codec())
+    DataComponentType<Integer> COUNTER = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "counter"),
+            DataComponentType.<Integer>builder()
+                    .persistent(Codec.INT.fieldOf("counter").codec())
                     .build()
     );
-    ComponentType<Integer> COUNTER = Registry.register(
-            Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(Antiquities.MOD_ID, "counter"),
-            ComponentType.<Integer>builder()
-                    .codec(Codec.INT.fieldOf("counter").codec())
-                    .build()
-    );
-    ComponentType<String> CLOTH_TYPE = Registry.register(
-            Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(Antiquities.MOD_ID, "cloth_type"),
-            ComponentType.<String>builder()
-                    .codec(Codec.STRING.fieldOf("cloth_type").codec())
-                    .build()
-    );
-    ComponentType<String> CLOTH_PATTERN = Registry.register(
-            Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(Antiquities.MOD_ID, "cloth_pattern"),
-            ComponentType.<String>builder()
-                    .codec(Codec.STRING.fieldOf("cloth_pattern").codec())
-                    .build()
-    );
-    ComponentType<DyedColorComponent> SECONDARY_DYED_COLOR = Registry.register(
-            Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(Antiquities.MOD_ID, "secondary_color"),
-            ComponentType.<DyedColorComponent>builder()
-                    .codec(DyedColorComponent.CODEC)
-                    .build()
-    );
-    ComponentType<Boolean> STICKY_TOOLTIP = Registry.register(
-            Registries.DATA_COMPONENT_TYPE,
-            Identifier.of(Antiquities.MOD_ID, "sticky_tooltip"),
-            ComponentType.<Boolean>builder()
-                    .codec(Codec.BOOL.fieldOf("sticky_tooltip").codec())
+    DataComponentType<Boolean> STICKY_TOOLTIP = Registry.register(
+            BuiltInRegistries.DATA_COMPONENT_TYPE,
+            Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "sticky_tooltip"),
+            DataComponentType.<Boolean>builder()
+                    .persistent(Codec.BOOL.fieldOf("sticky_tooltip").codec())
                     .build()
     );
 

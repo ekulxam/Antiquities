@@ -8,7 +8,7 @@ public class CrawlPacketReceiver {
         ServerPlayNetworking.registerGlobalReceiver(CrawlPacketPayload.ID, (payload, context) -> context.server().execute(() -> {
             if (context.player() instanceof Crawl access) {
                 access.antique$setCrawl(payload.crawling());
-                if (context.player().isOnGround() && context.player().isSprinting()) {
+                if (context.player().onGround() && context.player().isSprinting()) {
                     access.antique$setCrawlStart(12);
                 }
             }

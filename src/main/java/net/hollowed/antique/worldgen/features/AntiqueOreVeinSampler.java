@@ -2,13 +2,13 @@ package net.hollowed.antique.worldgen.features;
 
 import net.hollowed.antique.index.AntiqueBlocks;
 import net.minecraft.SharedConstants;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.math.random.RandomSplitter;
-import net.minecraft.world.gen.chunk.ChunkNoiseSampler;
-import net.minecraft.world.gen.densityfunction.DensityFunction;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.DensityFunction;
+import net.minecraft.world.level.levelgen.NoiseChunk;
+import net.minecraft.world.level.levelgen.PositionalRandomFactory;
 
 public final class AntiqueOreVeinSampler {
 
@@ -26,12 +26,12 @@ public final class AntiqueOreVeinSampler {
 
 	}
 
-	public static ChunkNoiseSampler.BlockStateSampler create(
-		DensityFunction veinToggle, DensityFunction veinRidged, DensityFunction veinGap, RandomSplitter randomDeriver
+	public static NoiseChunk.BlockStateFiller create(
+		DensityFunction veinToggle, DensityFunction veinRidged, DensityFunction veinGap, PositionalRandomFactory randomDeriver
 	) {
-		BlockState blockState = SharedConstants.ORE_VEINS ? Blocks.AIR.getDefaultState() : null;
+		BlockState blockState = SharedConstants.DEBUG_ORE_VEINS ? Blocks.AIR.defaultBlockState() : null;
 		return pos -> {
-			double d = veinToggle.sample(pos);
+			double d = veinToggle.compute(pos);
 			int i = pos.blockY();
 			AntiqueOreVeinSampler.VeinType veinType = VeinType.MYRIAD;
 			double e = Math.abs(d);
@@ -39,21 +39,21 @@ public final class AntiqueOreVeinSampler {
 			int k = i - veinType.minY;
 			if (k >= 0 && j >= 0) {
 				int l = Math.min(j, k);
-				double f = MathHelper.clampedMap(l, 0.0, MAX_DENSITY_INTRUSION, LIMINAL_DENSITY_REDUCTION, 0.0);
+				double f = Mth.clampedMap(l, 0.0, MAX_DENSITY_INTRUSION, LIMINAL_DENSITY_REDUCTION, 0.0);
 				if (e + f < DENSITY_THRESHOLD) {
 					return blockState;
 				} else {
-					Random random = randomDeriver.split(pos.blockX(), i, pos.blockZ());
+					RandomSource random = randomDeriver.at(pos.blockX(), i, pos.blockZ());
 					if (random.nextFloat() > BLOCK_GENERATION_CHANCE) {
 						return blockState;
-					} else if (veinRidged.sample(pos) >= 0.0) {
+					} else if (veinRidged.compute(pos) >= 0.0) {
 						return blockState;
 					} else {
-						double g = MathHelper.clampedMap(e, DENSITY_THRESHOLD, DENSITY_FOR_MAX_ORE_CHANCE, MIN_ORE_CHANCE, MAX_ORE_CHANCE);
-						if (random.nextFloat() < g && veinGap.sample(pos) > VEIN_GAP_THRESHOLD) {
+						double g = Mth.clampedMap(e, DENSITY_THRESHOLD, DENSITY_FOR_MAX_ORE_CHANCE, MIN_ORE_CHANCE, MAX_ORE_CHANCE);
+						if (random.nextFloat() < g && veinGap.compute(pos) > VEIN_GAP_THRESHOLD) {
 							return random.nextFloat() < RAW_ORE_BLOCK_CHANCE ? veinType.rawOreBlock : i > 0 ? veinType.ore : veinType.deepslateOre;
 						} else {
-							return SharedConstants.ORE_VEINS ? Blocks.OAK_BUTTON.getDefaultState() : i > 0 ? random.nextFloat() < 0.3 ? veinType.stoneExtra : veinType.stone : random.nextFloat() < 0.3 ? veinType.deepslateStoneExtra : veinType.deepslateStone;
+							return SharedConstants.DEBUG_ORE_VEINS ? Blocks.OAK_BUTTON.defaultBlockState() : i > 0 ? random.nextFloat() < 0.3 ? veinType.stoneExtra : veinType.stone : random.nextFloat() < 0.3 ? veinType.deepslateStoneExtra : veinType.deepslateStone;
 						}
 					}
 				}
@@ -64,7 +64,7 @@ public final class AntiqueOreVeinSampler {
 	}
 
 	protected enum VeinType {
-		MYRIAD(AntiqueBlocks.MYRIAD_ORE.getDefaultState(), AntiqueBlocks.DEEPSLATE_MYRIAD_ORE.getDefaultState(), AntiqueBlocks.RAW_MYRIAD_BLOCK.getDefaultState(), Blocks.ANDESITE.getDefaultState(), Blocks.COBBLESTONE.getDefaultState(), Blocks.TUFF.getDefaultState(), Blocks.BASALT.getDefaultState(), -35, 45);
+		MYRIAD(AntiqueBlocks.MYRIAD_ORE.defaultBlockState(), AntiqueBlocks.DEEPSLATE_MYRIAD_ORE.defaultBlockState(), AntiqueBlocks.RAW_MYRIAD_BLOCK.defaultBlockState(), Blocks.ANDESITE.defaultBlockState(), Blocks.COBBLESTONE.defaultBlockState(), Blocks.TUFF.defaultBlockState(), Blocks.BASALT.defaultBlockState(), -35, 45);
 
 		final BlockState ore;
 		final BlockState deepslateOre;

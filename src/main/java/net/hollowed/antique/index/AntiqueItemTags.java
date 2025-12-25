@@ -1,9 +1,9 @@
 package net.hollowed.antique.index;
 
 import net.hollowed.antique.Antiquities;
-import net.minecraft.item.Item;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 
 @SuppressWarnings("unused")
 public class AntiqueItemTags {
@@ -21,6 +21,6 @@ public class AntiqueItemTags {
     }
 
     private static TagKey<Item> of(String id) {
-        return TagKey.of(RegistryKeys.ITEM, Antiquities.id(id));
+        return TagKey.create(Registries.ITEM, Antiquities.id(id));
     }
 }

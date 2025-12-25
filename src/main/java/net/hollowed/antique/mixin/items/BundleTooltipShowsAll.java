@@ -1,20 +1,20 @@
 package net.hollowed.antique.mixin.items;
 
-import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.tooltip.BundleTooltipComponent;
-import net.minecraft.component.type.BundleContentsComponent;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
+import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.BundleContents;
 
-@Mixin(BundleTooltipComponent.class)
+@Mixin(ClientBundleTooltip.class)
 public abstract class BundleTooltipShowsAll {
     @Unique
     private static final int slotSize = 13;
@@ -24,74 +24,74 @@ public abstract class BundleTooltipShowsAll {
     @Mutable
     @Final
     @Shadow
-    private final BundleContentsComponent bundleContents;
+    private final BundleContents contents;
 
-    protected BundleTooltipShowsAll(BundleContentsComponent bundleContents) {
-        this.bundleContents = bundleContents;
+    protected BundleTooltipShowsAll(BundleContents bundleContents) {
+        this.contents = bundleContents;
     }
 
     @Shadow
-    private List<ItemStack> firstStacksInContents(int numberOfStacksShown) {
+    private List<ItemStack> getShownItems(int numberOfStacksShown) {
         return null;
     }
 
     @Shadow
-    private int getXMargin(int i) {
+    private int getContentXOffset(int i) {
         return 0;
     }
 
     @Shadow
-    private void drawSelectedItemTooltip(TextRenderer textRenderer, DrawContext drawContext, int x, int y, int width) {
+    private void drawSelectedItemTooltip(Font textRenderer, GuiGraphics drawContext, int x, int y, int width) {
 
     }
 
     @Shadow
-    private void drawProgressBar(int x, int y, TextRenderer textRenderer, DrawContext drawContext) {
+    private void drawProgressbar(int x, int y, Font textRenderer, GuiGraphics drawContext) {
 
     }
 
     @Shadow
-    private int getRows() {
+    private int gridSizeY() {
         return 0;
     }
 
     @Shadow
-    private int getRowsHeight() {
+    private int itemGridHeight() {
         return 0;
     }
 
     @Shadow
-    private void drawItem(int index, int x, int y, List<ItemStack> stacks, int seed, TextRenderer textRenderer, DrawContext drawContext) {
+    private void renderSlot(int index, int x, int y, List<ItemStack> stacks, int seed, Font textRenderer, GuiGraphics drawContext) {
 
     }
 
-    @Shadow @Final private static Identifier BUNDLE_SLOT_HIGHLIGHT_BACK_TEXTURE;
+    @Shadow @Final private static Identifier SLOT_HIGHLIGHT_BACK_SPRITE;
 
-    @Shadow @Final private static Identifier BUNDLE_SLOT_BACKGROUND_TEXTURE;
+    @Shadow @Final private static Identifier SLOT_BACKGROUND_SPRITE;
 
-    @Shadow @Final private static Identifier BUNDLE_SLOT_HIGHLIGHT_FRONT_TEXTURE;
+    @Shadow @Final private static Identifier SLOT_HIGHLIGHT_FRONT_SPRITE;
 
-    @Inject(method = "getNumVisibleSlots", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "slotCount", at = @At("HEAD"), cancellable = true)
     private void modifySlotCount(CallbackInfoReturnable<Integer> cir) {
-        cir.setReturnValue(this.bundleContents.size());
+        cir.setReturnValue(this.contents.size());
     }
 
-    @ModifyConstant(method = {"getRowsHeight", "drawItem"}, constant = @Constant(intValue = 24))
+    @ModifyConstant(method = {"itemGridHeight", "renderSlot"}, constant = @Constant(intValue = 24))
     private int slotHeight(int original) {
         return BundleTooltipShowsAll.slotSize + 4;
     }
 
-    @ModifyConstant(method = "drawItem", constant = @Constant(intValue = 4))
+    @ModifyConstant(method = "renderSlot", constant = @Constant(intValue = 4))
     private int modifyPadding(int original) {
         return 0;
     }
 
-    @ModifyConstant(method = "getRows", constant = @Constant(intValue = 4))
+    @ModifyConstant(method = "gridSizeY", constant = @Constant(intValue = 4))
     private int numColumns(int original) {
         return BundleTooltipShowsAll.columns;
     }
 
-    @ModifyConstant(method = {"getWidth", "getXMargin", "drawProgressBar"}, constant = @Constant(intValue = 96))
+    @ModifyConstant(method = {"getWidth", "getContentXOffset", "drawProgressbar"}, constant = @Constant(intValue = 96))
     private int tooltipWidth(int original) {
         return (BundleTooltipShowsAll.slotSize + 4) * BundleTooltipShowsAll.columns;
     }
@@ -103,18 +103,18 @@ public abstract class BundleTooltipShowsAll {
     }
 
 
-    @ModifyConstant(method = "drawProgressBar", constant = @Constant(intValue = 48))
+    @ModifyConstant(method = "drawProgressbar", constant = @Constant(intValue = 48))
     private int fillText(int original) {
         int totalWidth = (BundleTooltipShowsAll.columns * (BundleTooltipShowsAll.slotSize + 4));
         return totalWidth / 2;
     }
 
-    @Inject(method = "drawNonEmptyTooltip", at = @At("HEAD"), cancellable = true)
-    private void drawNonEmptyTooltip(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext context, CallbackInfo ci) {
-        List<ItemStack> list = this.firstStacksInContents(this.bundleContents.getNumberOfStacksShown());
+    @Inject(method = "renderBundleWithItemsTooltip", at = @At("HEAD"), cancellable = true)
+    private void drawNonEmptyTooltip(Font textRenderer, int x, int y, int width, int height, GuiGraphics context, CallbackInfo ci) {
+        List<ItemStack> list = this.getShownItems(this.contents.getNumberOfItemsToShow());
         int o = 1;
 
-        for (int p = 0; p < this.getRows(); ++p) {
+        for (int p = 0; p < this.gridSizeY(); ++p) {
             for (int q = 0; q < BundleTooltipShowsAll.columns; ++q) {
                 if (list == null) return;
                 if (o > list.size()) {
@@ -122,36 +122,36 @@ public abstract class BundleTooltipShowsAll {
                 }
                 int r = x + q * (BundleTooltipShowsAll.slotSize + 4);
                 int s = y + p * (BundleTooltipShowsAll.slotSize + 4);
-                this.drawItem(o, r, s, list, o, textRenderer, context);
+                this.renderSlot(o, r, s, list, o, textRenderer, context);
                 ++o;
             }
         }
 
         this.drawSelectedItemTooltip(textRenderer, context, x, y, width);
-        this.drawProgressBar(x + this.getXMargin(width), y + this.getRowsHeight() + 4, textRenderer, context);
+        this.drawProgressbar(x + this.getContentXOffset(width), y + this.itemGridHeight() + 4, textRenderer, context);
 
         ci.cancel();
     }
 
-    @Inject(method = "drawItem", at = @At("HEAD"), cancellable = true)
-    private void adjustBackgroundTexture(int index, int x, int y, List<ItemStack> stacks, int seed, TextRenderer textRenderer, DrawContext drawContext, CallbackInfo ci) {
+    @Inject(method = "renderSlot", at = @At("HEAD"), cancellable = true)
+    private void adjustBackgroundTexture(int index, int x, int y, List<ItemStack> stacks, int seed, Font textRenderer, GuiGraphics drawContext, CallbackInfo ci) {
         int adjustedX = x - 3;
         int adjustedY = y - 3;
 
         int i = stacks.size() - index;
-        boolean bl = i == this.bundleContents.getSelectedStackIndex();
+        boolean bl = i == this.contents.getSelectedItem();
 
         ItemStack itemStack = stacks.get(i);
         if (bl) {
-            drawContext.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BUNDLE_SLOT_HIGHLIGHT_BACK_TEXTURE, adjustedX, adjustedY, 20, 20);
+            drawContext.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_BACK_SPRITE, adjustedX, adjustedY, 20, 20);
         } else {
-            drawContext.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BUNDLE_SLOT_BACKGROUND_TEXTURE, adjustedX, adjustedY, 20, 20);
+            drawContext.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_BACKGROUND_SPRITE, adjustedX, adjustedY, 20, 20);
         }
 
-        drawContext.drawItem(itemStack, x - 1, y - 1, seed);
-        drawContext.drawStackOverlay(textRenderer, itemStack, x -1, y -1);
+        drawContext.renderItem(itemStack, x - 1, y - 1, seed);
+        drawContext.renderItemDecorations(textRenderer, itemStack, x -1, y -1);
         if (bl) {
-            drawContext.drawGuiTexture(RenderPipelines.GUI_TEXTURED, BUNDLE_SLOT_HIGHLIGHT_FRONT_TEXTURE, adjustedX, adjustedY, 20, 20);
+            drawContext.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_FRONT_SPRITE, adjustedX, adjustedY, 20, 20);
         }
 
         ci.cancel();

@@ -6,60 +6,71 @@ import net.hollowed.antique.index.AntiqueBlockEntities;
 import net.hollowed.antique.blocks.entities.PedestalBlockEntity;
 import net.hollowed.antique.mixin.accessors.MobEntitySoundAccessor;
 import net.hollowed.antique.networking.PedestalPacketPayload;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityTicker;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.entity.*;
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.SpawnEggItem;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.state.StateManager;
-import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.EnumProperty;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Rarity;
-import net.minecraft.util.StringIdentifiable;
-import net.minecraft.util.function.BooleanBiFunction;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldView;
-import net.minecraft.world.tick.ScheduledTickView;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.RandomSource;
+import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.ScheduledTickAccess;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 import java.util.stream.Stream;
 
-public class PedestalBlock extends BlockWithEntity implements BlockEntityProvider, Waterloggable {
+public class PedestalBlock extends BaseEntityBlock implements EntityBlock, SimpleWaterloggedBlock {
 
-    public static final List<BlockPos> POWER_PROVIDER_OFFSETS = BlockPos.stream(-2, 0, -2, 2, 1, 2).filter((pos) -> Math.abs(pos.getX()) == 2 || Math.abs(pos.getZ()) == 2).map(BlockPos::toImmutable).toList();
+    public static final MapCodec<PedestalBlock> CODEC = simpleCodec(PedestalBlock::new);
+    public static final List<BlockPos> POWER_PROVIDER_OFFSETS = BlockPos.betweenClosedStream(-2, 0, -2, 2, 1, 2).filter((pos) -> Math.abs(pos.getX()) == 2 || Math.abs(pos.getZ()) == 2).map(BlockPos::immutable).toList();
 
-    public static final BooleanProperty HELD_ITEM = BooleanProperty.of("held_item");
-    public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
+    public static final BooleanProperty HELD_ITEM = BooleanProperty.create("held_item");
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
-    public static final EnumProperty<PillarPart> PART = EnumProperty.of("part", PillarPart.class);
+    public static final EnumProperty<@NotNull PillarPart> PART = EnumProperty.create("part", PillarPart.class);
 
     @Override
-    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        if (!world.isClient()) {
+    public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
+        if (!world.isClientSide()) {
             return type == AntiqueBlockEntities.PEDESTAL_BLOCK_ENTITY
                     ? (world1, pos, state1, blockEntity) ->
                     PedestalBlockEntity.tick(world1, (PedestalBlockEntity) blockEntity)
@@ -69,35 +80,35 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
     }
 
     public static final VoxelShape SHAPE_DEFAULT = Stream.of(
-            Block.createCuboidShape(1, 0, 1, 15, 3, 15),
-            Block.createCuboidShape(3, 3, 3, 13, 13, 13),
-            Block.createCuboidShape(1, 13, 1, 15, 16, 15)
-    ).reduce((v1, v2) -> VoxelShapes.combineAndSimplify(v1, v2, BooleanBiFunction.OR)).get();
+            Block.box(1, 0, 1, 15, 3, 15),
+            Block.box(3, 3, 3, 13, 13, 13),
+            Block.box(1, 13, 1, 15, 16, 15)
+    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
     public static final VoxelShape SHAPE_TOP = Stream.of(
-            Block.createCuboidShape(3, 0, 3, 13, 13, 13),
-            Block.createCuboidShape(1, 13, 1, 15, 16, 15)
-    ).reduce((v1, v2) -> VoxelShapes.combineAndSimplify(v1, v2, BooleanBiFunction.OR)).get();
+            Block.box(3, 0, 3, 13, 13, 13),
+            Block.box(1, 13, 1, 15, 16, 15)
+    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
     public static final VoxelShape SHAPE_MIDDLE = java.util.Optional.of(
-            Block.createCuboidShape(3, 0, 3, 13, 16, 13)
+            Block.box(3, 0, 3, 13, 16, 13)
     ).get();
     public static final VoxelShape SHAPE_BOTTOM = Stream.of(
-            Block.createCuboidShape(1, 0, 1, 15, 3, 15),
-            Block.createCuboidShape(3, 3, 3, 13, 16, 13)
-    ).reduce((v1, v2) -> VoxelShapes.combineAndSimplify(v1, v2, BooleanBiFunction.OR)).get();
+            Block.box(1, 0, 1, 15, 3, 15),
+            Block.box(3, 3, 3, 13, 16, 13)
+    ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
-    public PedestalBlock(Settings settings) {
+    public PedestalBlock(Properties settings) {
         super(settings);
-        this.setDefaultState(this.stateManager.getDefaultState().with(HELD_ITEM, false).with(WATERLOGGED, false));
+        this.registerDefaultState(this.stateDefinition.any().setValue(HELD_ITEM, false).setValue(WATERLOGGED, false));
     }
 
     @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
-        return null;
+    protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
-    private PillarPart getPillarPart(World world, BlockPos pos) {
-        BlockState stateBelow = world.getBlockState(pos.down());
-        BlockState stateAbove = world.getBlockState(pos.up());
+    private PillarPart getPillarPart(Level world, BlockPos pos) {
+        BlockState stateBelow = world.getBlockState(pos.below());
+        BlockState stateAbove = world.getBlockState(pos.above());
 
         boolean isSameBelow = stateBelow.getBlock() instanceof PedestalBlock;
         boolean isSameAbove = stateAbove.getBlock() instanceof PedestalBlock;
@@ -114,69 +125,69 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
     }
 
     @Override
-    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, @NotNull BlockState> builder) {
         builder.add(HELD_ITEM, WATERLOGGED, PART);
     }
 
     @Override
-    public BlockState getPlacementState(ItemPlacementContext ctx) {
-        World world = ctx.getWorld();
-        BlockPos pos = ctx.getBlockPos();
-        BlockState stateBelow = world.getBlockState(pos.down());
+    public BlockState getStateForPlacement(BlockPlaceContext ctx) {
+        Level world = ctx.getLevel();
+        BlockPos pos = ctx.getClickedPos();
+        BlockState stateBelow = world.getBlockState(pos.below());
 
         if (stateBelow.getBlock() instanceof PedestalBlock) {
-            BlockEntity entityBelow = world.getBlockEntity(pos.down());
+            BlockEntity entityBelow = world.getBlockEntity(pos.below());
             if (entityBelow instanceof PedestalBlockEntity) {
-                ItemStack stack = ((PedestalBlockEntity) entityBelow).getStack(0);
+                ItemStack stack = ((PedestalBlockEntity) entityBelow).getItem(0);
                 if (!stack.isEmpty()) {
                     return null;
                 }
             }
         }
 
-        FluidState fluidState = ctx.getWorld().getFluidState(ctx.getBlockPos());
-        boolean waterlogged = fluidState.getFluid() == Fluids.WATER;
-        return this.getDefaultState().with(HELD_ITEM, false).with(WATERLOGGED, waterlogged).with(PART, this.getPillarPart(world, pos));
+        FluidState fluidState = ctx.getLevel().getFluidState(ctx.getClickedPos());
+        boolean waterlogged = fluidState.getType() == Fluids.WATER;
+        return this.defaultBlockState().setValue(HELD_ITEM, false).setValue(WATERLOGGED, waterlogged).setValue(PART, this.getPillarPart(world, pos));
     }
 
     @Override
-    public BlockRenderType getRenderType(BlockState state) {
-        return BlockRenderType.MODEL;
+    public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
+        return RenderShape.MODEL;
     }
 
     @Override
-    public void onPlaced(World world, BlockPos pos, BlockState state, LivingEntity placer, ItemStack itemStack) {
-        super.onPlaced(world, pos, state, placer, itemStack);
+    public void setPlacedBy(@NotNull Level world, @NotNull BlockPos pos, @NotNull BlockState state, LivingEntity placer, @NotNull ItemStack itemStack) {
+        super.setPlacedBy(world, pos, state, placer, itemStack);
 
         BlockEntity blockEntity = world.getBlockEntity(pos);
 
-        if (!world.isClient()) {
+        if (!world.isClientSide()) {
             if (blockEntity instanceof PedestalBlockEntity pedestalBlockEntity) {
-                ServerWorld serverWorld = (ServerWorld) world;
-                for (ServerPlayerEntity serverPlayerEntity : serverWorld.getPlayers()) {
+                ServerLevel serverWorld = (ServerLevel) world;
+                for (ServerPlayer serverPlayerEntity : serverWorld.players()) {
                     ServerPlayNetworking.send(serverPlayerEntity, new PedestalPacketPayload(pos, pedestalBlockEntity.getItems().getFirst()));
                 }
             }
         }
-        world.setBlockState(pos, state.with(PART, this.getPillarPart(world, pos)), 3);
+        world.setBlock(pos, state.setValue(PART, this.getPillarPart(world, pos)), 3);
     }
 
-    public static boolean canAccessPowerProvider(World world, BlockPos tablePos, BlockPos providerOffset) {
-        return world.getBlockState(tablePos.add(providerOffset)).isIn(BlockTags.ENCHANTMENT_POWER_PROVIDER) && world.getBlockState(tablePos.add(providerOffset.getX() / 2, providerOffset.getY(), providerOffset.getZ() / 2)).isIn(BlockTags.ENCHANTMENT_POWER_TRANSMITTER);
+    public static boolean canAccessPowerProvider(Level world, BlockPos tablePos, BlockPos providerOffset) {
+        return world.getBlockState(tablePos.offset(providerOffset)).is(BlockTags.ENCHANTMENT_POWER_PROVIDER) && world.getBlockState(tablePos.offset(providerOffset.getX() / 2, providerOffset.getY(), providerOffset.getZ() / 2)).is(BlockTags.ENCHANTMENT_POWER_TRANSMITTER);
     }
 
     @Override
-    public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
-        super.randomDisplayTick(state, world, pos, random);
+    public void animateTick(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, @NotNull RandomSource random) {
+        super.animateTick(state, world, pos, random);
 
         BlockEntity entity = world.getBlockEntity(pos);
 
         if (entity instanceof PedestalBlockEntity pedestalBlockEntity) {
             if (!pedestalBlockEntity.getItems().getFirst().isEmpty()
-                    && pedestalBlockEntity.getItems().getFirst().hasEnchantments()) {
+                    && pedestalBlockEntity.getItems().getFirst().isEnchanted()) {
                 for (BlockPos blockPos : POWER_PROVIDER_OFFSETS) {
                     if (random.nextInt(16) == 0 && canAccessPowerProvider(world, pos, blockPos)) {
-                        world.addParticleClient(ParticleTypes.ENCHANT, (double) pos.getX() + 0.5, (double) pos.getY() + 2.75, (double) pos.getZ() + 0.5, (double) ((float) blockPos.getX() + random.nextFloat()) - 0.5, (float) blockPos.getY() - random.nextFloat() - 1.0F, (double) ((float) blockPos.getZ() + random.nextFloat()) - 0.5);
+                        world.addParticle(ParticleTypes.ENCHANT, (double) pos.getX() + 0.5, (double) pos.getY() + 2.75, (double) pos.getZ() + 0.5, (double) ((float) blockPos.getX() + random.nextFloat()) - 0.5, (float) blockPos.getY() - random.nextFloat() - 1.0F, (double) ((float) blockPos.getZ() + random.nextFloat()) - 0.5);
                     }
                 }
             }
@@ -184,17 +195,17 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
     }
 
     @Override
-    public VoxelShape getOutlineShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter view, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return getShape(state);
     }
 
     @Override
-    public VoxelShape getCollisionShape(BlockState state, BlockView view, BlockPos pos, ShapeContext context) {
+    public @NotNull VoxelShape getCollisionShape(@NotNull BlockState state, @NotNull BlockGetter view, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return getShape(state);
     }
 
     private VoxelShape getShape(BlockState state) {
-        PillarPart part = state.get(PART);
+        PillarPart part = state.getValue(PART);
 
         return switch (part) {
             case TOP -> SHAPE_TOP;
@@ -205,26 +216,26 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
     }
 
     @Override
-    public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+    public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
         return new PedestalBlockEntity(pos, state);
     }
 
     @Override
-    protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-        BlockEntity entity = world.getBlockEntity(pos);
-        if (entity instanceof PedestalBlockEntity pedestalEntity && state.get(PART) != PillarPart.BOTTOM && state.get(PART) != PillarPart.MIDDLE) {
-            ItemStack currentPedestalItem = pedestalEntity.getStack(0);
-            ItemStack handItem = player.getStackInHand(hand);
+    protected @NotNull InteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+        BlockEntity entity = level.getBlockEntity(pos);
+        if (entity instanceof PedestalBlockEntity pedestalEntity && state.getValue(PART) != PillarPart.BOTTOM && state.getValue(PART) != PillarPart.MIDDLE && !level.getBlockState(pos.above()).isCollisionShapeFullBlock(level, pos.above())) {
+            ItemStack currentPedestalItem = pedestalEntity.getItem(0);
+            ItemStack handItem = player.getItemInHand(hand);
 
             if (!handItem.isEmpty() && handItem.getCount() > 1 && !currentPedestalItem.isEmpty()) {
-                return ActionResult.FAIL;
+                return InteractionResult.FAIL;
             }
 
             boolean itemChanged = false;
 
             if (!currentPedestalItem.isEmpty()) {
-                player.setStackInHand(hand, currentPedestalItem);
-                pedestalEntity.setStack(0, ItemStack.EMPTY);
+                player.setItemInHand(hand, currentPedestalItem);
+                pedestalEntity.setItem(0, ItemStack.EMPTY);
                 itemChanged = true;
             }
 
@@ -232,65 +243,65 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
             newItem.setCount(1);
 
             if (!handItem.isEmpty()) {
-                pedestalEntity.setStack(0, newItem);
-                handItem.decrement(1);
+                pedestalEntity.setItem(0, newItem);
+                handItem.shrink(1);
                 itemChanged = true;
 
                 if (newItem.getItem() instanceof SpawnEggItem spawnEggItem) {
-                    EntityType<?> entityType = spawnEggItem.getEntityType(newItem);
-                    if (entityType != null && !world.isClient()) {
-                        Entity entity1 = entityType.create(world, SpawnReason.MOB_SUMMONED);
-                        if (entity1 instanceof MobEntity mobEntity) {
+                    EntityType<?> entityType = spawnEggItem.getType(newItem);
+                    if (entityType != null && !level.isClientSide()) {
+                        Entity entity1 = entityType.create(level, EntitySpawnReason.MOB_SUMMONED);
+                        if (entity1 instanceof Mob mobEntity) {
                             SoundEvent ambientSound = ((MobEntitySoundAccessor) mobEntity).invokeGetAmbientSound();
                             if (ambientSound != null) {
-                                world.playSound(null, pos, ambientSound, mobEntity.getSoundCategory());
+                                level.playSound(null, pos, ambientSound, mobEntity.getSoundSource());
                             }
                         }
                     }
                 }
             }
 
-            if (itemChanged && !world.isClient()) {
-                pedestalEntity.markDirty();
-                world.playSound(null, pos, SoundEvents.BLOCK_SUSPICIOUS_SAND_PLACE, SoundCategory.BLOCKS, 0.75F, 1.0F);
-                world.playSound(null, pos, SoundEvents.BLOCK_LODESTONE_PLACE, SoundCategory.BLOCKS, 0.75F, 1.0F);
-                ((ServerWorld) world).getChunkManager().markForUpdate(pos);
-                world.setBlockState(pos, state.with(PedestalBlock.HELD_ITEM, !pedestalEntity.getStack(0).isEmpty()), Block.NOTIFY_ALL);
-                world.updateNeighborsAlways(pos, state.getBlock(), null);
+            if (itemChanged && !level.isClientSide()) {
+                pedestalEntity.setChanged();
+                level.playSound(null, pos, SoundEvents.SUSPICIOUS_SAND_PLACE, SoundSource.BLOCKS, 0.75F, 1.0F);
+                level.playSound(null, pos, SoundEvents.LODESTONE_PLACE, SoundSource.BLOCKS, 0.75F, 1.0F);
+                ((ServerLevel) level).getChunkSource().blockChanged(pos);
+                level.setBlock(pos, state.setValue(PedestalBlock.HELD_ITEM, !pedestalEntity.getItem(0).isEmpty()), Block.UPDATE_ALL);
+                level.updateNeighborsAt(pos, state.getBlock(), null);
 
-                ServerWorld serverWorld = (ServerWorld) world;
-                for (ServerPlayerEntity serverPlayerEntity : serverWorld.getPlayers()) {
-                    ServerPlayNetworking.send(serverPlayerEntity, new PedestalPacketPayload(pedestalEntity.getPos(), newItem));
+                ServerLevel serverWorld = (ServerLevel) level;
+                for (ServerPlayer serverPlayerEntity : serverWorld.players()) {
+                    ServerPlayNetworking.send(serverPlayerEntity, new PedestalPacketPayload(pedestalEntity.getBlockPos(), newItem));
                 }
             }
 
-            return ActionResult.SUCCESS;
+            return InteractionResult.SUCCESS;
         }
 
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
-    protected void onStateReplaced(BlockState state, ServerWorld world, BlockPos pos, boolean moved) {
+    protected void affectNeighborsAfterRemoval(@NotNull BlockState state, ServerLevel world, @NotNull BlockPos pos, boolean moved) {
         if (state != world.getBlockState(pos)) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof PedestalBlockEntity) {
                 ((PedestalBlockEntity) blockEntity).drops();
             }
         }
-        super.onStateReplaced(state, world, pos, moved);
+        super.affectNeighborsAfterRemoval(state, world, pos, moved);
     }
 
     @Override
-    public boolean hasComparatorOutput(BlockState state) {
+    public boolean hasAnalogOutputSignal(@NotNull BlockState state) {
         return true;
     }
 
     @Override
-    protected int getComparatorOutput(BlockState state, World world, BlockPos pos, Direction direction) {
+    protected int getAnalogOutputSignal(@NotNull BlockState state, Level world, @NotNull BlockPos pos, @NotNull Direction direction) {
         BlockEntity blockEntity = world.getBlockEntity(pos);
         if (blockEntity instanceof PedestalBlockEntity) {
-            ItemStack stack = ((PedestalBlockEntity) blockEntity).getStack(0);
+            ItemStack stack = ((PedestalBlockEntity) blockEntity).getItem(0);
             switch (stack.getRarity()) {
                 case Rarity.COMMON -> {
                     return !stack.isEmpty() ? 1 : 0;
@@ -310,24 +321,24 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
     }
 
     @Override
-    public FluidState getFluidState(BlockState state) {
-        return state.get(WATERLOGGED) ? Fluids.WATER.getStill(false) : super.getFluidState(state);
+    public @NotNull FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    protected BlockState getStateForNeighborUpdate(BlockState state, WorldView world, ScheduledTickView tickView, BlockPos pos, Direction direction, BlockPos neighborPos, BlockState neighborState, Random random) {
-        if (state.get(WATERLOGGED)) {
-            tickView.scheduleFluidTick(pos, Fluids.WATER, Fluids.WATER.getTickRate(world));
+    protected @NotNull BlockState updateShape(BlockState state, @NotNull LevelReader world, @NotNull ScheduledTickAccess tickView, @NotNull BlockPos pos, @NotNull Direction direction, @NotNull BlockPos neighborPos, @NotNull BlockState neighborState, @NotNull RandomSource random) {
+        if (state.getValue(WATERLOGGED)) {
+            tickView.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(world));
         }
 
         if (direction.getAxis() == Direction.Axis.Y) {
-            return state.with(PART, this.getPillarPart((World) world, pos));
+            return state.setValue(PART, this.getPillarPart((Level) world, pos));
         }
 
-        return super.getStateForNeighborUpdate(state, world, tickView, pos, direction, neighborPos, neighborState, random);
+        return super.updateShape(state, world, tickView, pos, direction, neighborPos, neighborState, random);
     }
 
-    public enum PillarPart implements StringIdentifiable {
+    public enum PillarPart implements StringRepresentable {
         BOTTOM("bottom"),
         MIDDLE("middle"),
         TOP("top"),
@@ -340,7 +351,7 @@ public class PedestalBlock extends BlockWithEntity implements BlockEntityProvide
         }
 
         @Override
-        public String asString() {
+        public @NotNull String getSerializedName() {
             return this.name;
         }
 

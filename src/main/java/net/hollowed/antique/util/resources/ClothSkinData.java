@@ -2,15 +2,14 @@ package net.hollowed.antique.util.resources;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.util.Identifier;
-
 import java.util.List;
+import net.minecraft.resources.Identifier;
 
 public record ClothSkinData(
         List<ClothSubData> list
 ) {
     public static final Codec<ClothSkinData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ClothSubData.CODEC.listOf().fieldOf("skins").orElseGet(() -> List.of(new ClothSubData(Identifier.of(""), "", 0, 0, 0, 0, false, false))).forGetter(ClothSkinData::list)
+            ClothSubData.CODEC.listOf().fieldOf("skins").orElseGet(() -> List.of(new ClothSubData(Identifier.parse(""), "", 0, 0, 0, 0, false, false))).forGetter(ClothSkinData::list)
     ).apply(instance, ClothSkinData::new));
 
     public record ClothSubData(Identifier model, String hex, float length, float width, int bodyAmount, int light, boolean overlay, boolean dyeable) {

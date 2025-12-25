@@ -5,65 +5,64 @@
 
 package net.hollowed.antique.index;
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.AttributeModifierSlot;
-import net.minecraft.component.type.AttributeModifiersComponent;
-import net.minecraft.component.type.EquippableComponent;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.attribute.EntityAttributeModifier.Operation;
-import net.minecraft.item.Item;
-import net.minecraft.item.equipment.EquipmentAsset;
-import net.minecraft.item.equipment.EquipmentType;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
-
 import java.util.Map;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.EquipmentAsset;
+import net.minecraft.world.item.equipment.Equippable;
 
 @SuppressWarnings("unused")
-public record AdventureArmorMaterial(int durability, Map<EquipmentType, Integer> defense, int enchantmentValue, RegistryEntry<SoundEvent> equipSound, float toughness, float knockbackResistance, TagKey<Item> repairIngredient, RegistryKey<EquipmentAsset> modelId, float burningReduction, float stepHeight, float movementSpeed) {
+public record AdventureArmorMaterial(int durability, Map<ArmorType, Integer> defense, int enchantmentValue, Holder<SoundEvent> equipSound, float toughness, float knockbackResistance, TagKey<Item> repairIngredient, ResourceKey<EquipmentAsset> modelId, float burningReduction, float stepHeight, float movementSpeed) {
 
-    public Item.Settings applySettings(Item.Settings settings, EquipmentType equipmentType) {
-        return settings.maxDamage(equipmentType.getMaxDamage(this.durability)).attributeModifiers(this.createAttributeModifiers(equipmentType)).enchantable(this.enchantmentValue).component(DataComponentTypes.EQUIPPABLE, EquippableComponent.builder(equipmentType.getEquipmentSlot()).equipSound(this.equipSound).model(this.modelId).build()).repairable(this.repairIngredient);
+    public Item.Properties applySettings(Item.Properties settings, ArmorType equipmentType) {
+        return settings.durability(equipmentType.getDurability(this.durability)).attributes(this.createAttributeModifiers(equipmentType)).enchantable(this.enchantmentValue).component(DataComponents.EQUIPPABLE, Equippable.builder(equipmentType.getSlot()).setEquipSound(this.equipSound).setAsset(this.modelId).build()).repairable(this.repairIngredient);
     }
 
-    public Item.Settings applyBodyArmorSettings(Item.Settings settings, RegistryEntryList<EntityType<?>> allowedEntities) {
-        return settings.maxDamage(EquipmentType.BODY.getMaxDamage(this.durability)).attributeModifiers(this.createAttributeModifiers(EquipmentType.BODY)).repairable(this.repairIngredient).component(DataComponentTypes.EQUIPPABLE, EquippableComponent.builder(EquipmentSlot.BODY).equipSound(this.equipSound).model(this.modelId).allowedEntities(allowedEntities).build());
+    public Item.Properties applyBodyArmorSettings(Item.Properties settings, HolderSet<EntityType<?>> allowedEntities) {
+        return settings.durability(ArmorType.BODY.getDurability(this.durability)).attributes(this.createAttributeModifiers(ArmorType.BODY)).repairable(this.repairIngredient).component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.BODY).setEquipSound(this.equipSound).setAsset(this.modelId).setAllowedEntities(allowedEntities).build());
     }
 
-    public Item.Settings applyBodyArmorSettings(Item.Settings settings, RegistryEntry<SoundEvent> equipSound, boolean damageOnHurt, RegistryEntryList<EntityType<?>> allowedEntities) {
+    public Item.Properties applyBodyArmorSettings(Item.Properties settings, Holder<SoundEvent> equipSound, boolean damageOnHurt, HolderSet<EntityType<?>> allowedEntities) {
         if (damageOnHurt) {
-            settings = settings.maxDamage(EquipmentType.BODY.getMaxDamage(this.durability)).repairable(this.repairIngredient);
+            settings = settings.durability(ArmorType.BODY.getDurability(this.durability)).repairable(this.repairIngredient);
         }
 
-        return settings.attributeModifiers(this.createAttributeModifiers(EquipmentType.BODY)).component(DataComponentTypes.EQUIPPABLE, EquippableComponent.builder(EquipmentSlot.BODY).equipSound(equipSound).model(this.modelId).allowedEntities(allowedEntities).damageOnHurt(damageOnHurt).build());
+        return settings.attributes(this.createAttributeModifiers(ArmorType.BODY)).component(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.BODY).setEquipSound(equipSound).setAsset(this.modelId).setAllowedEntities(allowedEntities).setDamageOnHurt(damageOnHurt).build());
     }
 
-    private AttributeModifiersComponent createAttributeModifiers(EquipmentType equipmentType) {
+    private ItemAttributeModifiers createAttributeModifiers(ArmorType equipmentType) {
         int i = this.defense.getOrDefault(equipmentType, 0);
-        AttributeModifiersComponent.Builder builder = AttributeModifiersComponent.builder();
-        AttributeModifierSlot attributeModifierSlot = AttributeModifierSlot.forEquipmentSlot(equipmentType.getEquipmentSlot());
-        Identifier identifier = Identifier.ofVanilla("armor." + equipmentType.getName());
-        builder.add(EntityAttributes.ARMOR, new EntityAttributeModifier(identifier, i, Operation.ADD_VALUE), attributeModifierSlot);
-        builder.add(EntityAttributes.ARMOR_TOUGHNESS, new EntityAttributeModifier(identifier, this.toughness, Operation.ADD_VALUE), attributeModifierSlot);
+        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
+        EquipmentSlotGroup attributeModifierSlot = EquipmentSlotGroup.bySlot(equipmentType.getSlot());
+        Identifier identifier = Identifier.withDefaultNamespace("armor." + equipmentType.getName());
+        builder.add(Attributes.ARMOR, new AttributeModifier(identifier, i, Operation.ADD_VALUE), attributeModifierSlot);
+        builder.add(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(identifier, this.toughness, Operation.ADD_VALUE), attributeModifierSlot);
         if (this.knockbackResistance > 0.0F) {
-            builder.add(EntityAttributes.KNOCKBACK_RESISTANCE, new EntityAttributeModifier(identifier, this.knockbackResistance, Operation.ADD_VALUE), attributeModifierSlot);
+            builder.add(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(identifier, this.knockbackResistance, Operation.ADD_VALUE), attributeModifierSlot);
         }
-        if (this.burningReduction > 0.0F && attributeModifierSlot.matches(EquipmentSlot.CHEST)) {
-            builder.add(EntityAttributes.BURNING_TIME, new EntityAttributeModifier(Identifier.ofVanilla("burn_time"), -this.burningReduction, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE), attributeModifierSlot);
+        if (this.burningReduction > 0.0F && attributeModifierSlot.test(EquipmentSlot.CHEST)) {
+            builder.add(Attributes.BURNING_TIME, new AttributeModifier(Identifier.withDefaultNamespace("burn_time"), -this.burningReduction, AttributeModifier.Operation.ADD_MULTIPLIED_BASE), attributeModifierSlot);
         }
-        if (attributeModifierSlot.matches(EquipmentSlot.FEET)) {
+        if (attributeModifierSlot.test(EquipmentSlot.FEET)) {
             if (this.stepHeight > 0.0F) {
-                builder.add(EntityAttributes.STEP_HEIGHT, new EntityAttributeModifier(Identifier.ofVanilla("step_height"), this.stepHeight, EntityAttributeModifier.Operation.ADD_VALUE), attributeModifierSlot);
+                builder.add(Attributes.STEP_HEIGHT, new AttributeModifier(Identifier.withDefaultNamespace("step_height"), this.stepHeight, AttributeModifier.Operation.ADD_VALUE), attributeModifierSlot);
             }
             if (this.movementSpeed > 0.0F) {
-                builder.add(EntityAttributes.MOVEMENT_SPEED, new EntityAttributeModifier(Identifier.ofVanilla("movement_speed"), this.movementSpeed, EntityAttributeModifier.Operation.ADD_MULTIPLIED_BASE), attributeModifierSlot);
+                builder.add(Attributes.MOVEMENT_SPEED, new AttributeModifier(Identifier.withDefaultNamespace("movement_speed"), this.movementSpeed, AttributeModifier.Operation.ADD_MULTIPLIED_BASE), attributeModifierSlot);
             }
         }
 
@@ -74,7 +73,7 @@ public record AdventureArmorMaterial(int durability, Map<EquipmentType, Integer>
         return this.durability;
     }
 
-    public Map<EquipmentType, Integer> defense() {
+    public Map<ArmorType, Integer> defense() {
         return this.defense;
     }
 
@@ -82,7 +81,7 @@ public record AdventureArmorMaterial(int durability, Map<EquipmentType, Integer>
         return this.enchantmentValue;
     }
 
-    public RegistryEntry<SoundEvent> equipSound() {
+    public Holder<SoundEvent> equipSound() {
         return this.equipSound;
     }
 

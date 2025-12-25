@@ -1,16 +1,16 @@
 package net.hollowed.antique.index;
 
 import net.hollowed.antique.Antiquities;
-import net.minecraft.item.equipment.EquipmentAsset;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.equipment.EquipmentAsset;
 
 public interface AntiqueEquipmentAssetKeys {
-    RegistryKey<? extends Registry<EquipmentAsset>> REGISTRY_KEY = RegistryKey.ofRegistry(Identifier.ofVanilla("equipment_asset"));
-    RegistryKey<EquipmentAsset> EMPTY = register("empty");
+    ResourceKey<? extends Registry<EquipmentAsset>> REGISTRY_KEY = ResourceKey.createRegistryKey(Identifier.withDefaultNamespace("equipment_asset"));
+    ResourceKey<EquipmentAsset> EMPTY = register("empty");
 
-    static RegistryKey<EquipmentAsset> register(String name) {
-        return RegistryKey.of(REGISTRY_KEY, Identifier.of(Antiquities.MOD_ID, name));
+    static ResourceKey<EquipmentAsset> register(String name) {
+        return ResourceKey.create(REGISTRY_KEY, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, name));
     }
 }

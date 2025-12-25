@@ -11,163 +11,168 @@ import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.networking.IllusionerParticlePacketPayload;
 import net.hollowed.antique.util.FireworkUtil;
 import net.hollowed.antique.util.delay.TickDelayScheduler;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ChargedProjectilesComponent;
-import net.minecraft.entity.EntityData;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.EquipmentSlot;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SpawnReason;
-import net.minecraft.entity.ai.RangedAttackMob;
-import net.minecraft.entity.ai.goal.ActiveTargetGoal;
-import net.minecraft.entity.ai.goal.BowAttackGoal;
-import net.minecraft.entity.ai.goal.FleeEntityGoal;
-import net.minecraft.entity.ai.goal.LookAtEntityGoal;
-import net.minecraft.entity.ai.goal.RevengeGoal;
-import net.minecraft.entity.ai.goal.SwimGoal;
-import net.minecraft.entity.ai.goal.WanderAroundGoal;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.mob.*;
-import net.minecraft.entity.passive.IronGolemEntity;
-import net.minecraft.entity.passive.MerchantEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.entity.raid.RaiderEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.particle.ParticleTypes;
-import net.minecraft.particle.TintedParticleEffect;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.particles.ColorParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.ServerWorldAccess;
-import net.minecraft.world.World;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.goal.RangedBowAttackGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.animal.golem.IronGolem;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.monster.RangedAttackMob;
+import net.minecraft.world.entity.monster.creaking.Creaking;
+import net.minecraft.world.entity.monster.illager.AbstractIllager;
+import net.minecraft.world.entity.monster.illager.SpellcasterIllager;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.entity.raid.Raider;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ChargedProjectiles;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
-public class IllusionerEntity extends SpellcastingIllagerEntity implements RangedAttackMob {
-    public static final TrackedData<Vector3f> SPELL_COLOR = DataTracker.registerData(IllusionerEntity.class, TrackedDataHandlerRegistry.VECTOR_3F);
+public class IllusionerEntity extends SpellcasterIllager implements RangedAttackMob {
+    public static final EntityDataAccessor<Vector3fc> SPELL_COLOR = SynchedEntityData.defineId(IllusionerEntity.class, EntityDataSerializers.VECTOR3);
     private int mirrorSpellTimer;
-    private final Vec3d[][] mirrorCopyOffsets;
+    private final Vec3[][] mirrorCopyOffsets;
 
-    public IllusionerEntity(EntityType<? extends IllusionerEntity> entityType, World world) {
+    public IllusionerEntity(EntityType<? extends IllusionerEntity> entityType, Level world) {
         super(entityType, world);
-        this.experiencePoints = 5;
-        this.mirrorCopyOffsets = new Vec3d[2][4];
+        this.xpReward = 5;
+        this.mirrorCopyOffsets = new Vec3[2][4];
 
         for(int i = 0; i < 4; ++i) {
-            this.mirrorCopyOffsets[0][i] = Vec3d.ZERO;
-            this.mirrorCopyOffsets[1][i] = Vec3d.ZERO;
+            this.mirrorCopyOffsets[0][i] = Vec3.ZERO;
+            this.mirrorCopyOffsets[1][i] = Vec3.ZERO;
         }
     }
 
     @Override
-    protected void initDataTracker(DataTracker.Builder builder) {
-        super.initDataTracker(builder);
-        builder.add(SPELL_COLOR, new Vector3f(0, 0, 0));
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(SPELL_COLOR, new Vector3f(0, 0, 0));
     }
 
-    protected void initGoals() {
-        super.initGoals();
-        this.goalSelector.add(0, new SwimGoal(this));
-        this.goalSelector.add(1, new SpellcastingIllagerEntity.LookAtTargetGoal());
-        this.goalSelector.add(3, new FleeEntityGoal<>(this, CreakingEntity.class, 8.0F, 1.0, 1.2));
-        this.goalSelector.add(3, new IllusionerCloneEntity.TeleportGoal(this));
-        this.goalSelector.add(4, new SmokeBombGoal());
-        this.goalSelector.add(5, new GiveInvisibilityGoal());
-        this.goalSelector.add(6, new BowAttackGoal<>(this, 0.5, 50, 15.0F));
-        this.goalSelector.add(8, new WanderAroundGoal(this, 0.6));
-        this.goalSelector.add(9, new LookAtEntityGoal(this, PlayerEntity.class, 3.0F, 1.0F));
-        this.goalSelector.add(10, new LookAtEntityGoal(this, MobEntity.class, 8.0F));
-        this.targetSelector.add(1, (new RevengeGoal(this, RaiderEntity.class)).setGroupRevenge());
-        this.targetSelector.add(2, (new ActiveTargetGoal<>(this, PlayerEntity.class, true)).setMaxTimeWithoutVisibility(300));
-        this.targetSelector.add(3, (new ActiveTargetGoal<>(this, MerchantEntity.class, false)).setMaxTimeWithoutVisibility(300));
-        this.targetSelector.add(3, (new ActiveTargetGoal<>(this, IronGolemEntity.class, false)).setMaxTimeWithoutVisibility(300));
+    protected void registerGoals() {
+        super.registerGoals();
+        this.goalSelector.addGoal(0, new FloatGoal(this));
+        this.goalSelector.addGoal(1, new SpellcasterIllager.SpellcasterCastingSpellGoal());
+        this.goalSelector.addGoal(3, new AvoidEntityGoal<>(this, Creaking.class, 8.0F, 1.0, 1.2));
+        this.goalSelector.addGoal(3, new IllusionerCloneEntity.TeleportGoal(this));
+        this.goalSelector.addGoal(4, new SmokeBombGoal());
+        this.goalSelector.addGoal(5, new GiveInvisibilityGoal());
+        this.goalSelector.addGoal(6, new RangedBowAttackGoal<>(this, 0.5, 50, 15.0F));
+        this.goalSelector.addGoal(8, new RandomStrollGoal(this, 0.6));
+        this.goalSelector.addGoal(9, new LookAtPlayerGoal(this, Player.class, 3.0F, 1.0F));
+        this.goalSelector.addGoal(10, new LookAtPlayerGoal(this, Mob.class, 8.0F));
+        this.targetSelector.addGoal(1, (new HurtByTargetGoal(this, Raider.class)).setAlertOthers());
+        this.targetSelector.addGoal(2, (new NearestAttackableTargetGoal<>(this, Player.class, true)).setUnseenMemoryTicks(300));
+        this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, AbstractVillager.class, false)).setUnseenMemoryTicks(300));
+        this.targetSelector.addGoal(3, (new NearestAttackableTargetGoal<>(this, IronGolem.class, false)).setUnseenMemoryTicks(300));
     }
 
-    public static DefaultAttributeContainer.Builder createIllusionerAttributes() {
-        return HostileEntity.createHostileAttributes()
-                .add(EntityAttributes.MOVEMENT_SPEED, 0.5)
-                .add(EntityAttributes.FOLLOW_RANGE, 36.0)
-                .add(EntityAttributes.GRAVITY, 0.05)
-                .add(EntityAttributes.SAFE_FALL_DISTANCE, 8)
-                .add(EntityAttributes.MAX_HEALTH, 32.0);
+    public static AttributeSupplier.Builder createIllusionerAttributes() {
+        return Monster.createMonsterAttributes()
+                .add(Attributes.MOVEMENT_SPEED, 0.5)
+                .add(Attributes.FOLLOW_RANGE, 36.0)
+                .add(Attributes.GRAVITY, 0.05)
+                .add(Attributes.SAFE_FALL_DISTANCE, 8)
+                .add(Attributes.MAX_HEALTH, 32.0);
     }
 
-    public EntityData initialize(ServerWorldAccess world, LocalDifficulty difficulty, SpawnReason spawnReason, @Nullable EntityData entityData) {
-        ItemStack bow = Items.BOW.getDefaultStack();
-        bow.set(DataComponentTypes.CHARGED_PROJECTILES, ChargedProjectilesComponent.of(Items.FIREWORK_ROCKET.getDefaultStack()));
-        this.equipStack(EquipmentSlot.MAINHAND, bow);
-        return super.initialize(world, difficulty, spawnReason, entityData);
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData entityData) {
+        ItemStack bow = Items.BOW.getDefaultInstance();
+        bow.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.of(Items.FIREWORK_ROCKET.getDefaultInstance()));
+        this.setItemSlot(EquipmentSlot.MAINHAND, bow);
+        return super.finalizeSpawn(world, difficulty, spawnReason, entityData);
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (this.getEntityWorld().isClient() && this.isSpellcasting()) {
-            float i = this.bodyYaw * 0.017453292F + MathHelper.cos((float)this.age * 0.6662F) * 0.25F;
-            float j = MathHelper.cos(i);
-            float k = MathHelper.sin(i);
+        if (this.level().isClientSide() && this.isCastingSpell()) {
+            float i = this.yBodyRot * 0.017453292F + Mth.cos((float)this.tickCount * 0.6662F) * 0.25F;
+            float j = Mth.cos(i);
+            float k = Mth.sin(i);
             double d = 0.6 * (double)this.getScale();
             double e = 1.8 * (double)this.getScale();
-            this.getEntityWorld().addParticleClient(TintedParticleEffect.create(ParticleTypes.ENTITY_EFFECT, this.dataTracker.get(SPELL_COLOR).x, this.dataTracker.get(SPELL_COLOR).y, this.dataTracker.get(SPELL_COLOR).z), this.getX() + (double)j * d, this.getY() + e, this.getZ() + (double)k * d, 0.0, 0.0, 0.0);
-            this.getEntityWorld().addParticleClient(TintedParticleEffect.create(ParticleTypes.ENTITY_EFFECT, this.dataTracker.get(SPELL_COLOR).x, this.dataTracker.get(SPELL_COLOR).y, this.dataTracker.get(SPELL_COLOR).z), this.getX() - (double)j * d, this.getY() + e, this.getZ() - (double)k * d, 0.0, 0.0, 0.0);
+            this.level().addParticle(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, this.entityData.get(SPELL_COLOR).x(), this.entityData.get(SPELL_COLOR).y(), this.entityData.get(SPELL_COLOR).z()), this.getX() + (double)j * d, this.getY() + e, this.getZ() + (double)k * d, 0.0, 0.0, 0.0);
+            this.level().addParticle(ColorParticleOption.create(ParticleTypes.ENTITY_EFFECT, this.entityData.get(SPELL_COLOR).x(), this.entityData.get(SPELL_COLOR).y(), this.entityData.get(SPELL_COLOR).z()), this.getX() - (double)j * d, this.getY() + e, this.getZ() - (double)k * d, 0.0, 0.0, 0.0);
         }
     }
 
     @Override
-    protected void applyDamage(ServerWorld world, DamageSource source, float amount) {
-        IllusionerCloneEntity clone = new IllusionerCloneEntity(AntiqueEntities.ILLUSIONER_CLONE, this.getEntityWorld());
-        clone.equipStack(EquipmentSlot.MAINHAND, Items.BOW.getDefaultStack());
-        clone.setPosition(this.getX(), this.getY(), this.getZ());
+    protected void actuallyHurt(ServerLevel world, DamageSource source, float amount) {
+        IllusionerCloneEntity clone = new IllusionerCloneEntity(AntiqueEntities.ILLUSIONER_CLONE, this.level());
+        clone.setItemSlot(EquipmentSlot.MAINHAND, Items.BOW.getDefaultInstance());
+        clone.setPos(this.getX(), this.getY(), this.getZ());
         clone.setOwner(this);
         clone.setTarget(this.getTarget());
-        clone.setBodyYaw(this.getBodyYaw());
-        clone.setHeadYaw(this.getHeadYaw());
+        clone.setYBodyRot(this.getVisualRotationYInDegrees());
+        clone.setYHeadRot(this.getYHeadRot());
         if (IllusionerCloneEntity.teleportRandomly(this)) {
-            this.getEntityWorld().spawnEntity(clone);
+            this.level().addFreshEntity(clone);
         }
-        super.applyDamage(world, source, amount);
+        super.actuallyHurt(world, source, amount);
     }
 
-    public void tickMovement() {
-        super.tickMovement();
+    public void aiStep() {
+        super.aiStep();
 
-        if (this.getVelocity().y < -0.2) {
-            this.getEntityWorld().addParticleClient(ParticleTypes.POOF, this.getParticleX(0.5), this.getY(), this.getBodyZ(0.5), 0.0, 0.0, 0.0);
+        if (this.getDeltaMovement().y < -0.2) {
+            this.level().addParticle(ParticleTypes.POOF, this.getRandomX(0.5), this.getY(), this.getZ(0.5), 0.0, 0.0, 0.0);
         }
         if (this.isInvisible()) {
-            this.getEntityWorld().addParticleClient(ParticleTypes.LARGE_SMOKE, this.getParticleX(0.1), this.getY() + 1.5, this.getBodyZ(0.1), 0.0, 0.0, 0.0);
+            this.level().addParticle(ParticleTypes.LARGE_SMOKE, this.getRandomX(0.1), this.getY() + 1.5, this.getZ(0.1), 0.0, 0.0, 0.0);
         }
 
-        if (this.getEntityWorld().isClient() && this.isInvisible()) {
+        if (this.level().isClientSide() && this.isInvisible()) {
             --this.mirrorSpellTimer;
             if (this.mirrorSpellTimer < 0) {
                 this.mirrorSpellTimer = 0;
             }
 
-            if (this.hurtTime != 1 && this.age % 1200 != 0) {
-                if (this.hurtTime == this.maxHurtTime - 1) {
+            if (this.hurtTime != 1 && this.tickCount % 1200 != 0) {
+                if (this.hurtTime == this.hurtDuration - 1) {
                     this.mirrorSpellTimer = 3;
 
                     for(int k = 0; k < 4; ++k) {
                         this.mirrorCopyOffsets[0][k] = this.mirrorCopyOffsets[1][k];
-                        this.mirrorCopyOffsets[1][k] = new Vec3d(0.0, 0.0, 0.0);
+                        this.mirrorCopyOffsets[1][k] = new Vec3(0.0, 0.0, 0.0);
                     }
                 }
             } else {
@@ -176,33 +181,33 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
                 int j;
                 for(j = 0; j < 4; ++j) {
                     this.mirrorCopyOffsets[0][j] = this.mirrorCopyOffsets[1][j];
-                    this.mirrorCopyOffsets[1][j] = new Vec3d((double)(-6.0F + (float)this.random.nextInt(13)) * 0.5, Math.max(0, this.random.nextInt(6) - 4), (double)(-6.0F + (float)this.random.nextInt(13)) * 0.5);
+                    this.mirrorCopyOffsets[1][j] = new Vec3((double)(-6.0F + (float)this.random.nextInt(13)) * 0.5, Math.max(0, this.random.nextInt(6) - 4), (double)(-6.0F + (float)this.random.nextInt(13)) * 0.5);
                 }
 
                 for(j = 0; j < 16; ++j) {
-                    this.getEntityWorld().addParticleClient(ParticleTypes.CLOUD, this.getParticleX(0.5), this.getRandomBodyY(), this.getBodyZ(0.5), 0.0, 0.0, 0.0);
+                    this.level().addParticle(ParticleTypes.CLOUD, this.getRandomX(0.5), this.getRandomY(), this.getZ(0.5), 0.0, 0.0, 0.0);
                 }
 
-                this.getEntityWorld().playSoundClient(this.getX(), this.getY(), this.getZ(), SoundEvents.ENTITY_ILLUSIONER_MIRROR_MOVE, this.getSoundCategory(), 1.0F, 1.0F, false);
+                this.level().playLocalSound(this.getX(), this.getY(), this.getZ(), SoundEvents.ILLUSIONER_MIRROR_MOVE, this.getSoundSource(), 1.0F, 1.0F, false);
             }
         }
 
     }
 
-    public SoundEvent getCelebratingSound() {
-        return SoundEvents.ENTITY_ILLUSIONER_AMBIENT;
+    public SoundEvent getCelebrateSound() {
+        return SoundEvents.ILLUSIONER_AMBIENT;
     }
 
-    public Vec3d[] getMirrorCopyOffsets(float tickProgress) {
+    public Vec3[] getMirrorCopyOffsets(float tickProgress) {
         if (this.mirrorSpellTimer <= 0) {
             return this.mirrorCopyOffsets[1];
         } else {
             double d = ((float)this.mirrorSpellTimer - tickProgress) / 3.0F;
             d = Math.pow(d, 0.25);
-            Vec3d[] vec3ds = new Vec3d[4];
+            Vec3[] vec3ds = new Vec3[4];
 
             for(int i = 0; i < 4; ++i) {
-                vec3ds[i] = this.mirrorCopyOffsets[1][i].multiply(1.0 - d).add(this.mirrorCopyOffsets[0][i].multiply(d));
+                vec3ds[i] = this.mirrorCopyOffsets[1][i].scale(1.0 - d).add(this.mirrorCopyOffsets[0][i].scale(d));
             }
 
             return vec3ds;
@@ -210,80 +215,80 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
     }
 
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.ENTITY_ILLUSIONER_AMBIENT;
+        return SoundEvents.ILLUSIONER_AMBIENT;
     }
 
     protected SoundEvent getDeathSound() {
-        return SoundEvents.ENTITY_ILLUSIONER_DEATH;
+        return SoundEvents.ILLUSIONER_DEATH;
     }
 
     protected SoundEvent getHurtSound(DamageSource source) {
-        return SoundEvents.ENTITY_ILLUSIONER_HURT;
+        return SoundEvents.ILLUSIONER_HURT;
     }
 
-    protected SoundEvent getCastSpellSound() {
-        return SoundEvents.ENTITY_ILLUSIONER_CAST_SPELL;
+    protected SoundEvent getCastingSoundEvent() {
+        return SoundEvents.ILLUSIONER_CAST_SPELL;
     }
 
-    public void addBonusForWave(ServerWorld world, int wave, boolean unused) {
+    public void applyRaidBuffs(ServerLevel world, int wave, boolean unused) {
     }
 
     @Override
-    public boolean isInvulnerableTo(ServerWorld world, DamageSource source) {
-        if (source.isOf(DamageTypes.FIREWORKS)) return true;
+    public boolean isInvulnerableTo(ServerLevel world, DamageSource source) {
+        if (source.is(DamageTypes.FIREWORKS)) return true;
         return super.isInvulnerableTo(world, source);
     }
 
-    public void shootAt(LivingEntity target, float pullProgress) {
-        World world = this.getEntityWorld();
-        ItemStack stack = Items.FIREWORK_ROCKET.getDefaultStack();
-        stack.set(DataComponentTypes.FIREWORKS, FireworkUtil.randomFirework());
-        if (world instanceof ServerWorld serverWorld) {
+    public void performRangedAttack(LivingEntity target, float pullProgress) {
+        Level world = this.level();
+        ItemStack stack = Items.FIREWORK_ROCKET.getDefaultInstance();
+        stack.set(DataComponents.FIREWORKS, FireworkUtil.randomFirework());
+        if (world instanceof ServerLevel serverWorld) {
             FireworkRocketEntity projectile = new FireworkRocketEntity(world, stack, this.getX(), this.getY() + 1, this.getZ(), true);
-            Vec3d direction = this.getEntityPos().subtract(target.getEntityPos());
-            projectile.setVelocity(direction.normalize().multiply(-1.75));
+            Vec3 direction = this.position().subtract(target.position());
+            projectile.setDeltaMovement(direction.normalize().scale(-1.75));
             projectile.setOwner(this);
-            projectile.velocityModified = true;
-            serverWorld.spawnEntity(projectile);
+            projectile.hurtMarked = true;
+            serverWorld.addFreshEntity(projectile);
         }
-        this.playSound(SoundEvents.ENTITY_SKELETON_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
-        this.playSound(SoundEvents.ENTITY_FIREWORK_ROCKET_LAUNCH, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
+        this.playSound(SoundEvents.SKELETON_SHOOT, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
+        this.playSound(SoundEvents.FIREWORK_ROCKET_LAUNCH, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
     }
 
-    public IllagerEntity.State getState() {
-        if (this.isSpellcasting()) {
-            return State.SPELLCASTING;
+    public AbstractIllager.IllagerArmPose getArmPose() {
+        if (this.isCastingSpell()) {
+            return IllagerArmPose.SPELLCASTING;
         } else {
-            return this.isAttacking() ? State.BOW_AND_ARROW : State.CROSSED;
+            return this.isAggressive() ? IllagerArmPose.BOW_AND_ARROW : IllagerArmPose.CROSSED;
         }
     }
 
-    private class GiveInvisibilityGoal extends SpellcastingIllagerEntity.CastSpellGoal {
+    private class GiveInvisibilityGoal extends SpellcasterIllager.SpellcasterUseSpellGoal {
         GiveInvisibilityGoal() {
             super();
         }
 
-        public boolean canStart() {
-            if (!super.canStart()) {
+        public boolean canUse() {
+            if (!super.canUse()) {
                 return false;
             } else {
-                return !IllusionerEntity.this.hasStatusEffect(StatusEffects.INVISIBILITY);
+                return !IllusionerEntity.this.hasEffect(MobEffects.INVISIBILITY);
             }
         }
 
-        protected int getSpellTicks() {
+        protected int getCastingTime() {
             return 80;
         }
 
-        protected int startTimeDelay() {
+        protected int getCastingInterval() {
             return 340;
         }
 
-        protected void castSpell() {
-            IllusionerEntity.this.addStatusEffect(new StatusEffectInstance(StatusEffects.INVISIBILITY, 300), IllusionerEntity.this);
+        protected void performSpellCasting() {
+            IllusionerEntity.this.addEffect(new MobEffectInstance(MobEffects.INVISIBILITY, 300), IllusionerEntity.this);
 
             int count = 0;
-            switch (IllusionerEntity.this.getEntityWorld().getLocalDifficulty(IllusionerEntity.this.getBlockPos()).getGlobalDifficulty()) {
+            switch (IllusionerEntity.this.level().getDifficulty()) {
                 case Difficulty.EASY -> count = 2;
                 case Difficulty.NORMAL -> count = 4;
                 case Difficulty.HARD -> count = 6;
@@ -302,8 +307,8 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
 
                     for (int yOffset = -15; yOffset <= 15; yOffset++) {
                         int testY = (int) (originY + yOffset);
-                        if (!IllusionerEntity.this.getEntityWorld().isOutOfHeightLimit(testY)) {
-                            if (IllusionerEntity.this.getEntityWorld().getBlockState(new BlockPos((int)x, testY, (int)z)).isAir()) {
+                        if (!IllusionerEntity.this.level().isOutsideBuildHeight(testY)) {
+                            if (IllusionerEntity.this.level().getBlockState(new BlockPos((int)x, testY, (int)z)).isAir()) {
                                 double distance = Math.abs(originY - testY);
                                 if (distance < bestDistance) {
                                     bestY = testY;
@@ -314,15 +319,15 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
                     }
 
                     if (bestY != -1) {
-                        IllusionerCloneEntity clone = new IllusionerCloneEntity(AntiqueEntities.ILLUSIONER_CLONE, IllusionerEntity.this.getEntityWorld());
-                        clone.equipStack(EquipmentSlot.MAINHAND, Items.BOW.getDefaultStack());
-                        clone.setPosition(x, bestY, z);
+                        IllusionerCloneEntity clone = new IllusionerCloneEntity(AntiqueEntities.ILLUSIONER_CLONE, IllusionerEntity.this.level());
+                        clone.setItemSlot(EquipmentSlot.MAINHAND, Items.BOW.getDefaultInstance());
+                        clone.setPos(x, bestY, z);
                         clone.setOwner(IllusionerEntity.this);
                         clone.setTarget(IllusionerEntity.this.getTarget());
-                        IllusionerEntity.this.getEntityWorld().spawnEntity(clone);
+                        IllusionerEntity.this.level().addFreshEntity(clone);
 
-                        ServerWorld serverWorld = (ServerWorld) clone.getEntityWorld();
-                        for (ServerPlayerEntity player : serverWorld.getPlayers()) {
+                        ServerLevel serverWorld = (ServerLevel) clone.level();
+                        for (ServerPlayer player : serverWorld.players()) {
                             ServerPlayNetworking.send(player, new IllusionerParticlePacketPayload(
                                     x, bestY + 1 + ((Math.random() - 0.5) * 2), z
                             ));
@@ -337,35 +342,35 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
         @Override
         public void tick() {
             super.tick();
-            IllusionerEntity.this.getDataTracker().set(SPELL_COLOR, new Vector3f(103 / 255.0F, 68 / 255.0F, 99 / 255.0F));
+            IllusionerEntity.this.getEntityData().set(SPELL_COLOR, new Vector3f(103 / 255.0F, 68 / 255.0F, 99 / 255.0F));
         }
 
         @Nullable
-        protected SoundEvent getSoundPrepare() {
-            return SoundEvents.ENTITY_ILLUSIONER_PREPARE_MIRROR;
+        protected SoundEvent getSpellPrepareSound() {
+            return SoundEvents.ILLUSIONER_PREPARE_MIRROR;
         }
 
-        protected SpellcastingIllagerEntity.Spell getSpell() {
-            return Spell.BLINDNESS;
+        protected SpellcasterIllager.IllagerSpell getSpell() {
+            return IllagerSpell.BLINDNESS;
         }
     }
 
-    private class SmokeBombGoal extends SpellcastingIllagerEntity.CastSpellGoal {
+    private class SmokeBombGoal extends SpellcasterIllager.SpellcasterUseSpellGoal {
         private int targetId;
 
         SmokeBombGoal() {
             super();
         }
 
-        public boolean canStart() {
-            if (!super.canStart()) {
+        public boolean canUse() {
+            if (!super.canUse()) {
                 return false;
             } else if (IllusionerEntity.this.getTarget() == null) {
                 return false;
             } else if (IllusionerEntity.this.getTarget().getId() == this.targetId) {
                 return false;
             } else {
-                return IllusionerEntity.this.getEntityWorld().getLocalDifficulty(IllusionerEntity.this.getBlockPos()).isHarderThan((float)Difficulty.NORMAL.ordinal());
+                return IllusionerEntity.this.level().getDifficulty().getId() >= 2;
             }
         }
 
@@ -378,26 +383,26 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
 
         }
 
-        protected int getSpellTicks() {
+        protected int getCastingTime() {
             return 60;
         }
 
-        protected int startTimeDelay() {
+        protected int getCastingInterval() {
             return 300;
         }
 
-        protected void castSpell() {
+        protected void performSpellCasting() {
             for (int i = 0; i < 3; i++) {
-                TickDelayScheduler.schedule(random.nextBetween(0, 10), () -> {
-                    ItemStack stack = AntiqueItems.SMOKE_BOMB.getDefaultStack();
-                    stack.set(DataComponentTypes.FIREWORKS, FireworkUtil.randomFireworkBall());
+                TickDelayScheduler.schedule(random.nextIntBetweenInclusive(0, 10), () -> {
+                    ItemStack stack = AntiqueItems.SMOKE_BOMB.getDefaultInstance();
+                    stack.set(DataComponents.FIREWORKS, FireworkUtil.randomFireworkBall());
 
-                    SmokeBombEntity smokeBomb = new SmokeBombEntity(AntiqueEntities.SMOKE_BOMB, IllusionerEntity.this.getEntityWorld());
-                    smokeBomb.setPosition(IllusionerEntity.this.getEntityPos().add((Math.random() - 0.5) * 2, 3, (Math.random() - 0.5) * 2));
-                    smokeBomb.setVelocity((Math.random() - 0.5) * 0.8, 0.25, (Math.random() - 0.5) * 0.8);
+                    SmokeBombEntity smokeBomb = new SmokeBombEntity(AntiqueEntities.SMOKE_BOMB, IllusionerEntity.this.level());
+                    smokeBomb.setPos(IllusionerEntity.this.position().add((Math.random() - 0.5) * 2, 3, (Math.random() - 0.5) * 2));
+                    smokeBomb.setDeltaMovement((Math.random() - 0.5) * 0.8, 0.25, (Math.random() - 0.5) * 0.8);
                     smokeBomb.setItem(stack);
-                    IllusionerEntity.this.getEntityWorld().spawnEntity(smokeBomb);
-                    IllusionerEntity.this.getEntityWorld().playSound(null, IllusionerEntity.this.getX(), IllusionerEntity.this.getY(), IllusionerEntity.this.getZ(), SoundEvents.ENTITY_WITCH_THROW, SoundCategory.BLOCKS, 1F, 1F);
+                    IllusionerEntity.this.level().addFreshEntity(smokeBomb);
+                    IllusionerEntity.this.level().playSound(null, IllusionerEntity.this.getX(), IllusionerEntity.this.getY(), IllusionerEntity.this.getZ(), SoundEvents.WITCH_THROW, SoundSource.BLOCKS, 1F, 1F);
                 });
             }
         }
@@ -405,15 +410,15 @@ public class IllusionerEntity extends SpellcastingIllagerEntity implements Range
         @Override
         public void tick() {
             super.tick();
-            IllusionerEntity.this.getDataTracker().set(SPELL_COLOR, new Vector3f(1, 55 / 255.0F, 130 / 255.0F));
+            IllusionerEntity.this.getEntityData().set(SPELL_COLOR, new Vector3f(1, 55 / 255.0F, 130 / 255.0F));
         }
 
-        protected SoundEvent getSoundPrepare() {
-            return SoundEvents.ENTITY_ILLUSIONER_PREPARE_BLINDNESS;
+        protected SoundEvent getSpellPrepareSound() {
+            return SoundEvents.ILLUSIONER_PREPARE_BLINDNESS;
         }
 
-        protected SpellcastingIllagerEntity.Spell getSpell() {
-            return Spell.BLINDNESS;
+        protected SpellcasterIllager.IllagerSpell getSpell() {
+            return IllagerSpell.BLINDNESS;
         }
     }
 }

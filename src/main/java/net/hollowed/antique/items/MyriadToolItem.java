@@ -3,28 +3,38 @@ package net.hollowed.antique.items;
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ClothSkinListener;
 import net.hollowed.combatamenities.util.items.CAComponents;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.*;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.StackReference;
-import net.minecraft.item.*;
-import net.minecraft.item.consume.UseAction;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableTextContent;
-import net.minecraft.util.*;
-import net.minecraft.world.World;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 public class MyriadToolItem extends Item {
 
-    public MyriadToolItem(Settings settings) {
+    public MyriadToolItem(Properties settings) {
         super(settings);
     }
 
@@ -32,37 +42,37 @@ public class MyriadToolItem extends Item {
         Stack setting functions
      */
 
-    public static AttributeModifiersComponent createAttributeModifiers(double damage, double attackSpeed, double reach) {
-        return AttributeModifiersComponent.builder()
-                .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, damage - 1, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-                .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -4 + attackSpeed, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-                .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), reach, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+    public static ItemAttributeModifiers createAttributeModifiers(double damage, double attackSpeed, double reach) {
+        return ItemAttributeModifiers.builder()
+                .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, damage - 1, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -4 + attackSpeed, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                .add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(Identifier.withDefaultNamespace("base_attack_range"), reach, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                 .build();
     }
 
     @Override
-    public boolean onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player) {
+    public boolean overrideStackedOnOther(@NotNull ItemStack stack, Slot slot, @NotNull ClickAction clickType, @NotNull Player player) {
         ItemStack storedStack = getStoredStack(stack);
-        ItemStack otherStack = slot.getStack();
-        if (clickType == ClickType.RIGHT) {
+        ItemStack otherStack = slot.getItem();
+        if (clickType == ClickAction.SECONDARY) {
             if (otherStack.isEmpty()) {
 
                 // Remove the internal selected stack :3
                 if (!storedStack.isEmpty()) {
-                    slot.setStack(storedStack.copy());
+                    slot.setByPlayer(storedStack.copy());
                     storedStack = ItemStack.EMPTY;
-                    player.playSound(SoundEvents.ITEM_BUNDLE_REMOVE_ONE, 0.8F, 1.0F);
+                    player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 0.8F, 1.0F);
                     setStoredStack(stack, storedStack);
                     return true;
                 }
             }
         } else {
-            if (otherStack.isOf(AntiqueItems.CLOTH)) {
-                slot.setStack(swapCloth(player, stack, otherStack));
+            if (otherStack.is(AntiqueItems.CLOTH)) {
+                slot.setByPlayer(swapCloth(player, stack, otherStack));
                 return true;
             }
 
-            if (otherStack.isOf(AntiqueItems.CLOTH_PATTERN) && stack.get(AntiqueDataComponentTypes.CLOTH_TYPE) != null) {
+            if (otherStack.is(AntiqueItems.CLOTH_PATTERN) && !stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType().isEmpty()) {
                 addPattern(player, stack, otherStack);
                 return true;
             }
@@ -78,42 +88,42 @@ public class MyriadToolItem extends Item {
 
             if (storedStack.isEmpty()) {
                 storedStack = otherStack.split(otherStack.getCount());
-                player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 0.8F, 1.0F);
+                player.playSound(SoundEvents.BUNDLE_INSERT, 0.8F, 1.0F);
                 setStoredStack(stack, storedStack); // Re-set without empty stacks
 
                 // Clear the cursor stack after adding an item to the tool
-                slot.setStack(ItemStack.EMPTY);
+                slot.setByPlayer(ItemStack.EMPTY);
                 return true;
             }
         }
-        return super.onStackClicked(stack, slot, clickType, player);
+        return super.overrideStackedOnOther(stack, slot, clickType, player);
     }
 
     @Override
-    public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
+    public boolean overrideOtherStackedOnMe(@NotNull ItemStack stack, @NotNull ItemStack otherStack, @NotNull Slot slot, @NotNull ClickAction clickType, @NotNull Player player, @NotNull SlotAccess cursorStackReference) {
         ItemStack storedStack = getStoredStack(stack);
-        if (clickType == ClickType.RIGHT) {
+        if (clickType == ClickAction.SECONDARY) {
             if (otherStack.isEmpty()) {
 
                 // :3
                 if (!storedStack.isEmpty()) {
                     cursorStackReference.set(storedStack.copy());
                     storedStack = ItemStack.EMPTY;
-                    player.playSound(SoundEvents.ITEM_BUNDLE_REMOVE_ONE, 1.0F, 1.0F);
+                    player.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 1.0F, 1.0F);
                     setStoredStack(stack, storedStack);
                     return true;
-                } else if (stack.get(AntiqueDataComponentTypes.CLOTH_TYPE) != null) {
+                } else if (!stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType().isEmpty()) {
                     cursorStackReference.set(swapCloth(player, stack, otherStack));
                     return true;
                 }
             }
         } else {
-            if (otherStack.isOf(AntiqueItems.CLOTH)) {
+            if (otherStack.is(AntiqueItems.CLOTH)) {
                 cursorStackReference.set(swapCloth(player, stack, otherStack));
                 return true;
             }
 
-            if (otherStack.isOf(AntiqueItems.CLOTH_PATTERN) && stack.get(AntiqueDataComponentTypes.CLOTH_TYPE) != null) {
+            if (otherStack.is(AntiqueItems.CLOTH_PATTERN) && !stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType().isEmpty()) {
                 addPattern(player, stack, otherStack);
                 return true;
             }
@@ -126,58 +136,60 @@ public class MyriadToolItem extends Item {
                 return false;
             }
 
-            if (otherStack.getItem() instanceof MyriadClawBit) {
-                player.getInventory().removeStack(slot.getIndex());
-                player.getInventory().setStack(slot.getIndex(), stack.copyComponentsToNewStack(AntiqueItems.MYRIAD_STAFF, 1));
-            }
-
             ItemStack temp = getStoredStack(stack);
             storedStack = otherStack.split(otherStack.getCount());
-            player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 1.0F, 1.0F);
+            player.playSound(SoundEvents.BUNDLE_INSERT, 1.0F, 1.0F);
             setStoredStack(stack, storedStack);
             cursorStackReference.set(temp);
             return true;
         }
-        return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
+        return super.overrideOtherStackedOnMe(stack, otherStack, slot, clickType, player, cursorStackReference);
     }
 
-    private void addPattern(PlayerEntity player, ItemStack toolStack, ItemStack patternStack) {
-        if (ClothSkinListener.getTransform(toolStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth")).overlay()) {
+    private void addPattern(Player player, ItemStack toolStack, ItemStack patternStack) {
+        MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+
+        if (ClothSkinListener.getTransform(component.clothType()).overlay()) {
             String pattern = "item.antique.cloth_pattern";
-            Text text = patternStack.getOrDefault(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique.cloth_pattern"));
-            if (text.getContent() instanceof TranslatableTextContent translatable) {
+            Component text = patternStack.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth_pattern"));
+            if (text.getContents() instanceof TranslatableContents translatable) {
                 pattern = translatable.getKey();
             }
             pattern = pattern.substring(pattern.indexOf(".") + 1);
             pattern = pattern.replace(".", ":");
             pattern = pattern.substring(0, pattern.indexOf("_"));
 
-            toolStack.set(AntiqueDataComponentTypes.SECONDARY_DYED_COLOR, patternStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xFFFFFF)));
-            toolStack.set(AntiqueDataComponentTypes.CLOTH_PATTERN, pattern);
+            toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
+                    component.toolBit(),
+                    component.clothType(),
+                    pattern,
+                    component.clothColor(),
+                    patternStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb()
+            ));
             toolStack.set(CAComponents.BOOLEAN_PROPERTY, patternStack.getOrDefault(CAComponents.BOOLEAN_PROPERTY, false));
 
-            player.playSound(SoundEvents.ITEM_DYE_USE, 1.0F, 1.0F);
+            player.playSound(SoundEvents.DYE_USE, 1.0F, 1.0F);
         } else {
-            player.playSound(SoundEvents.ITEM_BUNDLE_INSERT_FAIL, 1.0F, 1.0F);
+            player.playSound(SoundEvents.BUNDLE_INSERT_FAIL, 1.0F, 1.0F);
         }
     }
 
-    private ItemStack swapCloth(PlayerEntity player, ItemStack toolStack, ItemStack clothStack) {
-        String toolModel = toolStack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "antique:cloth");
-        ClothSkinData.ClothSubData toolData = ClothSkinListener.getTransform(toolModel);
+    private ItemStack swapCloth(Player player, ItemStack toolStack, ItemStack clothStack) {
+        MyriadToolComponent component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+
+        ClothSkinData.ClothSubData toolData = ClothSkinListener.getTransform(String.valueOf(component.clothType()));
         boolean remove = false;
 
         if (!clothStack.isEmpty()) {
             String model = "item.antique.cloth";
-            Text text = clothStack.getOrDefault(DataComponentTypes.ITEM_NAME, Text.translatable("item.antique.cloth"));
-            if (text.getContent() instanceof TranslatableTextContent translatable) {
+            Component text = clothStack.getOrDefault(DataComponents.ITEM_NAME, Component.translatable("item.antique.cloth"));
+            if (text.getContents() instanceof TranslatableContents translatable) {
                 model = translatable.getKey();
             }
             model = model.substring(model.indexOf(".") + 1).replace(".", ":");
-            DyedColorComponent clothColor = clothStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xD43B69));
+            DyedItemColor clothColor = clothStack.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xD43B69));
 
-            if (toolStack.get(AntiqueDataComponentTypes.CLOTH_TYPE) == null) remove = true;
-            toolStack.set(AntiqueDataComponentTypes.CLOTH_TYPE, model);
+            if (String.valueOf(component.clothType()).isEmpty()) remove = true;
             ClothSkinData.ClothSubData clothData = ClothSkinListener.getTransform(model);
             int intValue = 0;
             try {
@@ -189,30 +201,49 @@ public class MyriadToolItem extends Item {
             }
 
             if (toolData.dyeable()) {
-                clothStack.set(DataComponentTypes.DYED_COLOR, toolStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xD43B69)));
+                clothStack.set(DataComponents.DYED_COLOR, new DyedItemColor(component.clothColor()));
             } else {
-                clothStack.remove(DataComponentTypes.DYED_COLOR);
+                clothStack.remove(DataComponents.DYED_COLOR);
             }
 
-            toolStack.set(DataComponentTypes.DYED_COLOR, clothData.dyeable() ? clothColor : new DyedColorComponent(intValue));
-        } else {
-            toolStack.remove(AntiqueDataComponentTypes.CLOTH_TYPE);
-            toolStack.remove(DataComponentTypes.DYED_COLOR);
+            toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
+                    component.toolBit(),
+                    model,
+                    component.clothPattern(),
+                    clothData.dyeable() ? clothColor.rgb() : intValue,
+                    component.patternColor()
+            ));
 
-            clothStack = AntiqueItems.CLOTH.getDefaultStack();
+        } else {
+            toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
+                    component.toolBit(),
+                    "",
+                    component.clothPattern(),
+                    0xFFFFFF,
+                    component.patternColor()
+            ));
+
+            clothStack = AntiqueItems.CLOTH.getDefaultInstance();
 
             if (toolData.dyeable()) {
-                clothStack.set(DataComponentTypes.DYED_COLOR, toolStack.getOrDefault(DataComponentTypes.DYED_COLOR, new DyedColorComponent(0xD43B69)));
+                clothStack.set(DataComponents.DYED_COLOR, new DyedItemColor(component.clothColor()));
             } else {
-                clothStack.remove(DataComponentTypes.DYED_COLOR);
+                clothStack.remove(DataComponents.DYED_COLOR);
             }
         }
 
-        toolModel = "item." + toolModel.replace(":", ".");
-        clothStack.set(DataComponentTypes.ITEM_NAME, Text.translatable(toolModel));
+        clothStack.set(DataComponents.ITEM_NAME, Component.translatable("item." + String.valueOf(component.clothType()).replace(":", ".")));
 
-        toolStack.remove(AntiqueDataComponentTypes.CLOTH_PATTERN);
-        player.playSound(SoundEvents.ITEM_BUNDLE_INSERT, 1.0F, 1.0F);
+        component = toolStack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
+
+        toolStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
+                component.toolBit(),
+                component.clothType(),
+                "",
+                component.clothColor(),
+                0xFFFFFF
+        ));
+        player.playSound(SoundEvents.BUNDLE_INSERT, 1.0F, 1.0F);
 
         return remove ? ItemStack.EMPTY : clothStack;
     }
@@ -223,23 +254,29 @@ public class MyriadToolItem extends Item {
     }
 
     public static ItemStack getStoredStack(ItemStack tool) {
-        return tool.get(AntiqueDataComponentTypes.MYRIAD_STACK);
+        return tool.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit();
     }
 
     public static void setStoredStack(ItemStack tool, ItemStack newStack) {
+        MyriadToolComponent component = tool.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
         if (newStack.getItem() instanceof MyriadToolBitItem item) {
             item.setToolAttributes(tool);
         } else {
-            tool.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
-                    .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 2.0, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-                    .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.2, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-                    .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.25, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+            tool.set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.builder()
+                    .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, 2.0, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                    .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -2.2, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                     .build());
-            tool.remove(DataComponentTypes.TOOL);
-            tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_tool"));
+            tool.remove(DataComponents.TOOL);
             tool.remove(net.hollowed.combatamenities.util.items.CAComponents.INTEGER_PROPERTY);
         }
-        tool.set(AntiqueDataComponentTypes.MYRIAD_STACK, newStack);
+        tool.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(newStack, component.clothType(), component.clothPattern(), component.clothColor(), component.patternColor()));
+        if (!newStack.isEmpty()) {
+            String rawId = BuiltInRegistries.ITEM.getKey(newStack.getItem()).toString();
+            Identifier identifier = Identifier.parse(rawId.substring(0, rawId.lastIndexOf("_")));
+            tool.set(DataComponents.ITEM_MODEL, identifier);
+        } else {
+            tool.set(DataComponents.ITEM_MODEL, Antiquities.id("myriad_tool"));
+        }
     }
 
     /*
@@ -247,39 +284,39 @@ public class MyriadToolItem extends Item {
      */
 
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        if (context.getStack().getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
+    public @NotNull InteractionResult useOn(UseOnContext context) {
+        if (context.getItemInHand().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().getItem() instanceof MyriadToolBitItem item) {
             return item.toolUseOnBlock(context);
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public boolean onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
+    public boolean releaseUsing(ItemStack stack, @NotNull Level world, @NotNull LivingEntity user, int remainingUseTicks) {
+        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().getItem() instanceof MyriadToolBitItem item) {
             return item.toolOnStoppedUsing(stack, world, user, remainingUseTicks);
         }
-        return super.onStoppedUsing(stack, world, user, remainingUseTicks);
+        return super.releaseUsing(stack, world, user, remainingUseTicks);
     }
 
     @Override
-    public UseAction getUseAction(ItemStack stack) {
-        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
+    public @NotNull ItemUseAnimation getUseAnimation(ItemStack stack) {
+        if (stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().getItem() instanceof MyriadToolBitItem item) {
             return item.toolGetUseAction(stack);
         }
-        return super.getUseAction(stack);
+        return super.getUseAnimation(stack);
     }
 
     @Override
-    public ActionResult use(World world, PlayerEntity user, Hand hand) {
-        if (user.getStackInHand(hand).getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY).getItem() instanceof MyriadToolBitItem item) {
+    public @NotNull InteractionResult use(@NotNull Level world, Player user, @NotNull InteractionHand hand) {
+        if (user.getItemInHand(hand).getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().getItem() instanceof MyriadToolBitItem item) {
             return item.toolUse(world, user, hand);
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
-    public int getMaxUseTime(ItemStack stack, LivingEntity user) {
+    public int getUseDuration(@NotNull ItemStack stack, @NotNull LivingEntity user) {
         return 72000;
     }
 }

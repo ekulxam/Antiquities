@@ -1,10 +1,10 @@
 package net.hollowed.antique.index;
 
 import net.hollowed.antique.Antiquities;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvent;
 
 public class AntiqueSounds {
     public static SoundEvent FIRECRACKER = register("firecracker");
@@ -16,7 +16,7 @@ public class AntiqueSounds {
     public static SoundEvent WARHORN = register("warhorn");
 
     private static SoundEvent register(String id) {
-        return register(Identifier.of(Antiquities.MOD_ID, id));
+        return register(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, id));
     }
 
     private static SoundEvent register(Identifier id) {
@@ -24,7 +24,7 @@ public class AntiqueSounds {
     }
 
     private static SoundEvent register(Identifier id, Identifier soundId) {
-        return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(soundId));
+        return Registry.register(BuiltInRegistries.SOUND_EVENT, id, SoundEvent.createVariableRangeEvent(soundId));
     }
 
     public static void initialize() {}

@@ -4,74 +4,90 @@ import com.google.common.base.Suppliers;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import java.util.*;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItemTags;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClothSkinListener;
-
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.item.ItemModelManager;
-import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.RenderLayers;
-import net.minecraft.client.render.item.ItemRenderState;
-import net.minecraft.client.render.item.model.ItemModel;
-import net.minecraft.client.render.item.tint.TintSource;
-import net.minecraft.client.render.item.tint.TintSourceTypes;
-import net.minecraft.client.render.model.BakedQuad;
-import net.minecraft.client.render.model.BakedQuadFactory;
-import net.minecraft.client.render.model.BakedSimpleModel;
-import net.minecraft.client.render.model.Baker;
-import net.minecraft.client.render.model.ModelRotation;
-import net.minecraft.client.render.model.ModelSettings;
-import net.minecraft.client.render.model.ModelTextures;
-import net.minecraft.client.render.model.ResolvableModel;
-
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.item.ItemDisplayContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.HeldItemContext;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.color.item.ItemTintSource;
+import net.minecraft.client.color.item.ItemTintSources;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.TextureSlots;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.item.ModelRenderProperties;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ResolvableModel;
+import net.minecraft.client.resources.model.ResolvedModel;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.ItemOwner;
+import net.minecraft.world.item.*;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 @Environment(EnvType.CLIENT)
 public class MyriadClothItemModel implements ItemModel {
+
+	private static final Function<ItemStack, RenderType> ITEM_RENDER_TYPE_GETTER = (itemStack) -> Sheets.translucentItemSheet();
+	private static final Function<ItemStack, RenderType> BLOCK_RENDER_TYPE_GETTER = (itemStack) -> {
+		Item item = itemStack.getItem();
+		if (item instanceof BlockItem blockItem) {
+			ChunkSectionLayer chunkSectionLayer = ItemBlockRenderTypes.getChunkRenderType(blockItem.getBlock().defaultBlockState());
+			if (chunkSectionLayer != ChunkSectionLayer.TRANSLUCENT) {
+				return Sheets.cutoutBlockSheet();
+			}
+		}
+
+		return Sheets.translucentBlockItemSheet();
+	};
 
 	private enum DisplayBucket { GUI_FIXED_GROUND, HAND }
 	private record QuadKey(Identifier variant, boolean large, DisplayBucket bucket) {}
 
 	private static final ArrayList<String> models = new ArrayList<>();
-	private final List<TintSource> tints;
+	private final List<ItemTintSource> tints;
 	private final List<BakedQuad> baseQuads;
 	private final Map<QuadKey, BakedQuad[]> quadIndex;
-	private final Supplier<Vector3f[]> vertices;
-	private final ModelSettings settings;
+	private final Supplier<Vector3fc[]> vertices;
+	private final ModelRenderProperties settings;
 	private final boolean animated;
+	private final Function<ItemStack, RenderType> renderType;
 
 	public MyriadClothItemModel(
-			List<TintSource> tints,
+			List<ItemTintSource> tints,
 			List<BakedQuad> baseQuads,
 			List<BakedQuad> variantQuads,
-			ModelSettings settings
+			ModelRenderProperties settings,
+			Function<ItemStack, RenderType> function
 	) {
 		this.tints = tints;
 		this.baseQuads = baseQuads;
 		this.settings = settings;
 		this.quadIndex = buildQuadIndex(variantQuads);
+		this.renderType = function;
 		List<BakedQuad> all = new ArrayList<>(baseQuads.size() + variantQuads.size());
 		all.addAll(baseQuads);
 		all.addAll(variantQuads);
-		this.vertices = Suppliers.memoize(() -> bakeQuads(all));
+		this.vertices = Suppliers.memoize(() -> computeExtents(all));
 		boolean anyAnimated = false;
 		for (BakedQuad q : all) {
-			if (q.sprite().getContents().isAnimated()) {
+			if (q.sprite().contents().isAnimated()) {
 				anyAnimated = true;
 				break;
 			}
@@ -83,14 +99,14 @@ public class MyriadClothItemModel implements ItemModel {
 		Map<QuadKey, List<BakedQuad>> temp = new HashMap<>(64);
 
 		for (BakedQuad quad : quads) {
-			Identifier id = quad.sprite().getContents().getId();
+			Identifier id = quad.sprite().contents().name();
 			String path = id.getPath();
 
 			boolean large = path.contains("large");
 			DisplayBucket bucket = path.contains("_hand") ? DisplayBucket.HAND : DisplayBucket.GUI_FIXED_GROUND;
 
 			String variantPath = extractVariantName(path);
-			Identifier variantId = Identifier.of(id.getNamespace(), variantPath);
+			Identifier variantId = Identifier.fromNamespaceAndPath(id.getNamespace(), variantPath);
 
 			QuadKey key = new QuadKey(variantId, large, bucket);
 			temp.computeIfAbsent(key, k -> new ArrayList<>(8)).add(quad);
@@ -113,12 +129,42 @@ public class MyriadClothItemModel implements ItemModel {
 		return name.isEmpty() ? "cloth" : name;
 	}
 
-	public static Vector3f[] bakeQuads(List<BakedQuad> quads) {
-		Set<Vector3f> set = new LinkedHashSet<>(Math.max(16, quads.size() * 4));
-		for (BakedQuad quad : quads) {
-			BakedQuadFactory.calculatePosition(quad.vertexData(), set::add);
+	public static Vector3fc[] computeExtents(List<BakedQuad> list) {
+		Set<Vector3fc> set = new HashSet<>();
+
+		for(BakedQuad bakedQuad : list) {
+			for(int i = 0; i < 4; ++i) {
+				set.add(bakedQuad.position(i));
+			}
 		}
-		return set.toArray(Vector3f[]::new);
+
+		return set.toArray(Vector3fc[]::new);
+	}
+
+	static Function<ItemStack, RenderType> detectRenderType(List<BakedQuad> list) {
+		Iterator<BakedQuad> iterator = list.iterator();
+		if (!iterator.hasNext()) {
+			return ITEM_RENDER_TYPE_GETTER;
+		} else {
+			Identifier identifier = iterator.next().sprite().atlasLocation();
+
+			while(iterator.hasNext()) {
+				BakedQuad bakedQuad = iterator.next();
+				Identifier identifier2 = bakedQuad.sprite().atlasLocation();
+				if (!identifier2.equals(identifier)) {
+					String var10002 = String.valueOf(identifier);
+					throw new IllegalStateException("Multiple atlases used in model, expected " + var10002 + ", but also got " + String.valueOf(identifier2));
+				}
+			}
+
+			if (identifier.equals(TextureAtlas.LOCATION_ITEMS)) {
+				return ITEM_RENDER_TYPE_GETTER;
+			} else if (identifier.equals(TextureAtlas.LOCATION_BLOCKS)) {
+				return BLOCK_RENDER_TYPE_GETTER;
+			} else {
+				throw new IllegalArgumentException("Atlas " + identifier + " can't be usef for item models");
+			}
+		}
 	}
 
 	private static DisplayBucket bucketFrom(ItemDisplayContext ctx) {
@@ -129,33 +175,32 @@ public class MyriadClothItemModel implements ItemModel {
 
 	@Override
 	public void update(
-			ItemRenderState state,
+			ItemStackRenderState state,
 			ItemStack stack,
-			ItemModelManager resolver,
+			ItemModelResolver resolver,
 			ItemDisplayContext displayContext,
-			@Nullable ClientWorld world,
-			@Nullable HeldItemContext heldItemContext,
+			@Nullable ClientLevel world,
+			@Nullable ItemOwner heldItemContext,
 			int seed
 	) {
-		state.addModelKey(this);
-		state.addModelKey(displayContext);
+		state.appendModelIdentityElement(this);
+		state.appendModelIdentityElement(displayContext);
 
+		MyriadToolComponent component = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool());
 
-		Identifier modelVariantId = Identifier.tryParse(
-				stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "antique:cloth")
-		);
+		Identifier modelVariantId = Identifier.tryParse(component.clothType());
 		if (modelVariantId == null) return;
-		state.addModelKey(modelVariantId);
+		if (modelVariantId.toString().equals("minecraft:")) modelVariantId = Antiquities.id("empty");
+		state.appendModelIdentityElement(modelVariantId);
 
-		boolean large = stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_STACK, ItemStack.EMPTY)
-				.isIn(AntiqueItemTags.LARGE_CLOTH);
-		state.addModelKey(large);
+		boolean large = component.toolBit().is(AntiqueItemTags.LARGE_CLOTH);
+		state.appendModelIdentityElement(large);
 
-		ItemRenderState.Glint glint = null;
-		if (stack.hasGlint()) {
-			glint = shouldUseSpecialGlint(stack) ? ItemRenderState.Glint.SPECIAL : ItemRenderState.Glint.STANDARD;
-			state.markAnimated();
-			state.addModelKey(glint);
+		ItemStackRenderState.FoilType glint = null;
+		if (stack.hasFoil()) {
+			glint = shouldUseSpecialGlint(stack) ? ItemStackRenderState.FoilType.SPECIAL : ItemStackRenderState.FoilType.STANDARD;
+			state.setAnimated();
+			state.appendModelIdentityElement(glint);
 		}
 
 		DisplayBucket bucket = bucketFrom(displayContext);
@@ -163,65 +208,65 @@ public class MyriadClothItemModel implements ItemModel {
 
 		boolean isFallback = false;
 		if (selected == null || selected.length == 0) {
-			selected = quadIndex.get(new QuadKey(Identifier.of("antique:cloth"), large, bucket));
+			selected = quadIndex.get(new QuadKey(Identifier.parse("antique:cloth"), large, bucket));
 			isFallback = true;
 		}
 
-		RenderLayer layerType = RenderLayers.getItemLayer(stack);
+		RenderType layerType = this.renderType.apply(stack);
 
-		ItemRenderState.LayerRenderState baseLayer = state.newLayer();
-		if (glint != null) baseLayer.setGlint(glint);
-		baseLayer.setVertices(this.vertices);
-		baseLayer.setRenderLayer(layerType);
-		this.settings.addSettings(baseLayer, displayContext);
-		baseLayer.getQuads().addAll(this.baseQuads);
+		ItemStackRenderState.LayerRenderState baseLayer = state.newLayer();
+		if (glint != null) baseLayer.setFoilType(glint);
+		baseLayer.setExtents(this.vertices);
+		baseLayer.setRenderType(layerType);
+		this.settings.applyToLayer(baseLayer, displayContext);
+		baseLayer.prepareQuadList().addAll(this.baseQuads);
 
-		ItemRenderState.LayerRenderState tintLayer = state.newLayer();
-		if (glint != null) tintLayer.setGlint(glint);
-		tintLayer.setVertices(this.vertices);
-		tintLayer.setRenderLayer(layerType);
-		this.settings.addSettings(tintLayer, displayContext);
+		ItemStackRenderState.LayerRenderState tintLayer = state.newLayer();
+		if (glint != null) tintLayer.setFoilType(glint);
+		tintLayer.setExtents(this.vertices);
+		tintLayer.setRenderType(layerType);
+		this.settings.applyToLayer(tintLayer, displayContext);
 
 		if (selected != null && selected.length > 0) {
-			Collections.addAll(tintLayer.getQuads(), selected);
+			Collections.addAll(tintLayer.prepareQuadList(), selected);
 		}
 
 		if (ClothSkinListener.getTransform(modelVariantId.toString()).dyeable()
-				|| tintLayer.getQuads().isEmpty()
+				|| tintLayer.prepareQuadList().isEmpty()
 				|| isFallback) {
 			int n = this.tints.size();
-			int[] t = tintLayer.initTints(n);
+			int[] t = tintLayer.prepareTintLayers(n);
 			for (int i = 0; i < n; i++) {
-				int c = this.tints.get(i).getTint(stack, world, heldItemContext == null ? null : heldItemContext.getEntity());
+				int c = this.tints.get(i).calculate(stack, world, heldItemContext == null ? null : heldItemContext.asLivingEntity());
 				t[i] = c;
-				state.addModelKey(c);
+				state.appendModelIdentityElement(c);
 			}
 		}
 
 		if (this.animated) {
-			state.markAnimated();
+			state.setAnimated();
 		}
 	}
 
 	private static boolean shouldUseSpecialGlint(ItemStack stack) {
-		return stack.isIn(ItemTags.COMPASSES) || stack.isOf(Items.CLOCK);
+		return stack.is(ItemTags.COMPASSES) || stack.is(Items.CLOCK);
 	}
 
 	@Environment(EnvType.CLIENT)
-	public record Unbaked(Identifier base, List<TintSource> tints) implements ItemModel.Unbaked {
+	public record Unbaked(Identifier base, List<ItemTintSource> tints) implements ItemModel.Unbaked {
 		public static final MapCodec<MyriadClothItemModel.Unbaked> CODEC = RecordCodecBuilder.mapCodec(
 				instance -> instance.group(
 						Identifier.CODEC.fieldOf("base").forGetter(MyriadClothItemModel.Unbaked::base),
-						TintSourceTypes.CODEC.listOf().optionalFieldOf("tints", List.of()).forGetter(MyriadClothItemModel.Unbaked::tints)
+						ItemTintSources.CODEC.listOf().optionalFieldOf("tints", List.of()).forGetter(MyriadClothItemModel.Unbaked::tints)
 				).apply(instance, MyriadClothItemModel.Unbaked::new)
 		);
 
 		@Override
-		public void resolve(ResolvableModel.Resolver resolver) {
+		public void resolveDependencies(ResolvableModel.Resolver resolver) {
 			resolver.markDependency(this.base);
 
-			ResourceManager manager = MinecraftClient.getInstance().getResourceManager();
-			manager.findResources("models/item/cloth", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
+			ResourceManager manager = Minecraft.getInstance().getResourceManager();
+			manager.listResources("models/item/cloth", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
 				if (manager.getResource(id).isPresent()) {
 					String string = id.toString();
 					string = string.substring(0, string.indexOf("."));
@@ -233,22 +278,22 @@ public class MyriadClothItemModel implements ItemModel {
 			});
 
 			for (String model : models) {
-				resolver.markDependency(Identifier.of(model));
+				resolver.markDependency(Identifier.parse(model));
 			}
 		}
 
 		@Override
-		public ItemModel bake(ItemModel.BakeContext context) {
+		public ItemModel bake(ItemModel.BakingContext context) {
 
-			Baker baker = context.blockModelBaker();
+			ModelBaker baker = context.blockModelBaker();
 			List<BakedQuad> variantQuads = new ArrayList<>(64);
 
-			BakedSimpleModel baseBaked = baker.getModel(this.base);
-			ModelTextures baseTex = baseBaked.getTextures();
-			ModelSettings settings = ModelSettings.resolveSettings(baker, baseBaked, baseTex);
+			ResolvedModel baseBaked = baker.getModel(this.base);
+			TextureSlots baseTex = baseBaked.getTopTextureSlots();
+			ModelRenderProperties settings = ModelRenderProperties.fromResolvedModel(baker, baseBaked, baseTex);
 
-			ResourceManager manager = MinecraftClient.getInstance().getResourceManager();
-			manager.findResources("models/item/cloth", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
+			ResourceManager manager = Minecraft.getInstance().getResourceManager();
+			manager.listResources("models/item/cloth", path -> path.getPath().endsWith(".json")).keySet().forEach(id -> {
 				if (manager.getResource(id).isPresent()) {
 					String string = id.toString();
 					string = string.substring(0, string.indexOf("."));
@@ -260,17 +305,19 @@ public class MyriadClothItemModel implements ItemModel {
 			});
 
 			for (String model : models) {
-				BakedSimpleModel m = baker.getModel(Identifier.of(model));
-				ModelTextures tex = m.getTextures();
-				variantQuads.addAll(m.bakeGeometry(tex, baker, ModelRotation.X0_Y0).getAllQuads());
+				ResolvedModel m = baker.getModel(Identifier.parse(model));
+				TextureSlots tex = m.getTopTextureSlots();
+				variantQuads.addAll(m.bakeTopGeometry(tex, baker, BlockModelRotation.IDENTITY).getAll());
 			}
 
-			List<BakedQuad> baseQuads = baseBaked.bakeGeometry(baseTex, baker, ModelRotation.X0_Y0).getAllQuads();
-			return new MyriadClothItemModel(this.tints, baseQuads, variantQuads, settings);
+			List<BakedQuad> baseQuads = baseBaked.bakeTopGeometry(baseTex, baker, BlockModelRotation.IDENTITY).getAll();
+			Function<ItemStack, RenderType> function = detectRenderType(baseQuads);
+
+			return new MyriadClothItemModel(this.tints, baseQuads, variantQuads, settings, function);
 		}
 
 		@Override
-		public MapCodec<MyriadClothItemModel.Unbaked> getCodec() {
+		public MapCodec<MyriadClothItemModel.Unbaked> type() {
 			return CODEC;
 		}
 	}

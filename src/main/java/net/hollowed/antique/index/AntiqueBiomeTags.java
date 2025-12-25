@@ -1,9 +1,9 @@
 package net.hollowed.antique.index;
 
 import net.hollowed.antique.Antiquities;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.world.biome.Biome;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.biome.Biome;
 
 public class AntiqueBiomeTags {
 
@@ -11,6 +11,6 @@ public class AntiqueBiomeTags {
 
     @SuppressWarnings("all")
     private static TagKey<Biome> of(String id) {
-        return TagKey.of(RegistryKeys.BIOME, Antiquities.id(id));
+        return TagKey.create(Registries.BIOME, Antiquities.id(id));
     }
 }

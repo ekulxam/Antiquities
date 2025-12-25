@@ -1,24 +1,24 @@
 package net.hollowed.antique.index;
 
 import net.hollowed.antique.blocks.screens.DyeingScreenHandler;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.resource.featuretoggle.FeatureFlags;
-import net.minecraft.resource.featuretoggle.FeatureSet;
-import net.minecraft.resource.featuretoggle.ToggleableFeature;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerType;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.flag.FeatureElement;
+import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.flag.FeatureFlags;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.MenuType;
 
-public class AntiqueScreenHandlerType implements ToggleableFeature {
-	public static final ScreenHandlerType<DyeingScreenHandler> DYE_TABLE = register("dye_table", DyeingScreenHandler::new);
+public class AntiqueScreenHandlerType implements FeatureElement {
+	public static final MenuType<DyeingScreenHandler> DYE_TABLE = register("dye_table", DyeingScreenHandler::new);
 
 	@SuppressWarnings("all")
-	private static <T extends ScreenHandler> ScreenHandlerType<T> register(String id, ScreenHandlerType.Factory<T> factory) {
-		return Registry.register(Registries.SCREEN_HANDLER, id, new ScreenHandlerType<>(factory, FeatureFlags.VANILLA_FEATURES));
+	private static <T extends AbstractContainerMenu> MenuType<T> register(String id, MenuType.MenuSupplier<T> factory) {
+		return Registry.register(BuiltInRegistries.MENU, id, new MenuType<>(factory, FeatureFlags.VANILLA_SET));
 	}
 
 	@Override
-	public FeatureSet getRequiredFeatures() {
+	public FeatureFlagSet requiredFeatures() {
 		return null;
 	}
 

@@ -1,9 +1,9 @@
 package net.hollowed.antique.index;
 
 import net.hollowed.antique.Antiquities;
-import net.minecraft.block.Block;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.block.Block;
 
 public class AntiqueBlockTags {
 
@@ -15,6 +15,6 @@ public class AntiqueBlockTags {
 
     @SuppressWarnings("all")
     private static TagKey<Block> of(String id) {
-        return TagKey.of(RegistryKeys.BLOCK, Antiquities.id(id));
+        return TagKey.create(Registries.BLOCK, Antiquities.id(id));
     }
 }

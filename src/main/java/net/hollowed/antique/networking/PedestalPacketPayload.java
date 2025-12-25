@@ -1,37 +1,37 @@
 package net.hollowed.antique.networking;
 
 import net.hollowed.antique.Antiquities;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 
-public record PedestalPacketPayload(BlockPos blockPos, ItemStack stack) implements CustomPayload {
-    public static final CustomPayload.Id<PedestalPacketPayload> ID = new CustomPayload.Id<>(Identifier.of(Antiquities.MOD_ID, "pedestal_packet"));
+public record PedestalPacketPayload(BlockPos blockPos, ItemStack stack) implements CustomPacketPayload {
+    public static final CustomPacketPayload.Type<PedestalPacketPayload> ID = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "pedestal_packet"));
 
-    public static final PacketCodec<RegistryByteBuf, PedestalPacketPayload> CODEC = PacketCodec.of(PedestalPacketPayload::write, PedestalPacketPayload::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, PedestalPacketPayload> CODEC = StreamCodec.ofMember(PedestalPacketPayload::write, PedestalPacketPayload::new);
 
-    public PedestalPacketPayload(RegistryByteBuf buf) {
+    public PedestalPacketPayload(RegistryFriendlyByteBuf buf) {
         this(buf.readBlockPos(), decodeStack(buf));
     }
 
-    private static ItemStack decodeStack(RegistryByteBuf buf) {
-        return buf.readBoolean() ? ItemStack.PACKET_CODEC.decode(buf) : ItemStack.EMPTY;
+    private static ItemStack decodeStack(RegistryFriendlyByteBuf buf) {
+        return buf.readBoolean() ? ItemStack.STREAM_CODEC.decode(buf) : ItemStack.EMPTY;
     }
 
-    public void write(RegistryByteBuf buf) {
+    public void write(RegistryFriendlyByteBuf buf) {
         buf.writeBlockPos(blockPos);
         boolean hasItem = !stack.isEmpty();
         buf.writeBoolean(hasItem);
         if (hasItem) {
-            ItemStack.PACKET_CODEC.encode(buf, stack);
+            ItemStack.STREAM_CODEC.encode(buf, stack);
         }
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

@@ -8,19 +8,19 @@
           "base": "antique:item/myriad_cleaver_inventory",
           "tints": [
             {
-              "type": "minecraft:dye",
+              "type": "antique:myriad",
               "default": 13893696
             },
             {
-              "type": "minecraft:dye",
+              "type": "antique:myriad",
               "default": 13893696
             },
             {
-              "type": "minecraft:dye",
+              "type": "antique:myriad",
               "default": 13893696
             },
             {
-              "type": "minecraft:dye",
+              "type": "antique:myriad",
               "default": 13893696
             }
           ]
@@ -37,19 +37,19 @@
           "base": "antique:item/myriad_cleaver",
           "tints": [
             {
-              "type": "minecraft:dye",
+              "type": "antique:myriad",
               "default": 13893696
             },
             {
-              "type": "minecraft:dye",
+              "type": "antique:myriad",
               "default": 13893696
             },
             {
-              "type": "minecraft:dye",
+              "type": "antique:myriad",
               "default": 13893696
             },
             {
-              "type": "minecraft:dye",
+              "type": "antique:myriad",
               "default": 13893696
             }
           ]

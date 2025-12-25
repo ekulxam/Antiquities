@@ -1,8 +1,8 @@
 package net.hollowed.antique.mixin.entities.living;
 
 import net.hollowed.combatamenities.util.interfaces.EntityFreezer;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,11 +27,11 @@ public abstract class LivingEntityFreezer implements EntityFreezer {
         return this.frozen;
     }
 
-    @Inject(method = "applyMovementInput", at = @At("HEAD"), cancellable = true)
-    public void setMovementInput(Vec3d movementInput, float slipperiness, CallbackInfoReturnable<Vec3d> cir) {
+    @Inject(method = "handleRelativeFrictionAndCalculateMovement", at = @At("HEAD"), cancellable = true)
+    public void setMovementInput(Vec3 movementInput, float slipperiness, CallbackInfoReturnable<Vec3> cir) {
         if (this.frozen && this.time > 0) {
             this.time--;
-            cir.setReturnValue(Vec3d.ZERO);
+            cir.setReturnValue(Vec3.ZERO);
         }
     }
 }

@@ -1,26 +1,26 @@
 package net.hollowed.antique.networking;
 
 import net.hollowed.antique.Antiquities;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
-public record DyePacketPayload(String color) implements CustomPayload {
-    public static final Id<DyePacketPayload> ID = new Id<>(Identifier.of(Antiquities.MOD_ID, "dye_packet"));
+public record DyePacketPayload(String color) implements CustomPacketPayload {
+    public static final Type<DyePacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "dye_packet"));
 
-    public static final PacketCodec<RegistryByteBuf, DyePacketPayload> CODEC = PacketCodec.of(DyePacketPayload::write, DyePacketPayload::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, DyePacketPayload> CODEC = StreamCodec.ofMember(DyePacketPayload::write, DyePacketPayload::new);
 
-    public DyePacketPayload(RegistryByteBuf buf) {
-        this(buf.readString());
+    public DyePacketPayload(RegistryFriendlyByteBuf buf) {
+        this(buf.readUtf());
     }
 
-    public void write(RegistryByteBuf buf) {
-        buf.writeString(color);
+    public void write(RegistryFriendlyByteBuf buf) {
+        buf.writeUtf(color);
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

@@ -4,16 +4,16 @@ import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.AntiquitiesClient;
 import net.hollowed.antique.entities.PaleWardenEntity;
 import net.hollowed.antique.entities.models.PaleWardenModel;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.MobEntityRenderer;
-import net.minecraft.client.render.entity.state.ArmedEntityRenderState;
-import net.minecraft.util.Identifier;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.MobRenderer;
+import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
+import net.minecraft.resources.Identifier;
 
-public class PaleWardenRenderer extends MobEntityRenderer<PaleWardenEntity, PaleWardenRenderState, PaleWardenModel> {
+public class PaleWardenRenderer extends MobRenderer<PaleWardenEntity, PaleWardenRenderState, PaleWardenModel> {
 
-    public PaleWardenRenderer(EntityRendererFactory.Context context) {
-        super(context, new PaleWardenModel(context.getPart(AntiquitiesClient.PALE_WARDEN_LAYER)), 0.5f);
-        this.addFeature(new PaleWardenHeldItemFeatureRenderer<>(this));
+    public PaleWardenRenderer(EntityRendererProvider.Context context) {
+        super(context, new PaleWardenModel(context.bakeLayer(AntiquitiesClient.PALE_WARDEN_LAYER)), 0.5f);
+        this.addLayer(new PaleWardenHeldItemFeatureRenderer<>(this));
     }
 
     @Override
@@ -22,14 +22,14 @@ public class PaleWardenRenderer extends MobEntityRenderer<PaleWardenEntity, Pale
     }
 
     @Override
-    public void updateRenderState(PaleWardenEntity livingEntity, PaleWardenRenderState livingEntityRenderState, float f) {
-        super.updateRenderState(livingEntity, livingEntityRenderState, f);
-        ArmedEntityRenderState.updateRenderState(livingEntity, livingEntityRenderState, this.itemModelResolver);
+    public void extractRenderState(PaleWardenEntity livingEntity, PaleWardenRenderState livingEntityRenderState, float f) {
+        super.extractRenderState(livingEntity, livingEntityRenderState, f);
+        ArmedEntityRenderState.extractArmedEntityRenderState(livingEntity, livingEntityRenderState, this.itemModelResolver, f);
         livingEntityRenderState.entity = livingEntity;
     }
 
     @Override
-    public Identifier getTexture(PaleWardenRenderState state) {
-        return Identifier.of(Antiquities.MOD_ID, "textures/entity/pale_warden.png");
+    public Identifier getTextureLocation(PaleWardenRenderState state) {
+        return Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/pale_warden.png");
     }
 }

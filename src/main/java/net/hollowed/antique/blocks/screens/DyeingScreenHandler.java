@@ -1,88 +1,92 @@
 package net.hollowed.antique.blocks.screens;
 
+import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueScreenHandlerType;
+import net.hollowed.antique.items.MyriadToolItem;
+import net.hollowed.antique.items.components.MyriadToolComponent;
 import net.hollowed.antique.util.resources.ClothSkinData;
 import net.hollowed.antique.util.resources.ClothSkinListener;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.DyedColorComponent;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.CraftingResultInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.tag.ItemTags;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.ScreenHandlerContext;
-import net.minecraft.screen.slot.Slot;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.world.Container;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.ResultContainer;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class DyeingScreenHandler extends ScreenHandler {
-	private final ScreenHandlerContext context;
+public class DyeingScreenHandler extends AbstractContainerMenu {
+	private final ContainerLevelAccess context;
 	@Nullable
 	private String hexCode;
-	public final Inventory inventory = new SimpleInventory(1) {
+	public final Container inventory = new SimpleContainer(1) {
 		@Override
-		public void markDirty() {
-			super.markDirty();
-			DyeingScreenHandler.this.onContentChanged(this);
+		public void setChanged() {
+			super.setChanged();
+			DyeingScreenHandler.this.slotsChanged(this);
 		}
 	};
-	private final CraftingResultInventory resultInventory = new CraftingResultInventory() {
+	private final ResultContainer resultInventory = new ResultContainer() {
 		@Override
-		public void markDirty() {
-			DyeingScreenHandler.this.onContentChanged(this);
+		public void setChanged() {
+			DyeingScreenHandler.this.slotsChanged(this);
 		}
 	};
 
 	@Override
-	public void onContentChanged(Inventory inventory) {
-		super.onContentChanged(inventory);
+	public void slotsChanged(@NotNull Container inventory) {
+		super.slotsChanged(inventory);
 		if (inventory == this.inventory) {
 			this.updateResult();
 		}
 	}
 
-	public DyeingScreenHandler(int syncId, PlayerInventory playerInventory) {
-		this(syncId, playerInventory, ScreenHandlerContext.EMPTY);
+	public DyeingScreenHandler(int syncId, Inventory playerInventory) {
+		this(syncId, playerInventory, ContainerLevelAccess.NULL);
 	}
 
-	public DyeingScreenHandler(int syncId, PlayerInventory playerInventory, ScreenHandlerContext context) {
+	public DyeingScreenHandler(int syncId, Inventory playerInventory, ContainerLevelAccess context) {
 		super(AntiqueScreenHandlerType.DYE_TABLE, syncId);
 		this.context = context;
 		this.addSlot(new Slot(this.inventory, 0, 62, 37) {
 			@Override
-			public boolean canInsert(ItemStack stack) {
-				if (stack.isOf(AntiqueItems.MYRIAD_TOOL)) {
-					ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(stack.getOrDefault(AntiqueDataComponentTypes.CLOTH_TYPE, "cloth"));
+			public boolean mayPlace(@NotNull ItemStack stack) {
+				if (stack.is(AntiqueItems.MYRIAD_TOOL)) {
+					ClothSkinData.ClothSubData data = ClothSkinListener.getTransform(String.valueOf(stack.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothType()));
 					return data.dyeable();
 				}
-				return stack.isIn(ItemTags.DYEABLE);
+				return stack.is(ItemTags.DYEABLE);
 			}
 
 			@Override
-			public void onTakeItem(PlayerEntity player, ItemStack stack) {
+			public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
 				DyeingScreenHandler.this.resetHex();
 			}
 		});
 		this.addSlot(new Slot(this.resultInventory, 0, 98, 37) {
 			@Override
-			public boolean canInsert(ItemStack stack) {
+			public boolean mayPlace(@NotNull ItemStack stack) {
 				return false;
 			}
 
 			@Override
-			public void onTakeItem(PlayerEntity player, ItemStack stack) {
+			public void onTake(@NotNull Player player, @NotNull ItemStack stack) {
 				DyeingScreenHandler.this.removeItem();
 			}
 		});
-		this.addPlayerSlots(playerInventory, 8, 84);
+		this.addStandardInventorySlots(playerInventory, 8, 84);
 	}
 
 	private void removeItem() {
-		this.inventory.setStack(0, ItemStack.EMPTY);
+		this.inventory.setItem(0, ItemStack.EMPTY);
 		this.resetHex();
 	}
 
@@ -91,12 +95,12 @@ public class DyeingScreenHandler extends ScreenHandler {
 	}
 
 	@Override
-	public ItemStack quickMove(PlayerEntity player, int index) {
+	public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
 		ItemStack newStack = ItemStack.EMPTY;
 		Slot slot = this.slots.get(index);
 
-		if (slot.hasStack()) {
-			ItemStack originalStack = slot.getStack();
+		if (slot.hasItem()) {
+			ItemStack originalStack = slot.getItem();
 			newStack = originalStack.copy();
 
 			int inputSlot = 0;
@@ -106,55 +110,55 @@ public class DyeingScreenHandler extends ScreenHandler {
             int hotbarEnd = playerInvEnd + 9;
 
 			if (index == outputSlot || index == inputSlot) {
-				if (!insertItem(originalStack, playerInvStart, hotbarEnd, false)) {
+				if (!moveItemStackTo(originalStack, playerInvStart, hotbarEnd, false)) {
 					return ItemStack.EMPTY;
 				}
 			} else {
-				if (originalStack.isIn(ItemTags.DYEABLE)) {
-					if (!insertItem(originalStack, inputSlot, inputSlot + 1, false)) {
+				if (originalStack.is(ItemTags.DYEABLE)) {
+					if (!moveItemStackTo(originalStack, inputSlot, inputSlot + 1, false)) {
 						return ItemStack.EMPTY;
 					}
 				} else if (index >= playerInvStart && index < playerInvEnd) {
-					if (!insertItem(originalStack, playerInvEnd, hotbarEnd, false)) {
+					if (!moveItemStackTo(originalStack, playerInvEnd, hotbarEnd, false)) {
 						return ItemStack.EMPTY;
 					}
 				} else if (index >= playerInvEnd && index < hotbarEnd) {
-					if (!insertItem(originalStack, playerInvStart, playerInvEnd, false)) {
+					if (!moveItemStackTo(originalStack, playerInvStart, playerInvEnd, false)) {
 						return ItemStack.EMPTY;
 					}
 				}
 			}
 
 			if (originalStack.isEmpty()) {
-				slot.setStack(ItemStack.EMPTY);
+				slot.setByPlayer(ItemStack.EMPTY);
 			} else {
-				slot.markDirty();
+				slot.setChanged();
 			}
 
 			if (originalStack.getCount() == newStack.getCount()) {
 				return ItemStack.EMPTY;
 			}
 
-			slot.onTakeItem(player, originalStack);
-			this.sendContentUpdates();
+			slot.onTake(player, originalStack);
+			this.broadcastChanges();
 		}
 
 		return newStack;
 	}
 
 	@Override
-	public void onClosed(PlayerEntity player) {
-		super.onClosed(player);
-		this.context.run((world, pos) -> this.dropInventory(player, this.inventory));
+	public void removed(@NotNull Player player) {
+		super.removed(player);
+		this.context.execute((world, pos) -> this.clearContainer(player, this.inventory));
 	}
 
 	@Override
-	public boolean canUse(PlayerEntity player) {
+	public boolean stillValid(@NotNull Player player) {
 		return true;
 	}
 
 	public void updateResult() {
-		ItemStack originalStack = this.inventory.getStack(0);
+		ItemStack originalStack = this.inventory.getItem(0);
 		ItemStack resultStack = originalStack.copy();
 		if (this.hexCode != null && this.hexCode.length() == 6) {
 			int intValue = 0;
@@ -163,9 +167,22 @@ public class DyeingScreenHandler extends ScreenHandler {
 			} catch (NumberFormatException e) {
 				System.err.println("Invalid hexadecimal string format: " + e.getMessage());
 			}
-			resultStack.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(intValue));
+			if (resultStack.getItem() instanceof MyriadToolItem) {
+				MyriadToolComponent component = resultStack.get(AntiqueDataComponentTypes.MYRIAD_TOOL);
+				if (component != null) {
+					resultStack.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
+							component.toolBit(),
+							component.clothType(),
+							component.clothPattern(),
+							intValue,
+							component.patternColor()
+					));
+				}
+			} else {
+				resultStack.set(DataComponents.DYED_COLOR, new DyedItemColor(intValue));
+			}
 		}
-		this.resultInventory.setStack(0, resultStack);
+		this.resultInventory.setItem(0, resultStack);
 	}
 
 	public boolean setHexCode(String string) {

@@ -2,8 +2,8 @@ package net.hollowed.antique.mixin.entities.features;
 
 import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.util.interfaces.duck.ClothAccess;
-import net.minecraft.entity.Entity;
-import net.minecraft.util.Identifier;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 

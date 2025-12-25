@@ -2,25 +2,24 @@ package net.hollowed.antique.index;
 
 import com.google.common.collect.Sets;
 import net.hollowed.antique.Antiquities;
-import net.minecraft.client.render.entity.model.EntityModelLayer;
-import net.minecraft.client.render.entity.model.EntityModelLayers;
-import net.minecraft.util.Identifier;
-
+import net.minecraft.client.model.geom.ModelLayerLocation;
+import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.resources.Identifier;
 import java.util.Set;
 
-public class AntiqueEntityLayers extends EntityModelLayers {
-    private static final Set<EntityModelLayer> LAYERS = Sets.newHashSet();
+public class AntiqueEntityLayers extends ModelLayers {
+    private static final Set<ModelLayerLocation> LAYERS = Sets.newHashSet();
 
-    public static final EntityModelLayer ADVENTURE_ARMOR = registerMain("adventure_armor");
-    public static final EntityModelLayer VANILLA_ARMOR = registerMain("vanilla_armor");
-    public static final EntityModelLayer ARMOR_STAND_ADVENTURE_ARMOR = registerMain("armor_stand_adventure_armor");
+    public static final ModelLayerLocation ADVENTURE_ARMOR = register("adventure_armor");
+    public static final ModelLayerLocation VANILLA_ARMOR = register("vanilla_armor");
+    public static final ModelLayerLocation ARMOR_STAND_ADVENTURE_ARMOR = register("armor_stand_adventure_armor");
 
-    private static EntityModelLayer registerMain(String id) {
-        return register(id);
+    private static ModelLayerLocation register(String id) {
+        return register(id, "main");
     }
 
-    private static EntityModelLayer register(String id) {
-        EntityModelLayer entityModelLayer = create(id);
+    private static ModelLayerLocation register(String id, String variant) {
+        ModelLayerLocation entityModelLayer = create(id, variant);
         if (!LAYERS.add(entityModelLayer)) {
             throw new IllegalStateException("Duplicate registration for " + entityModelLayer);
         } else {
@@ -28,7 +27,7 @@ public class AntiqueEntityLayers extends EntityModelLayers {
         }
     }
 
-    private static EntityModelLayer create(String id) {
-        return new EntityModelLayer(Identifier.of(Antiquities.MOD_ID, id), "main");
+    private static ModelLayerLocation create(String id, String variant) {
+        return new ModelLayerLocation(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, id), variant);
     }
 }

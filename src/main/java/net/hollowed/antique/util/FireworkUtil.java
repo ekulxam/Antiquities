@@ -2,14 +2,13 @@ package net.hollowed.antique.util;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.component.type.FireworkExplosionComponent;
-import net.minecraft.component.type.FireworksComponent;
-
 import java.util.List;
 import java.util.Random;
+import net.minecraft.world.item.component.FireworkExplosion;
+import net.minecraft.world.item.component.Fireworks;
 
 public class FireworkUtil {
-    public static FireworksComponent randomFireworkBall() {
+    public static Fireworks randomFireworkBall() {
         Random random = new Random();
 
         // Generate 1–3 random colors
@@ -20,18 +19,18 @@ public class FireworkUtil {
                 ? IntArrayList.wrap(random.ints(1 + random.nextInt(2), 0, 0xFFFFFF + 1).toArray())
                 : IntArrayList.of();
 
-        FireworkExplosionComponent explosion = new FireworkExplosionComponent(
-                FireworkExplosionComponent.Type.SMALL_BALL,
+        FireworkExplosion explosion = new FireworkExplosion(
+                FireworkExplosion.Shape.SMALL_BALL,
                 colors,
                 fadeColors,
                 random.nextBoolean(), // hasTrail
                 true  // hasTwinkle
         );
 
-        return new FireworksComponent(-3, List.of(explosion));
+        return new Fireworks(-3, List.of(explosion));
     }
 
-    public static FireworksComponent randomFirework() {
+    public static Fireworks randomFirework() {
         Random random = new Random();
 
         // Generate 1–3 random colors
@@ -42,7 +41,7 @@ public class FireworkUtil {
                 ? IntArrayList.wrap(random.ints(1 + random.nextInt(2), 0, 0xFFFFFF + 1).toArray())
                 : IntArrayList.of();
 
-        FireworkExplosionComponent explosion = new FireworkExplosionComponent(
+        FireworkExplosion explosion = new FireworkExplosion(
                 randomType(),
                 colors,
                 fadeColors,
@@ -50,10 +49,10 @@ public class FireworkUtil {
                 true  // hasTwinkle
         );
 
-        return new FireworksComponent(1, List.of(explosion));
+        return new Fireworks(1, List.of(explosion));
     }
 
-    private static FireworkExplosionComponent.Type randomType() {
-        return FireworkExplosionComponent.Type.BURST;
+    private static FireworkExplosion.Shape randomType() {
+        return FireworkExplosion.Shape.BURST;
     }
 }

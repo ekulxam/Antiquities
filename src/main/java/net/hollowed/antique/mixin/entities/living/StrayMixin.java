@@ -1,34 +1,34 @@
 package net.hollowed.antique.mixin.entities.living;
 
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ChargedProjectilesComponent;
-import net.minecraft.component.type.DyedColorComponent;
-import net.minecraft.component.type.PotionContentsComponent;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.mob.AbstractSkeletonEntity;
-import net.minecraft.entity.mob.StrayEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.potion.Potions;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.LocalDifficulty;
-import net.minecraft.world.World;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.monster.skeleton.AbstractSkeleton;
+import net.minecraft.world.entity.monster.skeleton.Stray;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.PotionContents;
+import net.minecraft.world.item.alchemy.Potions;
+import net.minecraft.world.item.component.ChargedProjectiles;
+import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.level.Level;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(StrayEntity.class)
-public abstract class StrayMixin extends AbstractSkeletonEntity {
+@Mixin(Stray.class)
+public abstract class StrayMixin extends AbstractSkeleton {
 
-    protected StrayMixin(EntityType<? extends AbstractSkeletonEntity> entityType, World world) {
+    protected StrayMixin(EntityType<? extends AbstractSkeleton> entityType, Level world) {
         super(entityType, world);
     }
 
     @Override
-    protected void initEquipment(Random random, LocalDifficulty localDifficulty) {
-        super.initEquipment(random, localDifficulty);
-        ItemStack bow = Items.BOW.getDefaultStack();
-        bow.set(DataComponentTypes.CHARGED_PROJECTILES, ChargedProjectilesComponent.of(Items.TIPPED_ARROW.getDefaultStack()));
-        bow.set(DataComponentTypes.DYED_COLOR, new DyedColorComponent(new PotionContentsComponent(Potions.SLOWNESS).getColor()));
-        this.setStackInHand(Hand.MAIN_HAND, bow);
+    protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance localDifficulty) {
+        super.populateDefaultEquipmentSlots(random, localDifficulty);
+        ItemStack bow = Items.BOW.getDefaultInstance();
+        bow.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.of(Items.TIPPED_ARROW.getDefaultInstance()));
+        bow.set(DataComponents.DYED_COLOR, new DyedItemColor(new PotionContents(Potions.SLOWNESS).getColor()));
+        this.setItemInHand(InteractionHand.MAIN_HAND, bow);
     }
 }

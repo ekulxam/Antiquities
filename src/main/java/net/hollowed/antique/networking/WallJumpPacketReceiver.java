@@ -2,30 +2,30 @@ package net.hollowed.antique.networking;
 
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.hollowed.antique.index.AntiqueParticles;
-import net.minecraft.entity.Entity;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.math.Box;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Unique;
 
 public class WallJumpPacketReceiver {
     public static void registerServerPacket() {
         ServerPlayNetworking.registerGlobalReceiver(WallJumpPacketPayload.ID, (payload, context) -> context.server().execute(() -> {
-            Entity entity = context.player().getEntityWorld().getEntityById(payload.entityId());
+            Entity entity = context.player().level().getEntity(payload.entityId());
 
             if (entity != null) {
-                entity.getEntityWorld().playSound(null, entity.getBlockPos(), SoundEvents.ENTITY_GOAT_LONG_JUMP, SoundCategory.PLAYERS, 1.0F, 1.0F);
-                Vec3d pushVector = new Vec3d(0, 0, 0);
-                Box box = entity.getBoundingBox();
+                entity.level().playSound(null, entity.blockPosition(), SoundEvents.GOAT_LONG_JUMP, SoundSource.PLAYERS, 1.0F, 1.0F);
+                Vec3 pushVector = new Vec3(0, 0, 0);
+                AABB box = entity.getBoundingBox();
                 double offset = 1;
 
-                boolean collidingWest = collidesWithSolidBlock(entity.getEntityWorld(), box.offset(-offset, 0, 0), entity);
-                boolean collidingEast = collidesWithSolidBlock(entity.getEntityWorld(), box.offset(offset, 0, 0), entity);
-                boolean collidingNorth = collidesWithSolidBlock(entity.getEntityWorld(), box.offset(0, 0, -offset), entity);
-                boolean collidingSouth = collidesWithSolidBlock(entity.getEntityWorld(), box.offset(0, 0, offset), entity);
+                boolean collidingWest = collidesWithSolidBlock(entity.level(), box.move(-offset, 0, 0), entity);
+                boolean collidingEast = collidesWithSolidBlock(entity.level(), box.move(offset, 0, 0), entity);
+                boolean collidingNorth = collidesWithSolidBlock(entity.level(), box.move(0, 0, -offset), entity);
+                boolean collidingSouth = collidesWithSolidBlock(entity.level(), box.move(0, 0, offset), entity);
 
                 double x = entity.getX();
                 double z = entity.getZ();
@@ -54,8 +54,8 @@ public class WallJumpPacketReceiver {
                     particleZ -= 0.1;
                 }
 
-                if (entity instanceof ServerPlayerEntity serverPlayer) {
-                    for (ServerPlayerEntity playerEntity : serverPlayer.getEntityWorld().getPlayers().stream().toList()) {
+                if (entity instanceof ServerPlayer serverPlayer) {
+                    for (ServerPlayer playerEntity : serverPlayer.level().players().stream().toList()) {
                         ServerPlayNetworking.send(playerEntity, new WallJumpParticlePacketPayload((float) x, (float) entity.getY(), (float) z, (float) particleX, (float) particleZ, pushVector));
                     }
                 }
@@ -64,13 +64,13 @@ public class WallJumpPacketReceiver {
     }
 
     @Unique
-    private static boolean collidesWithSolidBlock(World world, Box box, Entity entity) {
+    private static boolean collidesWithSolidBlock(Level world, AABB box, Entity entity) {
         return world.getBlockCollisions(entity, box).iterator().hasNext();
     }
 
-    public static void particles(World world, float x, float y, float z, float particleX, float particleZ, Vec3d pushVector) {
+    public static void particles(Level world, float x, float y, float z, float particleX, float particleZ, Vec3 pushVector) {
         for (int i = 0; i < 10; i++) {
-            world.addImportantParticleClient(
+            world.addAlwaysVisibleParticle(
                     AntiqueParticles.DUST_PARTICLE,
                     particleX + Math.random() * 0.5 - 0.25,
                     y + 0.5 + Math.random() * 0.5 - 0.5,
@@ -81,6 +81,6 @@ public class WallJumpPacketReceiver {
             );
         }
 
-        world.addImportantParticleClient(AntiqueParticles.SPARKLE_PARTICLE, x, y + 0.5, z, pushVector.x, 0, pushVector.z);
+        world.addAlwaysVisibleParticle(AntiqueParticles.SPARKLE_PARTICLE, x, y + 0.5, z, pushVector.x, 0, pushVector.z);
     }
 }

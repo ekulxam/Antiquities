@@ -1,9 +1,9 @@
 package net.hollowed.antique.mixin.entities.living;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.Projectile;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,13 +13,13 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LivingEntity.class)
 public abstract class ProjectileBypassMixin {
 
-    @Shadow protected float lastDamageTaken;
+    @Shadow protected float lastHurt;
 
-    @Inject(method = "damage", at = @At("HEAD"))
-    private void bypassImmunityFrames(ServerWorld world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
-        if (source.getSource() instanceof ProjectileEntity) {
+    @Inject(method = "hurtServer", at = @At("HEAD"))
+    private void bypassImmunityFrames(ServerLevel world, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+        if (source.getDirectEntity() instanceof Projectile) {
             ProjectileBypassMixin entity = this;
-            entity.lastDamageTaken = 0;
+            entity.lastHurt = 0;
         }
     }
 }

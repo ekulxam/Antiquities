@@ -1,11 +1,11 @@
 package net.hollowed.antique.mixin.accessors;
 
-import net.minecraft.entity.mob.MobEntity;
-import net.minecraft.sound.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.Mob;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-@Mixin(MobEntity.class)
+@Mixin(Mob.class)
 public interface MobEntitySoundAccessor {
     @Invoker("getAmbientSound")
     SoundEvent invokeGetAmbientSound();

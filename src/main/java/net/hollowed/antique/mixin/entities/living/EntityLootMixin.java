@@ -2,22 +2,22 @@ package net.hollowed.antique.mixin.entities.living;
 
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.index.AntiqueItems;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.ProfileComponent;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Identifier;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ResolvableProfile;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gamerules.GameRules;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -30,48 +30,48 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public abstract class EntityLootMixin extends Entity {
 
     @Unique
-    private static final TagKey<EntityType<?>> FORCE_LOOT = TagKey.of(Registries.ENTITY_TYPE.getKey(), Identifier.of(Antiquities.MOD_ID, "force_loot"));
+    private static final TagKey<EntityType<?>> FORCE_LOOT = TagKey.create(BuiltInRegistries.ENTITY_TYPE.key(), Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "force_loot"));
 
-    @Shadow protected int playerHitTimer;
+    @Shadow protected int lastHurtByPlayerMemoryTime;
 
-    public EntityLootMixin(EntityType<?> type, World world) {
+    public EntityLootMixin(EntityType<?> type, Level world) {
         super(type, world);
     }
 
-    @Shadow protected abstract void dropLoot(ServerWorld world, DamageSource damageSource, boolean causedByPlayer);
+    @Shadow protected abstract void dropFromLootTable(ServerLevel world, DamageSource damageSource, boolean causedByPlayer);
 
-    @Shadow protected abstract void dropEquipment(ServerWorld world, DamageSource source, boolean causedByPlayer);
+    @Shadow protected abstract void dropCustomDeathLoot(ServerLevel world, DamageSource source, boolean causedByPlayer);
 
-    @Shadow protected abstract void dropExperience(ServerWorld world, @Nullable Entity attacker);
+    @Shadow protected abstract void dropExperience(ServerLevel world, @Nullable Entity attacker);
 
-    @Shadow @Nullable public abstract ItemEntity dropItem(ItemStack stack, boolean dropAtSelf, boolean retainOwnership);
+    @Shadow @Nullable public abstract ItemEntity drop(ItemStack stack, boolean dropAtSelf, boolean retainOwnership);
 
-    @Shadow protected abstract boolean shouldDropLoot(ServerWorld world);
+    @Shadow protected abstract boolean shouldDropLoot(ServerLevel world);
 
-    @Inject(method = "drop", at = @At("HEAD"))
-    public void drop(ServerWorld world, DamageSource damageSource, CallbackInfo ci) {
-        if (damageSource.getAttacker() != null && damageSource.getAttacker().getWeaponStack() != null
-                && damageSource.getAttacker().getWeaponStack().isOf(AntiqueItems.MYRIAD_CLEAVER_BLADE)
+    @Inject(method = "dropAllDeathLoot", at = @At("HEAD"))
+    public void drop(ServerLevel world, DamageSource damageSource, CallbackInfo ci) {
+        if (damageSource.getEntity() != null && damageSource.getEntity().getWeaponItem() != null
+                && damageSource.getEntity().getWeaponItem().is(AntiqueItems.MYRIAD_CLEAVER_BLADE)
         ) {
-            if (!this.getType().isIn(FORCE_LOOT)) {
-                boolean bl = this.playerHitTimer > 0;
-                if (this.shouldDropLoot(world) && world.getGameRules().getBoolean(GameRules.DO_MOB_LOOT)) {
-                    this.dropLoot(world, damageSource, bl);
-                    this.dropEquipment(world, damageSource, bl);
+            if (!this.getType().is(FORCE_LOOT)) {
+                boolean bl = this.lastHurtByPlayerMemoryTime > 0;
+                if (this.shouldDropLoot(world) && world.getGameRules().get(GameRules.MOB_DROPS)) {
+                    this.dropFromLootTable(world, damageSource, bl);
+                    this.dropCustomDeathLoot(world, damageSource, bl);
                 }
 
-                this.dropExperience(world, damageSource.getAttacker());
+                this.dropExperience(world, damageSource.getEntity());
             }
             EntityType<?> type = this.getType();
-            if (type.equals(EntityType.SKELETON) && Math.random() > 0.8) this.dropItem(world, Items.SKELETON_SKULL);
-            if (type.equals(EntityType.CREEPER) && Math.random() > 0.8) this.dropItem(world, Items.CREEPER_HEAD);
-            if (type.equals(EntityType.ZOMBIE) && Math.random() > 0.8) this.dropItem(world, Items.ZOMBIE_HEAD);
-            if (type.equals(EntityType.WITHER_SKELETON) && Math.random() > 0.8) this.dropItem(world, Items.WITHER_SKELETON_SKULL);
-            if (type.equals(EntityType.PIGLIN) && Math.random() > 0.8) this.dropItem(world, Items.PIGLIN_HEAD);
-            if ((LivingEntity) (Object) this instanceof PlayerEntity player) {
-                ItemStack stack = Items.PLAYER_HEAD.getDefaultStack();
-                stack.set(DataComponentTypes.PROFILE, ProfileComponent.ofDynamic(player.getUuid()));
-                this.dropItem(stack, true, false);
+            if (type.equals(EntityType.SKELETON) && Math.random() > 0.8) this.spawnAtLocation(world, Items.SKELETON_SKULL);
+            if (type.equals(EntityType.CREEPER) && Math.random() > 0.8) this.spawnAtLocation(world, Items.CREEPER_HEAD);
+            if (type.equals(EntityType.ZOMBIE) && Math.random() > 0.8) this.spawnAtLocation(world, Items.ZOMBIE_HEAD);
+            if (type.equals(EntityType.WITHER_SKELETON) && Math.random() > 0.8) this.spawnAtLocation(world, Items.WITHER_SKELETON_SKULL);
+            if (type.equals(EntityType.PIGLIN) && Math.random() > 0.8) this.spawnAtLocation(world, Items.PIGLIN_HEAD);
+            if ((LivingEntity) (Object) this instanceof Player player) {
+                ItemStack stack = Items.PLAYER_HEAD.getDefaultInstance();
+                stack.set(DataComponents.PROFILE, ResolvableProfile.createUnresolved(player.getUUID()));
+                this.drop(stack, true, false);
             }
         }
     }

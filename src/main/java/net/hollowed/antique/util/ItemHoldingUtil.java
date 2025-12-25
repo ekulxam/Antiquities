@@ -1,21 +1,21 @@
 package net.hollowed.antique.util;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.Item;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
 
 public class ItemHoldingUtil {
 
     @SuppressWarnings("unused")
     public static boolean isHoldingItem(LivingEntity entity, Item item) {
-        return entity.getStackInHand(Hand.MAIN_HAND).isOf(item) || entity.getStackInHand(Hand.OFF_HAND).isOf(item);
+        return entity.getItemInHand(InteractionHand.MAIN_HAND).is(item) || entity.getItemInHand(InteractionHand.OFF_HAND).is(item);
     }
 
     @SuppressWarnings("unused")
     public static boolean isHoldingItem(LivingEntity entity, Identifier tagKey) {
-        return entity.getStackInHand(Hand.MAIN_HAND).streamTags().toList().contains(TagKey.of(RegistryKeys.ITEM, tagKey)) || entity.getStackInHand(Hand.OFF_HAND).streamTags().toList().contains(TagKey.of(RegistryKeys.ITEM, tagKey));
+        return entity.getItemInHand(InteractionHand.MAIN_HAND).getTags().toList().contains(TagKey.create(Registries.ITEM, tagKey)) || entity.getItemInHand(InteractionHand.OFF_HAND).getTags().toList().contains(TagKey.create(Registries.ITEM, tagKey));
     }
 }

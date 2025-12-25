@@ -1,22 +1,22 @@
 package net.hollowed.antique.util;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.Hand;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 
 public class LeftClickHandler {
-    public static final MinecraftClient client = MinecraftClient.getInstance();
+    public static final Minecraft client = Minecraft.getInstance();
 
     public static void checkRightClickInAir() {
-        if (client.world == null || client.player == null) {
+        if (client.level == null || client.player == null) {
             return;
         }
 
-        if (client.options.attackKey.isPressed() && client.player.getMainHandStack() != ItemStack.EMPTY) {
+        if (client.options.keyAttack.isDown() && client.player.getMainHandItem() != ItemStack.EMPTY) {
             if (client.player.isUsingItem()) {
-                client.player.stopUsingItem();
-                client.player.getItemCooldownManager().set(client.player.getMainHandStack(), 5);
-                client.player.swingHand(Hand.MAIN_HAND);
+                client.player.releaseUsingItem();
+                client.player.getCooldowns().addCooldown(client.player.getMainHandItem(), 5);
+                client.player.swing(InteractionHand.MAIN_HAND);
             }
         }
     }

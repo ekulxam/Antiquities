@@ -2,70 +2,71 @@ package net.hollowed.antique.blocks;
 
 import net.hollowed.antique.index.AntiqueBlocks;
 import net.hollowed.antique.util.BlockUtil;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.hit.BlockHitResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.random.Random;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldEvents;
-import net.minecraft.world.event.GameEvent;
-
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.BlockHitResult;
 import java.util.Optional;
 
 public class TarnishingBlock extends Block {
 
-	public TarnishingBlock(Settings settings) {
+	public TarnishingBlock(Properties settings) {
 		super(settings);
 	}
 
 	@Override
-	protected ActionResult onUseWithItem(ItemStack stack, BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-		if (stack.isOf(Items.MAGMA_CREAM)) {
+	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+		if (stack.is(Items.MAGMA_CREAM)) {
 			Optional<BlockState> optional = this.getCoat(state);
 			if (optional.isPresent()) {
-				world.setBlockState(pos, optional.get(), Block.NOTIFY_ALL_AND_REDRAW);
-				world.emitGameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Emitter.of(null, optional.get()));
-				world.playSound(player, pos, SoundEvents.ITEM_HONEYCOMB_WAX_ON, SoundCategory.BLOCKS, 1.0F, 1.0F);
-				world.syncWorldEvent(player, WorldEvents.BLOCK_WAXED, pos, 0);
-				stack.decrementUnlessCreative(1, player);
-				return ActionResult.SUCCESS;
+				world.setBlock(pos, optional.get(), Block.UPDATE_ALL_IMMEDIATE);
+				world.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(null, optional.get()));
+				world.playSound(player, pos, SoundEvents.HONEYCOMB_WAX_ON, SoundSource.BLOCKS, 1.0F, 1.0F);
+				world.levelEvent(player, LevelEvent.PARTICLES_AND_SOUND_WAX_ON, pos, 0);
+				stack.consume(1, player);
+				return InteractionResult.SUCCESS;
 			}
 		}
-		return super.onUseWithItem(stack, state, world, pos, player, hand, hit);
+		return super.useItemOn(stack, state, world, pos, player, hand, hit);
 	}
 
 	@Override
-	protected void randomTick(BlockState state, ServerWorld world, BlockPos pos, Random random) {
-		if (world.getDimension().ultrawarm()) {
+	protected void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+		if (world.dimensionTypeRegistration().is(BuiltinDimensionTypes.NETHER)) {
 			Optional<BlockState> optional = this.getNextTarnishLevel(state);
 			if (optional.isPresent()) {
-				world.setBlockState(pos, optional.get(), Block.NOTIFY_ALL_AND_REDRAW);
-				world.emitGameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Emitter.of(null, optional.get()));
+				world.setBlock(pos, optional.get(), Block.UPDATE_ALL_IMMEDIATE);
+				world.gameEvent(GameEvent.BLOCK_CHANGE, pos, GameEvent.Context.of(null, optional.get()));
 			}
 		}
 	}
 
 	@Override
-	protected boolean hasRandomTicks(BlockState state) {
-		return !state.isOf(AntiqueBlocks.TARNISHED_MYRIAD_BLOCK);
+	protected boolean isRandomlyTicking(BlockState state) {
+		return !state.is(AntiqueBlocks.TARNISHED_MYRIAD_BLOCK);
 	}
 
 	private Optional<BlockState> getNextTarnishLevel(BlockState state) {
 		return Optional.ofNullable(BlockUtil.TARNISHING_BLOCKS.get(state.getBlock()))
-				.map(Block::getDefaultState);
+				.map(Block::defaultBlockState);
 	}
 
 	private Optional<BlockState> getCoat(BlockState state) {
 		return Optional.ofNullable(BlockUtil.COATED_MYRIAD_BLOCKS.get(state.getBlock()))
-				.map(Block::getDefaultState);
+				.map(Block::defaultBlockState);
 	}
 }

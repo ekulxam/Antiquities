@@ -2,42 +2,43 @@ package net.hollowed.antique.particles;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Camera;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
-import net.minecraft.client.render.Camera;
-import net.minecraft.client.render.WorldRenderer;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.particle.SimpleParticleType;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.state.QuadParticleRenderState;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
 @Environment(EnvType.CLIENT)
-public class CakeSmearParticle extends BillboardParticle {
+public class CakeSmearParticle extends SingleQuadParticle {
 	private final double dirX;
 	private final double dirY;
 	private final double dirZ;
-	private final ClientWorld world;
+	private final ClientLevel level;
 
-	CakeSmearParticle(ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, SpriteProvider spriteProvider) {
-		super(world, x, y, z, spriteProvider.getFirst());
+	CakeSmearParticle(ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, SpriteSet spriteProvider) {
+		super(world, x, y, z, spriteProvider.first());
 
 		this.setPos(x, y, z);
-		this.world = world;
+		this.level = world;
 
 		this.dirX = velocityX;
 		this.dirY = velocityY;
 		this.dirZ = velocityZ;
 
-		this.velocityX = 0;
-		this.velocityY = 0;
-		this.velocityZ = 0;
+		this.xd = 0;
+		this.yd = 0;
+		this.zd = 0;
 
-		this.maxAge = 100;
-		this.updateSprite(spriteProvider);
-		this.gravityStrength = 0;
-		this.scale = 1;
+		this.lifetime = 100;
+		this.setSpriteFromAge(spriteProvider);
+		this.gravity = 0;
+		this.quadSize = 1;
 	}
 
 	@Override
@@ -45,54 +46,54 @@ public class CakeSmearParticle extends BillboardParticle {
 		if (this.age >= 40 && this.alpha > 0.01F) {
 			this.alpha -= 0.02F;
 		}
-		if (this.age++ >= this.maxAge) {
-			this.markDead();
+		if (this.age++ >= this.lifetime) {
+			this.remove();
 		}
 	}
 
 	@Override
 	public void move(double dx, double dy, double dz) {
-		this.setBoundingBox(this.getBoundingBox().offset(dx, dy, dz));
-		this.repositionFromBoundingBox();
+		this.setBoundingBox(this.getBoundingBox().move(dx, dy, dz));
+		this.setLocationFromBoundingbox();
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static class Factory implements ParticleFactory<SimpleParticleType> {
-		private final SpriteProvider spriteProvider;
+	public static class Factory implements ParticleProvider<SimpleParticleType> {
+		private final SpriteSet spriteProvider;
 
-		public Factory(SpriteProvider spriteProvider) {
+		public Factory(SpriteSet spriteProvider) {
 			this.spriteProvider = spriteProvider;
 		}
 
 		@Override
-		public @Nullable Particle createParticle(SimpleParticleType parameters, ClientWorld world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, Random random) {
+		public @Nullable Particle createParticle(SimpleParticleType parameters, ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, RandomSource random) {
 			CakeSmearParticle particle = new CakeSmearParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider);
-			particle.setSprite(this.spriteProvider.getFirst());
+			particle.setSprite(this.spriteProvider.first());
 			return particle;
 		}
 	}
 
 	@Override
-	public void render(BillboardParticleSubmittable submittable, Camera camera, float tickProgress) {
-		Vec3d direction = new Vec3d(this.dirX, this.dirY, this.dirZ);
+	public void extract(QuadParticleRenderState submittable, Camera camera, float tickProgress) {
+		Vec3 direction = new Vec3(this.dirX, this.dirY, this.dirZ);
 		Quaternionf quaternionf = new Quaternionf();
 		if (direction.x == 1) quaternionf.rotateY((float) Math.toRadians(90));
-		this.render(submittable, camera, quaternionf, tickProgress);
+		this.extractRotatedQuad(submittable, camera, quaternionf, tickProgress);
 
 		Quaternionf quaternionf1 = new Quaternionf();
 		if (direction.x == 1) quaternionf1.rotateY((float) Math.toRadians(-90));
 		if (direction.z == 1) quaternionf1.rotateY((float) Math.toRadians(180));
-		this.render(submittable, camera, quaternionf1, tickProgress);
+		this.extractRotatedQuad(submittable, camera, quaternionf1, tickProgress);
 	}
 
 	@Override
-	protected RenderType getRenderType() {
-		return RenderType.PARTICLE_ATLAS_TRANSLUCENT;
+	protected Layer getLayer() {
+		return Layer.TRANSLUCENT;
 	}
 
 	@Override
-	public int getBrightness(float tint) {
-		BlockPos blockPos = BlockPos.ofFloored(this.x, this.y, this.z);
-		return WorldRenderer.getLightmapCoordinates(this.world, blockPos);
+	public int getLightColor(float tint) {
+		BlockPos blockPos = BlockPos.containing(this.x, this.y, this.z);
+		return LevelRenderer.getLightColor(this.level, blockPos);
 	}
 }

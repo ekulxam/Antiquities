@@ -1,18 +1,18 @@
 package net.hollowed.antique.mixin.entities.living;
 
 import net.hollowed.antique.index.AntiqueEffects;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.core.Holder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -27,91 +27,91 @@ import java.util.Objects;
 @Mixin(LivingEntity.class)
 public abstract class AirAccelerationTweaker extends Entity {
 
-    @Shadow public abstract boolean hasStatusEffect(RegistryEntry<StatusEffect> effect);
+    @Shadow public abstract boolean hasEffect(Holder<MobEffect> effect);
 
-    @Shadow public abstract boolean damage(ServerWorld world, DamageSource source, float amount);
+    @Shadow public abstract boolean hurtServer(ServerLevel world, DamageSource source, float amount);
 
-    @Shadow public abstract boolean isUsingRiptide();
+    @Shadow public abstract boolean isAutoSpinAttack();
 
     @Shadow
-    public abstract @Nullable StatusEffectInstance getStatusEffect(RegistryEntry<StatusEffect> effect);
+    public abstract @Nullable MobEffectInstance getEffect(Holder<MobEffect> effect);
 
-    public AirAccelerationTweaker(EntityType<?> type, World world) {
+    public AirAccelerationTweaker(EntityType<?> type, Level world) {
         super(type, world);
     }
 
-    @Inject(method = "travelMidAir", at = @At("HEAD"))
-    private void boostHorizontalAcceleration(Vec3d movementInput, CallbackInfo ci) {
+    @Inject(method = "travelInAir", at = @At("HEAD"))
+    private void boostHorizontalAcceleration(Vec3 movementInput, CallbackInfo ci) {
         Entity entity = this;
 
-        if ((LivingEntity) (Object) this instanceof PlayerEntity player && !entity.isOnGround() && player.getGlidingTicks() == 0 && !(player.getAbilities().flying || player.isSpectator())) {
+        if ((LivingEntity) (Object) this instanceof Player player && !entity.onGround() && player.getFallFlyingTicks() == 0 && !(player.getAbilities().flying || player.isSpectator())) {
             double horizontalBoost = 0.01;
             if (this.isSprinting()) horizontalBoost = 0.015;
-            if (this.isUsingRiptide()) horizontalBoost = 0.125;
-            if (this.hasStatusEffect(AntiqueEffects.BOUNCE_EFFECT)) horizontalBoost = 0.15;
+            if (this.isAutoSpinAttack()) horizontalBoost = 0.125;
+            if (this.hasEffect(AntiqueEffects.BOUNCE_EFFECT)) horizontalBoost = 0.15;
             double maxHorizontalSpeed = 0.55;
             if (this.isSprinting()) maxHorizontalSpeed = 0.95;
 
-            Vec3d newVelocity = getVec3d(movementInput, entity, horizontalBoost);
+            Vec3 newVelocity = getVec3d(movementInput, entity, horizontalBoost);
 
             double horizontalSpeed = Math.sqrt(newVelocity.x * newVelocity.x + newVelocity.z * newVelocity.z);
             if (horizontalSpeed > maxHorizontalSpeed) {
                 double scale = maxHorizontalSpeed / horizontalSpeed;
-                newVelocity = new Vec3d(newVelocity.x * scale, newVelocity.y, newVelocity.z * scale);
+                newVelocity = new Vec3(newVelocity.x * scale, newVelocity.y, newVelocity.z * scale);
             }
 
-            if (this.hasStatusEffect(AntiqueEffects.BOUNCE_EFFECT)) {
-                this.setVelocity(newVelocity);
+            if (this.hasEffect(AntiqueEffects.BOUNCE_EFFECT)) {
+                this.setDeltaMovement(newVelocity);
             } else if (movementInput.length() > 0.1) {
-                this.setVelocity(newVelocity);
+                this.setDeltaMovement(newVelocity);
             }
         }
     }
 
     @Unique
-    private Vec3d getVec3d(Vec3d movementInput, Entity entity, double horizontalBoost) {
-        float yaw = entity.getYaw();
+    private Vec3 getVec3d(Vec3 movementInput, Entity entity, double horizontalBoost) {
+        float yaw = entity.getYRot();
         double yawRad = Math.toRadians(yaw);
 
         double globalX = movementInput.x * Math.cos(yawRad) - movementInput.z * Math.sin(yawRad);
         double globalZ = movementInput.x * Math.sin(yawRad) + movementInput.z * Math.cos(yawRad);
 
-        Vec3d boostedInput = new Vec3d(globalX * horizontalBoost, 0, globalZ * horizontalBoost);
+        Vec3 boostedInput = new Vec3(globalX * horizontalBoost, 0, globalZ * horizontalBoost);
 
-        Vec3d currentVelocity = this.getVelocity();
+        Vec3 currentVelocity = this.getDeltaMovement();
         return currentVelocity.add(boostedInput);
     }
 
     @Inject(method = "travelInFluid", at = @At("HEAD"))
-    private void boostHorizontalAccelerationInWater(Vec3d movementInput, CallbackInfo ci) {
+    private void boostHorizontalAccelerationInWater(Vec3 movementInput, CallbackInfo ci) {
         Entity entity = this;
 
-        if ((LivingEntity) (Object) this instanceof PlayerEntity player && !entity.isOnGround() && player.getGlidingTicks() == 0 && !(player.getAbilities().flying || player.isSpectator())) {
+        if ((LivingEntity) (Object) this instanceof Player player && !entity.onGround() && player.getFallFlyingTicks() == 0 && !(player.getAbilities().flying || player.isSpectator())) {
             double horizontalBoost = 0.01;
             if (this.isSprinting()) horizontalBoost = 0.011;
-            if (this.isUsingRiptide()) horizontalBoost = 0.125;
-            if (this.hasStatusEffect(AntiqueEffects.BOUNCE_EFFECT)) horizontalBoost = 0.15;
+            if (this.isAutoSpinAttack()) horizontalBoost = 0.125;
+            if (this.hasEffect(AntiqueEffects.BOUNCE_EFFECT)) horizontalBoost = 0.15;
             double maxHorizontalSpeed = 0.75;
             if (this.isSprinting()) maxHorizontalSpeed = 1.15;
 
-            Vec3d newVelocity = getVec3d(movementInput, entity, horizontalBoost);
+            Vec3 newVelocity = getVec3d(movementInput, entity, horizontalBoost);
 
             double horizontalSpeed = Math.sqrt(newVelocity.x * newVelocity.x + newVelocity.z * newVelocity.z);
             if (horizontalSpeed > maxHorizontalSpeed) {
                 double scale = maxHorizontalSpeed / horizontalSpeed;
-                newVelocity = new Vec3d(newVelocity.x * scale, newVelocity.y, newVelocity.z * scale);
+                newVelocity = new Vec3(newVelocity.x * scale, newVelocity.y, newVelocity.z * scale);
             }
 
-            if (this.hasStatusEffect(AntiqueEffects.BOUNCE_EFFECT)) {
-                this.setVelocity(newVelocity);
+            if (this.hasEffect(AntiqueEffects.BOUNCE_EFFECT)) {
+                this.setDeltaMovement(newVelocity);
             } else if (movementInput.length() > 0.1) {
-                this.setVelocity(newVelocity);
+                this.setDeltaMovement(newVelocity);
             }
         }
     }
 
-    @Inject(method = "getJumpBoostVelocityModifier", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "getJumpBoostPower", at = @At("HEAD"), cancellable = true)
     public void jumpModifier(CallbackInfoReturnable<Float> cir) {
-        cir.setReturnValue(this.hasStatusEffect(StatusEffects.JUMP_BOOST) ? 0.3F * (Objects.requireNonNull(this.getStatusEffect(StatusEffects.JUMP_BOOST)).getAmplifier() + 1.0F) : 0.0F);
+        cir.setReturnValue(this.hasEffect(MobEffects.JUMP_BOOST) ? 0.3F * (Objects.requireNonNull(this.getEffect(MobEffects.JUMP_BOOST)).getAmplifier() + 1.0F) : 0.0F);
     }
 }

@@ -2,31 +2,39 @@ package net.hollowed.antique.items;
 
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableMap;
-import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.util.BlockUtil;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.index.AntiqueParticles;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.block.*;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.*;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.*;
-import net.minecraft.particle.ParticleUtil;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.intprovider.UniformIntProvider;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldEvents;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.ParticleUtils;
+import net.minecraft.util.valueproviders.UniformInt;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.HoneycombItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.Tool;
+import net.minecraft.world.item.component.Weapon;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.RotatedPillarBlock;
+import net.minecraft.world.level.block.WeatheringCopper;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -61,82 +69,82 @@ public class MyriadAxeBit extends MyriadToolBitItem{
             .put(Blocks.BAMBOO_BLOCK, Blocks.STRIPPED_BAMBOO_BLOCK)
             .build();
 
-    public MyriadAxeBit(Settings settings) {
+    public MyriadAxeBit(Properties settings) {
         super(settings);
     }
 
     @Override
-    public ActionResult toolUse(World world, PlayerEntity user, Hand hand) {
-        user.setCurrentHand(hand);
-        return ActionResult.CONSUME;
+    public InteractionResult toolUse(Level world, Player user, InteractionHand hand) {
+        user.startUsingItem(hand);
+        return InteractionResult.CONSUME;
     }
 
     @Override
-    public ActionResult toolUseOnBlock(ItemUsageContext context) {
-        World world = context.getWorld();
-        BlockPos blockPos = context.getBlockPos();
-        PlayerEntity playerEntity = context.getPlayer();
+    public InteractionResult toolUseOnBlock(UseOnContext context) {
+        Level world = context.getLevel();
+        BlockPos blockPos = context.getClickedPos();
+        Player playerEntity = context.getPlayer();
 
         if (shouldCancelStripAttempt(context)) {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         } else {
             Optional<BlockState> optional = this.tryStrip(world, blockPos, playerEntity, world.getBlockState(blockPos));
             if (optional.isEmpty()) {
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             } else {
-                ItemStack itemStack = context.getStack();
-                if (playerEntity instanceof ServerPlayerEntity) {
-                    Criteria.ITEM_USED_ON_BLOCK.trigger((ServerPlayerEntity) playerEntity, blockPos, itemStack);
+                ItemStack itemStack = context.getItemInHand();
+                if (playerEntity instanceof ServerPlayer) {
+                    CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((ServerPlayer) playerEntity, blockPos, itemStack);
                 }
 
-                world.setBlockState(blockPos, optional.get(), Block.NOTIFY_ALL_AND_REDRAW);
-                world.emitGameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Emitter.of(playerEntity, optional.get()));
+                world.setBlock(blockPos, optional.get(), Block.UPDATE_ALL_IMMEDIATE);
+                world.gameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Context.of(playerEntity, optional.get()));
                 if (playerEntity != null) {
-                    itemStack.damage(1, playerEntity, context.getHand());
+                    itemStack.hurtAndBreak(1, playerEntity, context.getHand());
                 }
 
-                return ActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         }
     }
 
-    private static boolean shouldCancelStripAttempt(ItemUsageContext context) {
-        PlayerEntity playerEntity = context.getPlayer();
-        if (!context.getHand().equals(Hand.MAIN_HAND)) return false;
+    private static boolean shouldCancelStripAttempt(UseOnContext context) {
+        Player playerEntity = context.getPlayer();
+        if (!context.getHand().equals(InteractionHand.MAIN_HAND)) return false;
         if (playerEntity == null) return false;
-        return !playerEntity.isSneaking();
+        return !playerEntity.isShiftKeyDown();
     }
 
-    private Optional<BlockState> tryStrip(World world, BlockPos pos, @Nullable PlayerEntity player, BlockState state) {
+    private Optional<BlockState> tryStrip(Level world, BlockPos pos, @Nullable Player player, BlockState state) {
         Optional<BlockState> optional = this.getStrippedState(state);
         if (player != null) {
             if (optional.isPresent()) {
-                world.playSound(player, pos, SoundEvents.ITEM_AXE_STRIP, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                world.playSound(player, pos, SoundEvents.AXE_STRIP, SoundSource.BLOCKS, 1.0F, 1.0F);
                 return optional;
             } else {
-                Optional<BlockState> optional2 = Oxidizable.getDecreasedOxidationState(state);
+                Optional<BlockState> optional2 = WeatheringCopper.getPrevious(state);
                 if (optional2.isPresent()) {
-                    world.playSound(player, pos, SoundEvents.ITEM_AXE_SCRAPE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                    world.syncWorldEvent(player, WorldEvents.BLOCK_SCRAPED, pos, 0);
+                    world.playSound(player, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    world.levelEvent(player, LevelEvent.PARTICLES_SCRAPE, pos, 0);
                     return optional2;
                 } else {
-                    Optional<BlockState> optional3 = Optional.ofNullable((Block) ((BiMap<?, ?>) HoneycombItem.WAXED_TO_UNWAXED_BLOCKS.get()).get(state.getBlock()))
-                            .map(block -> block.getStateWithProperties(state));
+                    Optional<BlockState> optional3 = Optional.ofNullable((Block) ((BiMap<?, ?>) HoneycombItem.WAX_OFF_BY_BLOCK.get()).get(state.getBlock()))
+                            .map(block -> block.withPropertiesOf(state));
                     if (optional3.isPresent()) {
-                        world.playSound(player, pos, SoundEvents.ITEM_AXE_WAX_OFF, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                        world.syncWorldEvent(player, WorldEvents.WAX_REMOVED, pos, 0);
+                        world.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
+                        world.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0);
                         return optional3;
                     } else {
                         Optional<BlockState> optional4 = getPreviousTarnishLevel(state);
                         if (optional4.isPresent()) {
-                            world.playSound(player, pos, SoundEvents.ITEM_AXE_SCRAPE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                            ParticleUtil.spawnParticle(world, pos, AntiqueParticles.SCRAPE, UniformIntProvider.create(3, 5));
+                            world.playSound(player, pos, SoundEvents.AXE_SCRAPE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                            ParticleUtils.spawnParticlesOnBlockFaces(world, pos, AntiqueParticles.SCRAPE, UniformInt.of(3, 5));
                             return optional4;
                         } else {
                             Optional<BlockState> optional5 = getUncoat(state);
                             if (optional5.isPresent()) {
-                                world.playSound(player, pos, SoundEvents.ITEM_AXE_WAX_OFF, SoundCategory.BLOCKS, 1.0F, 1.0F);
-                                world.syncWorldEvent(player, WorldEvents.WAX_REMOVED, pos, 0);
+                                world.playSound(player, pos, SoundEvents.AXE_WAX_OFF, SoundSource.BLOCKS, 1.0F, 1.0F);
+                                world.levelEvent(player, LevelEvent.PARTICLES_WAX_OFF, pos, 0);
                                 return optional5;
                             } else {
                                 return Optional.empty();
@@ -151,36 +159,35 @@ public class MyriadAxeBit extends MyriadToolBitItem{
 
     private Optional<BlockState> getStrippedState(BlockState state) {
         return Optional.ofNullable(STRIPPED_BLOCKS.get(state.getBlock()))
-                .map(block -> block.getDefaultState().with(PillarBlock.AXIS, state.get(PillarBlock.AXIS)));
+                .map(block -> block.defaultBlockState().setValue(RotatedPillarBlock.AXIS, state.getValue(RotatedPillarBlock.AXIS)));
     }
 
     private Optional<BlockState> getPreviousTarnishLevel(BlockState state) {
         return Optional.ofNullable(BlockUtil.TARNISHING_BLOCKS_REVERSE.get(state.getBlock()))
-                .map(Block::getDefaultState);
+                .map(Block::defaultBlockState);
     }
 
     private Optional<BlockState> getUncoat(BlockState state) {
         return Optional.ofNullable(BlockUtil.COATED_MYRIAD_BLOCKS_REVERSE.get(state.getBlock()))
-                .map(Block::getDefaultState);
+                .map(Block::defaultBlockState);
     }
 
     @Override
     public void setToolAttributes(ItemStack toolStack) {
-        toolStack.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
-                .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 9, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-                .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -3, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-                .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.75, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+        toolStack.set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.builder()
+                .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, 9, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -3, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                .add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(Identifier.withDefaultNamespace("base_attack_range"), 0.25, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                 .build());
-        toolStack.set(DataComponentTypes.TOOL, new ToolComponent(
+        toolStack.set(DataComponents.TOOL, new Tool(
                 List.of(
-                        ToolComponent.Rule.ofNeverDropping(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.INCORRECT_FOR_IRON_TOOL)),
-                        ToolComponent.Rule.ofAlwaysDropping(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.AXE_MINEABLE), 20)
+                        Tool.Rule.deniesDrops(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.INCORRECT_FOR_IRON_TOOL)),
+                        Tool.Rule.minesAndDrops(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.MINEABLE_WITH_AXE), 20)
                 ),
                 1.0F,
                 1,
                 true
         ));
-        toolStack.set(DataComponentTypes.WEAPON, new WeaponComponent(0, 2));
-        toolStack.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_axe"));
+        toolStack.set(DataComponents.WEAPON, new Weapon(0, 2));
     }
 }

@@ -5,13 +5,13 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.BagOfTricksItem;
-import net.minecraft.client.item.ItemModelManager;
-import net.minecraft.client.render.item.ItemRenderState;
-import net.minecraft.client.render.item.model.ItemModel;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.item.ItemDisplayContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.HeldItemContext;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.world.entity.ItemOwner;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -22,30 +22,30 @@ public class BagOfTricksSelectedItemModel implements ItemModel {
 
     public BagOfTricksSelectedItemModel() {}
 
-    public void update(ItemRenderState state, ItemStack stack, ItemModelManager resolver, ItemDisplayContext displayContext, @Nullable ClientWorld world, @Nullable HeldItemContext heldItemContext, int seed) {
-        state.addModelKey(this);
+    public void update(ItemStackRenderState state, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext displayContext, @Nullable ClientLevel world, @Nullable ItemOwner heldItemContext, int seed) {
+        state.appendModelIdentityElement(this);
         List<ItemStack> list = stack.getOrDefault(AntiqueDataComponentTypes.SATCHEL_STACK, List.of(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY));
         if (BagOfTricksItem.getInternalIndex(stack) >= 0 && !list.isEmpty() && BagOfTricksItem.getInternalIndex(stack) < list.size()) {
             ItemStack itemStack = list.get(BagOfTricksItem.getInternalIndex(stack));
             if (!itemStack.isEmpty()) {
-                resolver.update(state, itemStack, displayContext, world, heldItemContext, seed);
+                resolver.appendItemLayers(state, itemStack, displayContext, world, heldItemContext, seed);
             }
         }
     }
 
     @Environment(EnvType.CLIENT)
     public record Unbaked() implements ItemModel.Unbaked {
-        public static final MapCodec<Unbaked> CODEC = MapCodec.unit(new Unbaked());
+        public static final MapCodec<net.hollowed.antique.util.models.BagOfTricksSelectedItemModel.Unbaked> CODEC = MapCodec.unit(new net.hollowed.antique.util.models.BagOfTricksSelectedItemModel.Unbaked());
 
-        public MapCodec<Unbaked> getCodec() {
+        public MapCodec<net.hollowed.antique.util.models.BagOfTricksSelectedItemModel.Unbaked> type() {
             return CODEC;
         }
 
-        public ItemModel bake(BakeContext context) {
+        public ItemModel bake(BakingContext context) {
             return BagOfTricksSelectedItemModel.INSTANCE;
         }
 
-        public void resolve(Resolver resolver) {
+        public void resolveDependencies(Resolver resolver) {
         }
     }
 }

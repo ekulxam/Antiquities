@@ -2,49 +2,48 @@ package net.hollowed.antique.items;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.entities.MyriadShovelEntity;
 import net.hollowed.antique.index.AntiqueItems;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.CampfireBlock;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.EnchantmentEffectComponentTypes;
-import net.minecraft.component.type.AttributeModifierSlot;
-import net.minecraft.component.type.AttributeModifiersComponent;
-import net.minecraft.component.type.ToolComponent;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.MovementType;
-import net.minecraft.entity.attribute.EntityAttributeModifier;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.item.Items;
-import net.minecraft.item.consume.UseAction;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.tag.BlockTags;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.Stats;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
-import net.minecraft.world.WorldEvents;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MoverType;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.Projectile;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.Tool;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.LevelEvent;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -56,12 +55,12 @@ public class MyriadShovelBit extends MyriadToolBitItem{
     @SuppressWarnings({"unchecked", "rawtypes"})
     protected static final Map<Block, BlockState> PATH_STATES = Maps.<Block, BlockState>newHashMap(
             new ImmutableMap.Builder()
-                    .put(Blocks.GRASS_BLOCK, Blocks.DIRT_PATH.getDefaultState())
-                    .put(Blocks.DIRT, Blocks.DIRT_PATH.getDefaultState())
-                    .put(Blocks.PODZOL, Blocks.DIRT_PATH.getDefaultState())
-                    .put(Blocks.COARSE_DIRT, Blocks.DIRT_PATH.getDefaultState())
-                    .put(Blocks.MYCELIUM, Blocks.DIRT_PATH.getDefaultState())
-                    .put(Blocks.ROOTED_DIRT, Blocks.DIRT_PATH.getDefaultState())
+                    .put(Blocks.GRASS_BLOCK, Blocks.DIRT_PATH.defaultBlockState())
+                    .put(Blocks.DIRT, Blocks.DIRT_PATH.defaultBlockState())
+                    .put(Blocks.PODZOL, Blocks.DIRT_PATH.defaultBlockState())
+                    .put(Blocks.COARSE_DIRT, Blocks.DIRT_PATH.defaultBlockState())
+                    .put(Blocks.MYCELIUM, Blocks.DIRT_PATH.defaultBlockState())
+                    .put(Blocks.ROOTED_DIRT, Blocks.DIRT_PATH.defaultBlockState())
                     .build()
     );
 
@@ -124,56 +123,56 @@ public class MyriadShovelBit extends MyriadToolBitItem{
             .put(Blocks.BLACKSTONE, Blocks.POLISHED_BLACKSTONE_BRICKS)
             .build();
 
-    public MyriadShovelBit(Settings settings) {
+    public MyriadShovelBit(Properties settings) {
         super(settings);
     }
 
     @Override
-    public ActionResult useOnBlock(ItemUsageContext context) {
+    public InteractionResult useOn(UseOnContext context) {
 
-        World world = context.getWorld();
-        BlockPos blockPos = context.getBlockPos();
-        PlayerEntity playerEntity = context.getPlayer();
+        Level world = context.getLevel();
+        BlockPos blockPos = context.getClickedPos();
+        Player playerEntity = context.getPlayer();
 
         if (!shouldCancelStripAttempt(context)) {
             Optional<BlockState> optional = this.tryStrip(world, blockPos, playerEntity, world.getBlockState(blockPos));
             if (optional.isEmpty()) {
-                return ActionResult.PASS;
+                return InteractionResult.PASS;
             } else {
-                ItemStack itemStack = context.getStack();
-                if (playerEntity instanceof ServerPlayerEntity) {
-                    Criteria.ITEM_USED_ON_BLOCK.trigger((ServerPlayerEntity) playerEntity, blockPos, itemStack);
+                ItemStack itemStack = context.getItemInHand();
+                if (playerEntity instanceof ServerPlayer) {
+                    CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger((ServerPlayer) playerEntity, blockPos, itemStack);
                 }
 
-                world.setBlockState(blockPos, optional.get(), Block.NOTIFY_ALL_AND_REDRAW);
-                world.emitGameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Emitter.of(playerEntity, optional.get()));
+                world.setBlock(blockPos, optional.get(), Block.UPDATE_ALL_IMMEDIATE);
+                world.gameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Context.of(playerEntity, optional.get()));
                 if (playerEntity != null) {
-                    itemStack.damage(1, playerEntity, context.getHand());
+                    itemStack.hurtAndBreak(1, playerEntity, context.getHand());
                 }
 
-                return ActionResult.SUCCESS;
+                return InteractionResult.SUCCESS;
             }
         } else {
-            return ActionResult.PASS;
+            return InteractionResult.PASS;
         }
     }
 
-    private static boolean shouldCancelStripAttempt(ItemUsageContext context) {
-        PlayerEntity playerEntity = context.getPlayer();
-        if (!context.getHand().equals(Hand.MAIN_HAND)) return false;
+    private static boolean shouldCancelStripAttempt(UseOnContext context) {
+        Player playerEntity = context.getPlayer();
+        if (!context.getHand().equals(InteractionHand.MAIN_HAND)) return false;
         if (playerEntity == null) return false;
-        return playerEntity.getOffHandStack().isOf(Items.SHIELD) && !playerEntity.shouldCancelInteraction();
+        return playerEntity.getOffhandItem().is(Items.SHIELD) && !playerEntity.isSecondaryUseActive();
     }
 
-    private Optional<BlockState> tryStrip(World world, BlockPos pos, @Nullable PlayerEntity player, BlockState state) {
+    private Optional<BlockState> tryStrip(Level world, BlockPos pos, @Nullable Player player, BlockState state) {
         Optional<BlockState> optional = this.getChiselState(state);
-        if (optional.isPresent() && player != null && !player.isSneaking()) {
-            world.playSound(player, pos, SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        if (optional.isPresent() && player != null && !player.isShiftKeyDown()) {
+            world.playSound(player, pos, SoundEvents.UI_STONECUTTER_TAKE_RESULT, SoundSource.BLOCKS, 1.0F, 1.0F);
             return optional;
         } else {
             Optional<BlockState> optional1 = this.getCrackState(state);
-            if (optional1.isPresent() && player != null && player.isSneaking()) {
-                world.playSound(player, pos, SoundEvents.BLOCK_NETHER_BRICKS_BREAK, SoundCategory.BLOCKS, 1.0F, 0.6F);
+            if (optional1.isPresent() && player != null && player.isShiftKeyDown()) {
+                world.playSound(player, pos, SoundEvents.NETHER_BRICKS_BREAK, SoundSource.BLOCKS, 1.0F, 0.6F);
                 return optional1;
             }
             return Optional.empty();
@@ -182,75 +181,75 @@ public class MyriadShovelBit extends MyriadToolBitItem{
 
     private Optional<BlockState> getChiselState(BlockState state) {
         return Optional.ofNullable(CHISEL_BLOCKS.get(state.getBlock()))
-                .map(Block::getDefaultState);
+                .map(Block::defaultBlockState);
     }
 
     private Optional<BlockState> getCrackState(BlockState state) {
         return Optional.ofNullable(CRACK_BLOCKS.get(state.getBlock()))
-                .map(Block::getDefaultState);
+                .map(Block::defaultBlockState);
     }
 
     @Override
-    public ActionResult toolUse(World world, PlayerEntity user, Hand hand) {
-        user.setCurrentHand(hand);
-        return ActionResult.PASS;
+    public InteractionResult toolUse(Level world, Player user, InteractionHand hand) {
+        user.startUsingItem(hand);
+        return InteractionResult.PASS;
     }
 
     @Override
-    public UseAction toolGetUseAction(ItemStack stack) {
-        return UseAction.SPEAR;
+    public ItemUseAnimation toolGetUseAction(ItemStack stack) {
+        return ItemUseAnimation.TRIDENT;
     }
 
     @Override
-    public boolean toolOnStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
-        if (user instanceof PlayerEntity playerEntity) {
-            int i = stack.getMaxUseTime(user) - remainingUseTicks;
+    public boolean toolOnStoppedUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
+        if (user instanceof Player playerEntity) {
+            int i = stack.getUseDuration(user) - remainingUseTicks;
             if (i < 10) {
                 return false;
             } else {
                 float f = EnchantmentHelper.getTridentSpinAttackStrength(stack, playerEntity);
-                if (f > 0.0F && !playerEntity.isTouchingWaterOrRain()) {
+                if (f > 0.0F && !playerEntity.isInWaterOrRain()) {
                     return false;
-                } else if (stack.willBreakNextUse()) {
+                } else if (stack.nextDamageWillBreak()) {
                     return false;
                 } else {
-                    RegistryEntry<SoundEvent> registryEntry = EnchantmentHelper.getEffect(stack, EnchantmentEffectComponentTypes.TRIDENT_SOUND)
-                            .orElse(SoundEvents.ITEM_TRIDENT_THROW);
-                    playerEntity.incrementStat(Stats.USED.getOrCreateStat(stack.getItem()));
-                    if (world instanceof ServerWorld serverWorld) {
-                        stack.damage(1, playerEntity);
+                    Holder<SoundEvent> registryEntry = EnchantmentHelper.pickHighestLevel(stack, EnchantmentEffectComponents.TRIDENT_SOUND)
+                            .orElse(SoundEvents.TRIDENT_THROW);
+                    playerEntity.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+                    if (world instanceof ServerLevel serverWorld) {
+                        stack.hurtWithoutBreaking(1, playerEntity);
                         if (f == 0.0F) {
                             // Create and spawn the MyriadShovelEntity at the calculated position
-                            MyriadShovelEntity tridentEntity = ProjectileEntity.spawnWithVelocity(MyriadShovelEntity::new, serverWorld, stack, playerEntity, 0.0F, 2.5F, 1.0F);
+                            MyriadShovelEntity tridentEntity = Projectile.spawnProjectileFromRotation(MyriadShovelEntity::new, serverWorld, stack, playerEntity, 0.0F, 2.5F, 1.0F);
 
-                            if (playerEntity.isInCreativeMode()) {
-                                tridentEntity.pickupType = PersistentProjectileEntity.PickupPermission.CREATIVE_ONLY;
+                            if (playerEntity.hasInfiniteMaterials()) {
+                                tridentEntity.pickup = AbstractArrow.Pickup.CREATIVE_ONLY;
                             } else {
-                                playerEntity.getInventory().removeOne(stack);
+                                playerEntity.getInventory().removeItem(stack);
                             }
 
-                            world.playSoundFromEntity(null, tridentEntity, registryEntry.value(), SoundCategory.PLAYERS, 1.0F, 1.0F);
+                            world.playSound(null, tridentEntity, registryEntry.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
                             return true;
                         }
                     }
 
                     if (f > 0.0F) {
-                        float g = playerEntity.getYaw();
-                        float h = playerEntity.getPitch();
-                        float j = -MathHelper.sin(g * (float) (Math.PI / 180.0)) * MathHelper.cos(h * (float) (Math.PI / 180.0));
-                        float k = -MathHelper.sin(h * (float) (Math.PI / 180.0));
-                        float l = MathHelper.cos(g * (float) (Math.PI / 180.0)) * MathHelper.cos(h * (float) (Math.PI / 180.0));
-                        float m = MathHelper.sqrt(j * j + k * k + l * l);
+                        float g = playerEntity.getYRot();
+                        float h = playerEntity.getXRot();
+                        float j = -Mth.sin(g * (float) (Math.PI / 180.0)) * Mth.cos(h * (float) (Math.PI / 180.0));
+                        float k = -Mth.sin(h * (float) (Math.PI / 180.0));
+                        float l = Mth.cos(g * (float) (Math.PI / 180.0)) * Mth.cos(h * (float) (Math.PI / 180.0));
+                        float m = Mth.sqrt(j * j + k * k + l * l);
                         j *= f / m;
                         k *= f / m;
                         l *= f / m;
-                        playerEntity.addVelocity(j, k, l);
-                        playerEntity.useRiptide(20, 8.0F, stack);
-                        if (playerEntity.isOnGround()) {
-                            playerEntity.move(MovementType.SELF, new Vec3d(0.0, 1.1999999F, 0.0));
+                        playerEntity.push(j, k, l);
+                        playerEntity.startAutoSpinAttack(20, 8.0F, stack);
+                        if (playerEntity.onGround()) {
+                            playerEntity.move(MoverType.SELF, new Vec3(0.0, 1.1999999F, 0.0));
                         }
 
-                        world.playSoundFromEntity(null, playerEntity, registryEntry.value(), SoundCategory.PLAYERS, 1.0F, 1.0F);
+                        world.playSound(null, playerEntity, registryEntry.value(), SoundSource.PLAYERS, 1.0F, 1.0F);
                         return true;
                     } else {
                         return false;
@@ -262,63 +261,62 @@ public class MyriadShovelBit extends MyriadToolBitItem{
     }
 
     @Override
-    public ActionResult toolUseOnBlock(ItemUsageContext context) {
-        World world = context.getWorld();
-        BlockPos blockPos = context.getBlockPos();
-        PlayerEntity playerEntity = context.getPlayer();
+    public InteractionResult toolUseOnBlock(UseOnContext context) {
+        Level world = context.getLevel();
+        BlockPos blockPos = context.getClickedPos();
+        Player playerEntity = context.getPlayer();
 
-        if (playerEntity == null) return ActionResult.FAIL;
-        if (playerEntity.isSneaking()) {
+        if (playerEntity == null) return InteractionResult.FAIL;
+        if (playerEntity.isShiftKeyDown()) {
             BlockState blockState = world.getBlockState(blockPos);
-            if (context.getSide() == Direction.DOWN) {
-                return ActionResult.PASS;
+            if (context.getClickedFace() == Direction.DOWN) {
+                return InteractionResult.PASS;
             } else {
                 BlockState blockState2 = PATH_STATES.get(blockState.getBlock());
                 BlockState blockState3 = null;
-                if (blockState2 != null && world.getBlockState(blockPos.up()).isAir()) {
-                    world.playSound(playerEntity, blockPos, SoundEvents.ITEM_SHOVEL_FLATTEN, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                if (blockState2 != null && world.getBlockState(blockPos.above()).isAir()) {
+                    world.playSound(playerEntity, blockPos, SoundEvents.SHOVEL_FLATTEN, SoundSource.BLOCKS, 1.0F, 1.0F);
                     blockState3 = blockState2;
-                } else if (blockState.getBlock() instanceof CampfireBlock && blockState.get(CampfireBlock.LIT)) {
-                    if (!world.isClient()) {
-                        world.syncWorldEvent(null, WorldEvents.FIRE_EXTINGUISHED, blockPos, 0);
+                } else if (blockState.getBlock() instanceof CampfireBlock && blockState.getValue(CampfireBlock.LIT)) {
+                    if (!world.isClientSide()) {
+                        world.levelEvent(null, LevelEvent.SOUND_EXTINGUISH_FIRE, blockPos, 0);
                     }
 
-                    CampfireBlock.extinguish(context.getPlayer(), world, blockPos, blockState);
-                    blockState3 = blockState.with(CampfireBlock.LIT, Boolean.FALSE);
+                    CampfireBlock.dowse(context.getPlayer(), world, blockPos, blockState);
+                    blockState3 = blockState.setValue(CampfireBlock.LIT, Boolean.FALSE);
                 }
 
                 if (blockState3 != null) {
-                    if (!world.isClient()) {
-                        world.setBlockState(blockPos, blockState3, Block.NOTIFY_ALL_AND_REDRAW);
-                        world.emitGameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Emitter.of(playerEntity, blockState3));
-                        context.getStack().damage(1, playerEntity, context.getHand());
+                    if (!world.isClientSide()) {
+                        world.setBlock(blockPos, blockState3, Block.UPDATE_ALL_IMMEDIATE);
+                        world.gameEvent(GameEvent.BLOCK_CHANGE, blockPos, GameEvent.Context.of(playerEntity, blockState3));
+                        context.getItemInHand().hurtAndBreak(1, playerEntity, context.getHand());
                     }
 
-                    return ActionResult.SUCCESS;
+                    return InteractionResult.SUCCESS;
                 } else {
-                    return ActionResult.PASS;
+                    return InteractionResult.PASS;
                 }
             }
         }
-        return ActionResult.PASS;
+        return InteractionResult.PASS;
     }
 
     @Override
     public void setToolAttributes(ItemStack tool) {
-        tool.set(DataComponentTypes.ATTRIBUTE_MODIFIERS, AttributeModifiersComponent.builder()
-                .add(EntityAttributes.ATTACK_DAMAGE, new EntityAttributeModifier(BASE_ATTACK_DAMAGE_MODIFIER_ID, 8, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-                .add(EntityAttributes.ATTACK_SPEED, new EntityAttributeModifier(BASE_ATTACK_SPEED_MODIFIER_ID, -2.9, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
-                .add(EntityAttributes.ENTITY_INTERACTION_RANGE, new EntityAttributeModifier(Identifier.ofVanilla("base_attack_range"), 0.75, EntityAttributeModifier.Operation.ADD_VALUE), AttributeModifierSlot.MAINHAND)
+        tool.set(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.builder()
+                .add(Attributes.ATTACK_DAMAGE, new AttributeModifier(BASE_ATTACK_DAMAGE_ID, 8, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -2.9, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
+                .add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(Identifier.withDefaultNamespace("base_attack_range"), 0.25, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                 .build());
-        tool.set(DataComponentTypes.TOOL, new ToolComponent(
+        tool.set(DataComponents.TOOL, new Tool(
                 List.of(
-                        ToolComponent.Rule.ofNeverDropping(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.INCORRECT_FOR_IRON_TOOL)),
-                        ToolComponent.Rule.ofAlwaysDropping(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.SHOVEL_MINEABLE), 20)
+                        Tool.Rule.deniesDrops(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.INCORRECT_FOR_IRON_TOOL)),
+                        Tool.Rule.minesAndDrops(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.MINEABLE_WITH_SHOVEL), 20)
                 ),
                 1.0F,
                 1,
                 true
         ));
-        tool.set(DataComponentTypes.ITEM_MODEL, Antiquities.id("myriad_shovel"));
     }
 }

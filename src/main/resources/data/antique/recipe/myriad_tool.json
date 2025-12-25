@@ -1,4 +1,16 @@
 {
-  "type": "antique:crafting_special_myriad_tool",
-  "category": "equipment"
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "pattern": [
+    " MM",
+    " MM",
+    "M  "
+  ],
+  "key": {
+    "M": "antique:raw_myriad"
+  },
+  "result": {
+    "id": "antique:myriad_tool",
+    "count": 1
+  }
 }

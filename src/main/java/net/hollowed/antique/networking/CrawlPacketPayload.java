@@ -1,26 +1,26 @@
 package net.hollowed.antique.networking;
 
 import net.hollowed.antique.Antiquities;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
 
-public record CrawlPacketPayload(boolean crawling) implements CustomPayload {
-    public static final Id<CrawlPacketPayload> ID = new Id<>(Identifier.of(Antiquities.MOD_ID, "crawl_packet"));
+public record CrawlPacketPayload(boolean crawling) implements CustomPacketPayload {
+    public static final Type<CrawlPacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "crawl_packet"));
 
-    public static final PacketCodec<RegistryByteBuf, CrawlPacketPayload> CODEC = PacketCodec.of(CrawlPacketPayload::write, CrawlPacketPayload::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, CrawlPacketPayload> CODEC = StreamCodec.ofMember(CrawlPacketPayload::write, CrawlPacketPayload::new);
 
-    public CrawlPacketPayload(RegistryByteBuf buf) {
+    public CrawlPacketPayload(RegistryFriendlyByteBuf buf) {
         this(buf.readBoolean());
     }
 
-    public void write(RegistryByteBuf buf) {
+    public void write(RegistryFriendlyByteBuf buf) {
         buf.writeBoolean(crawling);
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

@@ -1,46 +1,46 @@
 package net.hollowed.antique.items;
 
 import net.hollowed.combatamenities.util.items.CAComponents;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.StackReference;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.util.ClickType;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 
 public class ClothPatternItem extends Item {
-    public ClothPatternItem(Settings settings) {
+    public ClothPatternItem(Properties settings) {
         super(settings);
     }
 
     @Override
-    public boolean onStackClicked(ItemStack stack, Slot slot, ClickType clickType, PlayerEntity player) {
-        ItemStack otherStack = slot.getStack();
-        if (clickType == ClickType.LEFT) {
-            if (otherStack.isOf(Items.INK_SAC) || otherStack.isOf(Items.GLOW_INK_SAC)) {
+    public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction clickType, Player player) {
+        ItemStack otherStack = slot.getItem();
+        if (clickType == ClickAction.PRIMARY) {
+            if (otherStack.is(Items.INK_SAC) || otherStack.is(Items.GLOW_INK_SAC)) {
                 addInk(player, stack, otherStack);
                 return true;
             }
         }
-        return super.onStackClicked(stack, slot, clickType, player);
+        return super.overrideStackedOnOther(stack, slot, clickType, player);
     }
 
     @Override
-    public boolean onClicked(ItemStack stack, ItemStack otherStack, Slot slot, ClickType clickType, PlayerEntity player, StackReference cursorStackReference) {
-        if (clickType == ClickType.LEFT) {
-            if (otherStack.isOf(Items.INK_SAC) || otherStack.isOf(Items.GLOW_INK_SAC)) {
+    public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack otherStack, Slot slot, ClickAction clickType, Player player, SlotAccess cursorStackReference) {
+        if (clickType == ClickAction.PRIMARY) {
+            if (otherStack.is(Items.INK_SAC) || otherStack.is(Items.GLOW_INK_SAC)) {
                 addInk(player, stack, otherStack);
                 return true;
             }
         }
-        return super.onClicked(stack, otherStack, slot, clickType, player, cursorStackReference);
+        return super.overrideOtherStackedOnMe(stack, otherStack, slot, clickType, player, cursorStackReference);
     }
 
-    private void addInk(PlayerEntity player, ItemStack patternStack, ItemStack inkStack) {
-        patternStack.set(CAComponents.BOOLEAN_PROPERTY, inkStack.isOf(Items.GLOW_INK_SAC));
-        player.playSound(inkStack.isOf(Items.GLOW_INK_SAC) ? SoundEvents.ITEM_GLOW_INK_SAC_USE : SoundEvents.ITEM_INK_SAC_USE, 1.0F, 1.0F);
-        inkStack.decrementUnlessCreative(1, player);
+    private void addInk(Player player, ItemStack patternStack, ItemStack inkStack) {
+        patternStack.set(CAComponents.BOOLEAN_PROPERTY, inkStack.is(Items.GLOW_INK_SAC));
+        player.playSound(inkStack.is(Items.GLOW_INK_SAC) ? SoundEvents.GLOW_INK_SAC_USE : SoundEvents.INK_SAC_USE, 1.0F, 1.0F);
+        inkStack.consume(1, player);
     }
 }

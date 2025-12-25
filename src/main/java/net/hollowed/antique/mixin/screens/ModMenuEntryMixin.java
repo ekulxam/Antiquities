@@ -4,13 +4,13 @@ import com.terraformersmc.modmenu.gui.ModsScreen;
 import com.terraformersmc.modmenu.gui.widget.entries.ModListEntry;
 import com.terraformersmc.modmenu.util.mod.Mod;
 import net.hollowed.antique.Antiquities;
-import net.minecraft.client.gl.RenderPipelines;
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Text;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.Language;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.locale.Language;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FormattedText;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,30 +24,30 @@ public abstract class ModMenuEntryMixin extends Screen {
 
     @Shadow private int rightPaneX;
 
-    protected ModMenuEntryMixin(Text title) {
+    protected ModMenuEntryMixin(Component title) {
         super(title);
     }
 
     @Inject(method = "render", at = @At("TAIL"))
-    public void render(DrawContext DrawContext, int mouseX, int mouseY, float delta, CallbackInfo ci) {
+    public void render(GuiGraphics DrawContext, int mouseX, int mouseY, float delta, CallbackInfo ci) {
         ModListEntry selectedEntry = this.selected;
         if (selectedEntry != null) {
             Mod mod = selectedEntry.getMod();
             int imageOffset = 36;
-            Text name = Text.literal(mod.getTranslatedName());
-            StringVisitable trimmedName = name;
+            Component name = Component.literal(mod.getTranslatedName());
+            FormattedText trimmedName = name;
             int maxNameWidth = this.width - (this.rightPaneX + imageOffset);
-            if (this.textRenderer.getWidth(name) > maxNameWidth) {
-                StringVisitable ellipsis = StringVisitable.plain("...");
-                trimmedName = StringVisitable.concat(this.textRenderer.trimToWidth(name, maxNameWidth - this.textRenderer.getWidth(ellipsis)), ellipsis);
+            if (this.font.width(name) > maxNameWidth) {
+                FormattedText ellipsis = FormattedText.of("...");
+                trimmedName = FormattedText.composite(this.font.substrByWidth(name, maxNameWidth - this.font.width(ellipsis)), ellipsis);
             }
 
             // Custom color logic
             int nameColor = 0xFFAA2F54;
 
             if ("antique".equals(mod.getId())) {
-                DrawContext.drawText(this.textRenderer, Language.getInstance().reorder(trimmedName), this.rightPaneX + imageOffset, 49, nameColor, true);
-                DrawContext.drawTexture(RenderPipelines.GUI_TEXTURED, Identifier.of(Antiquities.MOD_ID, "antiquities_small_icon.png"), this.rightPaneX + imageOffset + 50, 45, 0, 0, 16, 16, 16, 16);
+                DrawContext.drawString(this.font, Language.getInstance().getVisualOrder(trimmedName), this.rightPaneX + imageOffset, 49, nameColor, true);
+                DrawContext.blit(RenderPipelines.GUI_TEXTURED, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "antiquities_small_icon.png"), this.rightPaneX + imageOffset + 50, 45, 0, 0, 16, 16, 16, 16);
             }
         }
     }

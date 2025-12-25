@@ -85,11 +85,9 @@
       "bodies": 16
     },
     {
-      "model": "antique:hollowed_cloth",
-      "color": "be113e",
-      "width": 0.166,
-      "length": 2.1,
-      "bodies": 12
+      "model": "antique:explosive_cloth",
+      "color": "ff0000",
+      "width": 0.066
     },
     {
       "model": "antique:elegant_cloth",
@@ -98,11 +96,11 @@
       "bodies": 12
     },
     {
-      "model": "antique:amber_cloth",
-      "color": "e8944d",
-      "length": 2.8,
+      "model": "antique:hollowed_cloth",
+      "color": "be113e",
       "width": 0.166,
-      "bodies": 16
+      "length": 2.1,
+      "bodies": 12
     },
     {
       "model": "antique:cord_cloth",
@@ -159,6 +157,13 @@
     {
       "model": "antique:yak_cloth",
       "color": "2f3136",
+      "length": 2.8,
+      "width": 0.166,
+      "bodies": 16
+    },
+    {
+      "model": "antique:amber_cloth",
+      "color": "e8944d",
       "length": 2.8,
       "width": 0.166,
       "bodies": 16

@@ -1,32 +1,32 @@
 package net.hollowed.antique.networking;
 
 import net.hollowed.antique.Antiquities;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.packet.CustomPayload;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.phys.Vec3;
 
-public record WallJumpParticlePacketPayload(float x, float y, float z, float particleX, float particleZ, Vec3d pushVector) implements CustomPayload {
-    public static final Id<WallJumpParticlePacketPayload> ID = new Id<>(Identifier.of(Antiquities.MOD_ID, "wall_jump_particle_packet"));
+public record WallJumpParticlePacketPayload(float x, float y, float z, float particleX, float particleZ, Vec3 pushVector) implements CustomPacketPayload {
+    public static final Type<WallJumpParticlePacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "wall_jump_particle_packet"));
 
-    public static final PacketCodec<RegistryByteBuf, WallJumpParticlePacketPayload> CODEC = PacketCodec.of(WallJumpParticlePacketPayload::write, WallJumpParticlePacketPayload::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, WallJumpParticlePacketPayload> CODEC = StreamCodec.ofMember(WallJumpParticlePacketPayload::write, WallJumpParticlePacketPayload::new);
 
-    public WallJumpParticlePacketPayload(RegistryByteBuf buf) {
-        this(buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVec3d());
+    public WallJumpParticlePacketPayload(RegistryFriendlyByteBuf buf) {
+        this(buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readFloat(), buf.readVec3());
     }
 
-    public void write(RegistryByteBuf buf) {
+    public void write(RegistryFriendlyByteBuf buf) {
         buf.writeFloat(x);
         buf.writeFloat(y);
         buf.writeFloat(z);
         buf.writeFloat(particleX);
         buf.writeFloat(particleZ);
-        buf.writeVec3d(pushVector);
+        buf.writeVec3(pushVector);
     }
 
     @Override
-    public Id<? extends CustomPayload> getId() {
+    public Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

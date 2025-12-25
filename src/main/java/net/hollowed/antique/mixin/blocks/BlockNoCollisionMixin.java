@@ -20,35 +20,39 @@ package net.hollowed.antique.mixin.blocks;
 
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.hollowed.antique.index.AntiqueEffects;
-import net.minecraft.block.*;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityCollisionHandler;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.shape.VoxelShape;
-import net.minecraft.util.shape.VoxelShapes;
-import net.minecraft.world.BlockView;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.InsideBlockEffectApplier;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.EntityCollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(AbstractBlock.AbstractBlockState.class)
+@Mixin(BlockBehaviour.BlockStateBase.class)
 public class BlockNoCollisionMixin {
 
-    @Inject(method = "getCollisionShape(Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/ShapeContext;)Lnet/minecraft/util/shape/VoxelShape;", at = @At("RETURN"), cancellable = true)
-    private void getCollision(BlockView world, BlockPos pos, ShapeContext context, CallbackInfoReturnable<VoxelShape> cir) {
+    @Inject(method = "getCollisionShape(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/phys/shapes/CollisionContext;)Lnet/minecraft/world/phys/shapes/VoxelShape;", at = @At("RETURN"), cancellable = true)
+    private void getCollision(BlockGetter world, BlockPos pos, CollisionContext context, CallbackInfoReturnable<VoxelShape> cir) {
         Entity entity;
-        if ((context instanceof EntityShapeContext shapeContext) && (entity = shapeContext.getEntity()) != null && !cir.getReturnValue().isEmpty()) {
-            if (entity instanceof LivingEntity living && living.hasStatusEffect(AntiqueEffects.ANIME_EFFECT) && world.getBlockState(pos).getBlock().getBlastResistance() < 500) {
-                cir.setReturnValue(VoxelShapes.empty());
+        if ((context instanceof EntityCollisionContext shapeContext) && (entity = shapeContext.getEntity()) != null && !cir.getReturnValue().isEmpty()) {
+            if (entity instanceof LivingEntity living && living.hasEffect(AntiqueEffects.ANIME_EFFECT) && world.getBlockState(pos).getBlock().getExplosionResistance() < 500) {
+                cir.setReturnValue(Shapes.empty());
             }
         }
     }
 
-    @WrapWithCondition(method = "onEntityCollision", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/Block;onEntityCollision(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/entity/Entity;Lnet/minecraft/entity/EntityCollisionHandler;Z)V"))
-    private boolean onEntityCollision(Block instance, BlockState blockState, World world, BlockPos blockPos, Entity entity, EntityCollisionHandler entityCollisionHandler, boolean b) {
-        return !(entity instanceof LivingEntity living && living.hasStatusEffect(AntiqueEffects.ANIME_EFFECT) && world.getBlockState(blockPos).getBlock().getBlastResistance() < 500);
+    @WrapWithCondition(method = "entityInside", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/Block;entityInside(Lnet/minecraft/world/level/block/state/BlockState;Lnet/minecraft/world/level/Level;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/InsideBlockEffectApplier;Z)V"))
+    private boolean onEntityCollision(Block instance, BlockState blockState, Level world, BlockPos blockPos, Entity entity, InsideBlockEffectApplier entityCollisionHandler, boolean b) {
+        return !(entity instanceof LivingEntity living && living.hasEffect(AntiqueEffects.ANIME_EFFECT) && world.getBlockState(blockPos).getBlock().getExplosionResistance() < 500);
     }
 }

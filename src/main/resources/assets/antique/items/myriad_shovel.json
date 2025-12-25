@@ -8,11 +8,11 @@
           "base": "antique:item/myriad_shovel_inventory",
           "tints": [
             {
-              "type": "minecraft:dye",
+              "type": "antique:myriad",
               "default": 13893696
             },
             {
-              "type": "minecraft:dye",
+              "type": "antique:myriad",
               "default": 13893696
             }
           ]
@@ -31,11 +31,11 @@
             "base": "antique:item/myriad_shovel",
             "tints": [
               {
-                "type": "minecraft:dye",
+                "type": "antique:myriad",
                 "default": 13893696
               },
               {
-                "type": "minecraft:dye",
+                "type": "antique:myriad",
                 "default": 13893696
               }
             ]
@@ -45,11 +45,11 @@
             "base": "antique:item/myriad_shovel_throwing",
             "tints": [
               {
-                "type": "minecraft:dye",
+                "type": "antique:myriad",
                 "default": 13893696
               },
               {
-                "type": "minecraft:dye",
+                "type": "antique:myriad",
                 "default": 13893696
               }
             ]

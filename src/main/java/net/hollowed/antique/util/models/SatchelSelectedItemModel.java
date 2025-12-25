@@ -5,14 +5,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.index.AntiqueDataComponentTypes;
 import net.hollowed.antique.items.SatchelItem;
-import net.minecraft.client.item.ItemModelManager;
-import net.minecraft.client.render.item.ItemRenderState;
-import net.minecraft.client.render.item.model.ItemModel;
-import net.minecraft.client.render.model.ResolvableModel;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.item.ItemDisplayContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.HeldItemContext;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.item.ItemModel;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.resources.model.ResolvableModel;
+import net.minecraft.world.entity.ItemOwner;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -23,30 +23,30 @@ public class SatchelSelectedItemModel implements ItemModel {
 
     public SatchelSelectedItemModel() {}
 
-    public void update(ItemRenderState state, ItemStack stack, ItemModelManager resolver, ItemDisplayContext displayContext, @Nullable ClientWorld world, @Nullable HeldItemContext heldItemContext, int seed) {
-        state.addModelKey(this);
+    public void update(ItemStackRenderState state, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext displayContext, @Nullable ClientLevel world, @Nullable ItemOwner heldItemContext, int seed) {
+        state.appendModelIdentityElement(this);
         List<ItemStack> list = stack.getOrDefault(AntiqueDataComponentTypes.SATCHEL_STACK, List.of(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY));
         if (SatchelItem.getInternalIndex(stack) >= 0 && !list.isEmpty() && SatchelItem.getInternalIndex(stack) < list.size()) {
             ItemStack itemStack = list.get(SatchelItem.getInternalIndex(stack));
             if (!itemStack.isEmpty()) {
-                resolver.update(state, itemStack, displayContext, world, heldItemContext, seed);
+                resolver.appendItemLayers(state, itemStack, displayContext, world, heldItemContext, seed);
             }
         }
     }
 
     @Environment(EnvType.CLIENT)
     public record Unbaked() implements ItemModel.Unbaked {
-        public static final MapCodec<Unbaked> CODEC = MapCodec.unit(new Unbaked());
+        public static final MapCodec<net.hollowed.antique.util.models.SatchelSelectedItemModel.Unbaked> CODEC = MapCodec.unit(new net.hollowed.antique.util.models.SatchelSelectedItemModel.Unbaked());
 
-        public MapCodec<Unbaked> getCodec() {
+        public MapCodec<net.hollowed.antique.util.models.SatchelSelectedItemModel.Unbaked> type() {
             return CODEC;
         }
 
-        public ItemModel bake(ItemModel.BakeContext context) {
+        public ItemModel bake(ItemModel.BakingContext context) {
             return SatchelSelectedItemModel.INSTANCE;
         }
 
-        public void resolve(ResolvableModel.Resolver resolver) {
+        public void resolveDependencies(ResolvableModel.Resolver resolver) {
         }
     }
 }

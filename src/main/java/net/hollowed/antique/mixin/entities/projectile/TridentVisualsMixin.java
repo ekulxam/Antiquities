@@ -1,28 +1,28 @@
 package net.hollowed.antique.mixin.entities.projectile;
 
 import net.hollowed.combatamenities.index.CAParticles;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.entity.projectile.TridentEntity;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.hit.HitResult;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.entity.projectile.arrow.ThrownTrident;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 
-@Mixin(TridentEntity.class)
-public abstract class TridentVisualsMixin extends PersistentProjectileEntity {
+@Mixin(ThrownTrident.class)
+public abstract class TridentVisualsMixin extends AbstractArrow {
 
-    protected TridentVisualsMixin(EntityType<? extends PersistentProjectileEntity> entityType, World world) {
+    protected TridentVisualsMixin(EntityType<? extends AbstractArrow> entityType, Level world) {
         super(entityType, world);
     }
 
     @Override
-    protected void onCollision(HitResult hitResult) {
-        super.onCollision(hitResult);
-        if (this.getEntityWorld() instanceof ServerWorld serverWorld) {
-            Vec3d pos = this.getEntityPos().add(this.getRotationVector().multiply(1, 1, -1));
-            serverWorld.spawnParticles(CAParticles.RING, pos.getX(), pos.getY(), pos.getZ(), 1, 0.0, 0.0, 0.0, 0);
+    protected void onHit(HitResult hitResult) {
+        super.onHit(hitResult);
+        if (this.level() instanceof ServerLevel serverWorld) {
+            Vec3 pos = this.position().add(this.getLookAngle().multiply(1, 1, -1));
+            serverWorld.sendParticles(CAParticles.RING, pos.x(), pos.y(), pos.z(), 1, 0.0, 0.0, 0.0, 0);
         }
     }
 }

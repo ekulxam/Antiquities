@@ -2,17 +2,12 @@ package net.hollowed.antique.index;
 
 import net.hollowed.antique.util.ClothPatternGlowRecipe;
 import net.hollowed.antique.util.ClothPatternOnToolRecipe;
-import net.hollowed.antique.util.MyriadToolRecipe;
-import net.minecraft.recipe.Recipe;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.SpecialCraftingRecipe;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 
 public interface AntiqueRecipeSerializer {
-    RecipeSerializer<MyriadToolRecipe> MYRIAD_TOOL = register(
-            "crafting_special_myriad_tool", new SpecialCraftingRecipe.SpecialRecipeSerializer<>(MyriadToolRecipe::new)
-    );
     RecipeSerializer<ClothPatternOnToolRecipe> CLOTH_PATTERN = register(
             "crafting_special_cloth_pattern", new ClothPatternOnToolRecipe.Serializer()
     );
@@ -23,6 +18,6 @@ public interface AntiqueRecipeSerializer {
     static void init() {}
 
     static <S extends RecipeSerializer<T>, T extends Recipe<?>> S register(String id, S serializer) {
-        return Registry.register(Registries.RECIPE_SERIALIZER, "antique:" + id, serializer);
+        return Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, "antique:" + id, serializer);
     }
 }

@@ -2,11 +2,20 @@ package net.hollowed.antique.client.armor.models;
 
 import net.hollowed.antique.index.AntiqueItems;
 import net.minecraft.client.model.*;
-import net.minecraft.client.render.entity.model.*;
-import net.minecraft.client.render.entity.state.*;
-import net.minecraft.entity.player.PlayerSkinType;
+import net.minecraft.client.model.geom.ModelPart;
+import net.minecraft.client.model.geom.PartNames;
+import net.minecraft.client.model.geom.PartPose;
+import net.minecraft.client.model.geom.builders.CubeDeformation;
+import net.minecraft.client.model.geom.builders.CubeListBuilder;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
+import net.minecraft.client.model.geom.builders.MeshDefinition;
+import net.minecraft.client.model.geom.builders.PartDefinition;
+import net.minecraft.client.renderer.entity.state.AvatarRenderState;
+import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
+import net.minecraft.client.renderer.entity.state.SkeletonRenderState;
+import net.minecraft.world.entity.player.PlayerModelType;
 
-public class AdventureArmor<S extends BipedEntityRenderState> extends BipedEntityModel<S> {
+public class AdventureArmor<S extends HumanoidRenderState> extends HumanoidModel<S> {
 	public final ModelPart satchel;
 	public final ModelPart rightArmArmorThick;
 	public final ModelPart leftArmArmorThick;
@@ -18,69 +27,69 @@ public class AdventureArmor<S extends BipedEntityRenderState> extends BipedEntit
 
 	public AdventureArmor(ModelPart root) {
 		super(root);
-		this.realBody = root.getChild(EntityModelPartNames.BODY).getChild("realBody");
-		this.satchel = root.getChild(EntityModelPartNames.BODY).getChild("satchel");
-		this.rightArmArmor = root.getChild(EntityModelPartNames.RIGHT_ARM).getChild("rightArmArmor");
-		this.rightArmArmorThick = root.getChild(EntityModelPartNames.RIGHT_ARM).getChild("rightArmArmorThick");
-		this.leftArmArmor = root.getChild(EntityModelPartNames.LEFT_ARM).getChild("leftArmArmor");
-		this.leftArmArmorThick = root.getChild(EntityModelPartNames.LEFT_ARM).getChild("leftArmArmorThick");
-		this.rightBoot = root.getChild(EntityModelPartNames.RIGHT_LEG).getChild("rightBoot");
-		this.leftBoot = root.getChild(EntityModelPartNames.LEFT_LEG).getChild("leftBoot");
+		this.realBody = root.getChild(PartNames.BODY).getChild("realBody");
+		this.satchel = root.getChild(PartNames.BODY).getChild("satchel");
+		this.rightArmArmor = root.getChild(PartNames.RIGHT_ARM).getChild("rightArmArmor");
+		this.rightArmArmorThick = root.getChild(PartNames.RIGHT_ARM).getChild("rightArmArmorThick");
+		this.leftArmArmor = root.getChild(PartNames.LEFT_ARM).getChild("leftArmArmor");
+		this.leftArmArmorThick = root.getChild(PartNames.LEFT_ARM).getChild("leftArmArmorThick");
+		this.rightBoot = root.getChild(PartNames.RIGHT_LEG).getChild("rightBoot");
+		this.leftBoot = root.getChild(PartNames.LEFT_LEG).getChild("leftBoot");
 	}
 
-	public static TexturedModelData getTexturedModelData() {
-		ModelData modelData = new ModelData();
-		ModelPartData modelPartData = modelData.getRoot();
+	public static LayerDefinition getTexturedModelData() {
+		MeshDefinition modelData = new MeshDefinition();
+		PartDefinition modelPartData = modelData.getRoot();
 
-		ModelPartData head = modelPartData.addChild(EntityModelPartNames.HEAD, ModelPartBuilder.create(), ModelTransform.NONE);
-		head.addChild(EntityModelPartNames.HAT, ModelPartBuilder.create(), ModelTransform.NONE);
+		PartDefinition head = modelPartData.addOrReplaceChild(PartNames.HEAD, CubeListBuilder.create(), PartPose.ZERO);
+		head.addOrReplaceChild(PartNames.HAT, CubeListBuilder.create(), PartPose.ZERO);
 
-		ModelPartData body = modelPartData.addChild(EntityModelPartNames.BODY, ModelPartBuilder.create(), ModelTransform.NONE);
-		ModelPartData rightArm = modelPartData.addChild(EntityModelPartNames.RIGHT_ARM, ModelPartBuilder.create(), ModelTransform.origin(-5, 2, 0));
-		ModelPartData leftArm = modelPartData.addChild(EntityModelPartNames.LEFT_ARM, ModelPartBuilder.create(), ModelTransform.origin(5, 2, 0));
-		ModelPartData rightLeg = modelPartData.addChild(EntityModelPartNames.RIGHT_LEG, ModelPartBuilder.create(), ModelTransform.origin(-1.9F, 12, 0));
-		ModelPartData leftLeg = modelPartData.addChild(EntityModelPartNames.LEFT_LEG, ModelPartBuilder.create(), ModelTransform.origin(1.9F, 12, 0));
+		PartDefinition body = modelPartData.addOrReplaceChild(PartNames.BODY, CubeListBuilder.create(), PartPose.ZERO);
+		PartDefinition rightArm = modelPartData.addOrReplaceChild(PartNames.RIGHT_ARM, CubeListBuilder.create(), PartPose.offset(-5, 2, 0));
+		PartDefinition leftArm = modelPartData.addOrReplaceChild(PartNames.LEFT_ARM, CubeListBuilder.create(), PartPose.offset(5, 2, 0));
+		PartDefinition rightLeg = modelPartData.addOrReplaceChild(PartNames.RIGHT_LEG, CubeListBuilder.create(), PartPose.offset(-1.9F, 12, 0));
+		PartDefinition leftLeg = modelPartData.addOrReplaceChild(PartNames.LEFT_LEG, CubeListBuilder.create(), PartPose.offset(1.9F, 12, 0));
 
-		body.addChild("realBody", ModelPartBuilder.create().uv(0, 16).cuboid(-4.0F, -24.0F, -2.0F, 8.0F, 12.0F, 4.0F, new Dilation(0.27F))
-				.uv(24, 0).cuboid(2.0F, -26.0F, -3.0F, 3.0F, 3.0F, 8.0F, new Dilation(0.0F))
-				.uv(24, 11).cuboid(-5.0F, -26.0F, -3.0F, 3.0F, 3.0F, 8.0F, new Dilation(0.0F))
-				.uv(46, 16).cuboid(-2.0F, -26.0F, 2.0F, 4.0F, 3.0F, 3.0F, new Dilation(0.0F)), ModelTransform.origin(0, 24, 0));
+		body.addOrReplaceChild("realBody", CubeListBuilder.create().texOffs(0, 16).addBox(-4.0F, -24.0F, -2.0F, 8.0F, 12.0F, 4.0F, new CubeDeformation(0.27F))
+				.texOffs(24, 0).addBox(2.0F, -26.0F, -3.0F, 3.0F, 3.0F, 8.0F, new CubeDeformation(0.0F))
+				.texOffs(24, 11).addBox(-5.0F, -26.0F, -3.0F, 3.0F, 3.0F, 8.0F, new CubeDeformation(0.0F))
+				.texOffs(46, 16).addBox(-2.0F, -26.0F, 2.0F, 4.0F, 3.0F, 3.0F, new CubeDeformation(0.0F)), PartPose.offset(0, 24, 0));
 
-		body.addChild("satchel", ModelPartBuilder.create().uv(0, 0).cuboid(-4.0F, -24.0F, -2.0F, 8.0F, 12.0F, 4.0F, new Dilation(0.32F))
-				.uv(54, 22).cuboid(-6.0F, -13.0F, -2.0F, 2.0F, 5.0F, 4.0F, new Dilation(0.15F)), ModelTransform.origin(0, 24, 0));
+		body.addOrReplaceChild("satchel", CubeListBuilder.create().texOffs(0, 0).addBox(-4.0F, -24.0F, -2.0F, 8.0F, 12.0F, 4.0F, new CubeDeformation(0.32F))
+				.texOffs(54, 22).addBox(-6.0F, -13.0F, -2.0F, 2.0F, 5.0F, 4.0F, new CubeDeformation(0.15F)), PartPose.offset(0, 24, 0));
 
-		rightArm.addChild("rightArmArmor", ModelPartBuilder.create().uv(14, 54).cuboid(-6.0F, -24.0F, -2.0F, 3.0F, 12.0F, 4.0F, new Dilation(0.8F))
-				.uv(0, 84).cuboid(-6.0F, -24.0F, -2.0F, 3.0F, 12.0F, 4.0F, new Dilation(0.99F))
-				.uv(48, 38).cuboid(-6.0F, -24.0F, -2.0F, 3.0F, 12.0F, 4.0F, new Dilation(0.47F)), ModelTransform.origin(4, 22, 0));
+		rightArm.addOrReplaceChild("rightArmArmor", CubeListBuilder.create().texOffs(14, 54).addBox(-6.0F, -24.0F, -2.0F, 3.0F, 12.0F, 4.0F, new CubeDeformation(0.8F))
+				.texOffs(0, 84).addBox(-6.0F, -24.0F, -2.0F, 3.0F, 12.0F, 4.0F, new CubeDeformation(0.99F))
+				.texOffs(48, 38).addBox(-6.0F, -24.0F, -2.0F, 3.0F, 12.0F, 4.0F, new CubeDeformation(0.47F)), PartPose.offset(4, 22, 0));
 
-		leftArm.addChild("leftArmArmor", ModelPartBuilder.create().uv(46, 0).cuboid(3.0F, -24.0F, -2.0F, 3.0F, 12.0F, 4.0F, new Dilation(0.27F))
-				.uv(0, 48).cuboid(3.0F, -24.0F, -2.0F, 3.0F, 12.0F, 4.0F, new Dilation(0.47F)), ModelTransform.origin(-4, 22, 0));
+		leftArm.addOrReplaceChild("leftArmArmor", CubeListBuilder.create().texOffs(46, 0).addBox(3.0F, -24.0F, -2.0F, 3.0F, 12.0F, 4.0F, new CubeDeformation(0.27F))
+				.texOffs(0, 48).addBox(3.0F, -24.0F, -2.0F, 3.0F, 12.0F, 4.0F, new CubeDeformation(0.47F)), PartPose.offset(-4, 22, 0));
 
-		rightArm.addChild("rightArmArmorThick", ModelPartBuilder.create().uv(14, 54).cuboid(-7F, -24.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.8F))
-				.uv(26, 96).cuboid(-7F, -24.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.99F))
-				.uv(48, 38).cuboid(-7F, -24.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.47F)), ModelTransform.origin(4, 22, 0));
+		rightArm.addOrReplaceChild("rightArmArmorThick", CubeListBuilder.create().texOffs(14, 54).addBox(-7F, -24.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.8F))
+				.texOffs(26, 96).addBox(-7F, -24.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.99F))
+				.texOffs(48, 38).addBox(-7F, -24.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.47F)), PartPose.offset(4, 22, 0));
 
-		leftArm.addChild("leftArmArmorThick", ModelPartBuilder.create().uv(46, 0).cuboid(3.0F, -24.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.27F))
-				.uv(0, 83).cuboid(3.0F, -24.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.47F)), ModelTransform.origin(-4, 22, 0));
+		leftArm.addOrReplaceChild("leftArmArmorThick", CubeListBuilder.create().texOffs(46, 0).addBox(3.0F, -24.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.27F))
+				.texOffs(0, 83).addBox(3.0F, -24.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.47F)), PartPose.offset(-4, 22, 0));
 
-		leftLeg.addChild("leftBoot", ModelPartBuilder.create().uv(32, 38).mirrored().cuboid(-4.0F, -12.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.27F)).mirrored(false)
-				.uv(41, 66).mirrored().cuboid(-4.0F, -12.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.47F)).mirrored(false)
-				.uv(14, 79).mirrored().cuboid(-4.0F, -2.0F, -4.0F, 4.0F, 2.0F, 2.0F, new Dilation(0.27F)).mirrored(false), ModelTransform.origin(2.0F, 12.0F, 0.0F));
+		leftLeg.addOrReplaceChild("leftBoot", CubeListBuilder.create().texOffs(32, 38).mirror().addBox(-4.0F, -12.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.27F)).mirror(false)
+				.texOffs(41, 66).mirror().addBox(-4.0F, -12.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.47F)).mirror(false)
+				.texOffs(14, 79).mirror().addBox(-4.0F, -2.0F, -4.0F, 4.0F, 2.0F, 2.0F, new CubeDeformation(0.27F)).mirror(false), PartPose.offset(2.0F, 12.0F, 0.0F));
 
-		rightLeg.addChild("rightBoot", ModelPartBuilder.create().uv(32, 38).cuboid(0.0F, -12.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.27F))
-				.uv(41, 66).cuboid(0.0F, -12.0F, -2.0F, 4.0F, 12.0F, 4.0F, new Dilation(0.47F))
-				.uv(14, 79).cuboid(0.0F, -2.0F, -4.0F, 4.0F, 2.0F, 2.0F, new Dilation(0.27F)), ModelTransform.origin(-2.0F, 12.0F, 0.0F));
-		return TexturedModelData.of(modelData, 128, 128);
+		rightLeg.addOrReplaceChild("rightBoot", CubeListBuilder.create().texOffs(32, 38).addBox(0.0F, -12.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.27F))
+				.texOffs(41, 66).addBox(0.0F, -12.0F, -2.0F, 4.0F, 12.0F, 4.0F, new CubeDeformation(0.47F))
+				.texOffs(14, 79).addBox(0.0F, -2.0F, -4.0F, 4.0F, 2.0F, 2.0F, new CubeDeformation(0.27F)), PartPose.offset(-2.0F, 12.0F, 0.0F));
+		return LayerDefinition.create(modelData, 128, 128);
 	}
 
 	@Override
-	public void setAngles(S state) {
-		boolean slim = state instanceof PlayerEntityRenderState playerState && playerState.skinTextures.model() == PlayerSkinType.SLIM || state instanceof SkeletonEntityRenderState;
+	public void setupAnim(S state) {
+		boolean slim = state instanceof AvatarRenderState playerState && playerState.skin.model() == PlayerModelType.SLIM || state instanceof SkeletonRenderState;
 		rightArmArmorThick.visible = leftArmArmorThick.visible = !slim;
 		rightArmArmor.visible = leftArmArmor.visible = slim;
 
-		realBody.visible = rightArm.visible = leftArm.visible = state.equippedChestStack.isOf(AntiqueItems.NETHERITE_PAULDRONS);
-		satchel.visible = state.equippedLegsStack.isOf(AntiqueItems.SATCHEL);
-		rightBoot.visible = leftBoot.visible = state.equippedFeetStack.isOf(AntiqueItems.FUR_BOOTS);
+		realBody.visible = rightArm.visible = leftArm.visible = state.chestEquipment.is(AntiqueItems.MYRIAD_PAULDRONS);
+		satchel.visible = state.legsEquipment.is(AntiqueItems.SATCHEL);
+		rightBoot.visible = leftBoot.visible = state.feetEquipment.is(AntiqueItems.FUR_BOOTS);
 	}
 }

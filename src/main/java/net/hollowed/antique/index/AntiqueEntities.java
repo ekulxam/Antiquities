@@ -4,77 +4,77 @@ import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRe
 import net.hollowed.antique.Antiquities;
 import net.hollowed.antique.entities.*;
 import net.hollowed.antique.entities.parts.MyriadShovelPart;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.SpawnGroup;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
 
 public interface AntiqueEntities {
     EntityType<PaleWardenEntity> PALE_WARDEN = Registry.register(
-            Registries.ENTITY_TYPE,
-            Identifier.of(Antiquities.MOD_ID, "pale_warden"),
-            EntityType.Builder.create(PaleWardenEntity::new, SpawnGroup.MISC).dimensions(0.9f, 3f).build(keyOf("pale_warden"))
+            BuiltInRegistries.ENTITY_TYPE,
+            Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "pale_warden"),
+            EntityType.Builder.of(PaleWardenEntity::new, MobCategory.MISC).sized(0.9f, 3f).build(keyOf("pale_warden"))
     );
 
     EntityType<IllusionerEntity> ILLUSIONER = register(
             "illusioner",
-            EntityType.Builder.create(IllusionerEntity::new, SpawnGroup.MONSTER)
-                    .dimensions(0.6F, 1.95F)
-                    .maxTrackingRange(8)
+            EntityType.Builder.of(IllusionerEntity::new, MobCategory.MONSTER)
+                    .sized(0.6F, 1.95F)
+                    .clientTrackingRange(8)
     );
 
     EntityType<IllusionerCloneEntity> ILLUSIONER_CLONE = register(
             "illusioner_clone",
-            EntityType.Builder.create(IllusionerCloneEntity::new, SpawnGroup.MONSTER)
-                    .dropsNothing()
-                    .dimensions(0.6F, 1.95F)
-                    .maxTrackingRange(8)
+            EntityType.Builder.of(IllusionerCloneEntity::new, MobCategory.MONSTER)
+                    .noLootTable()
+                    .sized(0.6F, 1.95F)
+                    .clientTrackingRange(8)
     );
 
     EntityType<SmokeBombEntity> SMOKE_BOMB = register(
             "smoke_bomb",
-            EntityType.Builder.create(SmokeBombEntity::new, SpawnGroup.MISC)
-                    .dropsNothing()
-                    .dimensions(0.25F, 0.25F)
-                    .maxTrackingRange(8)
+            EntityType.Builder.of(SmokeBombEntity::new, MobCategory.MISC)
+                    .noLootTable()
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(8)
     );
 
     EntityType<CakeEntity> CAKE_ENTITY = register(
             "cake",
-            EntityType.Builder.create(CakeEntity::new, SpawnGroup.MISC)
-                    .dropsNothing()
-                    .dimensions(0.25F, 0.25F)
-                    .maxTrackingRange(8)
+            EntityType.Builder.of(CakeEntity::new, MobCategory.MISC)
+                    .noLootTable()
+                    .sized(0.25F, 0.25F)
+                    .clientTrackingRange(8)
     );
 
     EntityType<MyriadShovelEntity> MYRIAD_SHOVEL = register(
             "myriad_shovel",
-            EntityType.Builder.<MyriadShovelEntity>create(MyriadShovelEntity::new, SpawnGroup.MISC)
-                    .dropsNothing()
-                    .dimensions(1.2F, 0.75F)
+            EntityType.Builder.<MyriadShovelEntity>of(MyriadShovelEntity::new, MobCategory.MISC)
+                    .noLootTable()
+                    .sized(1.2F, 0.75F)
     );
 
     EntityType<MyriadShovelPart> MYRIAD_SHOVEL_PART = register(
             "myriad_shovel_part",
-            EntityType.Builder.create(MyriadShovelPart::new, SpawnGroup.MISC)
-                    .dropsNothing()
-                    .dimensions(0.4F, 0.4F)
+            EntityType.Builder.of(MyriadShovelPart::new, MobCategory.MISC)
+                    .noLootTable()
+                    .sized(0.4F, 0.4F)
     );
 
-    private static <T extends Entity> EntityType<T> register(RegistryKey<EntityType<?>> key, EntityType.Builder<T> type) {
-        return Registry.register(Registries.ENTITY_TYPE, key, type.build(key));
+    private static <T extends Entity> EntityType<T> register(ResourceKey<EntityType<?>> key, EntityType.Builder<T> type) {
+        return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, type.build(key));
     }
 
     private static <T extends Entity> EntityType<T> register(String id, EntityType.Builder<T> type) {
         return register(keyOf(id), type);
     }
 
-    private static RegistryKey<EntityType<?>> keyOf(String id) {
-        return RegistryKey.of(RegistryKeys.ENTITY_TYPE, Identifier.of(Antiquities.MOD_ID, id));
+    private static ResourceKey<EntityType<?>> keyOf(String id) {
+        return ResourceKey.create(Registries.ENTITY_TYPE, Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, id));
     }
 
     static void initialize() {

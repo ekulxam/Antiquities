@@ -1,23 +1,23 @@
 package net.hollowed.antique.effect;
 
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.effect.MobEffect;
+import net.minecraft.world.effect.MobEffectCategory;
+import net.minecraft.world.entity.LivingEntity;
 
-public class BounceEffect extends StatusEffect {
+public class BounceEffect extends MobEffect {
 
 	public BounceEffect() {
-		super(StatusEffectCategory.NEUTRAL, 0xe9b8b3); // Replace with desired color
+		super(MobEffectCategory.NEUTRAL, 0xe9b8b3); // Replace with desired color
 	}
 
 	@Override
-	public boolean canApplyUpdateEffect(int duration, int amplifier) {
+	public boolean shouldApplyEffectTickThisTick(int duration, int amplifier) {
 		return true; // Update effect every tick
 	}
 
 	@Override
-	public boolean applyUpdateEffect(ServerWorld world, LivingEntity entity, int amplifier) {
+	public boolean applyEffectTick(ServerLevel world, LivingEntity entity, int amplifier) {
 		entity.fallDistance = 0;
 		return true;
 	}

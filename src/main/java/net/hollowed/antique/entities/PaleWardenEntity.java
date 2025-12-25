@@ -3,29 +3,29 @@ package net.hollowed.antique.entities;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.antique.networking.PaleWardenTickPacketPayload;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.AnimationState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.goal.LookAroundGoal;
-import net.minecraft.entity.ai.goal.LookAtEntityGoal;
-import net.minecraft.entity.attribute.DefaultAttributeContainer;
-import net.minecraft.entity.attribute.EntityAttributes;
-import net.minecraft.entity.damage.DamageSource;
-import net.minecraft.entity.damage.DamageTypes;
-import net.minecraft.entity.mob.PathAwareEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.registry.tag.DamageTypeTags;
-import net.minecraft.server.world.ServerWorld;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
+import net.minecraft.world.entity.AnimationState;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("all")
-public class PaleWardenEntity extends PathAwareEntity {
+public class PaleWardenEntity extends PathfinderMob {
 
     private boolean awakened = false;
     private int mode = 0;
@@ -36,10 +36,10 @@ public class PaleWardenEntity extends PathAwareEntity {
     public final AnimationState idleAnimationState = new AnimationState();
     public int idleAnimationTimeout = 0;
 
-    public PaleWardenEntity(EntityType<? extends PathAwareEntity> entityType, World world) {
+    public PaleWardenEntity(EntityType<? extends PathfinderMob> entityType, Level world) {
         super(entityType, world);
-        if (MinecraftClient.getInstance().player != null) {
-            ClientPlayNetworking.send(new PaleWardenTickPacketPayload(this.getId(), AntiqueItems.PALE_WARDENS_GREATSWORD.getDefaultStack(), ItemStack.EMPTY));
+        if (Minecraft.getInstance().player != null) {
+            ClientPlayNetworking.send(new PaleWardenTickPacketPayload(this.getId(), AntiqueItems.PALE_WARDENS_GREATSWORD.getDefaultInstance(), ItemStack.EMPTY));
         }
     }
 
@@ -49,9 +49,9 @@ public class PaleWardenEntity extends PathAwareEntity {
     }
 
     @Override
-    protected void initGoals() {
-        this.goalSelector.add(1, new LookAtEntityGoal(this, PlayerEntity.class, 24.0F));
-        this.goalSelector.add(2, new LookAroundGoal(this));
+    protected void registerGoals() {
+        this.goalSelector.addGoal(1, new LookAtPlayerGoal(this, Player.class, 24.0F));
+        this.goalSelector.addGoal(2, new RandomLookAroundGoal(this));
     }
 
     @Override
@@ -60,15 +60,15 @@ public class PaleWardenEntity extends PathAwareEntity {
     }
 
     public void swapStacks(ItemStack mainhand, ItemStack offhand) {
-        if (this.getEntityWorld() instanceof ServerWorld) {
+        if (this.level() instanceof ServerLevel) {
             // Set the stacks on the server
-            this.setStackInHand(Hand.MAIN_HAND, mainhand);
-            this.setStackInHand(Hand.OFF_HAND, offhand);
+            this.setItemInHand(InteractionHand.MAIN_HAND, mainhand);
+            this.setItemInHand(InteractionHand.OFF_HAND, offhand);
 
             // Swap the stacks
-            ItemStack tempStack = this.getStackInHand(Hand.MAIN_HAND).copy();
-            this.setStackInHand(Hand.MAIN_HAND, this.getStackInHand(Hand.OFF_HAND));
-            this.setStackInHand(Hand.OFF_HAND, tempStack);
+            ItemStack tempStack = this.getItemInHand(InteractionHand.MAIN_HAND).copy();
+            this.setItemInHand(InteractionHand.MAIN_HAND, this.getItemInHand(InteractionHand.OFF_HAND));
+            this.setItemInHand(InteractionHand.OFF_HAND, tempStack);
         }
     }
 
@@ -76,18 +76,18 @@ public class PaleWardenEntity extends PathAwareEntity {
     public void tick() {
         super.tick();
 
-        if (MinecraftClient.getInstance().player != null && this.awakenAnimationTimeout == 40) {
-            ItemStack mainhand = this.getStackInHand(Hand.MAIN_HAND);
-            ItemStack offhand = this.getStackInHand(Hand.OFF_HAND);
+        if (Minecraft.getInstance().player != null && this.awakenAnimationTimeout == 40) {
+            ItemStack mainhand = this.getItemInHand(InteractionHand.MAIN_HAND);
+            ItemStack offhand = this.getItemInHand(InteractionHand.OFF_HAND);
 
             ClientPlayNetworking.send(new PaleWardenTickPacketPayload(this.getId(), mainhand, offhand));
         }
 
-        if (this.getEntityWorld().isClient()) {
+        if (this.level().isClientSide()) {
             if (this.awakenAnimationTimeout == 80) {
                 this.idleAnimationTimeout = 0;
                 this.idleAnimationState.stop();
-                this.awakenAnimationState.start(this.age);
+                this.awakenAnimationState.start(this.tickCount);
             }
             if (this.awakenAnimationTimeout >= 0) {
                 --this.awakenAnimationTimeout;
@@ -95,7 +95,7 @@ public class PaleWardenEntity extends PathAwareEntity {
                 this.awakenAnimationState.stop();
             }
             if (this.idleAnimationTimeout == 60) {
-                this.idleAnimationState.start(this.age);
+                this.idleAnimationState.start(this.tickCount);
             }
             if (this.idleAnimationTimeout >= 0) {
                 --this.idleAnimationTimeout;
@@ -106,15 +106,15 @@ public class PaleWardenEntity extends PathAwareEntity {
     }
 
     @Override
-    public boolean clientDamage(DamageSource source) {
+    public boolean hurtClient(DamageSource source) {
         if (this.awakenAnimationTimeout <= 0) {
             this.awakenAnimationTimeout = 80;
         }
-        return super.clientDamage(source);
+        return super.hurtClient(source);
     }
 
     @Override
-    public boolean isCollidable(@Nullable Entity entity) {
+    public boolean canBeCollidedWith(@Nullable Entity entity) {
         return true;
     }
 
@@ -124,12 +124,12 @@ public class PaleWardenEntity extends PathAwareEntity {
     }
 
     @Override
-    protected float getBaseWaterMovementSpeedMultiplier() {
+    protected float getWaterSlowDown() {
         return 0;
     }
 
     @Override
-    public boolean cannotDespawn() {
+    public boolean requiresCustomPersistence() {
         return true;
     }
 
@@ -138,32 +138,32 @@ public class PaleWardenEntity extends PathAwareEntity {
         return false;
     }
 
-    public boolean isInvulnerableTo(ServerWorld world, DamageSource source) {
-        if (source.isIn(DamageTypeTags.IS_PROJECTILE)
-                || source.isIn(DamageTypeTags.IS_DROWNING)
-                || source.isIn(DamageTypeTags.IS_EXPLOSION)
-                || source.isIn(DamageTypeTags.IS_FALL)
-                || source.isIn(DamageTypeTags.IS_FIRE)
-                || source.isIn(DamageTypeTags.IS_FREEZING)
-                || source.isIn(DamageTypeTags.IS_LIGHTNING)
-                || source.isOf(DamageTypes.MAGIC)
-                || source.isOf(DamageTypes.INDIRECT_MAGIC)) {
+    public boolean isInvulnerableTo(ServerLevel world, DamageSource source) {
+        if (source.is(DamageTypeTags.IS_PROJECTILE)
+                || source.is(DamageTypeTags.IS_DROWNING)
+                || source.is(DamageTypeTags.IS_EXPLOSION)
+                || source.is(DamageTypeTags.IS_FALL)
+                || source.is(DamageTypeTags.IS_FIRE)
+                || source.is(DamageTypeTags.IS_FREEZING)
+                || source.is(DamageTypeTags.IS_LIGHTNING)
+                || source.is(DamageTypes.MAGIC)
+                || source.is(DamageTypes.INDIRECT_MAGIC)) {
             return true;
         }
-        return this.isAlwaysInvulnerableTo(source) || EnchantmentHelper.isInvulnerableTo(world, this, source);
+        return this.isInvulnerableToBase(source) || EnchantmentHelper.isImmuneToDamage(world, this, source);
     }
 
-    public static DefaultAttributeContainer.Builder createAttributes() {
+    public static AttributeSupplier.Builder createAttributes() {
         return LivingEntity.createLivingAttributes()
-                .add(EntityAttributes.FOLLOW_RANGE, 32.0)
-                .add(EntityAttributes.STEP_HEIGHT, 1.0)
-                .add(EntityAttributes.ARMOR, 20.0)
-                .add(EntityAttributes.ARMOR_TOUGHNESS, 8.0)
-                .add(EntityAttributes.ATTACK_DAMAGE, 5.0)
-                .add(EntityAttributes.ATTACK_KNOCKBACK, 2.0)
-                .add(EntityAttributes.KNOCKBACK_RESISTANCE, 1.0)
-                .add(EntityAttributes.MAX_HEALTH, 180.0)
-                .add(EntityAttributes.FALL_DAMAGE_MULTIPLIER, 0)
-                .add(EntityAttributes.MOVEMENT_SPEED, 1);
+                .add(Attributes.FOLLOW_RANGE, 32.0)
+                .add(Attributes.STEP_HEIGHT, 1.0)
+                .add(Attributes.ARMOR, 20.0)
+                .add(Attributes.ARMOR_TOUGHNESS, 8.0)
+                .add(Attributes.ATTACK_DAMAGE, 5.0)
+                .add(Attributes.ATTACK_KNOCKBACK, 2.0)
+                .add(Attributes.KNOCKBACK_RESISTANCE, 1.0)
+                .add(Attributes.MAX_HEALTH, 180.0)
+                .add(Attributes.FALL_DAMAGE_MULTIPLIER, 0)
+                .add(Attributes.MOVEMENT_SPEED, 1);
     }
 }

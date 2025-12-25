@@ -1,14 +1,13 @@
 package net.hollowed.antique.mixin.accessors;
 
-import net.minecraft.entity.vehicle.AbstractMinecartEntity;
-import net.minecraft.item.MinecartItem;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.vehicle.minecart.AbstractMinecart;
+import net.minecraft.world.item.MinecartItem;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
-
-import net.minecraft.entity.EntityType;
 
 @Mixin(MinecartItem.class)
 public interface MinecartItemAccessor {
     @Accessor("type")
-    EntityType<? extends AbstractMinecartEntity> getType();
+    EntityType<? extends AbstractMinecart> getType();
 }

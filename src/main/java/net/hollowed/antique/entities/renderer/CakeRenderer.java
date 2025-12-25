@@ -1,65 +1,65 @@
 package net.hollowed.antique.entities.renderer;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.hollowed.antique.entities.CakeEntity;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.render.OverlayTexture;
-import net.minecraft.client.render.command.OrderedRenderCommandQueue;
-import net.minecraft.client.render.entity.EntityRenderer;
-import net.minecraft.client.render.entity.EntityRendererFactory;
-import net.minecraft.client.render.entity.state.ProjectileEntityRenderState;
-import net.minecraft.client.render.item.ItemRenderState;
-import net.minecraft.client.render.state.CameraRenderState;
-import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.entity.Entity;
-import net.minecraft.item.ItemDisplayContext;
-import net.minecraft.item.Items;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RotationAxis;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.EntityRenderer;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.state.ArrowRenderState;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.Items;
 
 @Environment(EnvType.CLIENT)
-public class CakeRenderer<T extends Entity> extends EntityRenderer<T, ProjectileEntityRenderState> {
+public class CakeRenderer<T extends Entity> extends EntityRenderer<T, ArrowRenderState> {
     private final boolean lit;
 
-    public CakeRenderer(EntityRendererFactory.Context ctx, boolean lit) {
+    public CakeRenderer(EntityRendererProvider.Context ctx, boolean lit) {
         super(ctx);
         this.lit = lit;
     }
 
-    public CakeRenderer(EntityRendererFactory.Context context) {
+    public CakeRenderer(EntityRendererProvider.Context context) {
         this(context, false);
     }
 
     @Override
-    protected int getBlockLight(T entity, BlockPos pos) {
-        return this.lit ? 15 : super.getBlockLight(entity, pos);
+    protected int getBlockLightLevel(T entity, BlockPos pos) {
+        return this.lit ? 15 : super.getBlockLightLevel(entity, pos);
     }
 
     @Override
-    public void render(ProjectileEntityRenderState renderState, MatrixStack matrixStack, OrderedRenderCommandQueue queue, CameraRenderState cameraState) {
-        matrixStack.push();
+    public void submit(ArrowRenderState renderState, PoseStack matrixStack, SubmitNodeCollector queue, CameraRenderState cameraState) {
+        matrixStack.pushPose();
 
-        matrixStack.multiply(RotationAxis.POSITIVE_Y.rotationDegrees(renderState.yaw - 90.0F));
-        matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(renderState.pitch));
-        matrixStack.multiply(RotationAxis.POSITIVE_Z.rotationDegrees(-90));
+        matrixStack.mulPose(Axis.YP.rotationDegrees(renderState.yRot - 90.0F));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(renderState.xRot));
+        matrixStack.mulPose(Axis.ZP.rotationDegrees(-90));
 
-        ItemRenderState stackRenderState = new ItemRenderState();
-        MinecraftClient.getInstance().getItemModelManager().update(stackRenderState, Items.CAKE.getDefaultStack(), ItemDisplayContext.NONE, MinecraftClient.getInstance().world, null, 1);
-        stackRenderState.render(matrixStack, queue, renderState.light, OverlayTexture.DEFAULT_UV, 0);
-        matrixStack.pop();
+        ItemStackRenderState stackRenderState = new ItemStackRenderState();
+        Minecraft.getInstance().getItemModelResolver().appendItemLayers(stackRenderState, Items.CAKE.getDefaultInstance(), ItemDisplayContext.NONE, Minecraft.getInstance().level, null, 1);
+        stackRenderState.submit(matrixStack, queue, renderState.lightCoords, OverlayTexture.NO_OVERLAY, 0);
+        matrixStack.popPose();
     }
 
-    public ProjectileEntityRenderState createRenderState() {
-        return new ProjectileEntityRenderState();
+    public ArrowRenderState createRenderState() {
+        return new ArrowRenderState();
     }
 
     @Override
-    public void updateRenderState(T entity, ProjectileEntityRenderState state, float tickProgress) {
-        super.updateRenderState(entity, state, tickProgress);
+    public void extractRenderState(T entity, ArrowRenderState state, float tickProgress) {
+        super.extractRenderState(entity, state, tickProgress);
         if (entity instanceof CakeEntity cake) {
-            state.yaw = cake.getStoredYaw();
-            state.pitch = cake.getStoredPitch();
+            state.yRot = cake.getStoredYaw();
+            state.xRot = cake.getStoredPitch();
         }
     }
 }
