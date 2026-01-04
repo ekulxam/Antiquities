@@ -8,9 +8,9 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 public class EnchantmentListener {
 
     public static boolean hasEnchantment(ItemStack stack, String enchantKey) {
-        final var enchantments = stack.getOrDefault(ENCHANTMENTS, ItemEnchantments.EMPTY).entrySet();
+        var enchantments = stack.getOrDefault(ENCHANTMENTS, ItemEnchantments.EMPTY).entrySet();
 
-        for (final var entry : enchantments) {
+        for (var entry : enchantments) {
             String enchant = entry.getKey().getRegisteredName();
 
             if (enchant.contains(enchantKey)) {

@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
 
 public class DyeTableBlock extends Block {
     private static final Component TITLE = Component.translatable("container.antique.dyeing");
@@ -23,7 +24,7 @@ public class DyeTableBlock extends Block {
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level world, BlockPos pos, Player player, BlockHitResult hit) {
+    protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level world, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
         if (!world.isClientSide()) {
             player.openMenu(state.getMenuProvider(world, pos));
             player.awardStat(AntiqueStats.INTERACT_WITH_DYE_TABLE);
@@ -32,7 +33,7 @@ public class DyeTableBlock extends Block {
     }
 
     @Override
-    protected MenuProvider getMenuProvider(BlockState state, Level world, BlockPos pos) {
+    protected MenuProvider getMenuProvider(@NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos) {
         return new SimpleMenuProvider((syncId, inventory, player) -> new DyeingScreenHandler(syncId, inventory, ContainerLevelAccess.create(world, pos)), TITLE);
     }
 }

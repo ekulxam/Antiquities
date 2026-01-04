@@ -11,15 +11,16 @@ import net.minecraft.client.renderer.entity.state.HumanoidRenderState;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(HumanoidArmorLayer.class)
-public abstract class ArmorRendererMixin<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, M> {
+public abstract class ArmorRendererMixin<S extends HumanoidRenderState, M extends HumanoidModel<S>> extends RenderLayer<S, @NotNull M> {
 
-    public ArmorRendererMixin(RenderLayerParent<S, M> context) {
+    public ArmorRendererMixin(RenderLayerParent<S, @NotNull M> context) {
         super(context);
     }
 

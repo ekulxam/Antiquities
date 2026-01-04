@@ -61,6 +61,7 @@ import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
@@ -70,6 +71,7 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
     private int mirrorSpellTimer;
     private final Vec3[][] mirrorCopyOffsets;
 
+    @SuppressWarnings("all")
     public IllusionerEntity(EntityType<? extends IllusionerEntity> entityType, Level world) {
         super(entityType, world);
         this.xpReward = 5;
@@ -82,7 +84,7 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
         builder.define(SPELL_COLOR, new Vector3f(0, 0, 0));
     }
@@ -114,7 +116,7 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
                 .add(Attributes.MAX_HEALTH, 32.0);
     }
 
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData entityData) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor world, @NotNull DifficultyInstance difficulty, @NotNull EntitySpawnReason spawnReason, @Nullable SpawnGroupData entityData) {
         ItemStack bow = Items.BOW.getDefaultInstance();
         bow.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.of(Items.FIREWORK_ROCKET.getDefaultInstance()));
         this.setItemSlot(EquipmentSlot.MAINHAND, bow);
@@ -136,7 +138,7 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
     }
 
     @Override
-    protected void actuallyHurt(ServerLevel world, DamageSource source, float amount) {
+    protected void actuallyHurt(@NotNull ServerLevel world, @NotNull DamageSource source, float amount) {
         IllusionerCloneEntity clone = new IllusionerCloneEntity(AntiqueEntities.ILLUSIONER_CLONE, this.level());
         clone.setItemSlot(EquipmentSlot.MAINHAND, Items.BOW.getDefaultInstance());
         clone.setPos(this.getX(), this.getY(), this.getZ());
@@ -194,7 +196,7 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
 
     }
 
-    public SoundEvent getCelebrateSound() {
+    public @NotNull SoundEvent getCelebrateSound() {
         return SoundEvents.ILLUSIONER_AMBIENT;
     }
 
@@ -218,28 +220,28 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
         return SoundEvents.ILLUSIONER_AMBIENT;
     }
 
-    protected SoundEvent getDeathSound() {
+    protected @NotNull SoundEvent getDeathSound() {
         return SoundEvents.ILLUSIONER_DEATH;
     }
 
-    protected SoundEvent getHurtSound(DamageSource source) {
+    protected @NotNull SoundEvent getHurtSound(@NotNull DamageSource source) {
         return SoundEvents.ILLUSIONER_HURT;
     }
 
-    protected SoundEvent getCastingSoundEvent() {
+    protected @NotNull SoundEvent getCastingSoundEvent() {
         return SoundEvents.ILLUSIONER_CAST_SPELL;
     }
 
-    public void applyRaidBuffs(ServerLevel world, int wave, boolean unused) {
+    public void applyRaidBuffs(@NotNull ServerLevel world, int wave, boolean unused) {
     }
 
     @Override
-    public boolean isInvulnerableTo(ServerLevel world, DamageSource source) {
+    public boolean isInvulnerableTo(@NotNull ServerLevel world, DamageSource source) {
         if (source.is(DamageTypes.FIREWORKS)) return true;
         return super.isInvulnerableTo(world, source);
     }
 
-    public void performRangedAttack(LivingEntity target, float pullProgress) {
+    public void performRangedAttack(@NotNull LivingEntity target, float pullProgress) {
         Level world = this.level();
         ItemStack stack = Items.FIREWORK_ROCKET.getDefaultInstance();
         stack.set(DataComponents.FIREWORKS, FireworkUtil.randomFirework());
@@ -255,7 +257,7 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
         this.playSound(SoundEvents.FIREWORK_ROCKET_LAUNCH, 1.0F, 1.0F / (this.getRandom().nextFloat() * 0.4F + 0.8F));
     }
 
-    public AbstractIllager.IllagerArmPose getArmPose() {
+    public AbstractIllager.@NotNull IllagerArmPose getArmPose() {
         if (this.isCastingSpell()) {
             return IllagerArmPose.SPELLCASTING;
         } else {
@@ -350,7 +352,7 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
             return SoundEvents.ILLUSIONER_PREPARE_MIRROR;
         }
 
-        protected SpellcasterIllager.IllagerSpell getSpell() {
+        protected SpellcasterIllager.@NotNull IllagerSpell getSpell() {
             return IllagerSpell.BLINDNESS;
         }
     }
@@ -417,7 +419,7 @@ public class IllusionerEntity extends SpellcasterIllager implements RangedAttack
             return SoundEvents.ILLUSIONER_PREPARE_BLINDNESS;
         }
 
-        protected SpellcasterIllager.IllagerSpell getSpell() {
+        protected SpellcasterIllager.@NotNull IllagerSpell getSpell() {
             return IllagerSpell.BLINDNESS;
         }
     }

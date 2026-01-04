@@ -19,7 +19,7 @@ public abstract class StriderMixin extends Animal {
 
     @Inject(method = "getControllingPassenger", at = @At("HEAD"), cancellable = true)
     public void passenger(CallbackInfoReturnable<LivingEntity> cir) {
-        if (this.getLeashData() != null && this.getLeashData().leashHolder != null) {
+        if (this.getLeashData().leashHolder != null) {
             cir.setReturnValue(null);
         }
     }

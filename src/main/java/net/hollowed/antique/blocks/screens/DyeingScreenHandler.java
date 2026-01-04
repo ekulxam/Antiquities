@@ -49,6 +49,10 @@ public class DyeingScreenHandler extends AbstractContainerMenu {
 		}
 	}
 
+	public ItemStack getResult() {
+		return this.resultInventory.getItem(0);
+	}
+
 	public DyeingScreenHandler(int syncId, Inventory playerInventory) {
 		this(syncId, playerInventory, ContainerLevelAccess.NULL);
 	}

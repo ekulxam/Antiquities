@@ -20,13 +20,14 @@ import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 
 public class PedestalDisplayListener implements ResourceManagerReloadListener {
     private static final Map<Identifier, PedestalDisplayData> transforms = new HashMap<>();
     private static PedestalDisplayData defaultTransforms;
 
-    public void onResourceManagerReload(ResourceManager manager) {
+    public void onResourceManagerReload(@NotNull ResourceManager manager) {
         Minecraft.getInstance().execute(() -> this.actuallyLoad(manager));
     }
 
@@ -47,17 +48,13 @@ public class PedestalDisplayListener implements ResourceManagerReloadListener {
                                 String tagString = data.item().substring(1);
                                 Identifier tagId = Identifier.parse(tagString);
                                 TagKey<Item> tag = TagKey.create(BuiltInRegistries.ITEM.key(), tagId);
-                                if (tag != null) {
-                                    BuiltInRegistries.ITEM.forEach((item) -> {
-                                        Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
-                                        if (item.getDefaultInstance().getItemHolder().is(tag)) {
-                                            transforms.putIfAbsent(itemId, data);
-                                        }
+                                BuiltInRegistries.ITEM.forEach((item) -> {
+                                    Identifier itemId = BuiltInRegistries.ITEM.getKey(item);
+                                    if (item.getDefaultInstance().getItemHolder().is(tag)) {
+                                        transforms.putIfAbsent(itemId, data);
+                                    }
 
-                                    });
-                                } else {
-                                    Antiquities.LOGGER.warn("Tag #{} not found while loading item transforms!", tagId);
-                                }
+                                });
                             } else {
                                 transforms.put(Identifier.parse(data.item()), data);
                             }

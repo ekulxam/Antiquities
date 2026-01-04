@@ -27,6 +27,8 @@ import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -43,25 +45,25 @@ public class BagOfTricksItem extends Item {
         super(settings);
     }
 
-    public boolean isBarVisible(ItemStack stack) {
+    public boolean isBarVisible(@NotNull ItemStack stack) {
         List<ItemStack> storedStacks = new ArrayList<>(getStoredStacks(stack));  // Create a mutable copy of the list
         return !storedStacks.isEmpty();
     }
 
-    public int getBarWidth(ItemStack stack) {
+    public int getBarWidth(@NotNull ItemStack stack) {
         List<ItemStack> storedStacks = new ArrayList<>(getStoredStacks(stack));  // Create a mutable copy of the list
 
         int maxStacks = 8;
         return Math.round((float) storedStacks.size() / maxStacks * 13);
     }
 
-    public int getBarColor(ItemStack stack) {
+    public int getBarColor(@NotNull ItemStack stack) {
         List<ItemStack> storedStacks = new ArrayList<>(getStoredStacks(stack));  // Create a mutable copy of the list
         return storedStacks.size() == 8 ? FULL_ITEM_BAR_COLOR : ITEM_BAR_COLOR;
     }
 
     @Override
-    public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
+    public @NotNull Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         TooltipDisplay tooltipDisplayComponent = stack.getOrDefault(DataComponents.TOOLTIP_DISPLAY, TooltipDisplay.DEFAULT);
         return !tooltipDisplayComponent.shows(AntiqueDataComponentTypes.SATCHEL_STACK)
                 ? Optional.empty()
@@ -78,12 +80,12 @@ public class BagOfTricksItem extends Item {
     }
 
     @Override
-    public boolean allowComponentsUpdateAnimation(Player player, InteractionHand hand, ItemStack oldStack, ItemStack newStack) {
+    public boolean allowComponentsUpdateAnimation(@NotNull Player player, @NotNull InteractionHand hand, @NotNull ItemStack oldStack, @NotNull ItemStack newStack) {
         return false;
     }
 
     @Override
-    public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction clickType, Player player) {
+    public boolean overrideStackedOnOther(@NotNull ItemStack stack, Slot slot, @NotNull ClickAction clickType, @NotNull Player player) {
         List<ItemStack> storedStacks = new ArrayList<>(getStoredStacks(stack));  // Create a mutable copy of the list
         ItemStack otherStack = slot.getItem();
         if (clickType == ClickAction.SECONDARY) {
@@ -128,7 +130,7 @@ public class BagOfTricksItem extends Item {
     }
 
     @Override
-    public boolean overrideOtherStackedOnMe(ItemStack stack, ItemStack otherStack, Slot slot, ClickAction clickType, Player player, SlotAccess cursorStackReference) {
+    public boolean overrideOtherStackedOnMe(@NotNull ItemStack stack, @NotNull ItemStack otherStack, @NotNull Slot slot, @NotNull ClickAction clickType, @NotNull Player player, @NotNull SlotAccess cursorStackReference) {
         List<ItemStack> storedStacks = new ArrayList<>(getStoredStacks(stack));  // Create a mutable copy of the list
         if (clickType == ClickAction.SECONDARY) {
             if (otherStack.isEmpty()) {
@@ -174,7 +176,7 @@ public class BagOfTricksItem extends Item {
     }
 
     @Override
-    public InteractionResult use(Level world, Player user, InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level world, Player user, @NotNull InteractionHand hand) {
         ItemStack stack = user.getItemInHand(hand);
         List<ItemStack> stacks = stack.getOrDefault(AntiqueDataComponentTypes.SATCHEL_STACK, List.of());
         if (stacks.isEmpty() || stacks.getFirst().isEmpty()) return InteractionResult.PASS;

@@ -10,6 +10,7 @@ import net.minecraft.util.ARGB;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public record ClothTintSource(int defaultColor) implements ItemTintSource {
@@ -17,6 +18,7 @@ public record ClothTintSource(int defaultColor) implements ItemTintSource {
 		instance -> instance.group(ExtraCodecs.RGB_COLOR_CODEC.fieldOf("default").forGetter(ClothTintSource::defaultColor)).apply(instance, ClothTintSource::new)
 	);
 
+	@SuppressWarnings("unused")
 	public ClothTintSource() {
 		this(-13083194);
 	}
@@ -30,7 +32,7 @@ public record ClothTintSource(int defaultColor) implements ItemTintSource {
 	}
 
 	@Override
-	public MapCodec<ClothTintSource> type() {
+	public @NotNull MapCodec<ClothTintSource> type() {
 		return CODEC;
 	}
 }

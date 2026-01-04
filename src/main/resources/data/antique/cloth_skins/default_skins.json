@@ -78,6 +78,15 @@
       "color": "d3a668"
     },
     {
+      "model": "antique:dripstone_cloth",
+      "color": "927965",
+      "length": 3.15,
+      "width": 0.166,
+      "gravity": 4,
+      "water_gravity": 0.8,
+      "bodies": 1
+    },
+    {
       "model": "antique:winter_cloth",
       "color": "414ca2",
       "length": 2.8,
@@ -180,6 +189,7 @@
       "model": "antique:echo_cloth",
       "color": "2c325c",
       "length": 2.8,
+      "gravity": 0.25,
       "bodies": 16,
       "light": 255
     },

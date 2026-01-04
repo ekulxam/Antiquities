@@ -36,6 +36,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MyriadShovelEntity extends AbstractArrow {
@@ -51,7 +52,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 
 	public boolean canPickup;
 
-	public MyriadShovelEntity(EntityType<MyriadShovelEntity> entityType, Level world) {
+	public MyriadShovelEntity(EntityType<@NotNull MyriadShovelEntity> entityType, Level world) {
 		super(entityType, world);
 		this.setBaseDamage(8);
 		this.setPickupItemStack(Antiquities.getMyriadShovelStack());
@@ -110,7 +111,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 	}
 
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+	protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
 		super.defineSynchedData(builder);
 		builder.define(LOYALTY, (byte)0);
 		builder.define(ENCHANTED, false);
@@ -162,7 +163,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 	}
 
 	@Override
-	protected void onHit(HitResult hitResult) {
+	protected void onHit(@NotNull HitResult hitResult) {
 		super.onHit(hitResult);
 		if (this.level() instanceof ServerLevel serverWorld) {
 			Vec3 pos = this.position().add(this.getLookAngle().multiply(1, 1, -1));
@@ -171,7 +172,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 	}
 
 	@Override
-	protected void onHitEntity(EntityHitResult entityHitResult) {
+	protected void onHitEntity(@NotNull EntityHitResult entityHitResult) {
 		if (this.tickCount >= 2000) {
 			this.tickCount -= 2000;
 		}
@@ -212,7 +213,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 	}
 
 	@Override
-	protected void hitBlockEnchantmentEffects(ServerLevel world, BlockHitResult blockHitResult, ItemStack weaponStack) {
+	protected void hitBlockEnchantmentEffects(@NotNull ServerLevel world, BlockHitResult blockHitResult, @NotNull ItemStack weaponStack) {
 		Vec3 vec3d = blockHitResult.getBlockPos().clampLocationWithin(blockHitResult.getLocation());
 		EnchantmentHelper.onHitBlock(
 				world,
@@ -227,7 +228,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 	}
 
 	@Override
-	protected void onHitBlock(BlockHitResult blockHitResult) {
+	protected void onHitBlock(@NotNull BlockHitResult blockHitResult) {
 		super.onHitBlock(blockHitResult);
 		this.setPierceLevel((byte)0);
 		this.resetPiercedEntities();
@@ -240,31 +241,31 @@ public class MyriadShovelEntity extends AbstractArrow {
 	}
 
 	@Override
-	protected boolean tryPickup(Player player) {
+	protected boolean tryPickup(@NotNull Player player) {
 		return this.canPickup && !player.isCreative() && player.getInventory().add(this.getPickupItem())
 				|| this.isNoPhysics() && !player.isCreative() && this.ownedBy(player) && player.getInventory().add(this.getPickupItem())
 				|| this.canPickup && player.isCreative();
 	}
 
 	@Override
-	protected ItemStack getDefaultPickupItem() {
+	protected @NotNull ItemStack getDefaultPickupItem() {
 		return new ItemStack(Items.TRIDENT);
 	}
 
 	@Override
-	protected SoundEvent getDefaultHitGroundSoundEvent() {
+	protected @NotNull SoundEvent getDefaultHitGroundSoundEvent() {
 		return SoundEvents.TRIDENT_HIT_GROUND;
 	}
 
 	@Override
-	public void playerTouch(Player player) {
+	public void playerTouch(@NotNull Player player) {
 		if (this.ownedBy(player) || this.getOwner() == null) {
 			super.playerTouch(player);
 		}
 	}
 
 	@Override
-	protected void readAdditionalSaveData(ValueInput view) {
+	protected void readAdditionalSaveData(@NotNull ValueInput view) {
 		super.readAdditionalSaveData(view);
 		this.dealtDamage = view.getBooleanOr("DealtDamage", false);
 		this.entityData.set(LOYALTY, this.getLoyalty(this.getPickupItemStackOrigin()));
@@ -275,7 +276,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 	}
 
 	@Override
-	protected void addAdditionalSaveData(ValueOutput view) {
+	protected void addAdditionalSaveData(@NotNull ValueOutput view) {
 		super.addAdditionalSaveData(view);
 		view.putBoolean("DealtDamage", this.dealtDamage);
 		view.putBoolean("Glint", this.isEnchanted());
@@ -296,7 +297,7 @@ public class MyriadShovelEntity extends AbstractArrow {
 	}
 
 	@Override
-	protected boolean canHitEntity(Entity entity) {
+	protected boolean canHitEntity(@NotNull Entity entity) {
 		if (entity instanceof Player) {
 			Entity var3 = this.getOwner();
 			if (var3 instanceof Player playerEntity) {

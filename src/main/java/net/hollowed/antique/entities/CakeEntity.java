@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
 
 public class CakeEntity extends AbstractArrow {
@@ -86,7 +87,7 @@ public class CakeEntity extends AbstractArrow {
     }
 
     @Override
-    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+    protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
         super.defineSynchedData(builder);
         builder.define(FROZEN, false);
         builder.define(PITCH, this.getXRot());
@@ -128,7 +129,7 @@ public class CakeEntity extends AbstractArrow {
     }
 
     @Override
-    protected void onHitEntity(EntityHitResult entityHitResult) {
+    protected void onHitEntity(@NotNull EntityHitResult entityHitResult) {
         if (!this.level().isClientSide() && !(entityHitResult.getEntity() instanceof CakeEntity)) {
             this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.0F / (this.random.nextFloat() * 0.2F + 0.9F));
             this.level().broadcastEntityEvent(this, EntityEvent.DEATH);
@@ -144,7 +145,7 @@ public class CakeEntity extends AbstractArrow {
     }
 
     @Override
-    protected void onHitBlock(BlockHitResult blockHitResult) {
+    protected void onHitBlock(@NotNull BlockHitResult blockHitResult) {
         if (!this.level().isClientSide()) {
             this.playSound(this.getHitGroundSoundEvent(), 1.0F, 1.0F / (this.random.nextFloat() * 0.2F + 0.9F));
             this.level().broadcastEntityEvent(this, EntityEvent.DEATH);
@@ -171,12 +172,12 @@ public class CakeEntity extends AbstractArrow {
     }
 
     @Override
-    protected ItemStack getDefaultPickupItem() {
+    protected @NotNull ItemStack getDefaultPickupItem() {
         return Items.CAKE.getDefaultInstance();
     }
 
     @Override
-    protected SoundEvent getDefaultHitGroundSoundEvent() {
+    protected @NotNull SoundEvent getDefaultHitGroundSoundEvent() {
         return AntiqueSounds.CAKE_SPLAT;
     }
 }

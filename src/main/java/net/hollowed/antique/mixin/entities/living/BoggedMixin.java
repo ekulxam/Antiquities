@@ -14,6 +14,7 @@ import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.component.ChargedProjectiles;
 import net.minecraft.world.item.component.DyedItemColor;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 
 @Mixin(Bogged.class)
@@ -24,7 +25,7 @@ public abstract class BoggedMixin extends AbstractSkeleton {
     }
 
     @Override
-    protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance localDifficulty) {
+    protected void populateDefaultEquipmentSlots(@NotNull RandomSource random, @NotNull DifficultyInstance localDifficulty) {
         super.populateDefaultEquipmentSlots(random, localDifficulty);
         ItemStack bow = Items.BOW.getDefaultInstance();
         bow.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.of(Items.TIPPED_ARROW.getDefaultInstance()));

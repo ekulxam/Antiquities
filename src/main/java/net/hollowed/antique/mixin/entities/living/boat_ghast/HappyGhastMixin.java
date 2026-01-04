@@ -66,8 +66,10 @@ public abstract class HappyGhastMixin extends Animal implements BoatControllable
 
     @Inject(method = "tick", at = @At("HEAD"))
     public void tick(CallbackInfo ci) {
-        if (this.boat instanceof AbstractBoat abstractBoat && (abstractBoat.getLeashData() == null || abstractBoat.getLeashData() != null && abstractBoat.getLeashData().leashHolder != this)) {
-            this.boat = null;
+        if (this.boat instanceof AbstractBoat abstractBoat) {
+            if (abstractBoat.getLeashData().leashHolder != this) {
+                this.boat = null;
+            }
         }
     }
 

@@ -65,18 +65,21 @@ public interface AntiqueItems {
             .rarity(Rarity.UNCOMMON)
             .durability(500)
     ));
+    @SuppressWarnings("unused")
     Item COPPER_GLACE = register("copper_glace", settings -> new Glace(settings.stacksTo(1)
             .attributes(Glace.copperAttributes())
             .enchantable(10)
             .rarity(Rarity.UNCOMMON)
             .durability(313)
     ));
+    @SuppressWarnings("unused")
     Item QUARRY_GLACE = register("quarry_glace", settings -> new Glace(settings.stacksTo(1)
             .attributes(Glace.copperAttributes())
             .enchantable(10)
             .rarity(Rarity.UNCOMMON)
             .durability(313)
     ));
+    @SuppressWarnings("unused")
     Item PROSPECTOR = register("prospector", settings -> new Glace(settings.stacksTo(1)
             .attributes(Glace.copperAttributes())
             .enchantable(10)
@@ -104,7 +107,7 @@ public interface AntiqueItems {
             .fireResistant()
     ));
     Item MYRIAD_TOOL = register("myriad_tool", settings -> new MyriadToolItem(settings.stacksTo(1)
-            .attributes(MyriadToolItem.createAttributeModifiers(4, 1.8, 0))
+            .attributes(MyriadToolItem.createAttributeModifiers(3, 1.8, 0))
             .component(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool())
             .component(AntiqueDataComponentTypes.STICKY_TOOLTIP, true)
             .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
@@ -164,7 +167,6 @@ public interface AntiqueItems {
         Item item = factory.apply(new Item.Properties().setId(key));
         return Registry.register(BuiltInRegistries.ITEM, key, item);
     }
-
 
     static void initialize() {
         Antiquities.LOGGER.info("Antiquities Items Initialized");

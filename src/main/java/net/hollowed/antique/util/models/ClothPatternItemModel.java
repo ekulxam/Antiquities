@@ -29,6 +29,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3fc;
 
@@ -119,6 +120,7 @@ public class ClothPatternItemModel implements ItemModel {
 		return set.toArray(Vector3fc[]::new);
 	}
 
+	@SuppressWarnings("all")
 	static Function<ItemStack, RenderType> detectRenderType(List<BakedQuad> list) {
 		Iterator<BakedQuad> iterator = list.iterator();
 		if (!iterator.hasNext()) {
@@ -149,8 +151,8 @@ public class ClothPatternItemModel implements ItemModel {
 	public void update(
 			ItemStackRenderState state,
 			ItemStack stack,
-			ItemModelResolver resolver,
-			ItemDisplayContext displayContext,
+			@NotNull ItemModelResolver resolver,
+			@NotNull ItemDisplayContext displayContext,
 			@Nullable ClientLevel world,
 			@Nullable ItemOwner heldItemContext,
 			int seed
@@ -217,7 +219,7 @@ public class ClothPatternItemModel implements ItemModel {
 		}
 
 		@Override
-		public ItemModel bake(BakingContext context) {
+		public @NotNull ItemModel bake(BakingContext context) {
 			ModelBaker baker = context.blockModelBaker();
 			List<BakedQuad> variantQuads = new ArrayList<>(64);
 
@@ -253,7 +255,7 @@ public class ClothPatternItemModel implements ItemModel {
 		}
 
 		@Override
-		public MapCodec<net.hollowed.antique.util.models.ClothPatternItemModel.Unbaked> type() {
+		public @NotNull MapCodec<net.hollowed.antique.util.models.ClothPatternItemModel.Unbaked> type() {
 			return CODEC;
 		}
 	}

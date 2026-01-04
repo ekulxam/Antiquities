@@ -9,17 +9,18 @@ import net.minecraft.client.renderer.item.properties.conditional.ConditionalItem
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public record SatchelHasSelectedItemProperty() implements ConditionalItemModelProperty {
     public static final MapCodec<SatchelHasSelectedItemProperty> CODEC = MapCodec.unit(new SatchelHasSelectedItemProperty());
 
-    public boolean get(ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed, ItemDisplayContext displayContext) {
+    public boolean get(@NotNull ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed, @NotNull ItemDisplayContext displayContext) {
         return SatchelItem.hasSelectedStack(stack);
     }
 
-    public MapCodec<SatchelHasSelectedItemProperty> type() {
+    public @NotNull MapCodec<SatchelHasSelectedItemProperty> type() {
         return CODEC;
     }
 }

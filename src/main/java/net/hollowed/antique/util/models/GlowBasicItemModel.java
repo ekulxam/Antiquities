@@ -18,7 +18,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.FaceBakery;
 import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
 import net.minecraft.client.renderer.item.*;
@@ -34,7 +33,6 @@ import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 @Environment(EnvType.CLIENT)
@@ -94,13 +92,13 @@ public class GlowBasicItemModel implements ItemModel {
 
 	@Override
 	public void update(
-		ItemStackRenderState state,
-		ItemStack stack,
-		ItemModelResolver resolver,
-		ItemDisplayContext displayContext,
-		@Nullable ClientLevel world,
-		@Nullable ItemOwner heldItemContext,
-		int seed
+			ItemStackRenderState state,
+			ItemStack stack,
+			@NotNull ItemModelResolver resolver,
+			@NotNull ItemDisplayContext displayContext,
+			@Nullable ClientLevel world,
+			@Nullable ItemOwner heldItemContext,
+			int seed
 	) {
 		state.appendModelIdentityElement(this);
 		ItemStackRenderState.LayerRenderState layerRenderState = state.newLayer();
@@ -145,6 +143,7 @@ public class GlowBasicItemModel implements ItemModel {
 		return newQuads;
 	}
 
+	@SuppressWarnings("all")
 	static Function<ItemStack, RenderType> detectRenderType(List<BakedQuad> list) {
 		Iterator<BakedQuad> iterator = list.iterator();
 		if (!iterator.hasNext()) {
@@ -192,7 +191,7 @@ public class GlowBasicItemModel implements ItemModel {
 		}
 
 		@Override
-		public ItemModel bake(ItemModel.BakingContext context) {
+		public @NotNull ItemModel bake(ItemModel.BakingContext context) {
 			ModelBaker baker = context.blockModelBaker();
 			ResolvedModel bakedSimpleModel = baker.getModel(this.model);
 			TextureSlots modelTextures = bakedSimpleModel.getTopTextureSlots();
@@ -203,7 +202,7 @@ public class GlowBasicItemModel implements ItemModel {
 		}
 
 		@Override
-		public MapCodec<GlowBasicItemModel.Unbaked> type() {
+		public @NotNull MapCodec<GlowBasicItemModel.Unbaked> type() {
 			return CODEC;
 		}
 	}

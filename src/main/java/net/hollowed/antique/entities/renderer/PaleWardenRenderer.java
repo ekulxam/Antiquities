@@ -8,8 +8,9 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.NotNull;
 
-public class PaleWardenRenderer extends MobRenderer<PaleWardenEntity, PaleWardenRenderState, PaleWardenModel> {
+public class PaleWardenRenderer extends MobRenderer<@NotNull PaleWardenEntity, @NotNull PaleWardenRenderState, @NotNull PaleWardenModel> {
 
     public PaleWardenRenderer(EntityRendererProvider.Context context) {
         super(context, new PaleWardenModel(context.bakeLayer(AntiquitiesClient.PALE_WARDEN_LAYER)), 0.5f);
@@ -29,7 +30,7 @@ public class PaleWardenRenderer extends MobRenderer<PaleWardenEntity, PaleWarden
     }
 
     @Override
-    public Identifier getTextureLocation(PaleWardenRenderState state) {
+    public @NotNull Identifier getTextureLocation(PaleWardenRenderState state) {
         return Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/pale_warden.png");
     }
 }

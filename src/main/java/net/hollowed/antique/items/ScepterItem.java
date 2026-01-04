@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -43,7 +44,7 @@ public class ScepterItem extends Item {
     }
 
     @Override
-    public boolean canDestroyBlock(ItemStack stack, BlockState state, Level world, BlockPos pos, LivingEntity user) {
+    public boolean canDestroyBlock(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, LivingEntity user) {
         return !user.hasInfiniteMaterials();
     }
 
@@ -56,7 +57,7 @@ public class ScepterItem extends Item {
     }
 
     @Override
-    public boolean releaseUsing(ItemStack stack, Level world, LivingEntity user, int remainingUseTicks) {
+    public boolean releaseUsing(@NotNull ItemStack stack, @NotNull Level world, @NotNull LivingEntity user, int remainingUseTicks) {
         if (!(user instanceof Player player)) {
             return false;
         }
@@ -137,12 +138,12 @@ public class ScepterItem extends Item {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity user) {
+    public int getUseDuration(ItemStack stack, @NotNull LivingEntity user) {
         return stack.isEnchanted() ? 72000 : 0;
     }
 
     @Override
-    public InteractionResult use(Level world, Player user, InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level world, Player user, @NotNull InteractionHand hand) {
         if (EnchantmentListener.hasEnchantment(user.getItemInHand(hand), "antique:kinematic")) {
             user.startUsingItem(hand);
             return InteractionResult.PASS;
@@ -172,7 +173,7 @@ public class ScepterItem extends Item {
     }
 
     @Override
-    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+    public @NotNull ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
         if (EnchantmentListener.hasEnchantment(stack, "antique:impetus")) {
             return ItemUseAnimation.SPEAR;
         }
@@ -180,12 +181,12 @@ public class ScepterItem extends Item {
     }
 
     @Override
-    public void hurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
+    public void hurtEnemy(@NotNull ItemStack stack, @NotNull LivingEntity target, @NotNull LivingEntity attacker) {
         ScepterItem.lastHitVelocity = playerVelocity;
     }
 
     @Override
-    public void inventoryTick(ItemStack stack, ServerLevel world, Entity entity, @Nullable EquipmentSlot slot) {
+    public void inventoryTick(@NotNull ItemStack stack, ServerLevel world, @NotNull Entity entity, @Nullable EquipmentSlot slot) {
         if (!world.isClientSide() && entity instanceof Player player) {
 
             // Track the start position of the tick

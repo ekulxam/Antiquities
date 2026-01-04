@@ -7,9 +7,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public record PedestalPacketPayload(BlockPos blockPos, ItemStack stack) implements CustomPacketPayload {
-    public static final CustomPacketPayload.Type<PedestalPacketPayload> ID = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "pedestal_packet"));
+    public static final CustomPacketPayload.Type<@NotNull PedestalPacketPayload> ID = new CustomPacketPayload.Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "pedestal_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PedestalPacketPayload> CODEC = StreamCodec.ofMember(PedestalPacketPayload::write, PedestalPacketPayload::new);
 
@@ -30,8 +31,9 @@ public record PedestalPacketPayload(BlockPos blockPos, ItemStack stack) implemen
         }
     }
 
+    @SuppressWarnings("all")
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

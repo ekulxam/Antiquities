@@ -7,6 +7,7 @@ import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
@@ -24,7 +25,7 @@ public class GlowParticle extends SingleQuadParticle {
 	}
 
 	@Override
-	public Layer getLayer() {
+	public @NotNull Layer getLayer() {
 		return Layer.TRANSLUCENT;
 	}
 
@@ -50,7 +51,7 @@ public class GlowParticle extends SingleQuadParticle {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static class ScrapeFactory implements ParticleProvider<SimpleParticleType> {
+	public static class ScrapeFactory implements ParticleProvider<@NotNull SimpleParticleType> {
 		private final SpriteSet spriteProvider;
 
 		public ScrapeFactory(SpriteSet spriteProvider) {
@@ -58,7 +59,7 @@ public class GlowParticle extends SingleQuadParticle {
 		}
 
 		@Override
-		public @Nullable Particle createParticle(SimpleParticleType parameters, ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, RandomSource random) {
+		public @Nullable Particle createParticle(SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
 			GlowParticle glowParticle = new GlowParticle(world, x, y, z, 0.0, 0.0, 0.0, this.spriteProvider);
 			if (world.random.nextBoolean()) {
 				glowParticle.setColor(229 / 255.0F, 158 /255.0F, 88 / 255.0F);

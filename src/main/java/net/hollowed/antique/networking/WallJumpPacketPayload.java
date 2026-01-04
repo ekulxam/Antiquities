@@ -5,9 +5,10 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.NotNull;
 
 public record WallJumpPacketPayload(int entityId) implements CustomPacketPayload {
-    public static final Type<WallJumpPacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "wall_jump_packet"));
+    public static final Type<@NotNull WallJumpPacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "wall_jump_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, WallJumpPacketPayload> CODEC = StreamCodec.ofMember(WallJumpPacketPayload::write, WallJumpPacketPayload::new);
 
@@ -19,8 +20,9 @@ public record WallJumpPacketPayload(int entityId) implements CustomPacketPayload
         buf.writeInt(entityId);
     }
 
+    @SuppressWarnings("all")
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

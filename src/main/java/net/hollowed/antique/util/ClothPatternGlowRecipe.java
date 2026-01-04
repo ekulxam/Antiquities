@@ -19,6 +19,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -37,22 +38,22 @@ public class ClothPatternGlowRecipe implements CraftingRecipe {
 	}
 
 	@Override
-	public RecipeSerializer<ClothPatternGlowRecipe> getSerializer() {
+	public @NotNull RecipeSerializer<@NotNull ClothPatternGlowRecipe> getSerializer() {
 		return AntiqueRecipeSerializer.PATTERN_GLOW;
 	}
 
 	@Override
-	public String group() {
+	public @NotNull String group() {
 		return this.group;
 	}
 
 	@Override
-	public CraftingBookCategory category() {
+	public @NotNull CraftingBookCategory category() {
 		return this.category;
 	}
 
 	@Override
-	public PlacementInfo placementInfo() {
+	public @NotNull PlacementInfo placementInfo() {
 		if (this.ingredientPlacement == null) {
 			this.ingredientPlacement = PlacementInfo.create(this.ingredients);
 		}
@@ -60,7 +61,8 @@ public class ClothPatternGlowRecipe implements CraftingRecipe {
 		return this.ingredientPlacement;
 	}
 
-	public boolean matches(CraftingInput craftingRecipeInput, Level world) {
+	@SuppressWarnings("all")
+	public boolean matches(CraftingInput craftingRecipeInput, @NotNull Level world) {
 		if (craftingRecipeInput.ingredientCount() != this.ingredients.size()) {
 			return false;
 		} else {
@@ -70,7 +72,7 @@ public class ClothPatternGlowRecipe implements CraftingRecipe {
 		}
 	}
 
-	public ItemStack assemble(CraftingInput craftingRecipeInput, HolderLookup.Provider wrapperLookup) {
+	public @NotNull ItemStack assemble(CraftingInput craftingRecipeInput, HolderLookup.@NotNull Provider wrapperLookup) {
 		ItemStack clothPattern = null;
 		boolean glow = false;
 
@@ -90,7 +92,7 @@ public class ClothPatternGlowRecipe implements CraftingRecipe {
 		return ItemStack.EMPTY;
 	}
 
-	public static class Serializer implements RecipeSerializer<ClothPatternGlowRecipe> {
+	public static class Serializer implements RecipeSerializer<@NotNull ClothPatternGlowRecipe> {
 		private static final MapCodec<ClothPatternGlowRecipe> CODEC = RecordCodecBuilder.mapCodec(
 				instance -> instance.group(
 								Codec.STRING.optionalFieldOf("group", "").forGetter(recipe -> recipe.group),
@@ -110,12 +112,12 @@ public class ClothPatternGlowRecipe implements CraftingRecipe {
 		);
 
 		@Override
-		public MapCodec<ClothPatternGlowRecipe> codec() {
+		public @NotNull MapCodec<ClothPatternGlowRecipe> codec() {
 			return CODEC;
 		}
 
 		@Override
-		public StreamCodec<RegistryFriendlyByteBuf, ClothPatternGlowRecipe> streamCodec() {
+		public @NotNull StreamCodec<RegistryFriendlyByteBuf, ClothPatternGlowRecipe> streamCodec() {
 			return PACKET_CODEC;
 		}
 	}

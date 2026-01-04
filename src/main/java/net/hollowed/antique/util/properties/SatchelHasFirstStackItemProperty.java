@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.item.properties.conditional.ConditionalItem
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -17,13 +18,13 @@ import java.util.List;
 public record SatchelHasFirstStackItemProperty() implements ConditionalItemModelProperty {
     public static final MapCodec<SatchelHasFirstStackItemProperty> CODEC = MapCodec.unit(new SatchelHasFirstStackItemProperty());
 
-    public boolean get(ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed, ItemDisplayContext displayContext) {
+    public boolean get(ItemStack stack, @Nullable ClientLevel world, @Nullable LivingEntity entity, int seed, @NotNull ItemDisplayContext displayContext) {
         List<ItemStack> list = stack.getOrDefault(AntiqueDataComponentTypes.SATCHEL_STACK, List.of(ItemStack.EMPTY));
         ItemStack componentStack = !list.isEmpty() ? list.getFirst() : ItemStack.EMPTY;
         return !componentStack.isEmpty();
     }
 
-    public MapCodec<SatchelHasFirstStackItemProperty> type() {
+    public @NotNull MapCodec<SatchelHasFirstStackItemProperty> type() {
         return CODEC;
     }
 }

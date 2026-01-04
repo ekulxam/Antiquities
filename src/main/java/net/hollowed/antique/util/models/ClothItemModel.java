@@ -39,6 +39,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.*;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3fc;
 
@@ -128,6 +129,7 @@ public class ClothItemModel implements ItemModel {
 		return set.toArray(Vector3fc[]::new);
 	}
 
+	@SuppressWarnings("all")
 	static Function<ItemStack, RenderType> detectRenderType(List<BakedQuad> list) {
 		Iterator<BakedQuad> iterator = list.iterator();
 		if (!iterator.hasNext()) {
@@ -156,13 +158,13 @@ public class ClothItemModel implements ItemModel {
 
 	@Override
 	public void update(
-		ItemStackRenderState state,
-		ItemStack stack,
-		ItemModelResolver resolver,
-		ItemDisplayContext displayContext,
-		@Nullable ClientLevel world,
-		@Nullable ItemOwner heldItemContext,
-		int seed
+			ItemStackRenderState state,
+			ItemStack stack,
+			@NotNull ItemModelResolver resolver,
+			@NotNull ItemDisplayContext displayContext,
+			@Nullable ClientLevel world,
+			@Nullable ItemOwner heldItemContext,
+			int seed
 	) {
 		state.appendModelIdentityElement(this);
 		ItemStackRenderState.LayerRenderState layerRenderState = state.newLayer();
@@ -241,7 +243,7 @@ public class ClothItemModel implements ItemModel {
 		}
 
 		@Override
-		public ItemModel bake(ItemModel.BakingContext context) {
+		public @NotNull ItemModel bake(ItemModel.BakingContext context) {
 			ModelBaker baker = context.blockModelBaker();
 			List<BakedQuad> variantQuads = new ArrayList<>(64);
 
@@ -277,7 +279,7 @@ public class ClothItemModel implements ItemModel {
 		}
 
 		@Override
-		public MapCodec<net.hollowed.antique.util.models.ClothItemModel.Unbaked> type() {
+		public @NotNull MapCodec<ClothItemModel.Unbaked> type() {
 			return CODEC;
 		}
 	}

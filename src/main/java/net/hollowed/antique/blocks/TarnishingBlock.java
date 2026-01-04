@@ -3,7 +3,6 @@ package net.hollowed.antique.blocks;
 import net.hollowed.antique.index.AntiqueBlocks;
 import net.hollowed.antique.util.BlockUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -20,6 +19,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Optional;
 
 public class TarnishingBlock extends Block {
@@ -29,7 +30,7 @@ public class TarnishingBlock extends Block {
 	}
 
 	@Override
-	protected InteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
+	protected @NotNull InteractionResult useItemOn(ItemStack stack, @NotNull BlockState state, @NotNull Level world, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
 		if (stack.is(Items.MAGMA_CREAM)) {
 			Optional<BlockState> optional = this.getCoat(state);
 			if (optional.isPresent()) {
@@ -45,7 +46,7 @@ public class TarnishingBlock extends Block {
 	}
 
 	@Override
-	protected void randomTick(BlockState state, ServerLevel world, BlockPos pos, RandomSource random) {
+	protected void randomTick(@NotNull BlockState state, ServerLevel world, @NotNull BlockPos pos, @NotNull RandomSource random) {
 		if (world.dimensionTypeRegistration().is(BuiltinDimensionTypes.NETHER)) {
 			Optional<BlockState> optional = this.getNextTarnishLevel(state);
 			if (optional.isPresent()) {

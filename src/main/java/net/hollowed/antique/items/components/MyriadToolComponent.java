@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
+import org.jetbrains.annotations.NotNull;
 
 public record MyriadToolComponent(ItemStack toolBit, String clothType, String clothPattern, int clothColor, int patternColor) implements TooltipProvider {
 
@@ -37,7 +38,7 @@ public record MyriadToolComponent(ItemStack toolBit, String clothType, String cl
     );
 
     @Override
-    public void addToTooltip(Item.TooltipContext context, Consumer<Component> textConsumer, TooltipFlag type, DataComponentGetter components) {
+    public void addToTooltip(Item.@NotNull TooltipContext context, @NotNull Consumer<Component> textConsumer, @NotNull TooltipFlag type, @NotNull DataComponentGetter components) {
         // TODO: replace current tooltip handling with this
     }
 }

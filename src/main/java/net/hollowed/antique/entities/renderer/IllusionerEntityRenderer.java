@@ -30,26 +30,26 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 
 @Environment(EnvType.CLIENT)
-public class IllusionerEntityRenderer extends IllagerRenderer<IllusionerEntity, IllusionerEntityRenderState> {
+public class IllusionerEntityRenderer extends IllagerRenderer<@org.jetbrains.annotations.NotNull IllusionerEntity, @org.jetbrains.annotations.NotNull IllusionerEntityRenderState> {
     private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/illager/illusioner.png");
     private static final Identifier CLONE_TEXTURE = Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "textures/entity/illager/illusioner_clone.png");
 
     public IllusionerEntityRenderer(EntityRendererProvider.Context context) {
         super(context, new IllagerModel<>(context.bakeLayer(ModelLayers.ILLUSIONER)), 0.5F);
-        this.addLayer(new ItemInHandLayer<IllusionerEntityRenderState, IllagerModel<IllusionerEntityRenderState>>(this) {
-            public void render(PoseStack matrixStack, SubmitNodeCollector orderedRenderCommandQueue, int i, IllusionerEntityRenderState illusionerEntityRenderState, float f, float g) {
+        this.addLayer(new ItemInHandLayer<@NotNull IllusionerEntityRenderState, @NotNull IllagerModel<@NotNull IllusionerEntityRenderState>>(this) {
+            public void submit(@NotNull PoseStack matrixStack, @NotNull SubmitNodeCollector orderedRenderCommandQueue, int i, IllusionerEntityRenderState illusionerEntityRenderState, float f, float g) {
                 if (illusionerEntityRenderState.spellcasting || illusionerEntityRenderState.isAggressive) {
                     super.submit(matrixStack, orderedRenderCommandQueue, i, illusionerEntityRenderState, f, g);
                 }
-
             }
         });
         this.model.getHat().visible = true;
     }
 
-    public Identifier getTextureLocation(IllusionerEntityRenderState illusionerEntityRenderState) {
+    public @NotNull Identifier getTextureLocation(IllusionerEntityRenderState illusionerEntityRenderState) {
         if (illusionerEntityRenderState.isInvisible) {
             return CLONE_TEXTURE;
         }
@@ -68,7 +68,7 @@ public class IllusionerEntityRenderer extends IllagerRenderer<IllusionerEntity, 
     }
 
     @Override
-    public void submit(IllusionerEntityRenderState illusionerEntityRenderState, PoseStack matrixStack, SubmitNodeCollector queue, CameraRenderState cameraRenderState) {
+    public void submit(IllusionerEntityRenderState illusionerEntityRenderState, @NotNull PoseStack matrixStack, @NotNull SubmitNodeCollector queue, @NotNull CameraRenderState cameraRenderState) {
         if (illusionerEntityRenderState.isInvisible) {
             matrixStack.pushPose();
             matrixStack.translate(0, 1.4, 0);
@@ -94,7 +94,7 @@ public class IllusionerEntityRenderer extends IllagerRenderer<IllusionerEntity, 
         }
     }
 
-    protected boolean isVisible(IllusionerEntityRenderState illusionerEntityRenderState) {
+    protected boolean isBodyVisible(IllusionerEntityRenderState illusionerEntityRenderState) {
         return true;
     }
 

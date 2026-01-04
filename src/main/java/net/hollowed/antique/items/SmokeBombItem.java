@@ -16,6 +16,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ProjectileItem;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 public class SmokeBombItem extends Item implements ProjectileItem {
 
@@ -24,7 +25,7 @@ public class SmokeBombItem extends Item implements ProjectileItem {
 	}
 
 	@Override
-	public InteractionResult use(Level world, Player user, InteractionHand hand) {
+	public @NotNull InteractionResult use(Level world, Player user, @NotNull InteractionHand hand) {
 		ItemStack itemStack = user.getItemInHand(hand);
 		world.playSound(
 			null,
@@ -51,7 +52,7 @@ public class SmokeBombItem extends Item implements ProjectileItem {
 	}
 
 	@Override
-	public Projectile asProjectile(Level world, Position pos, ItemStack stack, Direction direction) {
+	public @NotNull Projectile asProjectile(@NotNull Level world, Position pos, @NotNull ItemStack stack, @NotNull Direction direction) {
 		SmokeBombEntity smokeBomb = new SmokeBombEntity(AntiqueEntities.SMOKE_BOMB, world);
 		smokeBomb.setPos(pos.x(), pos.y(), pos.z());
 		return smokeBomb;

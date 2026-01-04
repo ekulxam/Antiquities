@@ -20,6 +20,7 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -34,7 +35,7 @@ public class MyriadShovelPart extends Entity implements TraceableEntity {
 
 	private int id;
 
-	public MyriadShovelPart(EntityType<MyriadShovelPart> myriadShovelEntityEntityType, Level world) {
+	public MyriadShovelPart(EntityType<@NotNull MyriadShovelPart> myriadShovelEntityEntityType, Level world) {
 		super(myriadShovelEntityEntityType, world);
 	}
 
@@ -106,7 +107,7 @@ public class MyriadShovelPart extends Entity implements TraceableEntity {
 	}
 
 	@Override
-	protected void defineSynchedData(SynchedEntityData.Builder builder) {
+	protected void defineSynchedData(SynchedEntityData.@NotNull Builder builder) {
 	}
 
 	@Override
@@ -131,7 +132,7 @@ public class MyriadShovelPart extends Entity implements TraceableEntity {
 	}
 
 	@Override
-	public final boolean hurtServer(ServerLevel world, DamageSource source, float amount) {
+	public final boolean hurtServer(@NotNull ServerLevel world, @NotNull DamageSource source, float amount) {
 		TickDelayScheduler.schedule(1, () -> {
 			if (this.owner != null && this.owner instanceof MyriadShovelEntity entity) {
 				entity.canPickup = true;

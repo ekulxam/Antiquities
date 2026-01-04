@@ -16,6 +16,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.util.CommonColors;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
@@ -38,12 +39,12 @@ public class SatchelTooltipComponent implements ClientTooltipComponent {
 	}
 
 	@Override
-	public int getHeight(Font textRenderer) {
+	public int getHeight(@NotNull Font textRenderer) {
 		return this.satchelContents.isEmpty() ? getHeightOfEmpty(textRenderer) : this.getHeightOfNonEmpty();
 	}
 
 	@Override
-	public int getWidth(Font textRenderer) {
+	public int getWidth(@NotNull Font textRenderer) {
 		return 128;
 	}
 
@@ -73,7 +74,7 @@ public class SatchelTooltipComponent implements ClientTooltipComponent {
 	}
 
 	@Override
-	public void renderImage(Font textRenderer, int x, int y, int width, int height, GuiGraphics context) {
+	public void renderImage(@NotNull Font textRenderer, int x, int y, int width, int height, @NotNull GuiGraphics context) {
 		x -= 22;
 		if (this.satchelContents != SatchelItem.lastContents) {
 			SatchelItem.lastContents = this.satchelContents;

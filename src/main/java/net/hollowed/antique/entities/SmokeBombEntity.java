@@ -19,6 +19,7 @@ import net.minecraft.world.item.component.Fireworks;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import org.jetbrains.annotations.NotNull;
 
 public class SmokeBombEntity extends ThrowableItemProjectile {
     public SmokeBombEntity(EntityType<? extends ThrowableItemProjectile> entityType, Level world) {
@@ -26,7 +27,7 @@ public class SmokeBombEntity extends ThrowableItemProjectile {
     }
 
     @Override
-    protected Item getDefaultItem() {
+    protected @NotNull Item getDefaultItem() {
         return AntiqueItems.SMOKE_BOMB;
     }
 
@@ -39,7 +40,7 @@ public class SmokeBombEntity extends ThrowableItemProjectile {
     }
 
     @Override
-    protected void onHitBlock(BlockHitResult blockHitResult) {
+    protected void onHitBlock(@NotNull BlockHitResult blockHitResult) {
         Level world = this.level();
 
         world.playSound(null, this.getX(), this.getY(), this.getZ(), AntiqueSounds.FIRECRACKER, SoundSource.BLOCKS, 3F, (float) ((Math.random() * 0.5) + 0.75));

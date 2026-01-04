@@ -6,9 +6,10 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public record PaleWardenTickPacketPayload(int entityId, ItemStack mainhand, ItemStack offhand) implements CustomPacketPayload {
-    public static final Type<PaleWardenTickPacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "pale_warden_tick_packet"));
+    public static final Type<@NotNull PaleWardenTickPacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "pale_warden_tick_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, PaleWardenTickPacketPayload> CODEC = StreamCodec.ofMember(PaleWardenTickPacketPayload::write, PaleWardenTickPacketPayload::new);
 
@@ -34,8 +35,9 @@ public record PaleWardenTickPacketPayload(int entityId, ItemStack mainhand, Item
         }
     }
 
+    @SuppressWarnings("all")
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

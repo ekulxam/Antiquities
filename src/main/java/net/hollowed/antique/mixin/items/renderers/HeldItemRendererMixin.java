@@ -24,6 +24,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -33,9 +34,9 @@ import com.mojang.math.Axis;
 import java.awt.*;
 
 @Mixin(ItemInHandLayer.class)
-public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M extends EntityModel<S> & ArmedModel<S>> extends RenderLayer<S, M> {
+public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M extends EntityModel<S> & ArmedModel<S>> extends RenderLayer<S, @NotNull M> {
 
-    public HeldItemRendererMixin(RenderLayerParent<S, M> context) {
+    public HeldItemRendererMixin(RenderLayerParent<S, @NotNull M> context) {
         super(context);
     }
 
@@ -87,6 +88,8 @@ public abstract class HeldItemRendererMixin<S extends ArmedEntityRenderState, M 
                                 Identifier.parse(component.clothPattern()),
                                 data.length() != 0 ? data.length() : 1.4,
                                 data.width() != 0 ? data.width() : 0.1,
+                                data.gravity(),
+                                data.waterGravity(),
                                 data.bodyAmount() != 0 ? data.bodyAmount() : 8
                         );
                     }

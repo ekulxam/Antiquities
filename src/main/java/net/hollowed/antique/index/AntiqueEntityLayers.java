@@ -12,12 +12,12 @@ public class AntiqueEntityLayers extends ModelLayers {
 
     public static final ModelLayerLocation ADVENTURE_ARMOR = register("adventure_armor");
     public static final ModelLayerLocation VANILLA_ARMOR = register("vanilla_armor");
-    public static final ModelLayerLocation ARMOR_STAND_ADVENTURE_ARMOR = register("armor_stand_adventure_armor");
 
     private static ModelLayerLocation register(String id) {
         return register(id, "main");
     }
 
+    @SuppressWarnings("all")
     private static ModelLayerLocation register(String id, String variant) {
         ModelLayerLocation entityModelLayer = create(id, variant);
         if (!LAYERS.add(entityModelLayer)) {

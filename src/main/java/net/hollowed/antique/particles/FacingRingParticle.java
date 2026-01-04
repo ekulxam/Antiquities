@@ -15,6 +15,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
@@ -52,7 +53,7 @@ public class FacingRingParticle extends SimpleAnimatedParticle {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static class Factory implements ParticleProvider<SimpleParticleType> {
+	public static class Factory implements ParticleProvider<@NotNull SimpleParticleType> {
 		private final SpriteSet spriteProvider;
 
 		public Factory(SpriteSet spriteProvider) {
@@ -60,13 +61,13 @@ public class FacingRingParticle extends SimpleAnimatedParticle {
 		}
 
 		@Override
-		public @Nullable Particle createParticle(SimpleParticleType parameters, ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, RandomSource random) {
+		public @Nullable Particle createParticle(SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
 			return new FacingRingParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider);
 		}
 	}
 
 	@Override
-	public void extract(QuadParticleRenderState submittable, Camera camera, float tickProgress) {
+	public void extract(@NotNull QuadParticleRenderState submittable, @NotNull Camera camera, float tickProgress) {
 		Vec3 direction = new Vec3(this.dirX, this.dirY, this.dirZ).normalize();
 		BlockPos blockPos = BlockPos.containing(new Vec3(this.x, this.y, this.z).subtract(direction.x, 0.2, direction.z));
 		int color = level.getBlockState(blockPos).getMapColor(level, blockPos).col;

@@ -17,9 +17,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.Items;
+import org.jetbrains.annotations.NotNull;
 
 @Environment(EnvType.CLIENT)
-public class CakeRenderer<T extends Entity> extends EntityRenderer<T, ArrowRenderState> {
+public class CakeRenderer<T extends Entity> extends EntityRenderer<T, @org.jetbrains.annotations.NotNull ArrowRenderState> {
     private final boolean lit;
 
     public CakeRenderer(EntityRendererProvider.Context ctx, boolean lit) {
@@ -32,12 +33,12 @@ public class CakeRenderer<T extends Entity> extends EntityRenderer<T, ArrowRende
     }
 
     @Override
-    protected int getBlockLightLevel(T entity, BlockPos pos) {
+    protected int getBlockLightLevel(T entity, @NotNull BlockPos pos) {
         return this.lit ? 15 : super.getBlockLightLevel(entity, pos);
     }
 
     @Override
-    public void submit(ArrowRenderState renderState, PoseStack matrixStack, SubmitNodeCollector queue, CameraRenderState cameraState) {
+    public void submit(ArrowRenderState renderState, PoseStack matrixStack, @NotNull SubmitNodeCollector queue, @NotNull CameraRenderState cameraState) {
         matrixStack.pushPose();
 
         matrixStack.mulPose(Axis.YP.rotationDegrees(renderState.yRot - 90.0F));

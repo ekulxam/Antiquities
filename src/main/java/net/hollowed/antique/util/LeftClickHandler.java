@@ -4,6 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 
+@SuppressWarnings("unused")
 public class LeftClickHandler {
     public static final Minecraft client = Minecraft.getInstance();
 

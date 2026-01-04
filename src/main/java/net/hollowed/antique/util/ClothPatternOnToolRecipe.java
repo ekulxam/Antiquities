@@ -41,6 +41,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ClothPatternOnToolRecipe implements CraftingRecipe {
@@ -58,22 +59,22 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 	}
 
 	@Override
-	public RecipeSerializer<ClothPatternOnToolRecipe> getSerializer() {
+	public @NotNull RecipeSerializer<@NotNull ClothPatternOnToolRecipe> getSerializer() {
 		return AntiqueRecipeSerializer.CLOTH_PATTERN;
 	}
 
 	@Override
-	public String group() {
+	public @NotNull String group() {
 		return this.group;
 	}
 
 	@Override
-	public CraftingBookCategory category() {
+	public @NotNull CraftingBookCategory category() {
 		return this.category;
 	}
 
 	@Override
-	public PlacementInfo placementInfo() {
+	public @NotNull PlacementInfo placementInfo() {
 		if (this.ingredientPlacement == null) {
 			this.ingredientPlacement = PlacementInfo.create(this.ingredients);
 		}
@@ -82,7 +83,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 	}
 
 	@Override
-	public NonNullList<ItemStack> getRemainingItems(CraftingInput input) {
+	public @NotNull NonNullList<ItemStack> getRemainingItems(@NotNull CraftingInput input) {
 		return defaultCraftingReminder(input);
 	}
 
@@ -100,10 +101,11 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 	}
 
 	public static ClothSkinData.ClothSubData getTransform(String id) {
-		return transforms.getOrDefault(id, new ClothSkinData.ClothSubData(Antiquities.id("cloth"), "d13a68", 1.4F, 0.1F, 8, 0, true, true));
+		return transforms.getOrDefault(id, new ClothSkinData.ClothSubData(Antiquities.id("cloth"), "d13a68", 1.4F, 0.1F, 1, 1, 8, 0, true, true));
 	}
 
-	public boolean matches(CraftingInput craftingRecipeInput, Level world) {
+	@SuppressWarnings("all")
+	public boolean matches(CraftingInput craftingRecipeInput, @NotNull Level world) {
 		if (craftingRecipeInput.ingredientCount() != this.ingredients.size()) {
 			return false;
 		} else {
@@ -138,7 +140,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		}
 	}
 
-	public ItemStack assemble(CraftingInput craftingRecipeInput, HolderLookup.Provider wrapperLookup) {
+	public @NotNull ItemStack assemble(CraftingInput craftingRecipeInput, HolderLookup.@NotNull Provider wrapperLookup) {
 		ItemStack myriadTool = null;
 		ItemStack clothPattern = null;
 
@@ -178,7 +180,7 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		return ItemStack.EMPTY;
 	}
 
-	public static class Serializer implements RecipeSerializer<ClothPatternOnToolRecipe> {
+	public static class Serializer implements RecipeSerializer<@NotNull ClothPatternOnToolRecipe> {
 		private static final MapCodec<ClothPatternOnToolRecipe> CODEC = RecordCodecBuilder.mapCodec(
 				instance -> instance.group(
 								Codec.STRING.optionalFieldOf("group", "").forGetter(recipe -> recipe.group),
@@ -198,12 +200,12 @@ public class ClothPatternOnToolRecipe implements CraftingRecipe {
 		);
 
 		@Override
-		public MapCodec<ClothPatternOnToolRecipe> codec() {
+		public @NotNull MapCodec<ClothPatternOnToolRecipe> codec() {
 			return CODEC;
 		}
 
 		@Override
-		public StreamCodec<RegistryFriendlyByteBuf, ClothPatternOnToolRecipe> streamCodec() {
+		public @NotNull StreamCodec<RegistryFriendlyByteBuf, ClothPatternOnToolRecipe> streamCodec() {
 			return PACKET_CODEC;
 		}
 	}

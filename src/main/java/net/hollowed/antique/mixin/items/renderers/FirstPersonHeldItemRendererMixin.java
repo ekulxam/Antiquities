@@ -83,6 +83,8 @@ public abstract class FirstPersonHeldItemRendererMixin {
                             Identifier.parse(component.clothPattern()),
                             data.length() != 0 ? data.length() : 1.4,
                             data.width() != 0 ? data.width() : 0.1,
+                            data.gravity(),
+                            data.waterGravity(),
                             data.bodyAmount() != 0 ? data.bodyAmount() : 8
                     );
                 }

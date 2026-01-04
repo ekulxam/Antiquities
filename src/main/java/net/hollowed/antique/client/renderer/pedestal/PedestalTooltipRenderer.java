@@ -20,7 +20,7 @@ public class PedestalTooltipRenderer {
 
     private static void renderItemTooltip(GuiGraphics context, ItemStack itemStack, int screenWidth, int screenHeight) {
         Minecraft client = Minecraft.getInstance();
-        if (client == null || client.player == null) return;
+        if (client.player == null) return;
 
         // Get the tooltip text
         List<Component> textList = itemStack.getTooltipLines(Item.TooltipContext.EMPTY, client.player, client.options.advancedItemTooltips ? TooltipFlag.NORMAL : TooltipFlag.ADVANCED);
@@ -41,7 +41,6 @@ public class PedestalTooltipRenderer {
     public static void renderTooltip(GuiGraphics context, int screenWidth, int screenHeight) {
 
         Minecraft client = Minecraft.getInstance();
-        if (client == null) return;
 
         // Check if player is looking at block
         HitResult hitResult = client.hitResult;

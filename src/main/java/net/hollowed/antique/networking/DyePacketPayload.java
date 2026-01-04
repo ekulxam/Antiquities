@@ -5,9 +5,10 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.NotNull;
 
 public record DyePacketPayload(String color) implements CustomPacketPayload {
-    public static final Type<DyePacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "dye_packet"));
+    public static final Type<@NotNull DyePacketPayload> ID = new Type<>(Identifier.fromNamespaceAndPath(Antiquities.MOD_ID, "dye_packet"));
 
     public static final StreamCodec<RegistryFriendlyByteBuf, DyePacketPayload> CODEC = StreamCodec.ofMember(DyePacketPayload::write, DyePacketPayload::new);
 
@@ -19,8 +20,9 @@ public record DyePacketPayload(String color) implements CustomPacketPayload {
         buf.writeUtf(color);
     }
 
+    @SuppressWarnings("all")
     @Override
-    public Type<? extends CustomPacketPayload> type() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return ID;
     }
 }

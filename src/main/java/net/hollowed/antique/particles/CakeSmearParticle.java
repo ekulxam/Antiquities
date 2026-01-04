@@ -11,6 +11,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 
@@ -58,7 +59,7 @@ public class CakeSmearParticle extends SingleQuadParticle {
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static class Factory implements ParticleProvider<SimpleParticleType> {
+	public static class Factory implements ParticleProvider<@NotNull SimpleParticleType> {
 		private final SpriteSet spriteProvider;
 
 		public Factory(SpriteSet spriteProvider) {
@@ -66,7 +67,7 @@ public class CakeSmearParticle extends SingleQuadParticle {
 		}
 
 		@Override
-		public @Nullable Particle createParticle(SimpleParticleType parameters, ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, RandomSource random) {
+		public @Nullable Particle createParticle(SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
 			CakeSmearParticle particle = new CakeSmearParticle(world, x, y, z, velocityX, velocityY, velocityZ, this.spriteProvider);
 			particle.setSprite(this.spriteProvider.first());
 			return particle;
@@ -74,7 +75,7 @@ public class CakeSmearParticle extends SingleQuadParticle {
 	}
 
 	@Override
-	public void extract(QuadParticleRenderState submittable, Camera camera, float tickProgress) {
+	public void extract(@NotNull QuadParticleRenderState submittable, @NotNull Camera camera, float tickProgress) {
 		Vec3 direction = new Vec3(this.dirX, this.dirY, this.dirZ);
 		Quaternionf quaternionf = new Quaternionf();
 		if (direction.x == 1) quaternionf.rotateY((float) Math.toRadians(90));
@@ -87,7 +88,7 @@ public class CakeSmearParticle extends SingleQuadParticle {
 	}
 
 	@Override
-	protected Layer getLayer() {
+	protected @NotNull Layer getLayer() {
 		return Layer.TRANSLUCENT;
 	}
 

@@ -1,8 +1,10 @@
 package net.hollowed.antique.items;
 
+import net.hollowed.antique.index.AntiqueItems;
 import net.hollowed.combatamenities.util.items.CAComponents;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -14,7 +16,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
+import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.level.Level;
+
+import java.util.List;
 
 public class MyriadCleaverBit extends MyriadToolBitItem{
 
@@ -54,7 +59,15 @@ public class MyriadCleaverBit extends MyriadToolBitItem{
                 .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -2.2, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                 .add(Attributes.ENTITY_INTERACTION_RANGE, new AttributeModifier(Identifier.withDefaultNamespace("base_attack_range"), 0.5, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                 .build());
-        tool.remove(DataComponents.TOOL);
+        tool.set(DataComponents.TOOL, new Tool(
+                List.of(
+                        Tool.Rule.deniesDrops(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.INCORRECT_FOR_IRON_TOOL)),
+                        Tool.Rule.minesAndDrops(AntiqueItems.registryEntryLookup.getOrThrow(BlockTags.SWORD_EFFICIENT), 20)
+                ),
+                1.0F,
+                1,
+                true
+        ));
         tool.set(CAComponents.INTEGER_PROPERTY, 1);
     }
 }

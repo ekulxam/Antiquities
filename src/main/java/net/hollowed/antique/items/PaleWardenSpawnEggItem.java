@@ -16,6 +16,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
+@SuppressWarnings("all")
 public class PaleWardenSpawnEggItem extends SpawnEggItem {
     private final EntityType<? extends Mob> type;
 

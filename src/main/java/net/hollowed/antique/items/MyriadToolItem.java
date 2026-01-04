@@ -267,6 +267,7 @@ public class MyriadToolItem extends Item {
                     .add(Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -2.2, AttributeModifier.Operation.ADD_VALUE), EquipmentSlotGroup.MAINHAND)
                     .build());
             tool.remove(DataComponents.TOOL);
+            tool.remove(DataComponents.WEAPON);
             tool.remove(net.hollowed.combatamenities.util.items.CAComponents.INTEGER_PROPERTY);
         }
         tool.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(newStack, component.clothType(), component.clothPattern(), component.clothColor(), component.patternColor()));

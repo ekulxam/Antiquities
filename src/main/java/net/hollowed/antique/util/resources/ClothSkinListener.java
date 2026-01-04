@@ -42,6 +42,6 @@ public class ClothSkinListener implements ResourceManagerReloadListener {
     }
 
     public static ClothSkinData.ClothSubData getTransform(String id) {
-        return transforms.getOrDefault(id, new ClothSkinData.ClothSubData(Identifier.parse(""), "d13a68", 1.4F, 0.1F, 8, 0, false, false));
+        return transforms.getOrDefault(id, new ClothSkinData.ClothSubData(Identifier.parse(""), "d13a68", 1.4F, 0.1F, 1.0F, -0.5F, 8, 0, false, false));
     }
 }

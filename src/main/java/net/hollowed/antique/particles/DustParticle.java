@@ -6,6 +6,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
@@ -46,12 +47,12 @@ public class DustParticle extends SingleQuadParticle {
 	}
 
 	@Override
-	public Layer getLayer() {
+	public @NotNull Layer getLayer() {
 		return Layer.TRANSLUCENT;
 	}
 
 	@Environment(EnvType.CLIENT)
-	public static class CosySmokeFactory implements ParticleProvider<SimpleParticleType> {
+	public static class CosySmokeFactory implements ParticleProvider<@NotNull SimpleParticleType> {
 		private final SpriteSet spriteProvider;
 
 		public CosySmokeFactory(SpriteSet spriteProvider) {
@@ -59,7 +60,7 @@ public class DustParticle extends SingleQuadParticle {
 		}
 
 		@Override
-		public @Nullable Particle createParticle(SimpleParticleType parameters, ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, RandomSource random) {
+		public @Nullable Particle createParticle(SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
 			DustParticle campfireSmokeParticle = new DustParticle(world, x, y, z, velocityX, velocityY, velocityZ, false, this.spriteProvider);
 			campfireSmokeParticle.setAlpha(0.9F);
 			campfireSmokeParticle.setSprite(this.spriteProvider.first());

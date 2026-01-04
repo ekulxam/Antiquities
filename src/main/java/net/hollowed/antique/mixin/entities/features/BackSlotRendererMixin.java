@@ -24,7 +24,7 @@ public abstract class BackSlotRendererMixin {
                 ItemStack backSlotStack = playerEntity.getInventory().getItem(41);
                 if (!backSlotStack.isEmpty()) {
                     matrixStack.pushPose();
-                    if (playerEntity.getItemBySlot(EquipmentSlot.CHEST) != ItemStack.EMPTY && !(armedEntityRenderState.showCape && armedEntityRenderState.skin.cape() != null)) {
+                    if (playerEntity.getItemBySlot(EquipmentSlot.CHEST) != ItemStack.EMPTY && !armedEntityRenderState.showCape) {
                         matrixStack.translate(0.0F, 0.0F, 0.05F);
                     }
                 }

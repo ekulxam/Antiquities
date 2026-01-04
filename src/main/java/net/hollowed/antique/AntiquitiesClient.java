@@ -60,6 +60,7 @@ public class AntiquitiesClient implements ClientModInitializer {
 
     public static List<Identifier> BETTER_ARMOR_LIST = new ArrayList<>();
 
+    @SuppressWarnings("unused")
     public static void registerVanillaArmor(ItemLike... items) {
         for (ItemLike item : items) {
             BETTER_ARMOR_LIST.add(BuiltInRegistries.ITEM.getKey(item.asItem()));

@@ -15,7 +15,7 @@ public class TickDelayScheduler {
      * @param task Code executed after the delay
      * @return the task ID in the case of a cancel being warranted
      */
-    @SuppressWarnings("unused")
+    @SuppressWarnings("all")
     public static int schedule(int ticks, Runnable task) {
         int taskId = taskIdCounter++;
 

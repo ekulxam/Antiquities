@@ -13,16 +13,17 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ChargedProjectiles;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
 public record ProjectileTypeProperty() implements SelectItemModelProperty<Identifier> {
-	public static final SelectItemModelProperty.Type<ProjectileTypeProperty, Identifier> TYPE = SelectItemModelProperty.Type.create(
+	public static final SelectItemModelProperty.Type<@NotNull ProjectileTypeProperty, Identifier> TYPE = SelectItemModelProperty.Type.create(
 			MapCodec.unit(new ProjectileTypeProperty()), Identifier.CODEC
 	);
 
 	public Identifier get(
-		ItemStack itemStack, @Nullable ClientLevel clientWorld, @Nullable LivingEntity livingEntity, int i, ItemDisplayContext itemDisplayContext
+			ItemStack itemStack, @Nullable ClientLevel clientWorld, @Nullable LivingEntity livingEntity, int i, @NotNull ItemDisplayContext itemDisplayContext
 	) {
 		ChargedProjectiles chargedProjectilesComponent = itemStack.get(DataComponents.CHARGED_PROJECTILES);
 		if (chargedProjectilesComponent == null || chargedProjectilesComponent.isEmpty()) {
@@ -33,12 +34,12 @@ public record ProjectileTypeProperty() implements SelectItemModelProperty<Identi
 	}
 
 	@Override
-	public Type<ProjectileTypeProperty, Identifier> type() {
+	public @NotNull Type<@NotNull ProjectileTypeProperty, Identifier> type() {
 		return TYPE;
 	}
 
 	@Override
-	public Codec<Identifier> valueCodec() {
+	public @NotNull Codec<Identifier> valueCodec() {
 		return Identifier.CODEC;
 	}
 }

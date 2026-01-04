@@ -4,6 +4,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.NotNull;
 
 public class BounceEffect extends MobEffect {
 
@@ -17,7 +18,7 @@ public class BounceEffect extends MobEffect {
 	}
 
 	@Override
-	public boolean applyEffectTick(ServerLevel world, LivingEntity entity, int amplifier) {
+	public boolean applyEffectTick(@NotNull ServerLevel world, LivingEntity entity, int amplifier) {
 		entity.fallDistance = 0;
 		return true;
 	}

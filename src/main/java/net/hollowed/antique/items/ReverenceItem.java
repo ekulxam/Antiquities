@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 public class ReverenceItem extends Item {
 
@@ -29,18 +30,18 @@ public class ReverenceItem extends Item {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack, LivingEntity user) {
+    public int getUseDuration(@NotNull ItemStack stack, @NotNull LivingEntity user) {
         return 72000;
     }
 
     @Override
-    public InteractionResult use(Level world, Player user, InteractionHand hand) {
+    public @NotNull InteractionResult use(@NotNull Level world, Player user, @NotNull InteractionHand hand) {
         user.startUsingItem(hand);
         return InteractionResult.PASS;
     }
 
     @Override
-    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+    public @NotNull ItemUseAnimation getUseAnimation(@NotNull ItemStack stack) {
         return ItemUseAnimation.SPEAR;
     }
 }

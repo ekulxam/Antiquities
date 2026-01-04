@@ -6,18 +6,19 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
+import org.jetbrains.annotations.NotNull;
 
 public interface AntiqueRecipeSerializer {
-    RecipeSerializer<ClothPatternOnToolRecipe> CLOTH_PATTERN = register(
+    RecipeSerializer<@NotNull ClothPatternOnToolRecipe> CLOTH_PATTERN = register(
             "crafting_special_cloth_pattern", new ClothPatternOnToolRecipe.Serializer()
     );
-    RecipeSerializer<ClothPatternGlowRecipe> PATTERN_GLOW = register(
+    RecipeSerializer<@NotNull ClothPatternGlowRecipe> PATTERN_GLOW = register(
             "crafting_special_pattern_glow", new ClothPatternGlowRecipe.Serializer()
     );
 
     static void init() {}
 
-    static <S extends RecipeSerializer<T>, T extends Recipe<?>> S register(String id, S serializer) {
+    static <S extends RecipeSerializer<@NotNull T>, T extends Recipe<?>> S register(String id, S serializer) {
         return Registry.register(BuiltInRegistries.RECIPE_SERIALIZER, "antique:" + id, serializer);
     }
 }

@@ -6,6 +6,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
@@ -23,7 +24,7 @@ public class HitMarkerParticle extends SimpleAnimatedParticle {
     }
 
     @Environment(EnvType.CLIENT)
-    public static class Factory implements ParticleProvider<SimpleParticleType> {
+    public static class Factory implements ParticleProvider<@NotNull SimpleParticleType> {
         private final SpriteSet spriteProvider;
 
         public Factory(SpriteSet spriteProvider) {
@@ -31,7 +32,7 @@ public class HitMarkerParticle extends SimpleAnimatedParticle {
         }
 
         @Override
-        public @Nullable Particle createParticle(SimpleParticleType parameters, ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, RandomSource random) {
+        public @Nullable Particle createParticle(SimpleParticleType parameters, @NotNull ClientLevel world, double x, double y, double z, double velocityX, double velocityY, double velocityZ, @NotNull RandomSource random) {
             return new HitMarkerParticle(world, x, y, z, this.spriteProvider);
         }
     }

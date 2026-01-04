@@ -16,8 +16,9 @@ import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
 import net.minecraft.world.entity.HumanoidArm;
+import org.jetbrains.annotations.NotNull;
 
-public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implements ArmedModel<PaleWardenRenderState> {
+public class PaleWardenModel extends EntityModel<@NotNull PaleWardenRenderState> implements ArmedModel<@NotNull PaleWardenRenderState> {
 	public final ModelPart big_guy;
 	public final ModelPart right_leg;
 	public final ModelPart left_leg;
@@ -98,6 +99,7 @@ public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implemen
 		return LayerDefinition.create(modelData, 128, 128);
 	}
 
+	@SuppressWarnings("unused")
 	public void setAngles(PaleWardenRenderState state) {
 		this.resetPose();
 		PaleWardenEntity entity = (PaleWardenEntity) state.entity;
@@ -117,7 +119,7 @@ public class PaleWardenModel extends EntityModel<PaleWardenRenderState> implemen
 	}
 
 	@Override
-	public void translateToHand(PaleWardenRenderState state, HumanoidArm arm, PoseStack matrices) {
+	public void translateToHand(PaleWardenRenderState state, @NotNull HumanoidArm arm, @NotNull PoseStack matrices) {
 		this.root.translateAndRotate(matrices);
 		if (arm == HumanoidArm.RIGHT) {
 			this.right_arm.translateAndRotate(matrices);

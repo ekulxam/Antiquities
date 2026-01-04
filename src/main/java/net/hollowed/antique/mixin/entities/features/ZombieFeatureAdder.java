@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
 import net.minecraft.client.renderer.entity.state.ZombieRenderState;
 import net.minecraft.world.entity.monster.zombie.Husk;
 import net.minecraft.world.entity.monster.zombie.Zombie;
+import org.jetbrains.annotations.NotNull;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -15,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractZombieRenderer.class)
 public abstract class ZombieFeatureAdder<T extends Zombie, S extends ZombieRenderState, M extends ZombieModel<S>>
-        extends HumanoidMobRenderer<T, S, M> {
+        extends HumanoidMobRenderer<T, S, @NotNull M> {
 
     public ZombieFeatureAdder(EntityRendererProvider.Context context, M model, float shadowRadius) {
         super(context, model, shadowRadius);

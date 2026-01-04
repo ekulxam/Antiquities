@@ -27,7 +27,7 @@ public class BipedEntityModelMixin {
 
     @Inject(method = "poseRightArm", at = @At("HEAD"), cancellable = true)
     private void positionCustomRightArm(HumanoidRenderState state, CallbackInfo ci) {
-        if (state instanceof BipedEntityRenderStateAccess access && access.antique$getEntity().getUseItem().getItem() instanceof MyriadToolItem) {
+        if (state instanceof BipedEntityRenderStateAccess access && access.antique$getEntity() != null && access.antique$getEntity().getUseItem().getItem() instanceof MyriadToolItem) {
             if (access.antique$getEntity().getUseItem().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
                 MyriadAxePosing.hold(this.rightArm, this.leftArm, this.head, true);
                 ci.cancel();
@@ -37,7 +37,7 @@ public class BipedEntityModelMixin {
 
     @Inject(method = "poseLeftArm", at = @At("HEAD"), cancellable = true)
     private void positionCustomLeftArm(HumanoidRenderState state, CallbackInfo ci) {
-        if (state instanceof BipedEntityRenderStateAccess access && access.antique$getEntity().getUseItem().getItem() instanceof MyriadToolItem) {
+        if (state instanceof BipedEntityRenderStateAccess access && access.antique$getEntity() != null && access.antique$getEntity().getUseItem().getItem() instanceof MyriadToolItem) {
             if (access.antique$getEntity().getUseItem().getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).toolBit().is(AntiqueItems.MYRIAD_AXE_HEAD)) {
                 MyriadAxePosing.hold(this.rightArm, this.leftArm, this.head, false);
                 ci.cancel();

@@ -59,7 +59,7 @@ public class ClothManager {
         }
     }
 
-    public void tick(double length) {
+    public void tick(float gravityMultiplier, float waterGravityMultiplier, double length) {
         double delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
         ClientLevel world = Minecraft.getInstance().level;
 
@@ -95,9 +95,9 @@ public class ClothManager {
                 double smoothDrag = Mth.lerp(delta * 0.1, previousDrag, newDrag);
 
                 // Apply gravity
-                var gravity = 0.05;
+                var gravity = 0.05 * gravityMultiplier;
                 if(state.getBlock() == Blocks.WATER) {
-                    gravity *= -0.5;
+                    gravity *= waterGravityMultiplier;
                 }
                 gravity /= 1;
 
@@ -189,7 +189,7 @@ public class ClothManager {
         return null;
     }
 
-    public void renderCloth(PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier cloth, Identifier overlay, double length, double width, int bodyCount) {
+    public void renderCloth(PoseStack matrices, SubmitNodeCollector queue, int light, boolean glow, Color color, Color overlayColor, Identifier cloth, Identifier overlay, double length, double width, float gravity, float waterGravity, int bodyCount) {
         if (cloth == null) return;
 
         Vec3 position = matrixToVec(matrices);
@@ -209,7 +209,7 @@ public class ClothManager {
 
         Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
         pos = new Vector3d(danglePos);
-        this.tick(length);
+        this.tick(gravity, waterGravity, length);
 
         matrices.pushPose();
         int count = bodies.size() - 1;

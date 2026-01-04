@@ -16,7 +16,7 @@ public class HUDOverylayMixin {
     @Inject(method = "render", at = @At("HEAD"))
     private void renderOverlays(GuiGraphics context, DeltaTracker tickCounter, CallbackInfo ci) {
         Minecraft client = Minecraft.getInstance();
-        if (client != null && client.level != null && client.player != null && client.player.isShiftKeyDown()) {
+        if (client.level != null && client.player != null && client.player.isShiftKeyDown()) {
             int screenWidth = client.getWindow().getGuiScaledWidth();
             int screenHeight = client.getWindow().getGuiScaledHeight();
             PedestalTooltipRenderer.renderTooltip(context, screenWidth, screenHeight);

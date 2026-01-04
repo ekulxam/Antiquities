@@ -4,6 +4,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.hollowed.antique.Antiquities;
+import net.hollowed.antique.index.AntiqueDataComponentTypes;
+import net.hollowed.antique.items.MyriadToolItem;
 import net.hollowed.antique.networking.DyePacketPayload;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -11,6 +13,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,6 +21,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerListener;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
@@ -104,13 +108,11 @@ public class DyeingScreen extends AbstractContainerScreen<@NotNull DyeingScreenH
 		int j = this.topPos;
 		context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, i, j, 0.0F, 0.0F, this.imageWidth, this.imageHeight, 256, 256);
 
-		if (this.colorField.getValue().length() == 6) {
-			int intValue = 0;
-			try {
-				intValue = 0xFF000000 | Integer.parseInt(this.colorField.getValue(), 16);
-			} catch (NumberFormatException e) {
-				System.err.println("Invalid hexadecimal string format: " + e.getMessage());
-			}
+		ItemStack result = this.menu.getResult();
+		if (!result.isEmpty()) {
+			int intValue = 0xFF000000 | (result.getItem() instanceof MyriadToolItem
+					? result.getOrDefault(AntiqueDataComponentTypes.MYRIAD_TOOL, Antiquities.getDefaultMyriadTool()).clothColor()
+					: result.getOrDefault(DataComponents.DYED_COLOR, new DyedItemColor(0xFFFFFF)).rgb());
 			context.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, i + 1, j + 3, 0.0F, 176.0F, 174, 80, 256, 256, intValue);
 		}
 	}

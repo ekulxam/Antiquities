@@ -9,17 +9,18 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.entity.layers.RenderLayer;
 import net.minecraft.client.renderer.entity.state.ArmedEntityRenderState;
+import org.jetbrains.annotations.NotNull;
 
 @Environment(EnvType.CLIENT)
 public class PaleWardenHeldItemFeatureRenderer<S extends ArmedEntityRenderState, M extends EntityModel<S> & ArmedModel<S>>
-        extends RenderLayer<S, M> {
+        extends RenderLayer<S, @NotNull M> {
 
-    public PaleWardenHeldItemFeatureRenderer(RenderLayerParent<S, M> featureRendererContext) {
+    public PaleWardenHeldItemFeatureRenderer(RenderLayerParent<S, @NotNull M> featureRendererContext) {
         super(featureRendererContext);
     }
 
     @Override
-    public void submit(PoseStack matrices, SubmitNodeCollector queue, int light, S state, float limbAngle, float limbDistance) {
+    public void submit(@NotNull PoseStack matrices, @NotNull SubmitNodeCollector queue, int light, S state, float limbAngle, float limbDistance) {
 //        this.renderItem(armedEntityRenderState.rightHandItemState, Arm.RIGHT, matrixStack, vertexConsumerProvider, light);
 //        this.renderItem(armedEntityRenderState.leftHandItemState, Arm.LEFT, matrixStack, vertexConsumerProvider, light);
     }

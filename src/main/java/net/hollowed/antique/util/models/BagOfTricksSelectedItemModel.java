@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -22,7 +23,7 @@ public class BagOfTricksSelectedItemModel implements ItemModel {
 
     public BagOfTricksSelectedItemModel() {}
 
-    public void update(ItemStackRenderState state, ItemStack stack, ItemModelResolver resolver, ItemDisplayContext displayContext, @Nullable ClientLevel world, @Nullable ItemOwner heldItemContext, int seed) {
+    public void update(ItemStackRenderState state, ItemStack stack, @NotNull ItemModelResolver resolver, @NotNull ItemDisplayContext displayContext, @Nullable ClientLevel world, @Nullable ItemOwner heldItemContext, int seed) {
         state.appendModelIdentityElement(this);
         List<ItemStack> list = stack.getOrDefault(AntiqueDataComponentTypes.SATCHEL_STACK, List.of(ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY));
         if (BagOfTricksItem.getInternalIndex(stack) >= 0 && !list.isEmpty() && BagOfTricksItem.getInternalIndex(stack) < list.size()) {
@@ -37,15 +38,15 @@ public class BagOfTricksSelectedItemModel implements ItemModel {
     public record Unbaked() implements ItemModel.Unbaked {
         public static final MapCodec<net.hollowed.antique.util.models.BagOfTricksSelectedItemModel.Unbaked> CODEC = MapCodec.unit(new net.hollowed.antique.util.models.BagOfTricksSelectedItemModel.Unbaked());
 
-        public MapCodec<net.hollowed.antique.util.models.BagOfTricksSelectedItemModel.Unbaked> type() {
+        public @NotNull MapCodec<net.hollowed.antique.util.models.BagOfTricksSelectedItemModel.Unbaked> type() {
             return CODEC;
         }
 
-        public ItemModel bake(BakingContext context) {
+        public @NotNull ItemModel bake(@NotNull BakingContext context) {
             return BagOfTricksSelectedItemModel.INSTANCE;
         }
 
-        public void resolveDependencies(Resolver resolver) {
+        public void resolveDependencies(@NotNull Resolver resolver) {
         }
     }
 }

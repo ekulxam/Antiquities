@@ -57,6 +57,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
@@ -70,6 +71,7 @@ public class IllusionerCloneEntity extends SpellcasterIllager implements RangedA
     @Nullable
     private LivingEntity owner;
 
+    @SuppressWarnings("all")
     public IllusionerCloneEntity(EntityType<? extends IllusionerCloneEntity> entityType, Level world) {
         super(entityType, world);
         this.xpReward = 5;
@@ -92,13 +94,13 @@ public class IllusionerCloneEntity extends SpellcasterIllager implements RangedA
     }
 
     @Override
-    protected void addAdditionalSaveData(ValueOutput view) {
+    protected void addAdditionalSaveData(@NotNull ValueOutput view) {
         super.addAdditionalSaveData(view);
         view.storeNullable("Owner", UUIDUtil.CODEC, this.ownerUuid);
     }
 
     @Override
-    protected void readAdditionalSaveData(ValueInput view) {
+    protected void readAdditionalSaveData(@NotNull ValueInput view) {
         super.readAdditionalSaveData(view);
         this.setOwner(view.read("Owner", UUIDUtil.CODEC).orElse(null));
     }
@@ -107,12 +109,12 @@ public class IllusionerCloneEntity extends SpellcasterIllager implements RangedA
         return Monster.createMonsterAttributes().add(Attributes.MOVEMENT_SPEED, 0.5).add(Attributes.FOLLOW_RANGE, 18.0).add(Attributes.MAX_HEALTH, 1.0);
     }
 
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor world, DifficultyInstance difficulty, EntitySpawnReason spawnReason, @Nullable SpawnGroupData entityData) {
+    public SpawnGroupData finalizeSpawn(@NotNull ServerLevelAccessor world, @NotNull DifficultyInstance difficulty, @NotNull EntitySpawnReason spawnReason, @Nullable SpawnGroupData entityData) {
         this.setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.BOW));
         return super.finalizeSpawn(world, difficulty, spawnReason, entityData);
     }
 
-    public SoundEvent getCelebrateSound() {
+    public @NotNull SoundEvent getCelebrateSound() {
         return SoundEvents.ILLUSIONER_AMBIENT;
     }
 
@@ -120,29 +122,29 @@ public class IllusionerCloneEntity extends SpellcasterIllager implements RangedA
         return SoundEvents.ILLUSIONER_AMBIENT;
     }
 
-    protected SoundEvent getDeathSound() {
+    protected @NotNull SoundEvent getDeathSound() {
         return SoundEvents.ILLUSIONER_DEATH;
     }
 
-    protected SoundEvent getHurtSound(DamageSource source) {
+    protected @NotNull SoundEvent getHurtSound(@NotNull DamageSource source) {
         return SoundEvents.ILLUSIONER_HURT;
     }
 
-    protected SoundEvent getCastingSoundEvent() {
+    protected @NotNull SoundEvent getCastingSoundEvent() {
         return SoundEvents.ILLUSIONER_CAST_SPELL;
     }
 
-    public void applyRaidBuffs(ServerLevel world, int wave, boolean unused) {
+    public void applyRaidBuffs(@NotNull ServerLevel world, int wave, boolean unused) {
     }
 
     @Override
-    public boolean isInvulnerableTo(ServerLevel world, DamageSource source) {
+    public boolean isInvulnerableTo(@NotNull ServerLevel world, DamageSource source) {
         if (source.is(DamageTypes.FIREWORKS)) return true;
         return super.isInvulnerableTo(world, source);
     }
 
     @Override
-    public void die(DamageSource damageSource) {
+    public void die(@NotNull DamageSource damageSource) {
         for (int j = 0; j < 24; ++j) {
             this.level().addParticle(ParticleTypes.CLOUD, this.getX() + Math.random() - 0.5, this.getRandomY(), this.getZ() + Math.random() - 0.5, 0.0, 0.1, 0.0);
         }
@@ -216,7 +218,7 @@ public class IllusionerCloneEntity extends SpellcasterIllager implements RangedA
         }
     }
 
-    public AbstractIllager.IllagerArmPose getArmPose() {
+    public AbstractIllager.@NotNull IllagerArmPose getArmPose() {
         if (this.isCastingSpell()) {
             return IllagerArmPose.SPELLCASTING;
         } else {

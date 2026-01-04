@@ -236,26 +236,26 @@ public class Antiquities implements ModInitializer {
 
 			itemGroup.accept(getMyriadShovelStack());
 
-//			ItemStack myriadCleaver = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
-//			myriadCleaver.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
-//					ItemStack.EMPTY,
-//					"antique:cloth",
-//					"",
-//					0xD43B69,
-//					0xFFFFFF
-//			));
-//			MyriadToolItem.setStoredStack(myriadCleaver, AntiqueItems.MYRIAD_CLEAVER_BLADE.getDefaultInstance());
-//			itemGroup.accept(myriadCleaver);
+			ItemStack myriadCleaver = AntiqueItems.MYRIAD_TOOL.getDefaultInstance();
+			myriadCleaver.set(AntiqueDataComponentTypes.MYRIAD_TOOL, new MyriadToolComponent(
+					ItemStack.EMPTY,
+					"antique:cloth",
+					"",
+					0xD43B69,
+					0xFFFFFF
+			));
+			MyriadToolItem.setStoredStack(myriadCleaver, AntiqueItems.MYRIAD_CLEAVER_BLADE.getDefaultInstance());
+			itemGroup.accept(myriadCleaver);
 
 			itemGroup.accept(AntiqueItems.MYRIAD_PICK_HEAD);
 			itemGroup.accept(AntiqueItems.MYRIAD_AXE_HEAD);
 			itemGroup.accept(AntiqueItems.MYRIAD_SHOVEL_HEAD);
-//			itemGroup.accept(AntiqueItems.MYRIAD_CLEAVER_BLADE);
+			itemGroup.accept(AntiqueItems.MYRIAD_CLEAVER_BLADE);
 			itemGroup.accept(AntiqueItems.RAW_MYRIAD);
 			itemGroup.accept(AntiqueItems.MYRIAD_INGOT);
-//			itemGroup.accept(AntiqueItems.MIRAGE_SILK);
-//			itemGroup.accept(AntiqueItems.BAG_OF_TRICKS);
-//			itemGroup.accept(AntiqueItems.SMOKE_BOMB);
+			itemGroup.accept(AntiqueItems.MIRAGE_SILK);
+			itemGroup.accept(AntiqueItems.BAG_OF_TRICKS);
+			itemGroup.accept(AntiqueItems.SMOKE_BOMB);
 			itemGroup.accept(AntiqueItems.MYRIAD_PAULDRONS);
 			itemGroup.accept(AntiqueItems.SATCHEL);
 			itemGroup.accept(AntiqueItems.FUR_BOOTS);

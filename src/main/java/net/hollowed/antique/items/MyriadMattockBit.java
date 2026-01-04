@@ -43,6 +43,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -70,7 +72,7 @@ public class MyriadMattockBit extends MyriadToolBitItem{
     }
 
     @Override
-    public InteractionResult interactLivingEntity(ItemStack stack, Player user, LivingEntity entity, InteractionHand hand) {
+    public @NotNull InteractionResult interactLivingEntity(@NotNull ItemStack stack, @NotNull Player user, @NotNull LivingEntity entity, @NotNull InteractionHand hand) {
         if (entity instanceof Sheep) {
             user.swing(hand);
         }
@@ -78,7 +80,7 @@ public class MyriadMattockBit extends MyriadToolBitItem{
     }
 
     @Override
-    public boolean canDestroyBlock(ItemStack stack, BlockState state, Level world, BlockPos pos, LivingEntity miner) {
+    public boolean canDestroyBlock(@NotNull ItemStack stack, BlockState state, @NotNull Level world, @NotNull BlockPos pos, @NotNull LivingEntity miner) {
         if (state.getBlock() instanceof CropBlock cropBlock && !(state.getBlock() instanceof BeetrootBlock)) {
             if (state.getValue(CropBlock.AGE) != cropBlock.getMaxAge() && !miner.isShiftKeyDown()) {
                 return false;
@@ -100,7 +102,7 @@ public class MyriadMattockBit extends MyriadToolBitItem{
     }
 
     @Override
-    public boolean mineBlock(ItemStack stack, Level world, BlockState state, BlockPos pos, LivingEntity miner) {
+    public boolean mineBlock(@NotNull ItemStack stack, @NotNull Level world, BlockState state, @NotNull BlockPos pos, @NotNull LivingEntity miner) {
         if (state.getBlock() instanceof CropBlock cropBlock && !(state.getBlock() instanceof BeetrootBlock)) {
             if (state.getValue(CropBlock.AGE) == cropBlock.getMaxAge() && !miner.isShiftKeyDown()) {
                 BlockState newState = cropBlock.defaultBlockState();

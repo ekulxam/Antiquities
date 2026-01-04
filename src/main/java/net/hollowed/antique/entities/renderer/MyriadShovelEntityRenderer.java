@@ -22,17 +22,19 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import org.jetbrains.annotations.NotNull;
+
 import java.awt.*;
 
 @Environment(EnvType.CLIENT)
-public class MyriadShovelEntityRenderer extends EntityRenderer<MyriadShovelEntity, MyriadShovelRenderState> {
+public class MyriadShovelEntityRenderer extends EntityRenderer<@NotNull MyriadShovelEntity, @NotNull MyriadShovelRenderState> {
 
 	public MyriadShovelEntityRenderer(EntityRendererProvider.Context context) {
 		super(context);
 	}
 
 	@Override
-	public void submit(MyriadShovelRenderState myriadShovelRenderState, PoseStack matrixStack, SubmitNodeCollector queue, CameraRenderState cameraState) {
+	public void submit(MyriadShovelRenderState myriadShovelRenderState, PoseStack matrixStack, @NotNull SubmitNodeCollector queue, @NotNull CameraRenderState cameraState) {
 		matrixStack.pushPose();
 
 		float multiplier = 1.25F;
@@ -79,6 +81,8 @@ public class MyriadShovelEntityRenderer extends EntityRenderer<MyriadShovelEntit
 						Identifier.parse(myriadShovelRenderState.pattern),
 						data.length() != 0 ? data.length() : 1.4,
 						data.width() != 0 ? data.width() : 0.1,
+						data.gravity(),
+						data.waterGravity(),
 						data.bodyAmount() != 0 ? data.bodyAmount() : 8
 				);
 			}

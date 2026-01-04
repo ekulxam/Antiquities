@@ -73,8 +73,8 @@ public final class AntiqueOreVeinSampler {
 		final BlockState stoneExtra;
 		final BlockState deepslateStone;
 		final BlockState deepslateStoneExtra;
-		protected final int minY;
-		protected final int maxY;
+		private final int minY;
+		private final int maxY;
 
 		VeinType(final BlockState ore, final BlockState deepslateOre, final BlockState rawOreBlock, final BlockState stone, final BlockState stoneExtra, final BlockState deepslateStone, final BlockState deepslateStoneExtra, final int minY, final int maxY) {
 			this.ore = ore;
