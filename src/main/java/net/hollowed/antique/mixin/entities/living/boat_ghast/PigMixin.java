@@ -17,9 +17,10 @@ public abstract class PigMixin extends Animal {
         super(entityType, world);
     }
 
+    @SuppressWarnings("all")
     @Inject(method = "getControllingPassenger", at = @At("HEAD"), cancellable = true)
     public void passenger(CallbackInfoReturnable<LivingEntity> cir) {
-        if (this.getLeashData().leashHolder != null) {
+        if (this.getLeashData() != null && this.getLeashData().leashHolder != null) {
             cir.setReturnValue(null);
         }
     }

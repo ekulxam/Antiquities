@@ -265,8 +265,6 @@ public class AntiquitiesClient implements ClientModInitializer {
             This entire section is ARR
          */
 
-
-
 //        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
 //            MinecraftClient client = MinecraftClient.getInstance();
 //            if (client.player == null) return;
