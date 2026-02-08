@@ -17,6 +17,7 @@ import java.util.Map;
 public class ClothBody {
 
     Vector3d pos;
+    final Vector3d prevPos = new Vector3d();
     Vector3d posCache;
     Vector3d accel = new Vector3d();
     boolean isPinned = false;
@@ -27,7 +28,8 @@ public class ClothBody {
     }
 
     public void update(double delta) {
-        Vector3d velocity = new Vector3d(pos).sub(posCache).mul(0.96); // Apply drag here
+        this.prevPos.set(this.pos);
+        Vector3d velocity = new Vector3d(pos).sub(prevPos).mul(0.96); // Apply drag here
         posCache.set(pos);
         Vector3d accelerationTerm = new Vector3d(accel).mul(delta * 0.5);
         if (!isPinned) pos.add(velocity).add(accelerationTerm);
@@ -46,12 +48,12 @@ public class ClothBody {
         Vector3d correction = axis.normalize().mul(delta * 0.7);
 
         // Apply the correction
-//        if (!isPinned) pos.add(correction);
+        //if (!isPinned) pos.add(correction);
         other.pos.sub(correction);
     }
 
-    public Vector3d getPos() {
-        return new Vector3d(pos);
+    public Vector3d getPos(float delta) {
+        return new Vector3d(prevPos).lerp(pos, delta);
     }
 
     public Vector3d entityCollisionPerchance(ClientLevel world, Entity except) {

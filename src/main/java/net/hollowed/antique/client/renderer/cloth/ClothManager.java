@@ -23,7 +23,9 @@ import org.joml.Vector4f;
 import com.mojang.blaze3d.vertex.PoseStack;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class ClothManager {
@@ -35,6 +37,8 @@ public class ClothManager {
     public static RenderType getOverlayRenderLayer(String cloth, Identifier overlay) {
         return RenderTypes.itemEntityTranslucentCull(Identifier.parse(overlay.getNamespace() + ":textures/overlay/" + overlay.getPath() + cloth + ".png"));
     }
+
+    public static final Map<ClothManager, RenderData> MANAGERS_TO_TICK = new HashMap<>();
 
     public Vector3d pos = new Vector3d();
     public ArrayList<ClothBody> bodies = new ArrayList<>();
@@ -95,7 +99,7 @@ public class ClothManager {
                 double smoothDrag = Mth.lerp(delta * 0.1, previousDrag, newDrag);
 
                 // Apply gravity
-                var gravity = 0.05 * gravityMultiplier;
+                var gravity = /*0.05 * */gravityMultiplier;
                 if(state.getBlock() == Blocks.WATER) {
                     gravity *= waterGravityMultiplier;
                 }
@@ -125,8 +129,9 @@ public class ClothManager {
             List<Vector3d> accels = new ArrayList<>();
 
             for (ClothBody body : bodies) {
-                body.slideOutOfBlocks(world);
-                accels.add(body.entityCollisionPerchance(world, entity));
+                //body.slideOutOfBlocks(world);
+                accels.add(new Vector3d(0, 0, 0));
+                //accels.add(body.entityCollisionPerchance(world, entity));
                 body.pos.x = Mth.lerp(0.125, body.pos.x, body.posCache.x);
                 body.pos.y = Mth.lerp(0.125, body.pos.y, body.posCache.y);
                 body.pos.z = Mth.lerp(0.125, body.pos.z, body.posCache.z);
@@ -209,17 +214,25 @@ public class ClothManager {
 
         Vector3d danglePos = new Vector3d(position.x, position.y, position.z);
         pos = new Vector3d(danglePos);
-        this.tick(gravity, waterGravity, length);
+        MANAGERS_TO_TICK.put(this, new RenderData(gravity, waterGravity, length));
+        //this.tick(gravity, waterGravity, length);
 
         matrices.pushPose();
         int count = bodies.size() - 1;
+
+        RenderType clothLayer = getClothRenderLayer(cloth);
+        String clothType = !Objects.equals(cloth.getPath(), "cloth") ? cloth.getPath().substring(0, cloth.getPath().indexOf("_")) : "default";
+        RenderType overlayLayer = !overlay.equals(Identifier.parse("")) ? getOverlayRenderLayer("_" + clothType, overlay) : null;
+
         for (int i = 0; i < count; i++) {
 
             ClothBody body = bodies.get(i);
             ClothBody nextBody = bodies.get(i + 1);
 
-            var pos = body.getPos();
-            var nextPos = nextBody.getPos();
+            float delta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaTicks();
+
+            var pos = body.getPos(delta);
+            var nextPos = nextBody.getPos(delta);
 
             float uvTop = (1f / count) * i;
             float uvBot = uvTop + (1f / count);
@@ -250,15 +263,11 @@ public class ClothManager {
             lastB = c;
             lastThicknessVec = thicknessVec;
 
-            RenderType clothLayer = getClothRenderLayer(cloth);
-            String clothType = !Objects.equals(cloth.getPath(), "cloth") ? cloth.getPath().substring(0, cloth.getPath().indexOf("_")) : "default";
-            RenderType overlayLayer = getOverlayRenderLayer("_" + clothType, overlay);
-
             drawQuad(
                     matrices,
                     new Matrix4f(),
                     clothLayer,
-                    !overlay.equals(Identifier.parse("")) ? overlayLayer : null,
+                    overlayLayer,
                     queue,
                     a, b, c, d,
                     new Vec2(0f, uvTop),
@@ -303,5 +312,8 @@ public class ClothManager {
                 vertexConsumer.addVertex(matrix, (float) ((float) posD.x + cam.x), (float) ((float) posD.y + cam.y), (float) ((float) posD.z + cam.z)).setOverlay(OverlayTexture.NO_OVERLAY).setNormal(0, 1, 0).setLight(glow ? 255 : light).setUv(uvD.x, uvD.y).setColor(overlayColor.getRed(), overlayColor.getGreen(), overlayColor.getBlue(), overlayColor.getAlpha());
             }));
         }
+    }
+
+    public record RenderData(float gravity, float waterGravity, double length) {
     }
 }

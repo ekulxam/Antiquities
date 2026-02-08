@@ -10,6 +10,8 @@ import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.hollowed.antique.client.armor.models.VanillaArmorModel;
 import net.hollowed.antique.client.armor.renderers.AdventureArmorFeatureRenderer;
 import net.hollowed.antique.client.armor.renderers.VanillaArmorFeatureRenderer;
+import net.hollowed.antique.client.renderer.cloth.ClothBody;
+import net.hollowed.antique.client.renderer.cloth.ClothManager;
 import net.hollowed.antique.index.*;
 import net.hollowed.antique.blocks.screens.DyeingScreen;
 import net.hollowed.antique.blocks.entities.renderer.PedestalRenderer;
@@ -47,6 +49,7 @@ import net.minecraft.world.phys.Vec3;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class AntiquitiesClient implements ClientModInitializer {
 
@@ -187,6 +190,16 @@ public class AntiquitiesClient implements ClientModInitializer {
                     lastUseTime = currentTime;
                 }
             }
+        });
+
+        ClientTickEvents.END_CLIENT_TICK.register(minecraft -> {
+            for (Map.Entry<ClothManager, ClothManager.RenderData> entry : ClothManager.MANAGERS_TO_TICK.entrySet()) {
+                ClothManager manager = entry.getKey();
+                ClothManager.RenderData data = entry.getValue();
+                //manager.bodies.forEach(ClothBody::tick);
+                entry.getKey().tick(data.gravity(), data.waterGravity(), data.length());
+            }
+            ClothManager.MANAGERS_TO_TICK.clear();
         });
 
         ItemTooltipCallback.EVENT.register((itemStack, tooltipContext, tooltipType, list) -> {
